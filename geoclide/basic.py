@@ -327,6 +327,12 @@ class Ray(object):
             self.mint = o.mint
             self.maxt = o.maxt
         else:
+            if (not isinstance(o, Point)):
+                raise ValueError("The parameter o must be a Point or a Ray")
+            if (not isinstance(d, Vector)):
+                raise ValueError("The parameter d must only be a Vector")
+            if (np.isscalar(mint) or np.isscalar(maxt)):
+                raise ValueError("The parameters mint and maxt must be both scalars")
             if (mint > maxt):
                 raise ValueError("maxt must be greater than mint")
             self.o = o
@@ -431,13 +437,12 @@ class BBox(object):
         return f'pmin=({self.pmin.x}, {self.pmin.y}, {self.pmin.z}), pmax=({self.pmax.x}, {self.pmax.y}, {self.pmax.z})'
             
     def get_vertices(self):
-        '''
-        get the 8 vertices of a BBox as a list of points.
-        p0==pMin, then next 3 points are in the plane
-        pMin.z,  the order being anti-clockwise.
-        Next 4 points are in the plane pMax.z, starting with point
-        just above p0, so pMax==p6
-        '''
+        """
+        Get the 8 vertices of a BBox as a list of points
+
+        - p0=pmin, then next 3 points are in the XY plane at z=pmin.z the order being anti-clockwise
+        - next 4 points are in the XY plane at z=pmax.z, starting with point p4 just above p0, so p6=pmax
+        """
         return [
             Point(self.pmin.x,self.pmin.y,self.pmin.z),
             Point(self.pmax.x,self.pmin.y,self.pmin.z),
@@ -450,9 +455,9 @@ class BBox(object):
         ]
 
     def is_inside(self, P):
-        '''
-        test if Point P is included in BBox
-        '''
+        """
+        Test if Point P is included in BBox
+        """
         return (P.x >= self.pmin.x) and (P.x <= self.pmax.x) and \
                (P.y >= self.pmin.y) and (P.y <= self.pmax.y) and \
                (P.z >= self.pmin.z) and (P.z <= self.pmax.z)
