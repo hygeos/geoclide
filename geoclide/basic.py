@@ -537,12 +537,12 @@ class BBox(object):
         return np.array(list((map(lambda x: x in self.vertices, b.vertices))))
 
     def commonFace(self, b, Fill_value=None):
-        ''' 
+        """
         Return the face index of the BBox1 which is common to BBox2 with
         the convention of index from 0 to 5, for +X,-X,+Y,-Y,+Z,-Z faces
         # (en.wikipedia.org/wiki/Cube_mapping)
         return Fill if there is no common face
-        '''
+        """
         ok = self.commonVertices(b)
         if ok.sum()==4:
             n  = np.arange(8)[ok]
