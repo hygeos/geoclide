@@ -1,1 +1,1 @@
-from geoclide.geometry import Vector, Point, Normal, Ray, BBox
+from geoclide.basic import Vector, Point, Normal, Ray, BBox
