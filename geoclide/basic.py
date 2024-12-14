@@ -19,7 +19,8 @@ class Vector(object):
 
     Exemples
     --------
-    >>> v1 = Vector(0.,0.,1.)
+    >>> import geoclide as gc
+    >>> v1 = gc.Vector(0.,0.,1.)
     >>> v1
     >>> Vector(0,0,1)
     """
@@ -113,7 +114,8 @@ class Point(object):
 
     Exemples
     --------
-    >>> p1 = Point(0.,0.,1.)
+    >>> import geoclide as gc
+    >>> p1 = gc.Point(0.,0.,1.)
     >>> p1
     >>> Point(0,0,1)
     """
@@ -206,7 +208,8 @@ class Normal(object):
 
     Exemples
     --------
-    >>> n1 = Normal(0.,0.,1.)
+    >>> import geoclide as gc
+    >>> n1 = gc.Normal(0.,0.,1.)
     >>> n1
     >>> Normal(0,0,1)
     """
@@ -312,10 +315,11 @@ class Ray(object):
 
     Examples
     --------
-    >>> o = Point(0., 50., 2.)
-    >>> d = Vector(0.,0.,1.)
-    >>> r1 = Ray(o, d, mint=20, maxt=100)
-    >>> r1
+    >>> import geoclide as gc
+    >>> o = gc.Point(0., 50., 2.)
+    >>> d = gc.Vector(0.,0.,1.)
+    >>> r = gc.Ray(o, d, mint=20, maxt=100)
+    >>> r
     r(t) = (0.0, 50.0, 2.0) + t*(0.0, 0.0, 1.0) with t ∈ [20,100[
     """
     __point_ini = Point()
@@ -369,9 +373,10 @@ class BBox(object):
 
     Examples
     --------
-    >>> p1 = Point(0., 0., 0.)
-    >>> p2 = Point(1., 1., 1.)
-    >>> b1 = BBox(p1, p2)
+    >>> import geoclide as gc
+    >>> p1 = gc.Point(0., 0., 0.)
+    >>> p2 = gc.Point(1., 1., 1.)
+    >>> b1 = gc.BBox(p1, p2)
     >>> b1
     pmin=Point(0.0, 0.0, 0.0), pmax=Point(1.0, 1.0, 1.0)
     '''
@@ -400,10 +405,11 @@ class BBox(object):
         
         Examples
         --------
-        >>> p1 = Point(0., 0., 0.)
-        >>> p2 = Point(1., 1., 1.)
-        >>> p3 = Point(1., 1., 3.)
-        >>> b1 = BBox(p1, p2)
+        >>> import geoclide as gc
+        >>> p1 = gc.Point(0., 0., 0.)
+        >>> p2 = gc.Point(1., 1., 1.)
+        >>> p3 = gc.Point(1., 1., 3.)
+        >>> b1 = gc.BBox(p1, p2)
         >>> b1
         pmin=Point(0.0, 0.0, 0.0), pmax=Point(1.0, 1.0, 1.0)
         >>> b2 = b1.union(p3)
@@ -490,13 +496,14 @@ class BBox(object):
 
         Examples
         --------
-        >>> p1 = Point(0., 0., 0.)
-        >>> p2 = Point(1., 1., 1.)
-        >>> b1 = BBox(p1, p2)
+        >>> import geoclide as gc
+        >>> p1 = gc.Point(0., 0., 0.)
+        >>> p2 = gc.Point(1., 1., 1.)
+        >>> b1 = gc.BBox(p1, p2)
         pmin=Point(0.0, 0.0, 0.0), pmax=Point(1.0, 1.0, 1.0)
-        >>> p3 = Point(0.5, 0.5, 0.1)
-        >>> v1 = Vector(0., 0., 1.)
-        >>> r1 = Ray(p3, v1)
+        >>> p3 = gc.Point(0.5, 0.5, 0.1)
+        >>> v1 = gc.Vector(0., 0., 1.)
+        >>> r1 = gc.Ray(p3, v1)
         >>> r1
         r(t) = (0.5, 0.5, 0.1) + t*(0.0, 0.0, 1.0) with t ∈ [0,inf[
         >>> t0, t1, is_intersection = b1.intersectP(r1)
