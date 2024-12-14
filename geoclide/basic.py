@@ -352,13 +352,14 @@ class Ray(object):
         else:
             return (self.o + self.d*t)
         
+    def __str__(self):
+        return f'({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
+               f' with t ∈ [{self.mint},{self.maxt}['
+        
     def __repr__(self):
         return f'r(t) = ({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
                f' with t ∈ [{self.mint},{self.maxt}['
     
-    def __str__(self):
-        return f'({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
-               f' with t ∈ [{self.mint},{self.maxt}['
 
 class BBox(object):
     '''
@@ -388,6 +389,26 @@ class BBox(object):
             self.pmax = Point(max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z))
         else:
             raise ValueError('Bounding Box constructor accepts only points')
+        
+        # The 8 vertices of the BBox
+        # - p0=pmin, then next 3 points are in the XY plane at z=pmin.z the order being anti-clockwise
+        # - next 4 points are in the XY plane at z=pmax.z, starting with point p4 just above p0, so p6=pmax
+        self.p0 = Point(self.pmin.x,self.pmin.y,self.pmin.z)
+        self.p1 = Point(self.pmax.x,self.pmin.y,self.pmin.z)
+        self.p2 = Point(self.pmax.x,self.pmax.y,self.pmin.z)
+        self.p3 = Point(self.pmin.x,self.pmax.y,self.pmin.z)
+        self.p4 = Point(self.pmin.x,self.pmin.y,self.pmax.z)
+        self.p5 = Point(self.pmax.x,self.pmin.y,self.pmax.z)
+        self.p6 = Point(self.pmax.x,self.pmax.y,self.pmax.z)
+        self.p7 = Point(self.pmin.x,self.pmax.y,self.pmax.z)
+        self.vertices = [self.p0, self.p1, self.p2, self.p3,
+                         self.p4, self.p5, self.p6, self.p7]
+        
+    def __str__(self):
+        return f'pmin=({self.pmin.x}, {self.pmin.y}, {self.pmin.z}), pmax=({self.pmax.x}, {self.pmax.y}, {self.pmax.z})'
+        
+    def __repr__(self):
+        return f'pmin=Point({self.pmin.x}, {self.pmin.y}, {self.pmin.z}), pmax=Point({self.pmax.x}, {self.pmax.y}, {self.pmax.z})'
         
     def union(self, b):
         """
@@ -436,30 +457,6 @@ class BBox(object):
 
         return b_union
 
-    def __repr__(self):
-        return f'pmin=Point({self.pmin.x}, {self.pmin.y}, {self.pmin.z}), pmax=Point({self.pmax.x}, {self.pmax.y}, {self.pmax.z})'
-    
-    def __str__(self):
-        return f'pmin=({self.pmin.x}, {self.pmin.y}, {self.pmin.z}), pmax=({self.pmax.x}, {self.pmax.y}, {self.pmax.z})'
-            
-    def get_vertices(self):
-        """
-        Get the 8 vertices of a BBox as a list of points
-
-        - p0=pmin, then next 3 points are in the XY plane at z=pmin.z the order being anti-clockwise
-        - next 4 points are in the XY plane at z=pmax.z, starting with point p4 just above p0, so p6=pmax
-        """
-        return [
-            Point(self.pmin.x,self.pmin.y,self.pmin.z),
-            Point(self.pmax.x,self.pmin.y,self.pmin.z),
-            Point(self.pmax.x,self.pmax.y,self.pmin.z),
-            Point(self.pmin.x,self.pmax.y,self.pmin.z),
-            Point(self.pmin.x,self.pmin.y,self.pmax.z),
-            Point(self.pmax.x,self.pmin.y,self.pmax.z),
-            Point(self.pmax.x,self.pmax.y,self.pmax.z),
-            Point(self.pmin.x,self.pmax.y,self.pmax.z)
-        ]
-
     def is_inside(self, P):
         """
         Test if Point P is included in BBox
@@ -467,7 +464,6 @@ class BBox(object):
         return (P.x >= self.pmin.x) and (P.x <= self.pmax.x) and \
                (P.y >= self.pmin.y) and (P.y <= self.pmax.y) and \
                (P.z >= self.pmin.z) and (P.z <= self.pmax.z)
-
 
     def intersectP(self, r1) :
         """
@@ -534,36 +530,36 @@ class BBox(object):
         return t0, t1, True
 
 
-# def CommonVertices(BBox1, BBox2):
-#     ''' 
-#     return a list of boolean checking if vertices are common between BBoxes 
-#     '''
-#     return np.array(list((map(lambda x: x in BBox2.get_vertices(), BBox1.get_vertices()))))
+    def commonVertices(self, b):
+        """
+        Return a list of boolean checking if vertices are common between 2 BBoxes 
+        """
+        return np.array(list((map(lambda x: x in self.vertices, b.vertices))))
 
-# def CommonFace(BBox1, BBox2, Fill_value=None):
-#     ''' 
-#     return the face index of th BBox1 which is common to BBox2 with
-#     the convention of index from 0 to 5, for +X,-X,+Y,-Y,+Z,-Z faces
-#     # (en.wikipedia.org/wiki/Cube_mapping)
-#     return Fill if there is no common face
-#     '''
-#     ok = CommonVertices(BBox1, BBox2)
-#     if ok.sum()==4:
-#         n  = np.arange(8)[ok]
-#         if   np.array_equal(n, np.array([1,2,5,6])):
-#             return 0
-#         elif np.array_equal(n, np.array([0,3,4,7])):
-#             return 1
-#         elif np.array_equal(n, np.array([2,3,6,7])):
-#             return 2
-#         elif np.array_equal(n, np.array([0,1,4,5])):
-#             return 3
-#         elif np.array_equal(n, np.array([4,5,6,7])):
-#             return 4
-#         elif np.array_equal(n, np.array([0,1,2,3])):
-#             return 5
-#         else: return Fill_value
+    def commonFace(self, b, Fill_value=None):
+        ''' 
+        Return the face index of the BBox1 which is common to BBox2 with
+        the convention of index from 0 to 5, for +X,-X,+Y,-Y,+Z,-Z faces
+        # (en.wikipedia.org/wiki/Cube_mapping)
+        return Fill if there is no common face
+        '''
+        ok = self.commonVertices(b)
+        if ok.sum()==4:
+            n  = np.arange(8)[ok]
+            if   np.array_equal(n, np.array([1,2,5,6])):
+                return 0
+            elif np.array_equal(n, np.array([0,3,4,7])):
+                return 1
+            elif np.array_equal(n, np.array([2,3,6,7])):
+                return 2
+            elif np.array_equal(n, np.array([0,1,4,5])):
+                return 3
+            elif np.array_equal(n, np.array([4,5,6,7])):
+                return 4
+            elif np.array_equal(n, np.array([0,1,2,3])):
+                return 5
+            else: return Fill_value
 
-#     else :
-#         return Fill_value
+        else :
+            return Fill_value
 
