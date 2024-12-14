@@ -331,7 +331,7 @@ class Ray(object):
                 raise ValueError("The parameter o must be a Point or a Ray")
             if (not isinstance(d, Vector)):
                 raise ValueError("The parameter d must only be a Vector")
-            if (np.isscalar(mint) or np.isscalar(maxt)):
+            if (not np.isscalar(mint) or not np.isscalar(maxt)):
                 raise ValueError("The parameters mint and maxt must be both scalars")
             if (mint > maxt):
                 raise ValueError("maxt must be greater than mint")
