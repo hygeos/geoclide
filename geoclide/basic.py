@@ -9,12 +9,12 @@ class Vector(object):
     """
     Parameters
     ----------
-    x : float | Point | Vector | Normal | np.ndarray
+    x : float | Point | Vector | Normal | np.ndarray, optional
         If scalar -> x component of the vector.
         Else, circumvent the y and z parameters and take the components of the Point/Vector/Normal/np.ndarray.
-    y : float
+    y : float, optional
         The y component of the vector.
-    z : float
+    z : float, optional
         The z component of the vector.
 
     Exemples
@@ -104,12 +104,12 @@ class Point(object):
     """
     Parameters
     ----------
-    x : float | Point | Vector | Normal | np.ndarray
+    x : float | Point | Vector | Normal | np.ndarray, optional
         If scalar -> x component of the point.
         Else, circumvent the y and z parameters and take the components of the Point/Vector/Normal/np.ndarray.
-    y : float
+    y : float, optional
         The y component of the point.
-    z : float
+    z : float, optional
         The z component of the point.
 
     Exemples
@@ -198,12 +198,12 @@ class Normal(object):
     """
     Parameters
     ----------
-    x : float | Point | Vector | Normal | np.ndarray
+    x : float | Point | Vector | Normal | np.ndarray, optional
         If scalar -> x component of the normal.
         Else, circumvent the y and z parameters and take the components of the Point/Vector/Normal/np.ndarray.
-    y : float
+    y : float, optional
         The y component of the normal.
-    z : float
+    z : float, optional
         The z component of the normal.
 
     Exemples
@@ -308,9 +308,9 @@ class Ray(object):
         If the o parameter is a Ray -> circumvent all the parameters by the ray attributs
     d : Vector
         Direction of the ray
-    mint : float
+    mint : float, optional
         The minimum t value
-    maxt : float
+    maxt : float, optional
         The maximum t value
 
     Examples
@@ -322,9 +322,7 @@ class Ray(object):
     >>> r
     r(t) = (0.0, 50.0, 2.0) + t*(0.0, 0.0, 1.0) with t ∈ [20,100[
     """
-    __point_ini = Point()
-    __vector_ini = Vector()
-    def __init__(self, o = __point_ini, d = __vector_ini, mint = 0, maxt = float("inf")):
+    def __init__(self, o, d, mint = 0, maxt = float("inf")):
         if isinstance(o, Ray):
             self.o = o.o
             self.d = o.d
@@ -381,9 +379,7 @@ class BBox(object):
     >>> b1
     pmin=Point(0.0, 0.0, 0.0), pmax=Point(1.0, 1.0, 1.0)
     '''
-    __point_ini_min = Point(float("-inf"), float("-inf"), float("-inf"))
-    __point_ini_max = Point(float("inf"), float("inf"), float("inf"))
-    def __init__(self, p1 = __point_ini_min, p2 = __point_ini_max):
+    def __init__(self, p1, p2):
         if ( isinstance(p1, Point)  and isinstance(p2, Point) ):
             self.pmin = Point(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z))
             self.pmax = Point(max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z))
