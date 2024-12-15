@@ -365,9 +365,9 @@ class BBox(object):
 
     Parameters
     ----------
-    p1 : Point
+    p1 : Point, optional
         Frist point to use to create the BBox
-    p2 : Point
+    p2 : Point, optional
         Second point to use to create the BBox
 
     Examples
@@ -379,12 +379,21 @@ class BBox(object):
     >>> b1
     pmin=Point(0.0, 0.0, 0.0), pmax=Point(1.0, 1.0, 1.0)
     '''
-    def __init__(self, p1, p2):
-        if ( isinstance(p1, Point)  and isinstance(p2, Point) ):
+    def __init__(self, p1=None, p2=None):
+        if (isinstance(p1, Point)  and isinstance(p2, Point)):
             self.pmin = Point(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z))
             self.pmax = Point(max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z))
+        elif (p1 is None and p2 is None):
+            self.pmin = Point(float("inf"), float("inf"), float("inf"))
+            self.pmax = Point(float("-inf"), float("-inf"), float("-inf"))
+        elif (isinstance(p1, Point) and p2 is None):
+            self.pmin = p1
+            self.pmax = p1
+        elif (p1 is None and isinstance(p2, Point)):
+            self.pmin = p2
+            self.pmax = p2
         else:
-            raise ValueError('Bounding Box constructor accepts only points')
+            raise ValueError('The only parameters accepted are Point objects')
         
         # The 8 vertices of the BBox
         # - p0=pmin, then next 3 points are in the XY plane at z=pmin.z the order being anti-clockwise
