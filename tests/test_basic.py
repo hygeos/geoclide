@@ -105,3 +105,72 @@ def test_ray(p_arr, v_arr):
     r2 = gc.Ray(p1,v1,0.5, 20.)
     assert (r2.mint == 0.5)
     assert (r2.maxt == 20.)
+
+
+def test_bbox():
+    # test attributs
+    p1 = gc.Point(1., 1., 1.)
+    p2 = gc.Point(2., 2., 3.)
+    b1 = gc.BBox(p1, p2)
+    minx = min(p1.x, p2.x)
+    miny = min(p1.y, p2.y)
+    minz = min(p1.z, p2.z)
+    maxx = max(p1.x, p2.x)
+    maxy = max(p1.y, p2.y)
+    maxz = max(p1.z, p2.z)
+    pmin = gc.Point(minx, miny, minz)
+    pmax = gc.Point(maxx, maxy, maxz)
+    assert (b1.pmin == pmin)
+    assert (b1.pmax == pmax)
+    p = [pmin]
+    p.append(gc.Point(pmax.x,pmin.y,pmin.z))
+    p.append(gc.Point(pmax.x,pmax.y,pmin.z))
+    p.append(gc.Point(pmin.x,pmax.y,pmin.z))
+    p.append(gc.Point(pmin.x,pmin.y,pmax.z))
+    p.append(gc.Point(pmax.x,pmin.y,pmax.z))
+    p.append(pmax)
+    p.append(gc.Point(pmin.x,pmax.y,pmax.z))
+    assert (b1.p0 == p[0])
+    assert (b1.p1 == p[1])
+    assert (b1.p2 == p[2])
+    assert (b1.p3 == p[3])
+    assert (b1.p4 == p[4])
+    assert (b1.p5 == p[5])
+    assert (b1.p6 == p[6])
+    assert (b1.p7 == p[7])
+    for i in range (len(b1.vertices)):
+        assert (b1.vertices[i] == p[i])
+
+    # test union method
+    p3 = gc.Point(3., 3., 3.)
+    b2 = b1.union(p3)
+    assert (b2.pmin.x == min(b1.pmin.x, p3.x))
+    assert (b2.pmin.y == min(b1.pmin.y, p3.y))
+    assert (b2.pmin.z == min(b1.pmin.z, p3.z))
+    assert (b2.pmax.x == max(b1.pmax.x, p3.x))
+    assert (b2.pmax.y == max(b1.pmax.y, p3.y))
+    assert (b2.pmax.z == max(b1.pmax.z, p3.z))
+    b3 = b1.union(b2)
+    assert (b3.pmin.x == min(b1.pmin.x, b2.pmin.x))
+    assert (b3.pmin.y == min(b1.pmin.y, b2.pmin.y))
+    assert (b3.pmin.z == min(b1.pmin.z, b2.pmin.z))
+    assert (b3.pmax.x == max(b1.pmax.x, b2.pmax.x))
+    assert (b3.pmax.y == max(b1.pmax.y, b2.pmax.y))
+    assert (b3.pmax.z == max(b1.pmax.z, b2.pmax.z))
+
+    # test is_inside method
+    pIn = gc.Point(1.5, 1.5, 1.5)
+    pOut = gc.Point(0., 0., 0.)
+    assert (b3.is_inside(pIn))
+    assert (not b3.is_inside(pOut))
+
+    # test commonVertices method
+    bc1 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(2.5, 2.5, 2.5))
+    bc2 = gc.BBox(gc.Point(2.5, 0., 0.), gc.Point(5., 2.5, 2.5))
+    # The vertices of bc1 in common with the bc2 vertices are p1, p2, p5 and p6: 
+    combc1 = np.array([False, True, True, False, False, True, True, False])
+    # The vertices of bc2 in common with the bc1 vertices are p0, p3, p4 and p7: 
+    combc2 = np.array([True, False, False, True, True, False, False, True])
+    assert (np.all(bc2.commonVertices(bc1) == combc1))
+    assert (np.all(bc1.commonVertices(bc2) == combc2))
+

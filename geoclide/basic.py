@@ -546,7 +546,22 @@ class BBox(object):
 
     def commonVertices(self, b):
         """
-        Return a list of boolean checking if vertices are common between 2 BBoxes 
+        Return a list of boolean checking which vertices of BBox b are common to
+        the initial BBox (i.e. self)
+
+        Parameters
+        ----------
+        b : BBox
+
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> b0 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
+        >>> b1 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
+        >>> b0.commonVertices(b1)
+        array([ True, False, False,  True,  True, False, False,  True])
+        >>> b1.commonVertices(b0)
+        array([False,  True,  True, False, False,  True,  True, False])
         """
         return np.array(list((map(lambda x: x in self.vertices, b.vertices))))
 
