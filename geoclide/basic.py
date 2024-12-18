@@ -327,8 +327,8 @@ class Ray(object):
         if isinstance(o, Ray):
             self.o = o.o
             self.d = o.d
-            self.mint = o.mint
-            self.maxt = o.maxt
+            self.mint = float(o.mint)
+            self.maxt = float(o.maxt)
         else:
             if (not isinstance(o, Point)):
                 raise ValueError("The parameter o must be a Point or a Ray")
@@ -352,12 +352,20 @@ class Ray(object):
             return (self.o + self.d*t)
         
     def __str__(self):
-        return f'({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
-               f' with t ∈ [{self.mint},{self.maxt}['
+        if self.maxt == float("inf"):
+            return f'({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
+                f' with t ∈ [{self.mint},{self.maxt}['
+        else:
+            return f'({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
+                f' with t ∈ [{self.mint},{self.maxt}]'
         
     def __repr__(self):
-        return f'r(t) = ({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
-               f' with t ∈ [{self.mint},{self.maxt}['
+        if self.maxt == float("inf"):
+            return f'r(t) = ({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
+                f' with t ∈ [{self.mint},{self.maxt}['
+        else:
+            return f'r(t) = ({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
+                f' with t ∈ [{self.mint},{self.maxt}]'
     
 
 class BBox(object):
