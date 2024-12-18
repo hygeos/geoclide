@@ -27,7 +27,7 @@ def cross(a, b):
 
 def normalize(v):
     if isinstance(v, Vector) or isinstance(v, Normal):
-        return v / v.Length()
+        return v / v.length()
     else:
         raise NameError('Normalize argument have to be Vector or Normal class')
 
@@ -48,7 +48,7 @@ def coordinateSystem(v1):
 
 def distance(p1, p2):
     if isinstance(p1, Point) and isinstance(p2, Point):
-        return (p1 - p2).Length()
+        return (p1 - p2).length()
     else:
         raise NameError('The distance parameters have to be Point classes)')
 
