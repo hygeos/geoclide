@@ -89,3 +89,19 @@ def test_opeNormal(n_arr):
     assert (n1-n2 == gc.Normal(n_arr-n2.to_numpy()))
     assert (n1*2 == gc.Normal(n_arr*2.))
     assert (n1/2 == gc.Normal(n_arr/2.))
+
+
+@pytest.mark.parametrize('p_arr', P1)
+@pytest.mark.parametrize('v_arr', V1)
+def test_ray(p_arr, v_arr):
+    p1 = gc.Point(p_arr)
+    v1 = gc.Vector(v_arr)
+    r1 = gc.Ray(p1,v1)
+    assert (r1.o == p1)
+    assert (r1.d == v1)
+    assert (r1[10.] == gc.Point(p_arr + 10.*v_arr))
+    assert (r1.mint == 0)
+    assert (r1.maxt == float("inf"))
+    r2 = gc.Ray(p1,v1,0.5, 20.)
+    assert (r2.mint == 0.5)
+    assert (r2.maxt == 20.)
