@@ -17,7 +17,7 @@ class Vector(object):
     z : float, optional
         The z component of the vector.
 
-    Exemples
+    Examples
     --------
     >>> import geoclide as gc
     >>> v1 = gc.Vector(0.,0.,1.)
@@ -65,7 +65,8 @@ class Vector(object):
 
     def __truediv__(self, sca):
         if (np.isscalar(sca)):
-            return Vector(self.x/sca, self.y/sca, self.z/sca) 
+            div = (1./sca)
+            return Vector(self.x*div, self.y*div, self.z*div) 
         else:
             raise NameError('A Vector can be divided only by a scalar')
     def __mul__(self, sca): 
@@ -112,7 +113,7 @@ class Point(object):
     z : float, optional
         The z component of the point.
 
-    Exemples
+    Examples
     --------
     >>> import geoclide as gc
     >>> p1 = gc.Point(0.,0.,1.)
@@ -162,13 +163,14 @@ class Point(object):
 
     def __truediv__(self, sca):
         if (np.isscalar(sca)):
-            return Vector(self.x/sca, self.y/sca, self.z/sca) 
+            div = (1./sca)
+            return Point(self.x*div, self.y*div, self.z*div) 
         else:
             raise NameError('A Point can be divided only by a scalar')
 
     def __mul__(self, sca): 
         if (np.isscalar(sca)):
-            return Vector(sca*self.x, sca*self.y, sca*self.z)
+            return Point(sca*self.x, sca*self.y, sca*self.z)
         else:
             raise NameError('A Point can be multiplied only by a scalar')
         
@@ -206,7 +208,7 @@ class Normal(object):
     z : float, optional
         The z component of the normal.
 
-    Exemples
+    Examples
     --------
     >>> import geoclide as gc
     >>> n1 = gc.Normal(0.,0.,1.)
@@ -248,23 +250,22 @@ class Normal(object):
 
     def __sub__(self, n2):
         if isinstance(n2, Normal):
-            return Vector(self.x-n2.x, self.y-n2.y, self.z-n2.z)
-        elif n2 == 0:
-            return (self.x==-1*self.x) and (self.y==-1*self.y) and (self.z==-1*self.z)
+            return Normal(self.x-n2.x, self.y-n2.y, self.z-n2.z)
         else:
             raise NameError('Substraction with a Normal must be only with another Normal')
 
     def __truediv__(self, sca):
         if (np.isscalar(sca)):
-            return Vector(self.x/sca, self.y/sca, self.z/sca) 
+            div = (1./sca)
+            return Normal(self.x*div, self.y*div, self.z*div) 
         else:
-            raise NameError('A Point can be divided only by a scalar')
+            raise NameError('A Normal can be divided only by a scalar')
 
-    def __mul__(self, sca): 
+    def __mul__(self, sca):
         if (np.isscalar(sca)):
-            return Vector(sca*self.x, sca*self.y, sca*self.z)
+            return Normal(sca*self.x, sca*self.y, sca*self.z)
         else:
-            raise NameError('A Point can be multiplied only by a scalar')
+            raise NameError('A Normal can be multiplied only by a scalar')
         
     def __getitem__(self, ind):
         if ( not isinstance(ind, int) or
