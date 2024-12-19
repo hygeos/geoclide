@@ -58,7 +58,7 @@ def test_normal(n_arr):
 
 
 @pytest.mark.parametrize('v_arr', V1)
-def test_opeVector(v_arr):
+def test_ope_vector(v_arr):
     v1 = gc.Vector(v_arr)
     v2 = gc.Vector(1., 3., 0.5)
     assert (v1+v2 == gc.Vector(v_arr+v2.to_numpy()))
@@ -70,7 +70,7 @@ def test_opeVector(v_arr):
 
 
 @pytest.mark.parametrize('p_arr', P1)
-def test_opePoint(p_arr):
+def test_ope_point(p_arr):
     p1 = gc.Point(p_arr)
     v1 = gc.Vector(1., 3., 0.5)
     p2 = gc.Point(1.,1.,1.)
@@ -82,7 +82,7 @@ def test_opePoint(p_arr):
 
 
 @pytest.mark.parametrize('n_arr', N1)
-def test_opeNormal(n_arr):
+def test_ope_normal(n_arr):
     n1 = gc.Normal(n_arr)
     n2 = gc.Normal(1., 3., 0.5)
     assert (n1+n2 == gc.Normal(n_arr+n2.to_numpy()))
@@ -164,13 +164,51 @@ def test_bbox():
     assert (b3.is_inside(pIn))
     assert (not b3.is_inside(pOut))
 
-    # test commonVertices method
+    # test common_vertices method annd function get_common_vertices
     bc1 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(2.5, 2.5, 2.5))
     bc2 = gc.BBox(gc.Point(2.5, 0., 0.), gc.Point(5., 2.5, 2.5))
     # The vertices of bc1 in common with the bc2 vertices are p1, p2, p5 and p6: 
-    combc1 = np.array([False, True, True, False, False, True, True, False])
+    assert (np.all(bc1.common_vertices(bc2) == np.array([False, True, True, False, False, True, True, False])))
+    assert (np.all(gc.get_common_vertices(bc1, bc2) == np.array([False, True, True, False, False, True, True, False])))
     # The vertices of bc2 in common with the bc1 vertices are p0, p3, p4 and p7: 
-    combc2 = np.array([True, False, False, True, True, False, False, True])
-    assert (np.all(bc2.commonVertices(bc1) == combc1))
-    assert (np.all(bc1.commonVertices(bc2) == combc2))
+    assert (np.all(bc2.common_vertices(bc1) == np.array([True, False, False, True, True, False, False, True])))
+    assert (np.all(gc.get_common_vertices(bc2, bc1) == np.array([True, False, False, True, True, False, False, True])))
 
+    # test common_face method
+    b_ref = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
+    b_f0 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
+    b_f1 = gc.BBox(gc.Point(-1., 0., 0.), gc.Point(0., 1., 1.))
+    b_f2 = gc.BBox(gc.Point(0., 1., 0.), gc.Point(1., 2., 1.))
+    b_f3 = gc.BBox(gc.Point(0., -1., 0.), gc.Point(1., 0., 1.))
+    b_f4 = gc.BBox(gc.Point(0., 0., 1.), gc.Point(1., 1., 2.))
+    b_f5 = gc.BBox(gc.Point(0., 0., -1.), gc.Point(1., 1., 0.))
+    assert (b_ref.common_face(b_f0) == 0)
+    assert (b_ref.common_face(b_f1) == 1)
+    assert (b_ref.common_face(b_f2) == 2)
+    assert (b_ref.common_face(b_f3) == 3)
+    assert (b_ref.common_face(b_f4) == 4)
+    assert (b_ref.common_face(b_f5) == 5)
+    assert (gc.get_common_face(b_ref, b_f0) == 0)
+    assert (gc.get_common_face(b_ref, b_f1) == 1)
+    assert (gc.get_common_face(b_ref, b_f2) == 2)
+    assert (gc.get_common_face(b_ref, b_f3) == 3)
+    assert (gc.get_common_face(b_ref, b_f4) == 4)
+    assert (gc.get_common_face(b_ref, b_f5) == 5)
+
+    # test method intersect_p
+    b_int = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
+    r_int_1 = gc.Ray(gc.Point(-0.5, 0.5, 0.5), gc.Vector(1.,0.,0.))
+    r_int_2 = gc.Ray(gc.Point(0.5, 0.5, 0.5), gc.Vector(1.,0.,1.))
+    r_int_3 = gc.Ray(gc.Point(0.5, 0.5, 2.), gc.Vector(0.,0.,1.))
+    # case where the ray origin in outside and where the ray intersect 2 times the BBox
+    t0, t1, is_int = b_int.intersect_p(r_int_1)
+    assert (is_int)
+    assert (r_int_1[t0] == gc.Point(0.0, 0.5, 0.5))
+    assert (r_int_1[t1] == gc.Point(1.0, 0.5, 0.5))
+    # case where the ray origin in inside and where the ray intersect 1 times the BBox
+    t0, t1, is_int = b_int.intersect_p(r_int_2)
+    assert (is_int)
+    assert (r_int_2[t1] == gc.Point(1.0, 0.5, 1.0))
+    # case where the ray origin in outsie and where the ray does not intersect with the BBox
+    t0, t1, is_int = b_int.intersect_p(r_int_3)
+    assert (not is_int)

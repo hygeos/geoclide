@@ -479,7 +479,7 @@ class BBox(object):
                (P.y >= self.pmin.y) and (P.y <= self.pmax.y) and \
                (P.z >= self.pmin.z) and (P.z <= self.pmax.z)
 
-    def intersectP(self, r1) :
+    def intersect_p(self, r1) :
         """
         Test if a ray intersects the BBox
 
@@ -516,7 +516,7 @@ class BBox(object):
         >>> r1 = gc.Ray(p3, v1)
         >>> r1
         r(t) = (0.5, 0.5, 0.1) + t*(0.0, 0.0, 1.0) with t ∈ [0,inf[
-        >>> t0, t1, is_intersection = b1.intersectP(r1)
+        >>> t0, t1, is_intersection = b1.intersect_p(r1)
         >>> t0, t1, is_intersection
         (0.0, 0.9, True)
         >>> r1[t1]
@@ -543,52 +543,154 @@ class BBox(object):
             if (t0 > t1) : return 0, 0, False
         return t0, t1, True
 
-
-    def commonVertices(self, b):
+    def common_vertices(self, b):
         """
-        Return a list of boolean checking which vertices of BBox b are common to
-        the initial BBox (i.e. self)
+        Return a list of boolean checking which vertices (self) are common to
+        the BBox b
 
         Parameters
         ----------
         b : BBox
+            The secondary Bounding Box
+        
+        Returns
+        -------
+        out : np.ndarray
+        Return an array of boolean indicating if the BBox vertices are
+        common to the secondary BBox (b) vertices
 
         Examples
         --------
         >>> import geoclide as gc
         >>> b0 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
         >>> b1 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
-        >>> b0.commonVertices(b1)
-        array([ True, False, False,  True,  True, False, False,  True])
-        >>> b1.commonVertices(b0)
+        >>> b0.common_vertices(b1)
         array([False,  True,  True, False, False,  True,  True, False])
+        >>> b1.common_vertices(b0)
+        array([ True, False, False,  True,  True, False, False,  True])
         """
-        return np.array(list((map(lambda x: x in self.vertices, b.vertices))))
+        return get_common_vertices(self,b)
 
-    def commonFace(self, b, Fill_value=None):
+    def common_face(self, b, fill_value=None):
         """
-        Return the face index of the BBox1 which is common to BBox2 with
-        the convention of index from 0 to 5, for +X,-X,+Y,-Y,+Z,-Z faces
-        # (en.wikipedia.org/wiki/Cube_mapping)
-        return Fill if there is no common face
+        Return the face index which is common with one of the face of BBox b2
+    
+        The convention of index from face 0 to 5, for +X,-X,+Y,-Y,+Z,-Z:
+
+        >>>    |F2|                     |+Y|
+        >>> |F1|F4|F0|F5|  where ->  |-X|+Z|+X|-Z|
+        >>>    |F3|                     |-Y|
+
+        More information see: `en.wikipedia.org/wiki/Cube_mapping`
+
+        Parameters
+        ----------
+        b : BBox
+            The secondary Bounding Box
+        fill_value : integer, optional
+            In case there is no common face return fill_value
+
+        Returns
+        -------
+        out : integer | None
+            Return the index of the common face or fill_value
+        
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> b0 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
+        >>> b1 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
+        >>> gc.get_common_face(b1, b2)
+        0
+        >>> gc.get_common_face(b2, b1)
+        1
         """
-        ok = self.commonVertices(b)
-        if ok.sum()==4:
-            n  = np.arange(8)[ok]
-            if   np.array_equal(n, np.array([1,2,5,6])):
-                return 0
-            elif np.array_equal(n, np.array([0,3,4,7])):
-                return 1
-            elif np.array_equal(n, np.array([2,3,6,7])):
-                return 2
-            elif np.array_equal(n, np.array([0,1,4,5])):
-                return 3
-            elif np.array_equal(n, np.array([4,5,6,7])):
-                return 4
-            elif np.array_equal(n, np.array([0,1,2,3])):
-                return 5
-            else: return Fill_value
+        return get_common_face(self, b, fill_value=fill_value)
 
-        else :
-            return Fill_value
 
+def get_common_vertices(b1, b2):
+    """
+    Check which vertices of BBox b1 are common to the vectices of BBox b2
+
+    Parameters
+    ----------
+    b1 : BBox
+        The principal Bounding Box
+    b2 : BBox
+        The secondary Bounding Box
+    
+    Returns
+    -------
+    out : np.ndarray
+        Return an array of boolean indicating if the principal BBox (b1)
+        vertices are common to secondary BBox (b2) vertices
+
+    Examples
+    --------
+    >>> import geoclide as gc
+    >>> b0 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
+    >>> b1 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
+    >>> gc.get_common_vertices(b1, b2)
+    array([False,  True,  True, False, False,  True,  True, False])
+    >>> gc.get_common_vertices(b1, b2)
+    array([ True, False, False,  True,  True, False, False,  True])
+    """
+    return np.array(list((map(lambda x: x in b2.vertices, b1.vertices))))
+
+
+def get_common_face(b1, b2, fill_value=None):
+    """
+
+    Return the face index of the BBox b1 which is common to BBox b2
+    
+    The convention of index from face 0 to 5, for +X,-X,+Y,-Y,+Z,-Z:
+
+    >>>    |F2|                     |+Y|
+    >>> |F1|F4|F0|F5|  where ->  |-X|+Z|+X|-Z|
+    >>>    |F3|                     |-Y|
+
+    More information see: `en.wikipedia.org/wiki/Cube_mapping`
+
+    Parameters
+    ----------
+    b1 : BBox
+        The principal Bounding Box
+    b2 : BBox
+        The secondary Bounding Box
+    fill_value : integer, optional
+            In case there is no common face return fill_value
+
+    Returns
+    -------
+    out : integer | None
+        Return the index of the common face or fill_value
+
+    Examples
+    --------
+    >>> import geoclide as gc
+    >>> b0 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
+    >>> b1 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
+    >>> gc.get_common_face(b1, b2)
+    0
+    >>> gc.get_common_face(b2, b1)
+    1
+    """
+    ok = get_common_vertices(b1,b2)
+    if ok.sum()==4:
+        n  = np.arange(8)[ok]
+        if   np.array_equal(n, np.array([1,2,5,6])):
+            return 0
+        elif np.array_equal(n, np.array([0,3,4,7])):
+            return 1
+        elif np.array_equal(n, np.array([2,3,6,7])):
+            return 2
+        elif np.array_equal(n, np.array([0,1,4,5])):
+            return 3
+        elif np.array_equal(n, np.array([4,5,6,7])):
+            return 4
+        elif np.array_equal(n, np.array([0,1,2,3])):
+            return 5
+        else: return fill_value
+
+    else :
+        return fill_value
