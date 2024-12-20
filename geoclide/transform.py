@@ -415,7 +415,7 @@ def get_rotate_tf(angle, axis):
     angle : float
         The angle in degrees for the rotation
     axis : Vector | Normal
-        The rotation is performed arount the parameter axis 
+        The rotation is performed around the Vector/Normal axis 
 
     Returns
     -------

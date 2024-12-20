@@ -43,7 +43,7 @@ class Vector(object):
             self.y = float(x[1])
             self.z = float(x[2])
         else: 
-            raise ValueError("Wrong parameter value(s) for Vector")
+            raise ValueError("Wrong parameter value(s)")
 
     def __eq__(self, v2):
         if isinstance(v2, Vector):
@@ -139,7 +139,7 @@ class Point(object):
             self.y = float(x[1])
             self.z = float(x[2])
         else: 
-            raise ValueError("Wrong parameter value(s) for Point")
+            raise ValueError("Wrong parameter value(s)")
 
     def __eq__(self, p2):
         if isinstance(p2, Point):
@@ -234,7 +234,7 @@ class Normal(object):
             self.y = float(x[1])
             self.z = float(x[2])
         else: 
-            raise ValueError("Wrong parameter value(s) for Normal")
+            raise ValueError("Wrong parameter value(s)")
 
     def __eq__(self, n2):
         if isinstance(n2, Normal):
