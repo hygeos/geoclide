@@ -131,7 +131,7 @@ def coordinate_system(v1, method="m2"):
     >>> import geoclide as gc
     >>> v1 = gc.Vector(0., 0., 1.)
     >>> v2, v3 = gc.coordinate_system(v1)
-    (Vector(0.0, -0.0, 1.0), Vector(0.0, -1.0, -0.0))
+    (Vector(1.0, -0.0, -0.0), Vector(-0.0, 1.0, -0.0))
     """
     if not isinstance(v1, Vector):
         raise ValueError("The parameter v1 must be a Vector")
@@ -152,6 +152,7 @@ def coordinate_system(v1, method="m2"):
         else:
             invLen = 1/ math.sqrt(v1.y*v1.y + v1.z*v1.z)
             v2 = Vector(0, v1.z*invLen, -v1.y*invLen)
+        v3 = cross(v1, v2)
     else:
         raise ValueError("Only 2 choices for parameter method: 'm1' or 'm2'")
     
