@@ -30,7 +30,7 @@ def dot(a, b):
     --------
     >>> import geoclide as gc
     >>> a = gc.Vector(0., 0., 1.)
-    >>> b = gc.Vector(np.sqrt(2.)/2., 0., np.sqrt(2.)/2.)
+    >>> b = gc.Vector(math.sqrt(2.)/2., 0., math.sqrt(2.)/2.)
     >>> gc.dot(a,b)
     0.7071067811865476
     """
@@ -45,7 +45,7 @@ def cross(a, b):
     """
     The cross product
 
-    - /!\ The cross product of 2 normals is not allowed
+    - /!\\ The cross product of 2 normals is not allowed
 
     Definition of the cross product:
     - (a × b) = ((a.y*b.z)-(a.z*b.y))x̂ + ((a.z*b.x)-(a.x*b.z))ŷ + ((a.x*b.y)-(a.y*b.x))*ẑ
