@@ -302,15 +302,15 @@ def get_translate_tf(v):
     if (not isinstance(v, Vector)):
         raise ValueError("The parameter v must be a Vector")
     
-    mat = np.identity(4)
-    mat[0,3] = v.x
-    mat[1,3] = v.y
-    mat[2,3] = v.z
-    matInv = np.identity(4)
-    matInv[0,3] = (v.x)*-1
-    matInv[1,3] = (v.y)*-1
-    matInv[2,3] = (v.z)*-1
-    return Transform(mat, matInv)
+    m = np.identity(4)
+    m[0,3] = v.x
+    m[1,3] = v.y
+    m[2,3] = v.z
+    mInv = np.identity(4)
+    mInv[0,3] = (v.x)*-1
+    mInv[1,3] = (v.y)*-1
+    mInv[2,3] = (v.z)*-1
+    return Transform(m, mInv)
 
 
 def get_scale_tf(x, y, z):
@@ -336,15 +336,15 @@ def get_scale_tf(x, y, z):
          (not np.isscalar(z)) ):
         raise ValueError("The parameters x, y and z must be all scalars")
     
-    mat = np.identity(4)
-    mat[0,0] = x
-    mat[1,1] = y
-    mat[2,2] = z
-    matInv = np.identity(4)
-    matInv[0,0] = 1./x
-    matInv[1,1] = 1./y
-    matInv[2,2] = 1./z
-    return Transform(mat, matInv)
+    m = np.identity(4)
+    m[0,0] = x
+    m[1,1] = y
+    m[2,2] = z
+    mInv = np.identity(4)
+    mInv[0,0] = 1./x
+    mInv[1,1] = 1./y
+    mInv[2,2] = 1./z
+    return Transform(m, mInv)
 
 
 def get_rotateX_tf(angle):
@@ -364,14 +364,14 @@ def get_rotateX_tf(angle):
     if (not np.isscalar(angle)):
         raise ValueError("The parameter angle must be a scalar")
     
-    sin_t = math.sin(angle*(np.pi / 180.))
-    cos_t = math.cos(angle*(np.pi / 180.))
-    myM = np.identity(4)
-    myM[1,1] = cos_t
-    myM[1,2] = -1.*sin_t
-    myM[2,1] = sin_t
-    myM[2,2] = cos_t
-    return Transform(myM, np.transpose(myM))
+    sin_t = math.sin(angle*(math.pi / 180.))
+    cos_t = math.cos(angle*(math.pi / 180.))
+    m = np.identity(4)
+    m[1,1] = cos_t
+    m[1,2] = -1.*sin_t
+    m[2,1] = sin_t
+    m[2,2] = cos_t
+    return Transform(m, np.transpose(m))
 
 
 def get_rotateY_tf(angle):
@@ -391,14 +391,14 @@ def get_rotateY_tf(angle):
     if (not np.isscalar(angle)):
         raise ValueError("The parameter angle must be a scalar")
     
-    sin_t = math.sin(angle*(np.pi / 180.))
-    cos_t = math.cos(angle*(np.pi / 180.))
-    mat = np.identity(4)
-    mat[0,0] = cos_t
-    mat[2,0] = -1.*sin_t
-    mat[0,2] = sin_t
-    mat[2,2] = cos_t
-    return Transform(mat, np.transpose(mat))
+    sin_t = math.sin(angle*(math.pi / 180.))
+    cos_t = math.cos(angle*(math.pi / 180.))
+    m = np.identity(4)
+    m[0,0] = cos_t
+    m[2,0] = -1.*sin_t
+    m[0,2] = sin_t
+    m[2,2] = cos_t
+    return Transform(m, np.transpose(m))
 
 
 def get_rotateZ_tf(angle):
@@ -418,19 +418,19 @@ def get_rotateZ_tf(angle):
     if (not np.isscalar(angle)):
         raise ValueError("The parameter angle must be a scalar")
     
-    sin_t = math.sin(angle*(np.pi / 180.))
-    cos_t = math.cos(angle*(np.pi / 180.))
-    mat = np.identity(4)
-    mat[0,0] = cos_t
-    mat[0,1] = -1.*sin_t
-    mat[1,0] = sin_t
-    mat[1,1] = cos_t
-    return Transform(mat, np.transpose(mat))
+    sin_t = math.sin(angle*(math.pi / 180.))
+    cos_t = math.cos(angle*(math.pi / 180.))
+    m = np.identity(4)
+    m[0,0] = cos_t
+    m[0,1] = -1.*sin_t
+    m[1,0] = sin_t
+    m[1,1] = cos_t
+    return Transform(m, np.transpose(m))
 
 
 def get_rotate_tf(angle, axis):
     """
-    Get the rotate Transform
+    Get the rotate Transform around a given axis
 
     Parameters
     ----------
@@ -451,21 +451,21 @@ def get_rotate_tf(angle, axis):
         raise ValueError("The parameter axis must be a Vector or a Normal")
 
     a = Vector(normalize(axis))
-    s = math.sin(angle*(np.pi / 180.))
-    c = math.cos(angle*(np.pi / 180.))
-    mat = np.identity(4)
+    s = math.sin(angle*(math.pi / 180.))
+    c = math.cos(angle*(math.pi / 180.))
+    m = np.identity(4)
 
-    mat[0,0] = a.x*a.x+(1-a.x*a.x)*c
-    mat[0,1] = a.x*a.y*(1-c)-a.z*s
-    mat[0,2] = a.x*a.z*(1-c)+a.y*s
+    m[0,0] = a.x*a.x+(1-a.x*a.x)*c
+    m[0,1] = a.x*a.y*(1-c)-a.z*s
+    m[0,2] = a.x*a.z*(1-c)+a.y*s
 
-    mat[1,0] = a.x*a.y*(1-c)+a.z*s
-    mat[1,1] = a.y*a.y+(1-a.y*a.y)*c
-    mat[1,2] = a.y*a.z*(1-c)-a.x*s
+    m[1,0] = a.x*a.y*(1-c)+a.z*s
+    m[1,1] = a.y*a.y+(1-a.y*a.y)*c
+    m[1,2] = a.y*a.z*(1-c)-a.x*s
 
-    mat[2,0] = a.x*a.z*(1-c)-a.y*s
-    mat[2,1] = a.y*a.z*(1-c)+a.x*s
-    mat[2,2] = a.z*a.z+(1-a.z*a.z)*c
-    return Transform(mat, np.transpose(mat))
+    m[2,0] = a.x*a.z*(1-c)-a.y*s
+    m[2,1] = a.y*a.z*(1-c)+a.x*s
+    m[2,2] = a.z*a.z+(1-a.z*a.z)*c
+    return Transform(m, np.transpose(m))
 
 
