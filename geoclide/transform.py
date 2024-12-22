@@ -62,17 +62,17 @@ class Transform(object):
             raise ValueError("Wrong parameter value(s) for Transform")
 
     def __eq__(self, t):
-        if isinstance(t, Transform):
-            self.m = t.m
-            self.mInv = t.mInv
-        else:
+        if (not isinstance(t, Transform)):
             raise ValueError("Equality with a Transfor must be only with another Transfor")
         
+        self.m = t.m
+        self.mInv = t.mInv
+        
     def __mul__(self, T): 
-        if (isinstance(T, Transform)):
-            return Transform(np.dot(self.m, T.m), np.dot(T.mInv, self.mInv))
-        else:
-            raise NameError('A transform can be multiplied only by another Transform')
+        if (not isinstance(T, Transform)):
+            raise ValueError('A transform can be multiplied only by another Transform')
+        
+        return Transform(np.dot(self.m, T.m), np.dot(T.mInv, self.mInv))
     
     def __getitem__(self, c):
         """"
@@ -118,7 +118,7 @@ class Transform(object):
             b = b.union(p0+(v1+v2))
             return b
         else:
-            raise NameError('Unknown type for transformations')
+            raise ValueError('Unknown type for transformations')
 
     def __str__(self):
         print("m=\n", self.m, "\nmInv=\n", self.mInv)
@@ -299,6 +299,9 @@ def get_translate_tf(v):
     [ 0.  0.  1. -0.]
     [ 0.  0.  0.  1.]] )
     """
+    if (not isinstance(v, Vector)):
+        raise ValueError("The parameter v must be a Vector")
+    
     mat = np.identity(4)
     mat[0,3] = v.x
     mat[1,3] = v.y
@@ -308,6 +311,7 @@ def get_translate_tf(v):
     matInv[1,3] = (v.y)*-1
     matInv[2,3] = (v.z)*-1
     return Transform(mat, matInv)
+
 
 def get_scale_tf(x, y, z):
     """
@@ -327,6 +331,11 @@ def get_scale_tf(x, y, z):
     t : Transform
         The scale transformation
     """
+    if ( (not np.isscalar(x)) or
+         (not np.isscalar(y)) or
+         (not np.isscalar(z)) ):
+        raise ValueError("The parameters x, y and z must be all scalars")
+    
     mat = np.identity(4)
     mat[0,0] = x
     mat[1,1] = y
@@ -336,6 +345,7 @@ def get_scale_tf(x, y, z):
     matInv[1,1] = 1./y
     matInv[2,2] = 1./z
     return Transform(mat, matInv)
+
 
 def get_rotateX_tf(angle):
     """
@@ -351,6 +361,9 @@ def get_rotateX_tf(angle):
     t : Transform
         The rotateX transformation
     """
+    if (not np.isscalar(angle)):
+        raise ValueError("The parameter angle must be a scalar")
+    
     sin_t = math.sin(angle*(np.pi / 180.))
     cos_t = math.cos(angle*(np.pi / 180.))
     myM = np.identity(4)
@@ -359,6 +372,7 @@ def get_rotateX_tf(angle):
     myM[2,1] = sin_t
     myM[2,2] = cos_t
     return Transform(myM, np.transpose(myM))
+
 
 def get_rotateY_tf(angle):
     """
@@ -374,6 +388,9 @@ def get_rotateY_tf(angle):
     t : Transform
         The rotateY transformation
     """
+    if (not np.isscalar(angle)):
+        raise ValueError("The parameter angle must be a scalar")
+    
     sin_t = math.sin(angle*(np.pi / 180.))
     cos_t = math.cos(angle*(np.pi / 180.))
     mat = np.identity(4)
@@ -382,6 +399,7 @@ def get_rotateY_tf(angle):
     mat[0,2] = sin_t
     mat[2,2] = cos_t
     return Transform(mat, np.transpose(mat))
+
 
 def get_rotateZ_tf(angle):
     """
@@ -397,6 +415,9 @@ def get_rotateZ_tf(angle):
     t : Transform
         The rotateZ transformation
     """
+    if (not np.isscalar(angle)):
+        raise ValueError("The parameter angle must be a scalar")
+    
     sin_t = math.sin(angle*(np.pi / 180.))
     cos_t = math.cos(angle*(np.pi / 180.))
     mat = np.identity(4)
@@ -405,6 +426,7 @@ def get_rotateZ_tf(angle):
     mat[1,0] = sin_t
     mat[1,1] = cos_t
     return Transform(mat, np.transpose(mat))
+
 
 def get_rotate_tf(angle, axis):
     """
@@ -422,6 +444,12 @@ def get_rotate_tf(angle, axis):
     t : Transform
         The rotate transformation
     """
+    if (not np.isscalar(angle)):
+        raise ValueError("The parameter angle must be a scalar")
+    if ( (not isinstance(axis, Vector)) and
+         (not isinstance(axis, Normal)) ):
+        raise ValueError("The parameter axis must be a Vector or a Normal")
+
     a = Vector(normalize(axis))
     s = math.sin(angle*(np.pi / 180.))
     c = math.cos(angle*(np.pi / 180.))

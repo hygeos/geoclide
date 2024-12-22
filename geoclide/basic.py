@@ -49,31 +49,31 @@ class Vector(object):
         if isinstance(v2, Vector):
             return (self.x==v2.x) and (self.y==v2.y) and (self.z==v2.z)
         else:
-            raise NameError('Equality with a Vector must be only with another Vector')
+            raise ValueError('Equality with a Vector must be only with another Vector')
 
     def __add__(self, v2):
         if isinstance(v2, Vector):
             return Vector(self.x+v2.x, self.y+v2.y, self.z+v2.z) 
         else:
-            raise NameError('Addition with a Vector must be only with another Vector')
+            raise ValueError('Addition with a Vector must be only with another Vector')
 
     def __sub__(self, v2):
         if isinstance(v2, Vector):
             return Vector(self.x-v2.x, self.y-v2.y, self.z-v2.z)
         else:
-            raise NameError('Substraction with a Vector must be only with another Vector')
+            raise ValueError('Substraction with a Vector must be only with another Vector')
 
     def __truediv__(self, sca):
         if (np.isscalar(sca)):
             div = (1./sca)
             return Vector(self.x*div, self.y*div, self.z*div) 
         else:
-            raise NameError('A Vector can be divided only by a scalar')
+            raise ValueError('A Vector can be divided only by a scalar')
     def __mul__(self, sca): 
         if (np.isscalar(sca)):
             return Vector(sca*self.x, sca*self.y, sca*self.z)
         else:
-            raise NameError('A Vector can be multiplied only by a scalar')
+            raise ValueError('A Vector can be multiplied only by a scalar')
 
     def __getitem__(self, ind):
         if ( not isinstance(ind, int) or
@@ -145,13 +145,13 @@ class Point(object):
         if isinstance(p2, Point):
             return (self.x==p2.x) and (self.y==p2.y) and (self.z==p2.z)
         else:
-            raise NameError('Equality with a Point must be only with another Point')
+            raise ValueError('Equality with a Point must be only with another Point')
 
     def __add__(self, v):
         if isinstance(v, Vector):
             return Point(self.x+v.x, self.y+v.y, self.z+v.z)
         else:
-            raise NameError('Addition with a Point must be only with a Vector')
+            raise ValueError('Addition with a Point must be only with a Vector')
 
     def __sub__(self, vp2):
         if isinstance(vp2, Vector):
@@ -159,20 +159,20 @@ class Point(object):
         elif isinstance(vp2, Point):
             return Vector(self.x-vp2.x, self.y-vp2.y, self.z-vp2.z)
         else:
-            raise NameError('Substraction with a Point must be with another Point or a Vector')
+            raise ValueError('Substraction with a Point must be with another Point or a Vector')
 
     def __truediv__(self, sca):
         if (np.isscalar(sca)):
             div = (1./sca)
             return Point(self.x*div, self.y*div, self.z*div) 
         else:
-            raise NameError('A Point can be divided only by a scalar')
+            raise ValueError('A Point can be divided only by a scalar')
 
     def __mul__(self, sca): 
         if (np.isscalar(sca)):
             return Point(sca*self.x, sca*self.y, sca*self.z)
         else:
-            raise NameError('A Point can be multiplied only by a scalar')
+            raise ValueError('A Point can be multiplied only by a scalar')
         
     def __getitem__(self, ind):
         if ( not isinstance(ind, int) or
@@ -240,32 +240,32 @@ class Normal(object):
         if isinstance(n2, Normal):
             return (self.x==n2.x) and (self.y==n2.y) and (self.z==n2.z)
         else:
-            raise NameError('Equality with a Normal must be only with another Normal')
+            raise ValueError('Equality with a Normal must be only with another Normal')
 
     def __add__(self, n2):
         if isinstance(n2, Normal):
             return Normal(self.x+n2.x, self.y+n2.y, self.z+n2.z) 
         else:
-            raise NameError('Addition with a Normal must be only with another Normal')
+            raise ValueError('Addition with a Normal must be only with another Normal')
 
     def __sub__(self, n2):
         if isinstance(n2, Normal):
             return Normal(self.x-n2.x, self.y-n2.y, self.z-n2.z)
         else:
-            raise NameError('Substraction with a Normal must be only with another Normal')
+            raise ValueError('Substraction with a Normal must be only with another Normal')
 
     def __truediv__(self, sca):
         if (np.isscalar(sca)):
             div = (1./sca)
             return Normal(self.x*div, self.y*div, self.z*div) 
         else:
-            raise NameError('A Normal can be divided only by a scalar')
+            raise ValueError('A Normal can be divided only by a scalar')
 
     def __mul__(self, sca):
         if (np.isscalar(sca)):
             return Normal(sca*self.x, sca*self.y, sca*self.z)
         else:
-            raise NameError('A Normal can be multiplied only by a scalar')
+            raise ValueError('A Normal can be multiplied only by a scalar')
         
     def __getitem__(self, ind):
         if ( not isinstance(ind, int) or
@@ -345,9 +345,9 @@ class Ray(object):
 
     def __getitem__(self, t):
         if (not np.isscalar(t)):
-            raise NameError('The value must be a scalar')
+            raise ValueError('The value must be a scalar')
         elif ( t < self.mint or t > self.maxt):
-            raise NameError(f"The value {t} is out of bounds. It must be between {self.mint} and {self.maxt}")
+            raise ValueError(f"The value {t} is out of bounds. It must be between {self.mint} and {self.maxt}")
         else:
             return (self.o + self.d*t)
         
@@ -467,7 +467,7 @@ class BBox(object):
             b_union.pmax.y = max(self.pmax.y, b.pmax.y)
             b_union.pmax.z = max(self.pmax.z, b.pmax.z)
         else:
-            raise NameError('The union must be with another BBox or Point')
+            raise ValueError('The union must be with another BBox or Point')
 
         return b_union
 
