@@ -76,9 +76,32 @@ class Transform(object):
     
     def __getitem__(self, c):
         """"
-        Apply the transformations to: Point, Vector, Normal, Ray or BBox
+        Apply the transformations
+
+        Parameters
+        ----------
+        c : Vector | Point | Normal | Ray | BBox
+            The Vector/Point/Normal/Ray/BBox to which the transformation is applied
+        
+        Results
+        -------
+        out : Vector | Point | Normal | Ray | BBox
+            The Vector/Point/Normal/Ray/BBox after the transformation
+
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> t = gc.get_translate_tf(gc.Vector(5., 5., 5.))
+        >>> p = gc.Point(0., 0., 0.)
+        >>> t[p]
+        Point(5.0, 5.0, 5.0)
         """
-        if isinstance(c, Point):
+        if isinstance(c, Vector):
+            xv = self.m[0,0]*c.x + self.m[0,1]*c.y + self.m[0,2]*c.z
+            yv = self.m[1,0]*c.x + self.m[1,1]*c.y + self.m[1,2]*c.z
+            zv = self.m[2,0]*c.x + self.m[2,1]*c.y + self.m[2,2]*c.z
+            return Vector(xv, yv, zv)
+        elif isinstance(c, Point):
             xp = self.m[0,0]*c.x + self.m[0,1]*c.y + self.m[0,2]*c.z + self.m[0,3]
             yp = self.m[1,0]*c.x + self.m[1,1]*c.y + self.m[1,2]*c.z + self.m[1,3]
             zp = self.m[2,0]*c.x + self.m[2,1]*c.y + self.m[2,2]*c.z + self.m[2,3]
@@ -87,11 +110,6 @@ class Transform(object):
                 return Point(xp, yp, zp)
             else: 
                 return Point(xp, yp, zp)/wp
-        elif isinstance(c, Vector):
-            xv = self.m[0,0]*c.x + self.m[0,1]*c.y + self.m[0,2]*c.z
-            yv = self.m[1,0]*c.x + self.m[1,1]*c.y + self.m[1,2]*c.z
-            zv = self.m[2,0]*c.x + self.m[2,1]*c.y + self.m[2,2]*c.z
-            return Vector(xv, yv, zv)
         elif isinstance(c, Normal):
             xn = self.mInv[0,0]*c.x + self.mInv[1,0]*c.y + self.mInv[2,0]*c.z
             yn = self.mInv[0,1]*c.x + self.mInv[1,1]*c.y + self.mInv[2,1]*c.z
