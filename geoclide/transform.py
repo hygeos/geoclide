@@ -63,7 +63,7 @@ class Transform(object):
 
     def __eq__(self, t):
         if (not isinstance(t, Transform)):
-            raise ValueError("Equality with a Transfor must be only with another Transfor")
+            raise ValueError("Equality with a Transform must be only with another Transform")
         
         self.m = t.m
         self.mInv = t.mInv

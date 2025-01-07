@@ -110,7 +110,25 @@ def test_argmin():
     assert (gc.argmin(v1) == 2)
 
 
-def permute():
+def test_permute():
     v1 = gc.Vector(2., 3., 1.)
     assert (gc.permute(v1, 1, 0, 2) == gc.Vector(3.0, 2.0, 1.0))
     assert (gc.permute(v1, np.array([1, 0, 2])) == gc.Vector(3.0, 2.0, 1.0))
+
+
+def test_clamp():
+    assert (gc.clamp(4., val_min=5., val_max=11.) == 5.)
+
+
+def test_swap():
+    a = 5.
+    b = 12.
+    assert (gc.swap(a, b) == (b, a))
+
+
+def test_quadratic():
+    a = 2.
+    b = -5.
+    c = 0.
+    assert (gc.quadratic(a, b, c) == (True, 0.0, 2.5))
+
