@@ -323,7 +323,7 @@ class Ray(object):
     >>> r
     r(t) = (0.0, 50.0, 2.0) + t*(0.0, 0.0, 1.0) with t ∈ [20,100[
     """
-    def __init__(self, o, d, mint = 0, maxt = float("inf")):
+    def __init__(self, o, d=None, mint = 0, maxt = float("inf")):
         if isinstance(o, Ray):
             self.o = o.o
             self.d = o.d

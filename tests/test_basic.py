@@ -105,6 +105,11 @@ def test_ray(p_arr, v_arr):
     r2 = gc.Ray(p1,v1,0.5, 20.)
     assert (r2.mint == 0.5)
     assert (r2.maxt == 20.)
+    r3 = gc.Ray(r2)
+    assert (r3.o == r2.o)
+    assert (r3.d == r2.d)
+    assert (r3.mint == r2.mint)
+    assert (r3.maxt == r2.maxt)
 
 
 def test_bbox():
