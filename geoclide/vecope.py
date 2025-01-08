@@ -123,8 +123,10 @@ def coordinate_system(v1, method="m2"):
     
     Results
     -------
-    v2, v3 : Vector
-        The 2 other vectors of the orthogonal coordinate system
+    v2 : Vector
+        The second vector of the orthogonal coordinate system
+    v3 : Vector
+        The third vector of the orthogonal coordinate system
     
     Examples
     --------
@@ -425,8 +427,10 @@ def swap(a, b):
 
     Results
     -------
-    out : Tuple
-        The a and b variables after the swap
+    a : float
+        The a variable with the value of the variable b
+    b : float
+        The b variable with the value of the variable a
 
     Examples
     --------
@@ -466,8 +470,16 @@ def quadratic(a, b, c):
 
     Results
     -------
-    b, x0, x1 : Tuple[bool, float, float] | Tuple[bool, None, None] 
-        b is True if the quadratic can be solved, and x0 and x1 the solutions with x0 > x1
+    b : bool
+        If the quadratic can be solved -> True, else False
+    x0 : float | None
+        The first solution
+    x1 : float | None 
+        The second solution
+
+    Notes
+    -----
+    If There are 2 solutions x0 < x1. And if there is only one solution x0 = x1.
 
     Examples
     --------

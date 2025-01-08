@@ -479,7 +479,7 @@ class BBox(object):
                (P.y >= self.pmin.y) and (P.y <= self.pmax.y) and \
                (P.z >= self.pmin.z) and (P.z <= self.pmax.z)
 
-    def intersect_p(self, r1) :
+    def intersect(self, r1) :
         """
         Test if a ray intersects the BBox
 
