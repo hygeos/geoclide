@@ -5,3 +5,4 @@ from geoclide.mathope import clamp, swap, quadratic
 from geoclide.transform import Transform, get_translate_tf, get_scale_tf, \
     get_rotateX_tf, get_rotateY_tf, get_rotateZ_tf, get_rotate_tf
 from geoclide.quadrics import Sphere
+from geoclide.intersection import calc_intersection
