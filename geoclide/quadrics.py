@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from geoclide.shapes import Shape, DifferentialGeometry
-from geoclide.vecope import clamp, quadratic
+from geoclide.mathope import clamp, quadratic
 from geoclide.basic import Ray, Vector
 from geoclide.transform import Transform
 import math
@@ -51,6 +51,80 @@ class Sphere(Shape):
         self.thetaMax = math.acos(clamp(self.zmax/self.radius, -1, 1))
         self.phiMax = clamp(phi_max, 0, 2*math.pi)
 
+    def is_intersection(self, r1):
+        """
+        Test if a ray intersects the sphere / partial sphere
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+
+        Returns
+        -------
+        out : bool
+            If there is an intersection -> True, else False
+
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> sph1 = gc.Sphere(radius=1.) # sphere of radius 1
+        >>> sph2 = gc.Sphere(radius=1., z_max=0.5) # partial sphere where portion above z=0.5 is removed
+        >>> r = gc.Ray(o=gc.Point(-2., 0., 0.8), d=gc.Vector(1.,0.,0.))
+        >>> sph1.is_intersection(r)
+        True
+        >>> thit, dg, is_int = sph1.intersect(r)
+        >>> sph2.intersect(r) # here no intersection since the sphere part above z=0.5 is removed
+        False
+        """
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r1)
+        ray.o = self.wTo[r1.o]
+        ray.d = self.wTo[r1.d]
+
+        # Compute quadratic sphere coefficients
+        a = ray.d.x*ray.d.x + ray.d.y*ray.d.y + ray.d.z*ray.d.z
+        b = 2 * (ray.d.x*ray.o.x + ray.d.y*ray.o.y + ray.d.z*ray.o.z)
+        c = ray.o.x*ray.o.x + ray.o.y*ray.o.y + ray.o.z*ray.o.z - \
+            self.radius*self.radius
+
+        # Solve quadratic equation
+        exist, t0, t1 = quadratic(a, b, c)
+        if (not exist): return False
+        
+        # Compute intersection distance along ray
+        if (t0 > ray.maxt or t1 < ray.mint): return False
+        thit = t0
+
+        if (t0 < ray.mint):
+            thit = t1
+            if (thit > ray.maxt): return False
+
+        # Compute sphere hit position and $\phi$
+        phit = ray[thit]
+        if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
+        phi = math.atan2(phit.y, phit.x)
+        if (phi < 0): phi += 2*math.pi
+
+        # Test sphere intersection against clipping parameters
+        if ((self.zmin > -self.radius and phit.z < self.zmin) or
+            (self.zmax <  self.radius and phit.z > self.zmax) or
+            (phi > self.phiMax) ):
+            if (thit == t1): return False
+            if (t1 > ray.maxt): return False
+            thit = t1
+            # Compute sphere hit position and $\phi$
+            phit = ray[thit]
+            if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
+            phi = math.atan2(phit.y, phit.x)
+            if (phi < 0): phi += 2*math.pi
+            if ((self.zmin > -self.radius and phit.z < self.zmin) or
+                (self.zmax <  self.radius and phit.z > self.zmax) or
+                (phi > self.phiMax) ):
+                return False
+
+        return True
+
     def intersect(self, r1):
         """
         Test if a ray intersects the sphere / partial sphere
@@ -73,7 +147,7 @@ class Sphere(Shape):
         --------
         >>> import geoclide as gc
         >>> sph1 = gc.Sphere(radius=1.) # sphere of radius 1
-        >>> sph2 = gc.Sphere(radius=1., z1=0.5) # partial sphere where portion above z=0.5 is removed
+        >>> sph2 = gc.Sphere(radius=1., z_max=0.5) # partial sphere where portion above z=0.5 is removed
         >>> r = gc.Ray(o=gc.Point(-2., 0., 0.8), d=gc.Vector(1.,0.,0.))
         >>> sph1.intersect(r)
         (19.399999999999988,

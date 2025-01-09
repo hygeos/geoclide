@@ -3,6 +3,7 @@
 
 import math 
 import numpy as np
+from geoclide.mathope import swap
 
 
 class Vector(object):
@@ -366,7 +367,7 @@ class Ray(object):
         else:
             return f'r(t) = ({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
                 f' with t ∈ [{self.mint},{self.maxt}]'
-    
+
 
 class BBox(object):
     '''
@@ -479,6 +480,53 @@ class BBox(object):
                (P.y >= self.pmin.y) and (P.y <= self.pmax.y) and \
                (P.z >= self.pmin.z) and (P.z <= self.pmax.z)
 
+    def is_intersection(self, r1) :
+        """
+        Test if a ray intersects the BBox
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+
+        Returns
+        -------
+        out : bool,
+            If there is at least 1 intersection -> True, else False.
+
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> p1 = gc.Point(0., 0., 0.)
+        >>> p2 = gc.Point(1., 1., 1.)
+        >>> b1 = gc.BBox(p1, p2)
+        pmin=Point(0.0, 0.0, 0.0), pmax=Point(1.0, 1.0, 1.0)
+        >>> p3 = gc.Point(0.5, 0.5, 0.1)
+        >>> v1 = gc.Vector(0., 0., 1.)
+        >>> r1 = gc.Ray(p3, v1)
+        >>> r1
+        r(t) = (0.5, 0.5, 0.1) + t*(0.0, 0.0, 1.0) with t ∈ [0,inf[
+        >>> b1.is_intersection(r1)
+        True
+        """
+        t0 = 0.
+        epsi = 1e-32 * 0.5
+        t1 = np.inf
+        gamma3 = (3*epsi)/(1 - 3*epsi)
+        for i in range(3):
+            if r1.d[i]!= 0 :
+                invRayDir = 1. / r1.d[i]
+            else: invRayDir=1e32
+            tNear = (self.pmin[i] - r1.o[i]) * invRayDir
+            tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
+
+            if (tNear > tFar): swap(tNear,tFar)
+            tFar *= 1 + 2*gamma3
+            t0 = tNear if tNear > t0 else t0
+            t1 = tFar  if  tFar < t1 else t1
+            if (t0 > t1) : return False
+        return True
+
     def intersect(self, r1) :
         """
         Test if a ray intersects the BBox
@@ -516,7 +564,7 @@ class BBox(object):
         >>> r1 = gc.Ray(p3, v1)
         >>> r1
         r(t) = (0.5, 0.5, 0.1) + t*(0.0, 0.0, 1.0) with t ∈ [0,inf[
-        >>> t0, t1, is_intersection = b1.intersect_p(r1)
+        >>> t0, t1, is_intersection = b1.intersect(r1)
         >>> t0, t1, is_intersection
         (0.0, 0.9, True)
         >>> r1[t1]
@@ -533,10 +581,7 @@ class BBox(object):
             tNear = (self.pmin[i] - r1.o[i]) * invRayDir
             tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
 
-            if (tNear > tFar):
-                tmp  = tNear
-                tNear= tFar
-                tFar = tmp
+            if (tNear > tFar): swap(tNear,tFar)
             tFar *= 1 + 2*gamma3
             t0 = tNear if tNear > t0 else t0
             t1 = tFar  if  tFar < t1 else t1
