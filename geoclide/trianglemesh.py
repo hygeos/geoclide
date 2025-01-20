@@ -27,6 +27,29 @@ class Triangle(Shape):
         self.p0 = p0
         self.p1 = p1
         self.p2 = p2
+
+    def is_intersection(self, r1, method='v3'):
+        """
+        Test if a Ray intersect with the triangle
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+        method : str, optional
+            Tow choice -> 'v2' (use mainly pbrt v2 intersection test method) or 'v3' (pbrt v3)
+
+        Returns
+        -------
+        out : bool
+            If there is an intersection -> True, else False
+        """
+        if method == 'v3':
+            return self.is_intersection_v3(r1)
+        elif method == 'v2':
+            return self.is_intersection_v2(r1)
+        else:
+            raise ValueError("Only 'v2' and 'v3' are valid values for method parameter")   
     
     def intersect(self, r1, method='v3'):
         """
