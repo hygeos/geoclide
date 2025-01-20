@@ -3,11 +3,12 @@
 
 from geoclide.basic import Point, Ray, BBox
 from geoclide.quadrics import Sphere
+from geoclide.trianglemesh import Triangle
 import xarray as xr
 import numpy as np
 
 
-def calc_intersection(shape, r1):
+def calc_intersection(shape, r1, method='v3'):
     """
     Performs intersection test between a shape and a ray and returns dataset
 
@@ -17,6 +18,9 @@ def calc_intersection(shape, r1):
         The shape used for the intersection
     r1 : Ray
         The ray used for the iuntersection
+    method : str, optional
+        Used in triangle intersection test. Only two choice : 'v2' and 'v3'.
+        The 'v3' have more robustness tests, and 'v2' is faster.
 
     Returns
     ------
@@ -38,15 +42,15 @@ def calc_intersection(shape, r1):
     Dimensions without coordinates: dim_0, dim_1
     Data variables: (12/17)
         is_intersection  bool True
-        ray_o            (xyz) float64 -2.0 0.0 0.8
-        ray_d            (xyz) float64 1.0 0.0 0.0
-        ray_mint         int64 0
-        ray_maxt         float64 inf
+        o                (xyz) float64 -2.0 0.0 0.8
+        d                (xyz) float64 1.0 0.0 0.0
+        mint             int64 0
+        maxt             float64 inf
         shape            <U6 'Sphere'
         ...               ...
-        sphere_oTw_mInv  (dim_0, dim_1) float64 1.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 1.0
-        sphere_wTo_m     (dim_0, dim_1) float64 1.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 1.0
-        sphere_wTo_mInv  (dim_0, dim_1) float64 1.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 1.0
+        oTw_mInv         (dim_0, dim_1) float64 1.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 1.0
+        wTo_m            (dim_0, dim_1) float64 1.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 1.0
+        wTo_mInv         (dim_0, dim_1) float64 1.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 1.0
         thit             float64 1.4
         phit             (xyz) float64 -0.6 0.0 0.8
         nhit             (xyz) float64 -0.6 0.0 0.8
@@ -58,13 +62,13 @@ def calc_intersection(shape, r1):
     * xyz              (xyz) int64 0 1 2
     Data variables:
         is_intersection  bool True
-        ray_o            (xyz) float64 -2.0 0.0 0.8
-        ray_d            (xyz) float64 1.0 0.0 0.0
-        ray_mint         int64 0
-        ray_maxt         float64 inf
+        o                (xyz) float64 -2.0 0.0 0.8
+        d                (xyz) float64 1.0 0.0 0.0
+        mint             int64 0
+        maxt             float64 inf
         shape            <U4 'BBox'
-        bbox_pmin        (xyz) float64 0.0 0.0 0.0
-        bbox_pmax        (xyz) float64 1.0 1.0 1.0
+        pmin             (xyz) float64 0.0 0.0 0.0
+        pmax             (xyz) float64 1.0 1.0 1.0
         thit             float64 2.0
         phit             (xyz) float64 0.0 0.0 0.8
     """
@@ -82,8 +86,11 @@ def calc_intersection(shape, r1):
             thit = 0.
             phit = Point(0., 0., 0.)
             nhit = None
-    elif(isinstance(shape, Sphere)):
-        thit, dg, is_intersection = shape.intersect(r1)
+    elif(isinstance(shape, Sphere) or isinstance(shape, Triangle)):
+        if (isinstance(shape, Triangle)):
+            thit, dg, is_intersection = shape.intersect(r1, method=method)
+        else:
+            thit, dg, is_intersection = shape.intersect(r1)
         phit = dg.p
         nhit = dg.n
     else:
@@ -93,39 +100,55 @@ def calc_intersection(shape, r1):
     ds['is_intersection'] = is_intersection
     ds['is_intersection'].attrs = {'description':'tells if there is an intersection between the ray and the shape'}
 
-    ds['ray_o'] = xr.DataArray(r1.o.to_numpy(), dims='xyz')
-    ds['ray_o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
-    ds['ray_d'] = xr.DataArray(r1.d.to_numpy(), dims='xyz')
-    ds['ray_d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
-    ds['ray_mint'] = r1.mint
-    ds['ray_mint'].attrs = {'description':'the mint attribut of the ray'}
-    ds['ray_maxt'] = r1.maxt
-    ds['ray_maxt'].attrs = {'description':'the maxt attribut of the ray'}
+    ds['o'] = xr.DataArray(r1.o.to_numpy(), dims='xyz')
+    ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
+    ds['d'] = xr.DataArray(r1.d.to_numpy(), dims='xyz')
+    ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
+    ds['mint'] = r1.mint
+    ds['mint'].attrs = {'description':'the mint attribut of the ray'}
+    ds['maxt'] = r1.maxt
+    ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
 
     if (isinstance(shape, BBox)):
         ds['shape'] = 'BBox'
-        ds['bbox_pmin'] = xr.DataArray(shape.pmin.to_numpy(), dims='xyz')
-        ds['bbox_pmin'].attrs = {'type': 'Point', 'description':'the x, y and z components of the pmin BBox attribut'}
-        ds['bbox_pmax'] = xr.DataArray(shape.pmax.to_numpy(), dims='xyz')
-        ds['bbox_pmax'].attrs = {'type': 'Point', 'description':'the x, y and z components of the pmax BBox attribut'}
+        ds['pmin'] = xr.DataArray(shape.pmin.to_numpy(), dims='xyz')
+        ds['pmin'].attrs = {'type': 'Point', 'description':'the x, y and z components of the pmin BBox attribut'}
+        ds['pmax'] = xr.DataArray(shape.pmax.to_numpy(), dims='xyz')
+        ds['pmax'].attrs = {'type': 'Point', 'description':'the x, y and z components of the pmax BBox attribut'}
     if (isinstance(shape, Sphere)):
         ds['shape'] = 'Sphere'
-        ds['sphere_radius'] = shape.radius
-        ds['sphere_radius'].attrs = {'description':'the sphere radius attribut'}
-        ds['sphere_z_min'] = shape.zmin
-        ds['sphere_z_min'].attrs = {'description':'the sphere zmin attribut'}
-        ds['sphere_z_max'] = shape.zmax
-        ds['sphere_z_max'].attrs = {'description':'the sphere zmax attribut'}
-        ds['sphere_phi_max'] = shape.phiMax
-        ds['sphere_phi_max'].attrs = {'unit':'Radian', 'description':'the sphere phiMax attribut'}
-        ds['sphere_oTw_m'] = xr.DataArray(shape.oTw.m)
-        ds['sphere_oTw_m'].attrs = {'description':'the transformation matrix of the sphere oTw attribut'}
-        ds['sphere_oTw_mInv'] = xr.DataArray(shape.oTw.mInv)
-        ds['sphere_oTw_mInv'].attrs = {'description':'the inverse transformation matrix of the sphere oTw attribut'}
-        ds['sphere_wTo_m'] = xr.DataArray(shape.wTo.m)
-        ds['sphere_wTo_m'].attrs = {'description':'the transformation matrix of the sphere wTo attribut'}
-        ds['sphere_wTo_mInv'] = xr.DataArray(shape.wTo.mInv)
-        ds['sphere_wTo_mInv'].attrs = {'description':'the inverse transformation matrix of the sphere wTo attribut'}
+        ds['radius'] = shape.radius
+        ds['radius'].attrs = {'description':'the sphere radius attribut'}
+        ds['z_min'] = shape.zmin
+        ds['z_min'].attrs = {'description':'the sphere zmin attribut'}
+        ds['z_max'] = shape.zmax
+        ds['z_max'].attrs = {'description':'the sphere zmax attribut'}
+        ds['phi_max'] = shape.phiMax
+        ds['phi_max'].attrs = {'unit':'Radian', 'description':'the sphere phiMax attribut'}
+        ds['oTw_m'] = xr.DataArray(shape.oTw.m)
+        ds['oTw_m'].attrs = {'description':'the transformation matrix of the sphere oTw attribut'}
+        ds['oTw_mInv'] = xr.DataArray(shape.oTw.mInv)
+        ds['oTw_mInv'].attrs = {'description':'the inverse transformation matrix of the sphere oTw attribut'}
+        ds['wTo_m'] = xr.DataArray(shape.wTo.m)
+        ds['wTo_m'].attrs = {'description':'the transformation matrix of the sphere wTo attribut'}
+        ds['wTo_mInv'] = xr.DataArray(shape.wTo.mInv)
+        ds['wTo_mInv'].attrs = {'description':'the inverse transformation matrix of the sphere wTo attribut'}
+    if (isinstance(shape, Triangle)):
+        ds['shape'] = 'Triangle'
+        ds['p0'] = xr.DataArray(shape.p0.to_numpy(), dims='xyz')
+        ds['p0'].attrs = {'description': 'the triangle p0 attribut'}
+        ds['p1'] = xr.DataArray(shape.p1.to_numpy(), dims='xyz')
+        ds['p1'].attrs = {'description': 'the triangle p1 attribut'}
+        ds['p2'] = xr.DataArray(shape.p2.to_numpy(), dims='xyz')
+        ds['p2'].attrs = {'description': 'the triangle p2 attribut'}
+        ds['oTw_m'] = xr.DataArray(shape.oTw.m)
+        ds['oTw_m'].attrs = {'description':'the transformation matrix of the triangle oTw attribut'}
+        ds['oTw_mInv'] = xr.DataArray(shape.oTw.mInv)
+        ds['oTw_mInv'].attrs = {'description':'the inverse transformation matrix of the triangle oTw attribut'}
+        ds['wTo_m'] = xr.DataArray(shape.wTo.m)
+        ds['wTo_m'].attrs = {'description':'the transformation matrix of the triangle wTo attribut'}
+        ds['wTo_mInv'] = xr.DataArray(shape.wTo.mInv)
+        ds['wTo_mInv'].attrs = {'description':'the inverse transformation matrix of the triangle wTo attribut'}
 
     ds['thit'] = thit
     ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}

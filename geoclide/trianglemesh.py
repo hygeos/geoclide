@@ -6,6 +6,7 @@ from geoclide.basic import Vector, Point, Ray
 import geoclide.vecope as gv
 import numpy as np
 from geoclide.mathope import gamma_f64
+from geoclide.transform import Transform
 
 
 class Triangle(Shape):
@@ -16,8 +17,12 @@ class Triangle(Shape):
         if p0 is None : p0 = Point()
         if p1 is None : p1 = Point()
         if p2 is None : p2 = Point()
+        if oTw is None: oTw = Transform()
+        if wTo is None: wTo = Transform()
         if (not isinstance(p0, Point) or not isinstance(p1, Point) or not isinstance(p2, Point)):
             raise ValueError('The parameters must be all Point')
+        if (not isinstance(oTw, Transform) or not isinstance(wTo, Transform)):
+            raise ValueError('The parameters oTw and wTo must be both Transform')
         Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
         self.p0 = p0
         self.p1 = p1
