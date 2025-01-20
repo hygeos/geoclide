@@ -32,7 +32,6 @@ class Triangle(Shape):
         """
         Test if a Ray intersect with the triangle and return intersection information
 
-
         Parameters
         ----------
         r1 : Ray
@@ -65,7 +64,6 @@ class Triangle(Shape):
         """
         Test if a Ray intersect with the triangle using mainly pbrt v2 method,
         and return intersection information
-
         
         Parameters
         ----------
@@ -142,7 +140,6 @@ class Triangle(Shape):
         """
         Test if a Ray intersect with the triangle using mainly pbrt v3 method,
         and return intersection information
-
 
         Parameters
         ----------
@@ -259,3 +256,153 @@ class Triangle(Shape):
         dg = DifferentialGeometry(phit, dpdu, dpdv, uvhit.x, uvhit.y, self)
         
         return thit, dg, True
+    
+    def is_intersection_v2(self, r):
+        """
+        Test if a Ray intersect with the triangle using mainly pbrt v2 method
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+        
+        Returns
+        -------
+        out : bool
+            If there is an intersection -> True, else False
+        """
+        ray = Ray(r)
+        e1 = self.p1 - self.p0
+        e2 = self.p2 - self.p0
+        s1 = gv.cross(ray.d, e2)
+        divisor = gv.dot(s1, e1)
+
+        if (divisor == 0):
+            return False
+        invDivisor = 1./divisor
+
+        # compute the first barycentric coordinate
+        s = ray.o - self.p0
+        b1 = gv.dot(s, s1) * invDivisor
+        if (b1 < -0.00000001 or  b1 > 1.00000001):
+            return False
+
+        # compute the second barycentric coordinate
+        s2 = gv.cross(s, e1)
+        b2 = gv.dot(ray.d, s2) * invDivisor
+        if (b2 < 0 or  b1+b2 > 1):
+            return False
+
+        # compute the time at the intersection point
+        t = gv.dot(e2, s2) * invDivisor
+        if (t < ray.mint or t > ray.maxt):
+            return False
+
+        return True
+    
+    def is_intersection_v3(self, r1):
+        """
+        Test if a Ray intersect with the triangle using mainly pbrt v3 method
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+        
+        Returns
+        -------
+        out : bool
+            If there is an intersection -> True, else False
+        """
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r1)
+
+        # Get triangle vertices and translate them in based on ray origin
+        p0t = self.p0 - ray.o
+        p1t = self.p1 - ray.o
+        p2t = self.p2 - ray.o
+
+        kz = gv.vargmax(gv.vabs(ray.d))
+        kx = kz + 1
+        if(kx == 3): kx = 0
+        ky = kx + 1
+        if(ky == 3): ky = 0
+
+        d = gv.permute(ray.d, kx, ky, kz)
+        p0t = gv.permute(p0t, kx, ky, kz)
+        p1t = gv.permute(p1t, kx, ky, kz)
+        p2t = gv.permute(p2t, kx, ky, kz)
+        
+        sx = -d.x/d.z
+        sy = -d.y/d.z
+        sz = 1./d.z
+        p0t.x += sx*p0t.z
+        p0t.y += sy*p0t.z
+        p1t.x += sx*p1t.z
+        p1t.y += sy*p1t.z
+        p2t.x += sx*p2t.z
+        p2t.y += sy*p2t.z
+        
+        # Compute edge function coefficients
+        e0 = (p1t.x * p2t.y) - (p1t.y * p2t.x)
+        e1 = (p2t.x * p0t.y) - (p2t.y * p0t.x)
+        e2 = (p0t.x * p1t.y) - (p0t.y * p1t.x)
+
+        # Perform triangle edge and determinant tests
+        if ((e0 < 0 or e1 < 0 or e2 < 0) and (e0 > 0 or e1 > 0 or e2 > 0)):
+            return False
+        det = e0 + e1 + e2
+        if (det == 0): return False
+
+        # Compute scaled hit distance to triangle and test against ray $t$ range
+        p0t.z *=  sz
+        p1t.z *=  sz
+        p2t.z *=  sz
+
+        tScaled = e0*p0t.z + e1*p1t.z + e2*p2t.z
+
+        if ( (det < 0 and (tScaled >= 0 or tScaled < ray.maxt*det)) or
+             (det > 0 and (tScaled <= 0 or tScaled > ray.maxt*det)) ):
+            return False
+
+        # Compute barycentric coordinates and t value for triangle intersection
+        invDet = 1./det
+        t = tScaled * invDet
+        
+        # Ensure that computed triangle t is conservatively greater than zero
+        maxZt = np.max(np.abs(np.array([p0t.z, p1t.z, p2t.z])))
+        deltaZ = gamma_f64(3) * maxZt
+        maxXt = np.max(np.abs(np.array([p0t.x, p1t.x, p2t.x])))
+        maxYt = np.max(np.abs(np.array([p0t.y, p1t.y, p2t.y])))
+        deltaX = gamma_f64(5) * (maxXt + maxZt)
+        deltaY = gamma_f64(5) * (maxYt + maxZt)         
+        deltaE = 2 * (gamma_f64(2) * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
+        maxE = np.max(np.abs(np.array([e0, e1, e2])))
+        deltaT = 3 * (gamma_f64(3) * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
+        if (t <= deltaT): return False
+
+        # Compute triangle partial derivatives
+        # Below the z components is not needed since we are in 2D with u in x and v un y
+        dpdu = Vector()
+        dpdv = Vector()
+        uv0 = Point(0., 0., 0.)
+        uv1 = Point(1., 0., 0.)
+        uv2 = Point(1., 1., 0.)
+        duv02 = uv0 - uv2
+        duv12 = uv1 - uv2
+        dp02 = self.p0 - self.p2
+        dp12 = self.p1 - self.p2
+        determinant = duv02.x*duv12.y - duv02.y*duv12.x
+        degenerate = bool(abs(determinant) < 1e-8)
+
+        if (not degenerate):
+            invdet = 1./ determinant
+            dpdu = (duv12.y*dp02 - duv02.y*dp12)*invdet
+            dpdv = (-duv12.x*dp02 + duv02.x*dp12)*invdet
+
+        if ( degenerate or gv.cross(dpdu, dpdv).length_squared() == 0):
+            ng = gv.cross(self.p2-self.p0, self.p1-self.p0)
+            if ( ng.length_squared() == 0 ):
+                return False
+        
+        return True
