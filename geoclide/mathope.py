@@ -136,10 +136,16 @@ def quadratic(a, b, c):
 
 
 def gamma_f32(n):
+    """
+    Gamma function from pbrt v3
+    """
     epsi = np.finfo(np.float32).eps * 0.5
     return (n*epsi)/(1 - n*epsi)
 
 
 def gamma_f64(n):
+    """
+    Gamma function from pbrt v3 but in double precision
+    """
     epsi = np.finfo(np.float64).eps * 0.5
     return (n*epsi)/(1 - n*epsi)
