@@ -64,9 +64,11 @@ def test_ope_vector(v_arr):
     assert (v1+v2 == gc.Vector(v_arr+v2.to_numpy()))
     assert (v1-v2 == gc.Vector(v_arr-v2.to_numpy()))
     assert (v1*2 == gc.Vector(v_arr*2.))
+    assert (2*v1 == gc.Vector(v_arr*2.))
     assert (v1/2 == gc.Vector(v_arr/2.))
     v3 = v1+v2
     assert (v3.length() == math.sqrt(v3[0]**2+v3[1]**2+v3[2]**2))
+    assert (v3.length_squared() == v3[0]**2+v3[1]**2+v3[2]**2)
 
 
 @pytest.mark.parametrize('p_arr', P1)
@@ -78,6 +80,7 @@ def test_ope_point(p_arr):
     assert (p1-p2 == gc.Vector(p_arr-p2.to_numpy()))
     assert (p1-v1 == gc.Point(p_arr-v1.to_numpy()))
     assert (p1*2 == gc.Point(p_arr*2.))
+    assert (2*p1 == gc.Point(p_arr*2.))
     assert (p1/2 == gc.Point(p_arr/2.))
 
 
@@ -88,7 +91,10 @@ def test_ope_normal(n_arr):
     assert (n1+n2 == gc.Normal(n_arr+n2.to_numpy()))
     assert (n1-n2 == gc.Normal(n_arr-n2.to_numpy()))
     assert (n1*2 == gc.Normal(n_arr*2.))
+    assert (2*n1 == gc.Normal(n_arr*2.))
     assert (n1/2 == gc.Normal(n_arr/2.))
+    assert (n1.length() == math.sqrt(n1[0]**2+n1[1]**2+n1[2]**2))
+    assert (n1.length_squared() == n1[0]**2+n1[1]**2+n1[2]**2)
 
 
 @pytest.mark.parametrize('p_arr', P1)

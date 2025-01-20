@@ -101,11 +101,11 @@ class Vector(object):
     def __repr__(self):
         return 'Vector(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
     
-    def lengthSquared(self):
+    def length_squared(self):
         return self.x*self.x + self.y*self.y + self.z*self.z
     
     def length(self):
-        return math.sqrt(self.lengthSquared()) # L2 norm
+        return math.sqrt(self.length_squared()) # L2 norm
 
     def to_numpy(self):
         return np.array([self.x, self.y, self.z], dtype=np.float64)
@@ -309,11 +309,11 @@ class Normal(object):
     def __repr__(self):
         return 'Normal(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
     
-    def lengthSquared(self):
+    def length_squared(self):
         return self.x*self.x + self.y*self.y + self.z*self.z
     
     def length(self):
-        return math.sqrt(self.lengthSquared()) # L2 norm
+        return math.sqrt(self.length_squared()) # L2 norm
 
     def to_numpy(self):
         return np.array([self.x, self.y, self.z], dtype=np.float64)
