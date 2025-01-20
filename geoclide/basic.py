@@ -75,6 +75,12 @@ class Vector(object):
             return Vector(sca*self.x, sca*self.y, sca*self.z)
         else:
             raise ValueError('A Vector can be multiplied only by a scalar')
+        
+    def __rmul__(self, sca): 
+        if (np.isscalar(sca)):
+            return Vector(sca*self.x, sca*self.y, sca*self.z)
+        else:
+            raise ValueError('A Vector can be multiplied only by a scalar')
 
     def __getitem__(self, ind):
         if ( not isinstance(ind, int) or
@@ -94,9 +100,12 @@ class Vector(object):
     
     def __repr__(self):
         return 'Vector(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
-
+    
+    def lengthSquared(self):
+        return self.x*self.x + self.y*self.y + self.z*self.z
+    
     def length(self):
-        return math.sqrt(self.x*self.x + self.y*self.y + self.z*self.z) # L2 norm
+        return math.sqrt(self.lengthSquared()) # L2 norm
 
     def to_numpy(self):
         return np.array([self.x, self.y, self.z], dtype=np.float64)
@@ -149,10 +158,11 @@ class Point(object):
             raise ValueError('Equality with a Point must be only with another Point')
 
     def __add__(self, v):
-        if isinstance(v, Vector):
+        if isinstance(v, Vector) or isinstance(v, Point):
             return Point(self.x+v.x, self.y+v.y, self.z+v.z)
         else:
-            raise ValueError('Addition with a Point must be only with a Vector')
+            raise ValueError('Addition with a Point must be only with a Vector or' +
+                             ' (exceptionally tolerated) another Point')
 
     def __sub__(self, vp2):
         if isinstance(vp2, Vector):
@@ -170,6 +180,12 @@ class Point(object):
             raise ValueError('A Point can be divided only by a scalar')
 
     def __mul__(self, sca): 
+        if (np.isscalar(sca)):
+            return Point(sca*self.x, sca*self.y, sca*self.z)
+        else:
+            raise ValueError('A Point can be multiplied only by a scalar')
+    
+    def __rmul__(self, sca): 
         if (np.isscalar(sca)):
             return Point(sca*self.x, sca*self.y, sca*self.z)
         else:
@@ -267,6 +283,12 @@ class Normal(object):
             return Normal(sca*self.x, sca*self.y, sca*self.z)
         else:
             raise ValueError('A Normal can be multiplied only by a scalar')
+    
+    def __rmul__(self, sca):
+        if (np.isscalar(sca)):
+            return Normal(sca*self.x, sca*self.y, sca*self.z)
+        else:
+            raise ValueError('A Normal can be multiplied only by a scalar')
         
     def __getitem__(self, ind):
         if ( not isinstance(ind, int) or
@@ -287,8 +309,11 @@ class Normal(object):
     def __repr__(self):
         return 'Normal(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
     
+    def lengthSquared(self):
+        return self.x*self.x + self.y*self.y + self.z*self.z
+    
     def length(self):
-        return math.sqrt(self.x*self.x + self.y*self.y + self.z*self.z) # L2 norm
+        return math.sqrt(self.lengthSquared()) # L2 norm
 
     def to_numpy(self):
         return np.array([self.x, self.y, self.z], dtype=np.float64)

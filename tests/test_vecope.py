@@ -90,24 +90,24 @@ def test_face_forward():
     assert (gc.face_forward(v1, n1) == gc.Vector(-1.0, 0.0, 0.0))
 
 
-def test_max():
+def test_vmax():
     v1 = gc.Vector(2.,3.,1.)
-    assert (gc.max(v1) == 3.)
+    assert (gc.vmax(v1) == 3.)
 
 
-def test_min():
+def test_vmin():
     v1 = gc.Vector(2.,3.,1.)
-    assert (gc.min(v1) == 1.)
+    assert (gc.vmin(v1) == 1.)
 
 
-def test_argmax():
+def test_vargmax():
     v1 = gc.Vector(2.,3.,1.)
-    assert (gc.argmax(v1) == 1)
+    assert (gc.vargmax(v1) == 1)
 
 
-def test_argmin():
+def test_vargmin():
     v1 = gc.Vector(2.,3.,1.)
-    assert (gc.argmin(v1) == 2)
+    assert (gc.vargmin(v1) == 2)
 
 
 def test_permute():

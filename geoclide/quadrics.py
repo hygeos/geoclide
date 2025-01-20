@@ -217,7 +217,7 @@ class Sphere(Shape):
         invzradius = 1 / zradius
         cosphi = phit.x * invzradius
         sinphi = phit.y * invzradius
-        dpdu = Vector(-self.phiMax * phit.y, self.phiMax * phit.x, 0);
+        dpdu = Vector(-self.phiMax * phit.y, self.phiMax * phit.x, 0)
         dpdv = Vector(Vector(phit.z * cosphi, phit.z * sinphi, -self.radius \
                         * math.sin(theta)) * (self.thetaMax-self.thetaMin))
 

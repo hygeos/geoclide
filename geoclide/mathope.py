@@ -133,3 +133,13 @@ def quadratic(a, b, c):
     if (x0 > x1): x0, x1 = swap(x0, x1)
 
     return True, x0, x1
+
+
+def gamma_f32(n):
+    epsi = np.finfo(np.float32).eps * 0.5
+    return (n*epsi)/(1 - n*epsi)
+
+
+def gamma_f64(n):
+    epsi = np.finfo(np.float64).eps * 0.5
+    return (n*epsi)/(1 - n*epsi)
