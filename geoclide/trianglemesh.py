@@ -12,6 +12,19 @@ from geoclide.transform import Transform
 class Triangle(Shape):
     '''
     Creation of the class Triangle
+
+    Parameters
+    ----------
+    p0 : Point
+        The first point of the triangle
+    p1 : Point
+        The second point of the triangle
+    p2 : Point
+        The the third point of the triangle
+    oTw : Transform, optional
+        From object to world space or the transformation applied to the triangle
+    wTo : Transform, optional
+        From world to object space or the in inverse transformation applied to the triangle
     '''
     def __init__(self, p0=None, p1=None, p2=None, oTw=None, wTo=None):
         if p0 is None : p0 = Point()
@@ -434,6 +447,20 @@ class Triangle(Shape):
 class TriangleMesh(Shape):
     '''
     Creation of the class TriangleMesh
+
+    Parameters
+    ----------
+    vi : np.ndarray
+        The 1d ndarray containing the vertices index (from the parameter v) of the triangle mesh. The 3 first 
+        indices are the vertices of the first triangle and so on. The
+    v : np.ndarray
+        The vertices xyz coordinates. It is a 1d array of size (nvertices) containing Point objects 
+        where the first element is the coordinate of first vertex and so on. It can be a 2d float array 
+        of size (nvertices, 3).
+    oTw : Transform, optional
+        From object to world space or the transformation applied to the triangle mesh
+    wTo : Transform, optional
+        From world to object space or the in inverse transformation applied to the triangle mesh
     '''
     def __init__(self, vi, v, oTw=None, wTo=None):
         Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
@@ -464,6 +491,25 @@ class TriangleMesh(Shape):
             self.triangles[itri] = Triangle(p0, p1, p2, oTw, wTo)
     
     def intersect(self, r1, method='v3'):
+        """
+        Test if a Ray intersect with the triangle mesh and return intersection information
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+        method : str, optional
+            Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
+        
+        Returns
+        -------
+        thit : float
+            The t ray variable for its first intersection at the shape surface
+        dg : DifferentialGeometry
+            The parametric parameters at the intersection point
+        is_intersection : bool
+            If there is an intersection -> True, else False
+        """
         dg = None
         thit = float("inf")
         for itri in range(0, self.ntriangles):
