@@ -429,3 +429,49 @@ class Triangle(Shape):
                 return False
         
         return True
+     
+
+class TriangleMesh(Shape):
+    '''
+    Creation of the class TriangleMesh
+    '''
+    def __init__(self, vi, v, oTw=None, wTo=None):
+        Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
+        if (  not isinstance(vi, np.ndarray) or
+              not len(vi.shape) == 1         or
+              not (isinstance(vi[0], int) or isinstance(vi[0], np.integer))  ):
+            raise ValueError('The parameter vi must be a 1d ndarray of intergers')
+        if (  not ( isinstance(v, np.ndarray) )                                              or
+              not ( (len(v.shape) == 1 and isinstance(v[0], Point)) or (len(v.shape) == 2) )  ):
+            raise ValueError('The paramerter v must be a 1d ndarray of Point objects or a 2d ndarray')
+
+        self.vertices_index = vi
+        self.nvertices = np.amax(vi) + int(1)
+        if not isinstance(v[0], Point):
+            v_bis = np.empty((self.nvertices), dtype=Point)
+            for iv in range (0, self.nvertices):
+                v_bis[iv] = Point(v[iv,:])
+            self.vertices = v_bis
+        else:
+            self.vertices = v
+        self.ntriangles = int(len(np.atleast_1d(self.vertices_index))/3)
+        self.triangles = np.empty((self.ntriangles), dtype=Triangle)
+            
+        for itri in range(0, self.ntriangles):
+            p0 = self.vertices[self.vertices_index[int(3*itri)]]
+            p1 = self.vertices[self.vertices_index[int(3*itri) + int(1)]]
+            p2 = self.vertices[self.vertices_index[int(3*itri) + int(2)]]
+            self.triangles[itri] = Triangle(p0, p1, p2, oTw, wTo)
+    
+    def intersect(self, r1, method='v3'):
+        dg = None
+        thit = float("inf")
+        for itri in range(0, self.ntriangles):
+            thit_bis, dg_bis, is_intersection_bis = self.triangles[itri].intersect(r1, method=method)
+            if is_intersection_bis:
+                if thit > thit_bis:
+                    thit = thit_bis
+                    dg = dg_bis
+        if dg is None: return None, None, False
+            
+        return thit, dg, True
