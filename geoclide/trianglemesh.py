@@ -452,7 +452,7 @@ class TriangleMesh(Shape):
     ----------
     vi : np.ndarray
         The 1d ndarray containing the vertices index (from the parameter v) of the triangle mesh. The 3 first 
-        indices are the vertices of the first triangle and so on. The
+        indices are the vertices of the first triangle and so on.
     v : np.ndarray
         The vertices xyz coordinates. It is a 1d array of size (nvertices) containing Point objects 
         where the first element is the coordinate of first vertex and so on. It can be a 2d float array 
@@ -521,3 +521,24 @@ class TriangleMesh(Shape):
         if dg is None: return None, None, False
             
         return thit, dg, True
+    
+    def is_intersection(self, r1, method='v3'):
+        """
+        Test if a Ray intersect with the triangle mesh
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+        method : str, optional
+            Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
+        
+        Returns
+        -------
+        out : bool
+            If there is an intersection -> True, else False
+        """
+        for itri in range(0, self.ntriangles):
+            if (self.triangles[itri].is_intersection(r1, method=method)):
+                return True
+        return False
