@@ -25,13 +25,28 @@ class Triangle(Shape):
         From object to world space or the transformation applied to the triangle
     wTo : Transform, optional
         From world to object space or the in inverse transformation applied to the triangle
+    p0t : Point, optional
+        If given circumvent the automatically computed p0t (p0 after applying transformation)
+    p1t : Point, optional
+        If given circumvent the automatically computed p1t (p1 after applying transformation)
+    p2t : Point, optional
+        If given circumvent the automatically computed p2t (p2 after applying transformation)
     '''
-    def __init__(self, p0=None, p1=None, p2=None, oTw=None, wTo=None):
+    def __init__(self, p0=None, p1=None, p2=None, oTw=None, wTo=None,
+                 p0t=None, p1t=None, p2t=None):
         if p0 is None : p0 = Point()
         if p1 is None : p1 = Point()
         if p2 is None : p2 = Point()
+        if wTo is None:
+            wTo = Transform()
+            self.p0t = p0
+            self.p1t = p1
+            self.p2t = p2
+        else:
+            if (p0t is None): self.p0t = wTo[p0]
+            if (p1t is None): self.p1t = wTo[p1]
+            if (p2t is None): self.p2t = wTo[p2]
         if oTw is None: oTw = Transform()
-        if wTo is None: wTo = Transform()
         if (not isinstance(p0, Point) or not isinstance(p1, Point) or not isinstance(p2, Point)):
             raise ValueError('The parameters must be all Point')
         if (not isinstance(oTw, Transform) or not isinstance(wTo, Transform)):
@@ -40,6 +55,9 @@ class Triangle(Shape):
         self.p0 = p0
         self.p1 = p1
         self.p2 = p2
+        if (p0t is not None): self.p0t = p0t
+        if (p1t is not None): self.p1t = p1t
+        if (p2t is not None): self.p2t = p2t
 
     def is_intersection(self, r1, method='v3'):
         """
@@ -96,7 +114,7 @@ class Triangle(Shape):
         else:
             raise ValueError("Only 'v2' and 'v3' are valid values for method parameter")   
         
-    def intersect_v2(self, r):
+    def intersect_v2(self, r1):
         """
         Test if a Ray intersect with the triangle using mainly pbrt v2 method,
         and return intersection information
@@ -115,9 +133,13 @@ class Triangle(Shape):
         is_intersection : bool
             If there is an intersection -> True, else False
         """
-        ray = Ray(r)
-        e1 = self.p1 - self.p0
-        e2 = self.p2 - self.p0
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r1)
+        p0 = self.p0t
+        p1 = self.p1t
+        p2 = self.p2t
+        e1 = p1 - p0
+        e2 = p2 - p0
         s1 = gv.cross(ray.d, e2)
         divisor = gv.dot(s1, e1)
 
@@ -126,7 +148,7 @@ class Triangle(Shape):
         invDivisor = 1./divisor
 
         # compute the first barycentric coordinate
-        s = ray.o - self.p0
+        s = ray.o - p0
         b1 = gv.dot(s, s1) * invDivisor
         if (b1 < -0.00000001 or  b1 > 1.00000001):
             return None, None, False
@@ -150,8 +172,8 @@ class Triangle(Shape):
         du2 = uvs[1][0] - uvs[2][0]
         dv1 = uvs[0][1] - uvs[2][1]
         dv2 = uvs[1][1] - uvs[2][1]
-        dp1 = self.p0 - self.p2
-        dp2 = self.p1 - self.p2
+        dp1 = p0 - p2
+        dp2 = p1 - p2
         determinant = du1 * dv2 - dv1 * du2
 
         if (determinant == 0):
@@ -193,11 +215,14 @@ class Triangle(Shape):
         """
         if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
         ray = Ray(r1)
+        p0 = self.wTo[self.p0]
+        p1 = self.wTo[self.p1]
+        p2 = self.wTo[self.p2]
 
         # Get triangle vertices and translate them in based on ray origin
-        p0t = self.p0 - ray.o
-        p1t = self.p1 - ray.o
-        p2t = self.p2 - ray.o
+        p0t = p0 - ray.o
+        p1t = p1 - ray.o
+        p2t = p2 - ray.o
 
         kz = gv.vargmax(gv.vabs(ray.d))
         kx = kz + 1
@@ -270,8 +295,8 @@ class Triangle(Shape):
         uv2 = Point(1., 1., 0.)
         duv02 = uv0 - uv2
         duv12 = uv1 - uv2
-        dp02 = self.p0 - self.p2
-        dp12 = self.p1 - self.p2
+        dp02 = p0 - p2
+        dp12 = p1 - p2
         determinant = duv02.x*duv12.y - duv02.y*duv12.x
         degenerate = bool(abs(determinant) < 1e-8)
 
@@ -281,19 +306,19 @@ class Triangle(Shape):
             dpdv = (-duv12.x*dp02 + duv02.x*dp12)*invdet
 
         if ( degenerate or gv.cross(dpdu, dpdv).length_squared() == 0):
-            ng = gv.cross(self.p2-self.p0, self.p1-self.p0)
+            ng = gv.cross(p2-p0, p1-p0)
             if ( ng.length_squared() == 0 ):
                 return None, None, False
             dpdu, dpdv = gv.coordinate_system(gv.normalize(ng))
 
-        phit = b0*self.p0+b1*self.p1+b2*self.p2
+        phit = b0*p0+b1*p1+b2*p2
         uvhit =b0*uv0 + b1*uv1 + b2*uv2
         thit = t
         dg = DifferentialGeometry(phit, dpdu, dpdv, uvhit.x, uvhit.y, self)
         
         return thit, dg, True
     
-    def is_intersection_v2(self, r):
+    def is_intersection_v2(self, r1):
         """
         Test if a Ray intersect with the triangle using mainly pbrt v2 method
 
@@ -307,9 +332,13 @@ class Triangle(Shape):
         out : bool
             If there is an intersection -> True, else False
         """
-        ray = Ray(r)
-        e1 = self.p1 - self.p0
-        e2 = self.p2 - self.p0
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r1)
+        p0 = self.p0t
+        p1 = self.p1t
+        p2 = self.p2t
+        e1 = p1 - p0
+        e2 = p2 - p0
         s1 = gv.cross(ray.d, e2)
         divisor = gv.dot(s1, e1)
 
@@ -318,7 +347,7 @@ class Triangle(Shape):
         invDivisor = 1./divisor
 
         # compute the first barycentric coordinate
-        s = ray.o - self.p0
+        s = ray.o - p0
         b1 = gv.dot(s, s1) * invDivisor
         if (b1 < -0.00000001 or  b1 > 1.00000001):
             return False
@@ -352,11 +381,14 @@ class Triangle(Shape):
         """
         if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
         ray = Ray(r1)
+        p0 = self.p0t
+        p1 = self.p1t
+        p2 = self.p2t
 
         # Get triangle vertices and translate them in based on ray origin
-        p0t = self.p0 - ray.o
-        p1t = self.p1 - ray.o
-        p2t = self.p2 - ray.o
+        p0t = p0 - ray.o
+        p1t = p1 - ray.o
+        p2t = p2 - ray.o
 
         kz = gv.vargmax(gv.vabs(ray.d))
         kx = kz + 1
@@ -426,8 +458,8 @@ class Triangle(Shape):
         uv2 = Point(1., 1., 0.)
         duv02 = uv0 - uv2
         duv12 = uv1 - uv2
-        dp02 = self.p0 - self.p2
-        dp12 = self.p1 - self.p2
+        dp02 = p0 - p2
+        dp12 = p1 - p2
         determinant = duv02.x*duv12.y - duv02.y*duv12.x
         degenerate = bool(abs(determinant) < 1e-8)
 
@@ -437,7 +469,7 @@ class Triangle(Shape):
             dpdv = (-duv12.x*dp02 + duv02.x*dp12)*invdet
 
         if ( degenerate or gv.cross(dpdu, dpdv).length_squared() == 0):
-            ng = gv.cross(self.p2-self.p0, self.p1-self.p0)
+            ng = gv.cross(p2-p0, p1-p0)
             if ( ng.length_squared() == 0 ):
                 return False
         
@@ -481,6 +513,14 @@ class TriangleMesh(Shape):
             self.vertices = v_bis
         else:
             self.vertices = v
+        
+        if wTo is None:
+            self.vertices_t = self.vertices
+        else:
+            self.vertices_t = np.empty((self.nvertices), dtype=Point)
+            for iv in range (0, self.nvertices):
+                self.vertices_t[iv] = wTo[self.vertices[iv]]
+        
         self.ntriangles = int(len(np.atleast_1d(self.vertices_index))/3)
         self.triangles = np.empty((self.ntriangles), dtype=Triangle)
             
@@ -488,7 +528,10 @@ class TriangleMesh(Shape):
             p0 = self.vertices[self.vertices_index[int(3*itri)]]
             p1 = self.vertices[self.vertices_index[int(3*itri) + int(1)]]
             p2 = self.vertices[self.vertices_index[int(3*itri) + int(2)]]
-            self.triangles[itri] = Triangle(p0, p1, p2, oTw, wTo)
+            p0t = self.vertices_t[self.vertices_index[int(3*itri)]]
+            p1t = self.vertices_t[self.vertices_index[int(3*itri) + int(1)]]
+            p2t = self.vertices_t[self.vertices_index[int(3*itri) + int(2)]]
+            self.triangles[itri] = Triangle(p0, p1, p2, oTw, wTo, p0t, p1t, p2t)
     
     def intersect(self, r1, method='v3'):
         """
