@@ -146,8 +146,21 @@ class Transform(object):
         print("m=\narray(\n", self.m, ")\nmInv=\narray(\n",self.mInv,")")
         return ""
 
-    def inverse(self, t):
-        return Transform(t.mInv, t.m)
+    def inverse(self):
+        """
+        Inverse the initial transformation
+
+        Parameters
+        ----------
+        t : Transform
+            The transformation to be inversed
+
+        Returns
+        -------
+        out : Transform
+            The inversed transformation
+        """
+        return get_inverse_tf(self)
 
     def isIdentity(self):
         return (self.m[0,0] == 1) and (self.m[0,1] == 0) and (self.m[0,2] == 0) and \
@@ -284,6 +297,23 @@ class Transform(object):
         t = get_rotate_tf(angle, axis)
         return self*t
 
+
+def get_inverse_tf(t):
+    """
+    Get the inverse transformation
+
+    Parameters
+    ----------
+    t : Transform
+        The transformation to be inversed
+
+    Returns
+    -------
+    out : Transform
+        The inversed transformation
+    """
+    return Transform(t.mInv, t.m)
+    
 
 def get_translate_tf(v):
     """
