@@ -34,23 +34,30 @@ class Triangle(Shape):
     '''
     def __init__(self, p0=None, p1=None, p2=None, oTw=None, wTo=None,
                  p0t=None, p1t=None, p2t=None):
+        # Manage None cases
         if p0 is None : p0 = Point()
         if p1 is None : p1 = Point()
         if p2 is None : p2 = Point()
-        if wTo is None:
+        if wTo is None and oTw is None:
             wTo = Transform()
+            oTw = Transform()
             self.p0t = p0
             self.p1t = p1
             self.p2t = p2
-        else:
+        elif ( (wTo is None or isinstance(wTo, Transform)) and
+               (oTw is None or isinstance(oTw, Transform)) ):
+            if (wTo is None): wTo = oTw.inverse() # if wTo is None then oTw should be Transform
+            if (oTw is None): oTw = wTo.inverse() # if oTw is None then wTo should be Transform
             if (p0t is None): self.p0t = wTo[p0]
             if (p1t is None): self.p1t = wTo[p1]
             if (p2t is None): self.p2t = wTo[p2]
-        if oTw is None: oTw = Transform()
+
         if (not isinstance(p0, Point) or not isinstance(p1, Point) or not isinstance(p2, Point)):
-            raise ValueError('The parameters must be all Point')
-        if (not isinstance(oTw, Transform) or not isinstance(wTo, Transform)):
-            raise ValueError('The parameters oTw and wTo must be both Transform')
+            raise ValueError('The parameters p0, p1 and p2 must be all Point')
+        if ( (p0t is not None and not isinstance(p0t, Point)) or
+             (p1t is not None and not isinstance(p1t, Point)) or
+             (p2t is not None and not isinstance(p2t, Point)) ):
+            raise ValueError('The parameters p0t, p1t and p2t must be all Point')
         Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
         self.p0 = p0
         self.p1 = p1
@@ -495,7 +502,6 @@ class TriangleMesh(Shape):
         From world to object space or the in inverse transformation applied to the triangle mesh
     '''
     def __init__(self, vi, v, oTw=None, wTo=None):
-        Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
         if (  not isinstance(vi, np.ndarray) or
               not len(vi.shape) == 1         or
               not (isinstance(vi[0], int) or isinstance(vi[0], np.integer))  ):
@@ -532,6 +538,9 @@ class TriangleMesh(Shape):
             p1t = self.vertices_t[self.vertices_index[int(3*itri) + int(1)]]
             p2t = self.vertices_t[self.vertices_index[int(3*itri) + int(2)]]
             self.triangles[itri] = Triangle(p0, p1, p2, oTw, wTo, p0t, p1t, p2t)
+        
+        Shape.__init__(self, ObjectToWorld = self.triangles[0].oTw,
+                       WorldToObject = self.triangles[0].wTo)
     
     def intersect(self, r1, method='v3'):
         """

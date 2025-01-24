@@ -34,15 +34,16 @@ class Sphere(Shape):
     def __init__(self, radius, z_min=None, z_max=None, phi_max=2*math.pi, oTw=None, wTo=None):
         if z_min is None: z_min = -radius
         if z_max is None: z_max = radius
-        if oTw is None: oTw = Transform()
-        if wTo is None: wTo = Transform()
+        if wTo is None and oTw is None:
+            wTo = Transform()
+            oTw = Transform()
+        elif (wTo is None and isinstance(oTw, Transform)): wTo = oTw.inverse()
+        elif (isinstance(wTo, Transform) and oTw is None): oTw = wTo.inverse()
         if (not np.isscalar(radius) or
             not np.isscalar(z_min)  or
             not np.isscalar(z_max)  or
             not np.isscalar(phi_max) ):
             raise ValueError('The parameters radius, z_min, z_max and phi_max must be all scalars')
-        if (not isinstance(oTw, Transform) or not isinstance(wTo, Transform)):
-            raise ValueError('The parameters oTw and wTo must be both Transform')
         Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
         self.radius = radius
         self.zmin = clamp(z_min, -self.radius, self.radius)

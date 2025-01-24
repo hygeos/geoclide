@@ -4,6 +4,7 @@
 from geoclide import Vector, Point, Normal
 from geoclide import normalize, cross
 import numpy as np
+from geoclide.transform import Transform
 
 
 class Shape(object):
@@ -12,6 +13,8 @@ class Shape(object):
     '''
     indShape = 0
     def __init__(self, ObjectToWorld, WorldToObject):
+        if (not isinstance(ObjectToWorld, Transform) or not isinstance(WorldToObject, Transform)):
+            raise ValueError('The parameters oTw and wTo must be both Transform')
         self.oTw = ObjectToWorld
         self.wTo = WorldToObject
 
