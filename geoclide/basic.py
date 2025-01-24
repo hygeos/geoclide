@@ -81,6 +81,9 @@ class Vector(object):
             return Vector(sca*self.x, sca*self.y, sca*self.z)
         else:
             raise ValueError('A Vector can be multiplied only by a scalar')
+    
+    def __neg__(self):
+        return Vector(-self.x, -self.y, -self.z)
 
     def __getitem__(self, ind):
         if ( not isinstance(ind, int) or
@@ -190,7 +193,10 @@ class Point(object):
             return Point(sca*self.x, sca*self.y, sca*self.z)
         else:
             raise ValueError('A Point can be multiplied only by a scalar')
-        
+    
+    def __neg__(self):
+        return Point(-self.x, -self.y, -self.z)
+    
     def __getitem__(self, ind):
         if ( not isinstance(ind, int) or
              not isinstance(ind, np.integer) ):
@@ -289,6 +295,9 @@ class Normal(object):
             return Normal(sca*self.x, sca*self.y, sca*self.z)
         else:
             raise ValueError('A Normal can be multiplied only by a scalar')
+    
+    def __neg__(self):
+        return Normal(-self.x, -self.y, -self.z)
         
     def __getitem__(self, ind):
         if ( not isinstance(ind, int) or

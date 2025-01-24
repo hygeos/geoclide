@@ -27,6 +27,7 @@ def test_vector(v_arr):
     assert (v1[0] == v1.x)
     assert (v1[1] == v1.y)
     assert (v1[2] == v1.z)
+    assert (-v1 == gc.Vector(-v1.x, -v1.y, -v1.z))
 
 
 @pytest.mark.parametrize('p_arr', P1)
@@ -41,6 +42,7 @@ def test_point(p_arr):
     assert (p1[0] == p1.x)
     assert (p1[1] == p1.y)
     assert (p1[2] == p1.z)
+    assert (-p1 == gc.Point(-p1.x, -p1.y, -p1.z))
 
 
 @pytest.mark.parametrize('n_arr', N1)
@@ -55,6 +57,7 @@ def test_normal(n_arr):
     assert (n1[0] == n1.x)
     assert (n1[1] == n1.y)
     assert (n1[2] == n1.z)
+    assert (-n1 == gc.Normal(-n1.x, -n1.y, -n1.z))
 
 
 @pytest.mark.parametrize('v_arr', V1)
