@@ -38,19 +38,19 @@ class Triangle(Shape):
         if p0 is None : p0 = Point()
         if p1 is None : p1 = Point()
         if p2 is None : p2 = Point()
-        if wTo is None and oTw is None:
-            wTo = Transform()
+        if oTw is None and wTo is None:
             oTw = Transform()
+            wTo = Transform()
             self.p0t = p0
             self.p1t = p1
             self.p2t = p2
-        elif ( (wTo is None or isinstance(wTo, Transform)) and
-               (oTw is None or isinstance(oTw, Transform)) ):
-            if (wTo is None): wTo = oTw.inverse() # if wTo is None then oTw should be Transform
+        elif ( (oTw is None or isinstance(oTw, Transform)) and
+               (wTo is None or isinstance(wTo, Transform)) ):
             if (oTw is None): oTw = wTo.inverse() # if oTw is None then wTo should be Transform
-            if (p0t is None): self.p0t = wTo[p0]
-            if (p1t is None): self.p1t = wTo[p1]
-            if (p2t is None): self.p2t = wTo[p2]
+            if (wTo is None): wTo = oTw.inverse() # if wTo is None then oTw should be Transform
+            if (p0t is None): self.p0t = oTw[p0]
+            if (p1t is None): self.p1t = oTw[p1]
+            if (p2t is None): self.p2t = oTw[p2]
 
         if (not isinstance(p0, Point) or not isinstance(p1, Point) or not isinstance(p2, Point)):
             raise ValueError('The parameters p0, p1 and p2 must be all Point')
@@ -222,9 +222,9 @@ class Triangle(Shape):
         """
         if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
         ray = Ray(r1)
-        p0 = self.wTo[self.p0]
-        p1 = self.wTo[self.p1]
-        p2 = self.wTo[self.p2]
+        p0 = self.p0t
+        p1 = self.p1t
+        p2 = self.p2t
 
         # Get triangle vertices and translate them in based on ray origin
         p0t = p0 - ray.o
@@ -490,8 +490,9 @@ class TriangleMesh(Shape):
     Parameters
     ----------
     vi : np.ndarray
-        The 1d ndarray containing the vertices index (from the parameter v) of the triangle mesh. The 3 first 
-        indices are the vertices of the first triangle and so on.
+        The 1d ndarray of size (3*ntriangles) containing the vertices indices of triangles (see the parameter v). 
+        The 3 first indices are the vertices (p0, p1 and p3) indices of the first triangle and so on. 
+        It can be a 2d ndarray of shape (ntriangles, 3)
     v : np.ndarray
         The vertices xyz coordinates. It is a 1d array of size (nvertices) containing Point objects 
         where the first element is the coordinate of first vertex and so on. It can be a 2d float array 
@@ -502,14 +503,15 @@ class TriangleMesh(Shape):
         From world to object space or the in inverse transformation applied to the triangle mesh
     '''
     def __init__(self, vi, v, oTw=None, wTo=None):
-        if (  not isinstance(vi, np.ndarray) or
-              not len(vi.shape) == 1         or
-              not (isinstance(vi[0], int) or isinstance(vi[0], np.integer))  ):
-            raise ValueError('The parameter vi must be a 1d ndarray of intergers')
+        if (  not isinstance(vi, np.ndarray)                                or
+              not (len(vi.shape) == 1 or len(vi.shape) == 2)                or
+              not (np.issubdtype(vi.dtype, int) or np.issubdtype(vi.dtype, np.integer))  ):
+            raise ValueError('The parameter vi must be a 1d or 2d ndarray of intergers')
         if (  not ( isinstance(v, np.ndarray) )                                              or
               not ( (len(v.shape) == 1 and isinstance(v[0], Point)) or (len(v.shape) == 2) )  ):
             raise ValueError('The paramerter v must be a 1d ndarray of Point objects or a 2d ndarray')
-
+        
+        if (len(vi) == 2): vi = vi.flatten()
         self.vertices_index = vi
         self.nvertices = np.amax(vi) + int(1)
         if not isinstance(v[0], Point):
@@ -520,12 +522,12 @@ class TriangleMesh(Shape):
         else:
             self.vertices = v
         
-        if wTo is None:
+        if oTw is None:
             self.vertices_t = self.vertices
         else:
             self.vertices_t = np.empty((self.nvertices), dtype=Point)
             for iv in range (0, self.nvertices):
-                self.vertices_t[iv] = wTo[self.vertices[iv]]
+                self.vertices_t[iv] = oTw[self.vertices[iv]]
         
         self.ntriangles = int(len(np.atleast_1d(self.vertices_index))/3)
         self.triangles = np.empty((self.ntriangles), dtype=Triangle)

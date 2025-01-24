@@ -51,10 +51,8 @@ def test_triangle_transform():
     p1 = gc.Point(0.5, 0.5, 0.)
     p2 = gc.Point(0.5, -0.5, 0.)
 
-    wTo = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotateY_tf(45.)
-    oTw = wTo.inverse()
-
-    tri = gc.Triangle(p0, p1, p2, wTo=wTo, oTw=oTw)
+    oTw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotateY_tf(45.)
+    tri = gc.Triangle(p0, p1, p2, oTw=oTw)
     ray = gc.Ray(o=gc.Point(0., 0., 4.8), d=gc.normalize(gc.Vector(1.,0.,0.)))
 
     thitv2, dgv2, is_intv2 = tri.intersect(ray, method='v2')
@@ -98,10 +96,8 @@ def test_triangle_mesh():
     vi = np.array([0, 1, 2,                # vertices index of T0
                 2, 3, 1], dtype=np.int32)  # vertices index of T1
 
-    wTo = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotateY_tf(45.)
-    oTw = wTo.inverse()
-
-    tri_mesh = gc.TriangleMesh(vi=vi, v=v, wTo=wTo, oTw=oTw)
+    oTw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotateY_tf(45.)
+    tri_mesh = gc.TriangleMesh(vi=vi, v=v, oTw=oTw)
     ray = gc.Ray(o=gc.Point(0., 0., 4.8), d=gc.normalize(gc.Vector(1.,0.,0.)))
 
     thitv2, dgv2, is_intv2 = tri_mesh.intersect(ray, method='v2')
