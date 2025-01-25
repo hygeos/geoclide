@@ -36,44 +36,6 @@ def clamp(val, val_min, val_max):
     return val_min if (val < val_min) else (val_max if (val > val_max) else val)
 
 
-def swap(a, b):
-    """
-    Swaps the values of two scalar variables
-
-    Parameters
-    ----------
-    a : float
-        The first variable to swap
-    b : The second variable to swap
-
-    Results
-    -------
-    a : float
-        The a variable with the value of the variable b
-    b : float
-        The b variable with the value of the variable a
-
-    Examples
-    --------
-    >>> import geoclide as gc
-    >>> a = 5
-    >>> a
-    5
-    >>> b = 12
-    >>> b
-    12
-    >>> a, b = gc.swap(a, b)
-    >>> a
-    12
-    >>> b
-    5
-    """
-    if (not np.isscalar(a) or not np.isscalar(b) ):
-        raise ValueError('The parameters must be all scalars')
-    
-    return b, a
-
-
 def quadratic(a, b, c):
     """
     Resolve the quadratic polynomial: ax**2 + bx + c
@@ -130,7 +92,7 @@ def quadratic(a, b, c):
 
     x1 = c / q
 
-    if (x0 > x1): x0, x1 = swap(x0, x1)
+    if (x0 > x1): x0, x1 = x1, x0
 
     return True, x0, x1
 

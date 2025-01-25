@@ -12,12 +12,6 @@ def test_clamp():
     assert (gc.clamp(4., val_min=5., val_max=11.) == 5.)
 
 
-def test_swap():
-    a = 5.
-    b = 12.
-    assert (gc.swap(a, b) == (b, a))
-
-
 def test_quadratic():
     a = 2.
     b = -5.
