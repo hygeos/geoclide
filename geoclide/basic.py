@@ -3,7 +3,7 @@
 
 import math 
 import numpy as np
-from geoclide.mathope import swap
+from geoclide.mathope import swap, gamma_f64
 
 
 class Vector(object):
@@ -543,19 +543,16 @@ class BBox(object):
         >>> b1.is_intersection(r1)
         True
         """
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
         t0 = 0.
-        epsi = 1e-32 * 0.5
-        t1 = np.inf
-        gamma3 = (3*epsi)/(1 - 3*epsi)
+        t1 = r1.maxt
         for i in range(3):
-            if r1.d[i]!= 0 :
-                invRayDir = 1. / r1.d[i]
-            else: invRayDir=1e32
+            if r1.d[i]!= 0 : invRayDir = 1. / r1.d[i]
+            else : invRayDir = math.inf
             tNear = (self.pmin[i] - r1.o[i]) * invRayDir
             tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
-
-            if (tNear > tFar): swap(tNear,tFar)
-            tFar *= 1 + 2*gamma3
+            if (tNear > tFar): tNear, tFar = swap(tNear,tFar)
+            tFar *= 1 + 2*gamma_f64(3)
             t0 = tNear if tNear > t0 else t0
             t1 = tFar  if  tFar < t1 else t1
             if (t0 > t1) : return False
@@ -604,22 +601,19 @@ class BBox(object):
         >>> r1[t1]
         Point(0.5, 0.5, 1.0)
         """
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
         t0 = 0.
-        epsi = 1e-32 * 0.5
-        t1 = np.inf
-        gamma3 = (3*epsi)/(1 - 3*epsi)
+        t1 = r1.maxt
         for i in range(3):
-            if r1.d[i]!= 0 :
-                invRayDir = 1. / r1.d[i]
-            else: invRayDir=1e32
+            if r1.d[i]!= 0 : invRayDir = 1. / r1.d[i]
+            else : invRayDir = math.inf
             tNear = (self.pmin[i] - r1.o[i]) * invRayDir
             tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
-
-            if (tNear > tFar): swap(tNear,tFar)
-            tFar *= 1 + 2*gamma3
+            if (tNear > tFar): tNear, tFar = swap(tNear,tFar)
+            tFar *= 1 + 2*gamma_f64(3)
             t0 = tNear if tNear > t0 else t0
             t1 = tFar  if  tFar < t1 else t1
-            if (t0 > t1) : return 0, 0, False
+            if (t0 > t1) : return 0., 0., False
         return t0, t1, True
 
     def common_vertices(self, b):
