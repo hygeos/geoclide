@@ -3,7 +3,8 @@
 
 import math 
 import numpy as np
-from geoclide.mathope import swap, gamma_f64
+from geoclide.mathope import swap
+from geoclide.constante import GAMMA3_F64
 
 
 class Vector(object):
@@ -552,7 +553,7 @@ class BBox(object):
             tNear = (self.pmin[i] - r1.o[i]) * invRayDir
             tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
             if (tNear > tFar): tNear, tFar = swap(tNear,tFar)
-            tFar *= 1 + 2*gamma_f64(3)
+            tFar *= 1 + 2*GAMMA3_F64
             t0 = tNear if tNear > t0 else t0
             t1 = tFar  if  tFar < t1 else t1
             if (t0 > t1) : return False
@@ -610,7 +611,7 @@ class BBox(object):
             tNear = (self.pmin[i] - r1.o[i]) * invRayDir
             tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
             if (tNear > tFar): tNear, tFar = swap(tNear,tFar)
-            tFar *= 1 + 2*gamma_f64(3)
+            tFar *= 1 + 2*GAMMA3_F64
             t0 = tNear if tNear > t0 else t0
             t1 = tFar  if  tFar < t1 else t1
             if (t0 > t1) : return 0., 0., False

@@ -5,7 +5,7 @@ from geoclide.shapes import Shape, DifferentialGeometry
 from geoclide.basic import Vector, Point, Ray
 import geoclide.vecope as gv
 import numpy as np
-from geoclide.mathope import gamma_f64
+from geoclide.constante import GAMMA2_F64, GAMMA3_F64, GAMMA5_F64
 from geoclide.transform import Transform
 
 
@@ -283,14 +283,14 @@ class Triangle(Shape):
         
         # Ensure that computed triangle t is conservatively greater than zero
         maxZt = np.max(np.abs(np.array([p0t.z, p1t.z, p2t.z])))
-        deltaZ = gamma_f64(3) * maxZt
+        deltaZ = GAMMA3_F64 * maxZt
         maxXt = np.max(np.abs(np.array([p0t.x, p1t.x, p2t.x])))
         maxYt = np.max(np.abs(np.array([p0t.y, p1t.y, p2t.y])))
-        deltaX = gamma_f64(5) * (maxXt + maxZt)
-        deltaY = gamma_f64(5) * (maxYt + maxZt)         
-        deltaE = 2 * (gamma_f64(2) * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
+        deltaX = GAMMA5_F64 * (maxXt + maxZt)
+        deltaY = GAMMA5_F64 * (maxYt + maxZt) 
+        deltaE = 2 * (GAMMA2_F64 * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
         maxE = np.max(np.abs(np.array([e0, e1, e2])))
-        deltaT = 3 * (gamma_f64(3) * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
+        deltaT = 3 * (GAMMA3_F64 * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
         if (t <= deltaT): return None, None, False
 
         # Compute triangle partial derivatives
@@ -446,14 +446,14 @@ class Triangle(Shape):
         
         # Ensure that computed triangle t is conservatively greater than zero
         maxZt = np.max(np.abs(np.array([p0t.z, p1t.z, p2t.z])))
-        deltaZ = gamma_f64(3) * maxZt
+        deltaZ = GAMMA3_F64 * maxZt
         maxXt = np.max(np.abs(np.array([p0t.x, p1t.x, p2t.x])))
         maxYt = np.max(np.abs(np.array([p0t.y, p1t.y, p2t.y])))
-        deltaX = gamma_f64(5) * (maxXt + maxZt)
-        deltaY = gamma_f64(5) * (maxYt + maxZt)         
-        deltaE = 2 * (gamma_f64(2) * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
+        deltaX = GAMMA5_F64 * (maxXt + maxZt)
+        deltaY = GAMMA5_F64 * (maxYt + maxZt)
+        deltaE = 2 * (GAMMA2_F64 * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
         maxE = np.max(np.abs(np.array([e0, e1, e2])))
-        deltaT = 3 * (gamma_f64(3) * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
+        deltaT = 3 * (GAMMA3_F64 * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
         if (t <= deltaT): return False
 
         # Compute triangle partial derivatives

@@ -7,3 +7,4 @@ from geoclide.transform import Transform, get_translate_tf, get_scale_tf, \
 from geoclide.quadrics import Sphere
 from geoclide.intersection import calc_intersection
 from geoclide.trianglemesh import Triangle, TriangleMesh
+from geoclide.constante import GAMMA2_F32, GAMMA2_F64, GAMMA3_F32, GAMMA3_F64, GAMMA5_F32, GAMMA5_F64
