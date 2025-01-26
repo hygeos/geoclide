@@ -10,7 +10,7 @@ Mustapha Moulana
 ## Installation
 The installation can be performed using the following command:
 ```shell
-$ pip install git+https://github.com/hygeos/gatiab.git
+$ pip install git+https://github.com/hygeos/geoclide.git
 ```
 
 ## Testing
@@ -47,7 +47,7 @@ r(t) = (0.0, 0.0, 0.0) + t*(0.4082482904638631, 0.4082482904638631, 0.8164965809
 >>> translate = gc.get_translate_tf(gc.Vector(2.5, 0., 0.)) # translation of 2.5 in x axis
 >>> rotate = gc.get_rotateY_tf(-90.) # rotation of -90 degrees around the y axis
 >>> oTw = translate*rotate # object to world transformation to apply to the triangle mesh
->>> tri_mesh = gc.TriangleMesh(vi, v, oTw=oTw) # create the triangle
+>>> tri_mesh = gc.TriangleMesh(vi, v, oTw=oTw) # create the triangle mesh
 >>> ds = gc.calc_intersection(tri_mesh, r1) # see if the ray r1 intersect the triangle mesh
 >>> ds
 <xarray.Dataset> Size: 801B
