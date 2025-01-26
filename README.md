@@ -121,6 +121,6 @@ oTw = gc.get_translate_tf(gc.Vector(0., 0., -earth_radius))
 sphere_sat_alti = gc.Sphere(radius=earth_radius+sat_altitude, oTw=oTw)  # apply oTw to move the sphere center to earth center
 ds_sp = gc.calc_intersection(sphere_sat_alti, ray) # return an xarray dataset
 
-print ("Satellete position (pp case) :", ds_pp['phit'].values)
-print ("Satellete position (sp case) ", ds_sp['phit'].values)
+print ("Satellite position (pp case) :", ds_pp['phit'].values)
+print ("Satellite position (sp case) ", ds_sp['phit'].values)
 ```

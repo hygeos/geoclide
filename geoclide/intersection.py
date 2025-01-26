@@ -84,7 +84,7 @@ def calc_intersection(shape, r1, method='v3'):
             nhit = None # TODO compute the real normal
         else:
             thit = 0.
-            phit = Point(0., 0., 0.)
+            phit = None
             nhit = None
     elif(isinstance(shape, Sphere)      or
          isinstance(shape, Triangle)    or 
@@ -93,8 +93,12 @@ def calc_intersection(shape, r1, method='v3'):
             thit, dg, is_intersection = shape.intersect(r1, method=method)
         else:
             thit, dg, is_intersection = shape.intersect(r1)
-        phit = dg.p
-        nhit = dg.n
+        if is_intersection:
+            phit = dg.p
+            nhit = dg.n
+        else:
+            phit = None
+            nhit = None
     else:
         raise ValueError('The only supported shape are: BBox and Sphere')
     
@@ -157,8 +161,9 @@ def calc_intersection(shape, r1, method='v3'):
 
     ds['thit'] = thit
     ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
-    ds['phit'] = xr.DataArray(phit.to_numpy(), dims='xyz')
-    ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
+    if (phit is not None):
+        ds['phit'] = xr.DataArray(phit.to_numpy(), dims='xyz')
+        ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
     if (nhit is not None):
         ds['nhit'] = xr.DataArray(nhit.to_numpy(), dims='xyz')
         ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
