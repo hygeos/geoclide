@@ -17,8 +17,80 @@ $ pip install git+https://github.com/hygeos/gatiab.git
 Run the command `pytest tests/ -s -v` to check that everything is running correctly.
 
 ## Examples
+### Basic exemple
 ```python
-import numpy as np
+>>> import geoclide as gc
+>>> import numpy as np
+>>> # Some basics
+>>> p1 = gc.Point(0., 0., 0.) # create a point
+>>> v1 = gc.normalize(gc.Vector(0.5, 0.5, 0.1)) # create a vector and normalize it
+>>> v1
+Vector(0.4082482904638631, 0.4082482904638631, 0.8164965809277261)
+>>> # With a point and a vector we can create a ray
+>>> r1 = gc.Ray(o=p1, d=v1)
+>>> r1
+r(t) = (0.0, 0.0, 0.0) + t*(0.4082482904638631, 0.4082482904638631, 0.8164965809277261) with t ∈ [0,inf[
+>>> # Let's create a triangle mesh with 2 triangles
+>>> # We have 4 vertices
+>>> p0 = gc.Point(-5, -5, 0.)
+>>> p1 = gc.Point(5, -5, 0.)
+>>> p2 = gc.Point(-5, 5, 0.)
+>>> p3 = gc.Point(5, 5, 0.)
+>>> v = np.array([p0, p1, p2, p3], dtype=gc.Point)
+>>> # Get the vertices indices of each triangle
+>>> vid_t0 = np.array([0, 1, 2]) # the vertices indices of triangle 0
+>>> vid_t1 = np.array([2, 3, 1]) # the vertices indices of triangle 1
+>>> vi = np.concatenate((vid_t0, vid_t1)) # regroup everything
+>>> # Here if we create the triangle mesh, it would be a square of dimension 10*10
+>>> # centered at origin (0.,0.,0.) and parallel to the xy plane
+>>> # We can create a transformation to translate and rotate it
+>>> translate = gc.get_translate_tf(gc.Vector(2.5, 0., 0.)) # translation of 2.5 in x axis
+>>> rotate = gc.get_rotateY_tf(-90.) # rotation of -90 degrees around the y axis
+>>> oTw = translate*rotate # object to world transformation to apply to the triangle mesh
+>>> tri_mesh = gc.TriangleMesh(vi, v, oTw=oTw) # create the triangle
+>>> ds = gc.calc_intersection(tri_mesh, r1) # see if the ray r1 intersect the triangle mesh
+>>> ds
+<xarray.Dataset> Size: 801B
+Dimensions:          (xyz: 3, nvertices: 4, ntriangles: 2, p0p1p2: 3, dim_0: 4,
+                      dim_1: 4)
+Coordinates:
+  * xyz              (xyz) int64 24B 0 1 2
+Dimensions without coordinates: nvertices, ntriangles, p0p1p2, dim_0, dim_1
+Data variables: (12/14)
+    is_intersection  bool 1B True
+    o                (xyz) float64 24B 0.0 0.0 0.0
+    d                (xyz) float64 24B 0.7001 0.7001 0.14
+    mint             int64 8B 0
+    maxt             float64 8B inf
+    v                (nvertices, xyz) float64 96B -5.0 -5.0 0.0 ... 5.0 5.0 0.0
+    ...               ...
+    wTo_mInv         (dim_0, dim_1) float64 128B 6.123e-17 0.0 -1.0 ... 0.0 1.0
+    oTw_m            (dim_0, dim_1) float64 128B 6.123e-17 0.0 -1.0 ... 0.0 1.0
+    oTw_mInv         (dim_0, dim_1) float64 128B 6.123e-17 0.0 1.0 ... 0.0 1.0
+    thit             float64 8B 3.571
+    phit             (xyz) float64 24B 2.5 2.5 0.5
+    nhit             (xyz) float64 24B 1.0 0.0 -8.882e-17
+Attributes:
+    shape:       TriangleMesh
+    ntriangles:  2
+    nvertices:   4
+>>> # Here there is intersection, see more detail on intersection point phit
+>>> ds['phit']
+<xarray.DataArray 'phit' (xyz: 3)> Size: 24B
+array([2.5, 2.5, 0.5])
+Coordinates:
+  * xyz      (xyz) int64 24B 0 1 2
+Attributes:
+    type:         Point
+    description:  the x, y and z components of the intersection point
+>>> # We can convert it into a point object
+>>> phit = gc.Point(ds['phit'].values)
+>>> phit
+Point(2.5, 2.5, 0.5)
+```
+
+### Example for remote sensing applications
+```python
 import geoclide as gc
 import math
 
