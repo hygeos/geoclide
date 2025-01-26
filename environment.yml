@@ -1,0 +1,13 @@
+# To create the conda env:
+#  $ conda env create -p /path/to/env/geoclide-dev -f "environment.yml"
+#  $ conda activate geoclide-dev
+#
+channels:
+- conda-forge
+- defaults
+
+dependencies:
+- python>=3.6
+- numpy
+- xarray
+- pytest
