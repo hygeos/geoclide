@@ -1,0 +1,13 @@
+
+           ###########################
+           #                         #
+           #    GEOCLIDE CHANGELOG   #
+           #                         #
+           ###########################
+
+v1.0.0
+----
+
+Release date: 2025-01-27
+
+First public release.
