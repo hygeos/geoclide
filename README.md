@@ -16,6 +16,47 @@ $ pip install git+https://github.com/hygeos/geoclide.git
 ## Testing
 Run the command `pytest tests/ -s -v` to check that everything is running correctly.
 
+## Available classes/functions
+| Class/Function | Type | Description |
+| -------------- | ---- | ----------- |
+| `Vector`| class | vector with x, y and z components |
+| `Point` | class | point with x, y and z components |
+| `Normal` | class | normal with x, y and z components |
+| `Ray` | class | the ray: r(t) = o + t*d, with 'o' a Point, 'd' a vector and t ∈ [0,inf[ |
+| `BBox` | class | Bounding box |
+| `Sphere` | class | sphere object |
+| `Triangle` | class | triangle object |
+| `TriangleMesh` | class | triangle mesh object |
+| `Transform` | class | transformation to translate and/or rotate every objects except a BBox |
+| `calc_intersection` | Function | intersection test between a shape and a ray and returns dataset |
+| `get_common_vertices` | Function | gives the vertices of BBox b1 which are common to another BBox b2 |
+| `get_common_face` | Function | same as `get_common_vertices` but with faces |
+| `dot` | Function | dot product (only vector or normal) |
+| `cross` | Function | cross product (only vector or normal) |
+| `normalize` | Function | normalize a vector/normal |
+| `coordinate_system` | Function | from a vector v1 compute vectors v2 and v3 such that v1, v2 and v3 are unit vectors of an orthogonal coordinate system |
+| `distance` | Function | compute the distance between 2 points |
+| `face_forward` | Function | ensure a vector/normal is in the same hemipherical direction than another given vector/normal |
+| `vmax` | Function | largest component value of the vector/point/normal |
+| `vmin` | Function | smallest component value of the vector/point/normal |
+| `vargmax` | Function | index of the vector/point/normal component with the largest value |
+| `vargmin` | Function | index of the vector/point/normal component with the smallest value |
+| `vabs` | Function | absolute value of each components of the vector/point/normal |
+| `permute` | Function | permutes the vector/point/normal values according to the given indices |
+| `clamp` | Function | clamp a value into the range [val_min, val_max] |
+| `quadratic` | Function | resolve the quadratic polynomial: ax**2 + bx + c |
+| `gamma_f32` | Function | gamma function from pbrt v3 |
+| `gamma_f64` | Function | gamma function from pbrt v3 but in double precision |
+| `get_inverse_tf` | Function | get the inverse transform from a another transform |
+| `get_translate_tf` | Function | get the translate transfrom from a given vector |
+| `get_scale_tf` | Function | get scale transform giving factors in x, y and z |
+| `get_rotateX_tf` | Function | get the rotate (arount x axis) transform from scalar in degrees |
+| `get_rotateY_tf` | Function | get the rotate (arount y axis) transform from scalar in degrees |
+| `get_rotateZ_tf` | Function | get the rotate (arount z axis) transform from scalar in degrees |
+| `get_rotate_tf` | Function | get the rotate transform around a given vector/normal |
+
+
+
 ## Examples
 ### Basic exemple
 ```python
@@ -74,6 +115,8 @@ Attributes:
     shape:       TriangleMesh
     ntriangles:  2
     nvertices:   4
+    date:        2025-01-27
+    version:     1.0.0
 >>> # Here there is intersection, see more detail on intersection point phit
 >>> ds['phit']
 <xarray.DataArray 'phit' (xyz: 3)> Size: 24B
