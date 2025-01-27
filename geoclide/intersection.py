@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from geoclide.basic import Point, Ray, BBox
+from geoclide.basic import Ray, BBox
 from geoclide.quadrics import Sphere
 from geoclide.trianglemesh import Triangle, TriangleMesh
 import xarray as xr
 import numpy as np
-
+from datetime import datetime
+from geoclide.constante import VERSION
 
 def calc_intersection(shape, r1, method='v3'):
     """
@@ -83,7 +84,7 @@ def calc_intersection(shape, r1, method='v3'):
             phit = r1[thit]
             nhit = None # TODO compute the real normal
         else:
-            thit = 0.
+            thit = None
             phit = None
             nhit = None
     elif(isinstance(shape, Sphere)      or
@@ -158,14 +159,18 @@ def calc_intersection(shape, r1, method='v3'):
         ds['oTw_mInv'].attrs = {'description':'the inverse transformation matrix of the ' + str(ds.attrs['shape']).lower() +' oTw attribut'}
 
 
-
-    ds['thit'] = thit
-    ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
+    if (thit is not None):
+        ds['thit'] = thit
+        ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
     if (phit is not None):
         ds['phit'] = xr.DataArray(phit.to_numpy(), dims='xyz')
         ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
     if (nhit is not None):
         ds['nhit'] = xr.DataArray(nhit.to_numpy(), dims='xyz')
         ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
+
+    date = datetime.now().strftime("%Y-%m-%d")  
+    ds.attrs.update({'date':date,
+                     'version': VERSION})
 
     return ds

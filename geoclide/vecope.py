@@ -230,7 +230,7 @@ def face_forward(a, b):
 
 def vmax(a):
     """
-    Returns the largest component vaue of the Vector/Point/Normal
+    Returns the largest component value of the Vector/Point/Normal
 
     Parameters
     ----------
@@ -257,7 +257,7 @@ def vmax(a):
 
 def vmin(a):
     """
-    Returns the smallest component vaue of the Vector/Point/Normal
+    Returns the smallest component value of the Vector/Point/Normal
 
     Parameters
     ----------
@@ -340,7 +340,7 @@ def vargmin(a):
 
 def vabs(a):
     """
-    In progress...
+    Calculate the absolute value of each components of the vector/point/normal
 
     Parameters
     ----------
