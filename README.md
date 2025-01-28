@@ -14,7 +14,7 @@ Mustapha Moulana
 ## Installation
 The installation can be performed using one of the following commands:
 ```shell
-$ conda install -c conda-forge gatiab
+$ conda install -c conda-forge geoclide
 ```
 ```shell
 $ pip install geoclide
