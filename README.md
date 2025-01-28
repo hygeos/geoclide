@@ -1,6 +1,7 @@
 # Geoclide
 
 [![image](https://img.shields.io/pypi/v/geoclide.svg)](https://pypi.python.org/pypi/geoclide)
+[![image](https://img.shields.io/conda/vn/conda-forge/geoclide.svg)](https://anaconda.org/conda-forge/geoclide)
 [![image](https://pepy.tech/badge/geoclide)](https://pepy.tech/project/geoclide)
 
 The python package for geometric calculations in the three-dimentional Euclidian space
@@ -12,6 +13,9 @@ Mustapha Moulana
 
 ## Installation
 The installation can be performed using one of the following commands:
+```shell
+$ conda install -c conda-forge gatiab
+```
 ```shell
 $ pip install geoclide
 ```
