@@ -1,5 +1,8 @@
 # Geoclide
 
+[![image](https://img.shields.io/pypi/v/geoclide.svg)](https://pypi.python.org/pypi/geoclide)
+[![image](https://pepy.tech/badge/geoclide)](https://pepy.tech/project/geoclide)
+
 The python package for geometric calculations in the three-dimentional Euclidian space
 
 Mustapha Moulana  
@@ -8,7 +11,10 @@ Mustapha Moulana
 -----------------------------------------
 
 ## Installation
-The installation can be performed using the following command:
+The installation can be performed using one of the following commands:
+```shell
+$ pip install geoclide
+```
 ```shell
 $ pip install git+https://github.com/hygeos/geoclide.git
 ```
@@ -19,15 +25,15 @@ Run the command `pytest tests/ -s -v` to check that everything is running correc
 ## Available classes/functions
 | Class/Function | Type | Description |
 | -------------- | ---- | ----------- |
-| `Vector`| class | vector with x, y and z components |
-| `Point` | class | point with x, y and z components |
-| `Normal` | class | normal with x, y and z components |
-| `Ray` | class | the ray: r(t) = o + t*d, with 'o' a Point, 'd' a vector and t ∈ [0,inf[ |
-| `BBox` | class | Bounding box |
-| `Sphere` | class | sphere object |
-| `Triangle` | class | triangle object |
-| `TriangleMesh` | class | triangle mesh object |
-| `Transform` | class | transformation to translate and/or rotate every objects except a BBox |
+| `Vector`| Class | vector with x, y and z components |
+| `Point` | Class | point with x, y and z components |
+| `Normal` | Class | normal with x, y and z components |
+| `Ray` | Class | the ray: r(t) = o + t*d, with 'o' a Point, 'd' a vector and t ∈ [0,inf[ |
+| `BBox` | Class | Bounding box |
+| `Sphere` | Class | sphere object |
+| `Triangle` | Class | triangle object |
+| `TriangleMesh` | Class | triangle mesh object |
+| `Transform` | Class | transformation to translate and/or rotate every objects except a BBox |
 | `calc_intersection` | Function | intersection test between a shape and a ray and returns dataset |
 | `get_common_vertices` | Function | gives the vertices of BBox b1 which are common to another BBox b2 |
 | `get_common_face` | Function | same as `get_common_vertices` but with faces |

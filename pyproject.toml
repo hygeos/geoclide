@@ -6,7 +6,7 @@ requires = ["setuptools>=42"]
 name = "geoclide"
 version = "1.0.0"
 license = {file = "LICENSE.txt"}
-description = ""
+description = "The python package for geometric calculations in the three-dimentional Euclidian space"
 authors = [
     {name = "Mustapha Moulana", email="mm@hygeos.com"}
 ]
