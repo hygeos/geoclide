@@ -60,9 +60,9 @@ Run the command `pytest tests/ -s -v` to check that everything is running correc
 | `get_inverse_tf` | Function | get the inverse transform from a another transform |
 | `get_translate_tf` | Function | get the translate transfrom from a given vector |
 | `get_scale_tf` | Function | get scale transform giving factors in x, y and z |
-| `get_rotateX_tf` | Function | get the rotate (arount x axis) transform from scalar in degrees |
-| `get_rotateY_tf` | Function | get the rotate (arount y axis) transform from scalar in degrees |
-| `get_rotateZ_tf` | Function | get the rotate (arount z axis) transform from scalar in degrees |
+| `get_rotateX_tf` | Function | get the rotate (around x axis) transform from scalar in degrees |
+| `get_rotateY_tf` | Function | get the rotate (around y axis) transform from scalar in degrees |
+| `get_rotateZ_tf` | Function | get the rotate (around z axis) transform from scalar in degrees |
 | `get_rotate_tf` | Function | get the rotate transform around a given vector/normal |
 
 
