@@ -5,8 +5,16 @@
            #                         #
            ###########################
 
+v1.1.0
+------
+Release date: 05-02-2025
+
+* Add the Spheroid class (oblate or prolate object)
+* Small optimization of sphere intersection test
+
+
 v1.0.0
-----
+------
 
 Release date: 2025-01-27
 
