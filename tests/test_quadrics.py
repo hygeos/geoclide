@@ -61,4 +61,5 @@ def test_spheroid():
     assert (n[1] == 0.)
     assert (np.isclose(n[2], 0.6019292654288461, 0., 1e-15))
 
-
+    assert (np.isclose(oblate.area(), 78.04694433010546, 0., 1e-15))
+    assert (np.isclose(prolate.area(), 48.326479487738396, 0., 1e-15))
