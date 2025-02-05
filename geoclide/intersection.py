@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from geoclide.basic import Ray, BBox
-from geoclide.quadrics import Sphere
+from geoclide.quadrics import Sphere, Spheroid
 from geoclide.trianglemesh import Triangle, TriangleMesh
 import xarray as xr
 import numpy as np
@@ -15,7 +15,7 @@ def calc_intersection(shape, r1, method='v3'):
 
     Parameters
     ----------
-    shape : BBox | Sphere | Triangle | TriangleMesh
+    shape : BBox | Sphere | Spheroid | Triangle | TriangleMesh
         The shape used for the intersection
     r1 : Ray
         The ray used for the iuntersection
@@ -88,6 +88,7 @@ def calc_intersection(shape, r1, method='v3'):
             phit = None
             nhit = None
     elif(isinstance(shape, Sphere)      or
+         isinstance(shape, Spheroid)    or
          isinstance(shape, Triangle)    or 
          isinstance(shape, TriangleMesh)):
         if (isinstance(shape, Triangle) or isinstance(shape, TriangleMesh)):
@@ -132,6 +133,12 @@ def calc_intersection(shape, r1, method='v3'):
         ds['z_max'].attrs = {'description':'the sphere zmax attribut'}
         ds['phi_max'] = shape.phiMax
         ds['phi_max'].attrs = {'unit':'Radian', 'description':'the sphere phiMax attribut'}
+    if (isinstance(shape, Spheroid)):
+        ds.attrs = {'shape':  'Spheroid'}
+        ds['radius_xy'] = shape.alpha
+        ds['radius_xy'].attrs = {'description':'the equatorial radius of the spheroid (alpha attribut)'}
+        ds['radius_z'] = shape.gamma
+        ds['radius_z'].attrs = {'description':'the distance between the spheroid center and pole (gamma attribut)'}
     if (isinstance(shape, Triangle)):
         ds.attrs = {'shape': 'Triangle'}
         ds['p0'] = xr.DataArray(shape.p0.to_numpy(), dims='xyz')

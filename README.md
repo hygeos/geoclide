@@ -35,6 +35,7 @@ Run the command `pytest tests/ -s -v` to check that everything is running correc
 | `Ray` | Class | the ray: r(t) = o + t*d, with 'o' a Point, 'd' a vector and t ∈ [0,inf[ |
 | `BBox` | Class | Bounding box |
 | `Sphere` | Class | sphere object |
+| `Spheroid` | Class | spheroid object (oblate or prolate) |
 | `Triangle` | Class | triangle object |
 | `TriangleMesh` | Class | triangle mesh object |
 | `Transform` | Class | transformation to translate and/or rotate every objects except a BBox |
