@@ -4,10 +4,6 @@
 import pytest
 import numpy as np
 import math
-import os
-ROOTPATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-import sys
-sys.path.insert(0, ROOTPATH)
 import geoclide as gc
 
 V1 = [np.array([5.,0.,0.]), np.array([5.,3.,1.])]

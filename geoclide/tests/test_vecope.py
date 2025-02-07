@@ -3,10 +3,6 @@
 
 import numpy as np
 import math
-import os
-ROOTPATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-import sys
-sys.path.insert(0, ROOTPATH)
 import geoclide as gc
 
 

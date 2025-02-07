@@ -3,10 +3,6 @@
 
 import pytest
 import numpy as np
-import os
-ROOTPATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-import sys
-sys.path.insert(0, ROOTPATH)
 import geoclide as gc
 
 PHIS = np.linspace(0., 360., 6)

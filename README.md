@@ -24,7 +24,7 @@ $ pip install git+https://github.com/hygeos/geoclide.git
 ```
 
 ## Testing
-Run the command `pytest tests/ -s -v` to check that everything is running correctly.
+Run the command `pytest geoclide/tests/ -s -v` to check that everything is running correctly.
 
 ## Available classes/functions
 | Class/Function | Type | Description |
