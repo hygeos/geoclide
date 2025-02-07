@@ -8,3 +8,4 @@ from geoclide.quadrics import Sphere, Spheroid
 from geoclide.intersection import calc_intersection
 from geoclide.trianglemesh import Triangle, TriangleMesh
 from geoclide.constante import VERSION, GAMMA2_F32, GAMMA2_F64, GAMMA3_F32, GAMMA3_F64, GAMMA5_F32, GAMMA5_F64
+from geoclide.advancedvecope import ang2vec
