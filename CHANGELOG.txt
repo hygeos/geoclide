@@ -5,6 +5,13 @@
            #                         #
            ###########################
 
+v1.1.1
+------
+Release date: 07-02-2025
+
+* Correction of a bug with the normal orientation at the intersection with a 3d object
+
+
 v1.1.0
 ------
 Release date: 05-02-2025
