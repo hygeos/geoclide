@@ -221,11 +221,11 @@ class Sphere(Shape):
         cosphi = phit.x * invzradius
         sinphi = phit.y * invzradius
         dpdu = Vector(-self.phiMax * phit.y, self.phiMax * phit.x, 0)
-        dpdv = Vector(phit.z * cosphi, phit.z * sinphi, -self.radius \
-                      * math.sin(theta)) * (self.thetaMax-self.thetaMin)
+        dpdv = (self.thetaMax-self.thetaMin) * Vector(phit.z*cosphi, phit.z*sinphi, -self.radius*math.sin(theta)) 
 
         # Initialize _DifferentialGeometry_ from parametric information
-        dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv], u, v, self)
+        dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
+                                  u, v, r1.d, self)
 
         return thit, dg, True
 
@@ -409,7 +409,8 @@ class Spheroid(Shape):
         dpdv = Vector(fac*cosphi, fac*sinphi, math.pi*self.gamma*math.sin(theta))
 
         # Initialize _DifferentialGeometry_ from parametric information
-        dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv], u, v, self)
+        dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
+                                  u, v, r1.d, self)
 
         return thit, dg, True
     

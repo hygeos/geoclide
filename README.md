@@ -160,7 +160,7 @@ theta = vza
 phi = -vaa
 
 # Find the direction from ground to the satellite
-dir_to_sat = gc.Vector(0., 0., 1.)  # start facing nadir
+dir_to_sat = gc.Vector(0., 0., 1.)  # start facing zenith
 dir_to_sat = gc.get_rotateY_tf(theta)[dir_to_sat] # perform a rotation around y axis to consider vza
 dir_to_sat = gc.get_rotateZ_tf(phi)[dir_to_sat]   # then a rotation around z axis to consider vaa
 ray = gc.Ray(o=origin, d=dir_to_sat) # create the ray, starting from origin going in dir_to_sat direction

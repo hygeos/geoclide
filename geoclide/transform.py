@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from geoclide import Vector, Point, Normal, Ray, BBox
-from geoclide import normalize
+from geoclide.basic import Vector, Point, Normal, Ray, BBox
+from geoclide.vecope import normalize
 import numpy as np
 from numpy.linalg import inv
 import math

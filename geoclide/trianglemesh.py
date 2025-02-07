@@ -196,7 +196,7 @@ class Triangle(Shape):
         tv = b0*uvs[0][1] + b1*uvs[1][1] + b2*uvs[2][1]
 
         # fill the DifferentialGeometry and thit
-        dg = DifferentialGeometry(ray[t], dpdu, dpdv, tu, tv, self)
+        dg = DifferentialGeometry(ray[t], dpdu, dpdv, tu, tv, r1.d, self)
         thit = t
 
         return thit, dg, True
@@ -321,7 +321,7 @@ class Triangle(Shape):
         phit = b0*p0+b1*p1+b2*p2
         uvhit =b0*uv0 + b1*uv1 + b2*uv2
         thit = t
-        dg = DifferentialGeometry(phit, dpdu, dpdv, uvhit.x, uvhit.y, self)
+        dg = DifferentialGeometry(phit, dpdu, dpdv, uvhit.x, uvhit.y, r1.d, self)
         
         return thit, dg, True
     
