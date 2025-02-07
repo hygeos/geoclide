@@ -66,6 +66,7 @@ Run the command `pytest tests/ -s -v` to check that everything is running correc
 | `get_rotateZ_tf` | Function | get the rotate (around z axis) transform from scalar in degrees |
 | `get_rotate_tf` | Function | get the rotate transform around a given vector/normal |
 | `ang2vec` | Function | Convert a direction described by 2 angles into a direction described by a vector |
+| `vec2ang` | Function | Convert a direction described by a vector into a direction described by 2 angles |
 
 
 
