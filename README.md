@@ -65,6 +65,7 @@ Run the command `pytest tests/ -s -v` to check that everything is running correc
 | `get_rotateY_tf` | Function | get the rotate (around y axis) transform from scalar in degrees |
 | `get_rotateZ_tf` | Function | get the rotate (around z axis) transform from scalar in degrees |
 | `get_rotate_tf` | Function | get the rotate transform around a given vector/normal |
+| `ang2vec` | Function | Convert a direction described by 2 angles into a direction described by a vector |
 
 
 
@@ -159,10 +160,8 @@ origin = gc.Point(0., 0., 0.) # origin is the viewer seeing the satellite
 theta = vza
 phi = -vaa
 
-# Find the direction from ground to the satellite
-dir_to_sat = gc.Vector(0., 0., 1.)  # start facing zenith
-dir_to_sat = gc.get_rotateY_tf(theta)[dir_to_sat] # perform a rotation around y axis to consider vza
-dir_to_sat = gc.get_rotateZ_tf(phi)[dir_to_sat]   # then a rotation around z axis to consider vaa
+# Get the vector from ground to the satellite
+dir_to_sat = gc.ang2vec(theta=theta, phi=phi)
 ray = gc.Ray(o=origin, d=dir_to_sat) # create the ray, starting from origin going in dir_to_sat direction
 
 # Here without considering the sphericity of the earth
