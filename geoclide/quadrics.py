@@ -56,6 +56,82 @@ class Sphere(Shape):
         self.theta_max = math.acos(clamp(self.zmax/self.radius, -1, 1))
         self.phi_max = phi_max
 
+    def is_intersection_t(self, r1):
+        """
+        Test if a ray intersects the sphere / partial sphere
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+
+        Returns
+        -------
+        thit : float
+            The t ray variable for its first intersection at the shape surface
+        is_intersection : bool
+            If there is an intersection -> True, else False
+
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> sph1 = gc.Sphere(radius=1.) # sphere of radius 1
+        >>> sph2 = gc.Sphere(radius=1., z_max=0.5) # partial sphere where portion above z=0.5 is removed
+        >>> r = gc.Ray(o=gc.Point(-2., 0., 0.8), d=gc.Vector(1.,0.,0.))
+        >>> sph1.is_intersection_t(r)
+        (1.4000000000000004, True)
+        >>> sph2.is_intersection(r) # here no intersection since the sphere part above z=0.5 is removed
+        False
+        """
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r1)
+        ray.o = self.wTo[r1.o]
+        ray.d = self.wTo[r1.d]
+
+        # Compute quadratic sphere coefficients
+        a = ray.d.x*ray.d.x + ray.d.y*ray.d.y + ray.d.z*ray.d.z
+        b = 2 * (ray.d.x*ray.o.x + ray.d.y*ray.o.y + ray.d.z*ray.o.z)
+        c = ray.o.x*ray.o.x + ray.o.y*ray.o.y + ray.o.z*ray.o.z - \
+            self.radius*self.radius
+
+        # Solve quadratic equation
+        exist, t0, t1 = quadratic(a, b, c)
+        if (not exist): return None, False
+        
+        # Compute intersection distance along ray
+        if (t0 > ray.maxt or t1 < ray.mint): return None, False
+        thit = t0
+
+        if (t0 < ray.mint):
+            thit = t1
+            if (thit > ray.maxt): return None, False
+
+        # Compute sphere hit position and $\phi$
+        phit = ray[thit]
+        if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
+        phi = math.atan2(phit.y, phit.x)
+        if (phi < 0): phi += TWO_PI
+
+        # Test sphere intersection against clipping parameters
+        phi_max_rad = math.radians(self.phi_max)
+        if ((self.zmin > -self.radius and phit.z < self.zmin) or
+            (self.zmax <  self.radius and phit.z > self.zmax) or
+            (phi > phi_max_rad) ):
+            if (thit == t1): return None, False
+            if (t1 > ray.maxt): return None ,False
+            thit = t1
+            # Compute sphere hit position and $\phi$
+            phit = ray[thit]
+            if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
+            phi = math.atan2(phit.y, phit.x)
+            if (phi < 0): phi += TWO_PI
+            if ((self.zmin > -self.radius and phit.z < self.zmin) or
+                (self.zmax <  self.radius and phit.z > self.zmax) or
+                (phi > phi_max_rad) ):
+                return None, False
+
+        return thit, True
+    
     def is_intersection(self, r1):
         """
         Test if a ray intersects the sphere / partial sphere
@@ -78,58 +154,11 @@ class Sphere(Shape):
         >>> r = gc.Ray(o=gc.Point(-2., 0., 0.8), d=gc.Vector(1.,0.,0.))
         >>> sph1.is_intersection(r)
         True
-        >>> thit, dg, is_int = sph1.intersect(r)
-        >>> sph2.intersect(r) # here no intersection since the sphere part above z=0.5 is removed
+        >>> sph2.is_intersection(r) # here no intersection since the sphere part above z=0.5 is removed
         False
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        ray.o = self.wTo[r1.o]
-        ray.d = self.wTo[r1.d]
-
-        # Compute quadratic sphere coefficients
-        a = ray.d.x*ray.d.x + ray.d.y*ray.d.y + ray.d.z*ray.d.z
-        b = 2 * (ray.d.x*ray.o.x + ray.d.y*ray.o.y + ray.d.z*ray.o.z)
-        c = ray.o.x*ray.o.x + ray.o.y*ray.o.y + ray.o.z*ray.o.z - \
-            self.radius*self.radius
-
-        # Solve quadratic equation
-        exist, t0, t1 = quadratic(a, b, c)
-        if (not exist): return False
-        
-        # Compute intersection distance along ray
-        if (t0 > ray.maxt or t1 < ray.mint): return False
-        thit = t0
-
-        if (t0 < ray.mint):
-            thit = t1
-            if (thit > ray.maxt): return False
-
-        # Compute sphere hit position and $\phi$
-        phit = ray[thit]
-        if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
-        phi = math.atan2(phit.y, phit.x)
-        if (phi < 0): phi += TWO_PI
-
-        # Test sphere intersection against clipping parameters
-        phi_max_rad = math.radians(self.phi_max)
-        if ((self.zmin > -self.radius and phit.z < self.zmin) or
-            (self.zmax <  self.radius and phit.z > self.zmax) or
-            (phi > phi_max_rad) ):
-            if (thit == t1): return False
-            if (t1 > ray.maxt): return False
-            thit = t1
-            # Compute sphere hit position and $\phi$
-            phit = ray[thit]
-            if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
-            phi = math.atan2(phit.y, phit.x)
-            if (phi < 0): phi += TWO_PI
-            if ((self.zmin > -self.radius and phit.z < self.zmin) or
-                (self.zmax <  self.radius and phit.z > self.zmax) or
-                (phi > phi_max_rad) ):
-                return False
-
-        return True
+        _, is_intersection = self.is_intersection_t(r1)
+        return is_intersection
 
     def intersect(self, r1):
         """
@@ -273,6 +302,65 @@ class Spheroid(Shape):
         self.alpha2 = radius_xy*radius_xy
         self.gamma2 = radius_z*radius_z
 
+    def is_intersection_t(self, r1):
+        """
+        Test if a ray intersects the spheroid
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+
+        Returns
+        -------
+        thit : float
+            The t ray variable for its first intersection at the shape surface
+        is_intersection : bool
+            If there is an intersection -> True, else False
+
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> oblate = gc.Spheroid(radius_xy=3., radius_z=1.5)
+        >>> prolate = gc.Spheroid(radius_xy=1.5, radius_z=3.)
+        >>> r1 = gc.Ray(o=gc.Point(2.5, 0., 10.), d=(gc.Vector(0., 0., -1.)))
+        >>> r2 = gc.Ray(o=gc.Point(10., 0., 2.5), d=(gc.Vector(-1., 0., 0.)))
+        >>> oblate.is_intersection_t(r1)
+        (9.170843802411135, True)
+        >>> oblate.is_intersection_t(r2)
+        (None, False)
+        >>> prolate.is_intersection_t(r1)
+        (None, False)
+        >>> prolate.is_intersection_t(r2)
+        (9.170843802411135, True)
+        """
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r1)
+        ray.o = self.wTo[r1.o]
+        ray.d = self.wTo[r1.d]
+
+        # Compute quadratic sphere coefficients
+        inv_alpha2 = 1./self.alpha2
+        inv_beta2 = inv_alpha2 # ellipsoid special case where alpha=beta
+        inv_gamma2 = 1./self.gamma2
+        a = ray.d.x*ray.d.x*inv_alpha2 + ray.d.y*ray.d.y*inv_beta2 + ray.d.z*ray.d.z*inv_gamma2
+        b = 2 * (ray.d.x*ray.o.x*inv_alpha2 + ray.d.y*ray.o.y*inv_beta2 + ray.d.z*ray.o.z*inv_gamma2)
+        c = ray.o.x*ray.o.x*inv_alpha2 + ray.o.y*ray.o.y*inv_beta2 + ray.o.z*ray.o.z*inv_gamma2 - 1
+
+        # Solve quadratic equation
+        exist, t0, t1 = quadratic(a, b, c)
+        if (not exist): return None, False
+        
+        # Compute intersection distance along ray
+        if (t0 > ray.maxt or t1 < ray.mint): return None, False
+        thit = t0
+
+        if (t0 < ray.mint):
+            thit = t1
+            if (thit > ray.maxt): return None, False
+
+        return thit, True
+    
     def is_intersection(self, r1):
         """
         Test if a ray intersects the spheroid
@@ -303,32 +391,8 @@ class Spheroid(Shape):
         >>> prolate.is_intersection(r2)
         True
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        ray.o = self.wTo[r1.o]
-        ray.d = self.wTo[r1.d]
-
-        # Compute quadratic sphere coefficients
-        inv_alpha2 = 1./self.alpha2
-        inv_beta2 = inv_alpha2 # ellipsoid special case where alpha=beta
-        inv_gamma2 = 1./self.gamma2
-        a = ray.d.x*ray.d.x*inv_alpha2 + ray.d.y*ray.d.y*inv_beta2 + ray.d.z*ray.d.z*inv_gamma2
-        b = 2 * (ray.d.x*ray.o.x*inv_alpha2 + ray.d.y*ray.o.y*inv_beta2 + ray.d.z*ray.o.z*inv_gamma2)
-        c = ray.o.x*ray.o.x*inv_alpha2 + ray.o.y*ray.o.y*inv_beta2 + ray.o.z*ray.o.z*inv_gamma2 - 1
-
-        # Solve quadratic equation
-        exist, t0, t1 = quadratic(a, b, c)
-        if (not exist): return False
-        
-        # Compute intersection distance along ray
-        if (t0 > ray.maxt or t1 < ray.mint): return False
-        thit = t0
-
-        if (t0 < ray.mint):
-            thit = t1
-            if (thit > ray.maxt): return False
-
-        return True
+        _, is_intersection = self.is_intersection_t(r1)
+        return is_intersection
 
     def intersect(self, r1):
         """
@@ -476,6 +540,67 @@ class Disk(Shape):
         self.phi_max = phi_max
         self.z_height = z_height
 
+    def is_intersection_t(self, r1):
+        """
+        Test if a ray intersects the disk
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+
+        Returns
+        -------
+        thit : float
+            The t ray variable for its first intersection at the shape surface
+        is_intersection : bool
+            If there is an intersection -> True, else False
+
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> r1 = gc.Ray(gc.Point(1.2,0.,10.), gc.Vector(0.,0.,-1.))
+        >>> r2 = gc.Ray(gc.Point(0.2,0.,10.), gc.Vector(0.,0.,-1.))
+        >>> r3 = gc.Ray(gc.Point(1.6,0.,10.), gc.Vector(0.,0.,-1.))
+        >>> annulus = gc.Disk(radius=1.5, inner_radius=0.8)
+        >>> annulus.is_intersection_t(r1) # hit point is between the inner radius and radius
+        (10.0, True)
+        >>> annulus.is_intersection_t(r2) # the ray passes through the annulus hole, no intersection
+        (None, False)
+        >>> annulus.is_intersection_t(r3) # the ray passes outside, no intersection
+        (None, False)
+        """
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r1)
+        ray.o = self.wTo[r1.o]
+        ray.d = self.wTo[r1.d]
+
+        # no intersection in the case the ray is parallel to the disk's plane
+        if (ray.d.z == 0): return None, False
+        thit = (self.z_height - ray.o.z) / ray.d.z
+        if (thit <= 0 or thit >= ray.maxt): return None, False
+
+        # get the intersection point, and distance between disk center and the intersection
+        phit = ray[thit]
+        hit_radius2 = phit.x*phit.x + phit.y*phit.y
+
+        # if the hit point is outside the disk then no intersection
+        if (hit_radius2 > self.radius*self.radius): return None, False
+
+        # annulus case
+        # check that the hit point is not in the annulus hole
+        if (self.inner_radius > 0.):
+            if (hit_radius2 < self.inner_radius*self.inner_radius): return None, False
+        
+        # partial disk/annulus case
+        # check phi value to see if the hit point is inside the partial disk/annulus
+        if (self.phi_max < 360.):
+            phi = math.atan2(phit.y, phit.x)
+            if (phi < 0.): phi += TWO_PI
+            if (phi > math.radians(self.phi_max)): return None, False
+        
+        return thit, True
+    
     def is_intersection(self, r1):
         """
         Test if a ray intersects the disk
@@ -498,42 +623,14 @@ class Disk(Shape):
         >>> r3 = gc.Ray(gc.Point(1.6,0.,10.), gc.Vector(0.,0.,-1.))
         >>> annulus = gc.Disk(radius=1.5, inner_radius=0.8)
         >>> annulus.is_intersection(r1) # hit point is between the inner radius and radius
-        >>> True
+        True
         >>> annulus.is_intersection(r2) # the ray passes through the annulus hole, no intersection
         False
         >>> annulus.is_intersection(r3) # the ray passes outside, no intersection
         False
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        ray.o = self.wTo[r1.o]
-        ray.d = self.wTo[r1.d]
-
-        # no intersection in the case the ray is parallel to the disk's plane
-        if (ray.d.z == 0): return False
-        thit = (self.z_height - ray.o.z) / ray.d.z
-        if (thit <= 0 or thit >= ray.maxt): return False
-
-        # get the intersection point, and distance between disk center and the intersection
-        phit = ray[thit]
-        hit_radius2 = phit.x*phit.x + phit.y*phit.y
-
-        # if the hit point is outside the disk then no intersection
-        if (hit_radius2 > self.radius*self.radius): return False
-
-        # annulus case
-        # check that the hit point is not in the annulus hole
-        if (self.inner_radius > 0.):
-            if (hit_radius2 < self.inner_radius*self.inner_radius): return False
-        
-        # partial disk/annulus case
-        # check phi value to see if the hit point is inside the partial disk/annulus
-        if (self.phi_max < 360.):
-            phi = math.atan2(phit.y, phit.x)
-            if (phi < 0.): phi += TWO_PI
-            if (phi > math.radians(self.phi_max)): return False
-        
-        return True
+        _, is_intersection = self.is_intersection_t(r1)
+        return is_intersection
 
     def intersect(self, r1):
         """
