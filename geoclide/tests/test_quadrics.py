@@ -29,6 +29,7 @@ def test_sphere():
     assert (np.isclose(p[0], 472.61058011386376, 0., 1e-15))
     assert (np.isclose(p[1], -472.61058011386365, 0., 1e-15))
     assert (np.isclose(p[2], 668.3722921180424, 0., 1e-15))
+    assert (ds_sp['is_intersection'] == sphere_sat_alti.is_intersection(ray))
 
 
 def test_spheroid():
@@ -46,6 +47,7 @@ def test_spheroid():
     assert (np.isclose(n[0], 0.6019292654288356, 0., 1e-15))
     assert (n[1] == 0.)
     assert (np.isclose(n[2], 0.7985494095046983, 0., 1e-15))
+    assert (ds['is_intersection'].values == oblate.is_intersection(r1))
 
     ds = gc.calc_intersection(prolate, r2)
     p = ds['phit'].values
@@ -59,3 +61,50 @@ def test_spheroid():
 
     assert (np.isclose(oblate.area(), 78.04694433010546, 0., 1e-15))
     assert (np.isclose(prolate.area(), 48.326479487738396, 0., 1e-15))
+    assert (ds['is_intersection'].values == prolate.is_intersection(r2))
+
+
+def test_disk():
+    # 1) particular cases
+    disk = gc.Disk(radius=1.5)
+    ds = gc.calc_intersection(disk, gc.Ray(gc.Point(5.,0.,0.), gc.Vector(-1.,0.,0.)))
+    assert (not ds['is_intersection'])
+    ds = gc.calc_intersection(disk, gc.Ray(gc.Point(0.,0.,10.), gc.Vector(0.,0.,-1.), maxt=5.))
+    assert (not ds['is_intersection'])
+
+    # 2) general cases
+    roty_90 = gc.get_rotateY_tf(90.)
+    disk = gc.Disk(radius=1.5, z_height=5., oTw=roty_90)
+    annulus = gc.Disk(radius=1.5, inner_radius=0.8, z_height=5., oTw=roty_90)
+    d = gc.Vector(-1.,0.,0.)
+    r1 = gc.Ray(gc.Point(10.,0.,1.2), d)
+    r2 = gc.Ray(gc.Point(10.,0.,0.2), d)
+    r3 = gc.Ray(gc.Point(10.,0.,1.6), d)
+
+    # 2a) disk tests
+    ds_disk = gc.calc_intersection(disk, r1)
+    p = ds_disk['phit'].values
+    assert (np.all(np.isclose(p, r1[disk.z_height].to_numpy(), 0., 1e-15)))
+    assert (ds_disk['is_intersection'].values == disk.is_intersection(r1))
+    ds_disk = gc.calc_intersection(disk, r2)
+    p = ds_disk['phit'].values
+    assert (np.all(np.isclose(p, r2[disk.z_height].to_numpy(), 0., 1e-15)))
+    assert (ds_disk['is_intersection'].values == disk.is_intersection(r2))
+    ds_disk = gc.calc_intersection(disk, r3)
+    assert (not ds_disk['is_intersection'])
+    assert (ds_disk['is_intersection'].values == disk.is_intersection(r3))
+
+    # 2b) annulus tests
+    ds_annulus = gc.calc_intersection(annulus, r1)
+    p = ds_annulus['phit'].values
+    assert (np.all(np.isclose(p, r1[annulus.z_height].to_numpy(), 0., 1e-15)))
+    assert (ds_annulus['is_intersection'].values == annulus.is_intersection(r1))
+    ds_annulus = gc.calc_intersection(annulus, r2)
+    assert (not ds_annulus['is_intersection'])
+    assert (ds_annulus['is_intersection'].values == annulus.is_intersection(r2))
+    ds_annulus = gc.calc_intersection(annulus, r3)
+    assert (not ds_annulus['is_intersection'])
+    assert (ds_annulus['is_intersection'].values == annulus.is_intersection(r3))
+
+
+
