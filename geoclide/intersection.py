@@ -131,7 +131,7 @@ def calc_intersection(shape, r1, method='v3'):
         ds['z_max'] = shape.zmax
         ds['z_max'].attrs = {'description':'the sphere zmax attribut'}
         ds['phi_max'] = shape.phi_max
-        ds['phi_max'].attrs = {'unit':'Radian', 'description':'the sphere phi_max attribut'}
+        ds['phi_max'].attrs = {'unit':'Degree', 'description':'the sphere phi_max attribut'}
     if (isinstance(shape, Spheroid)):
         ds.attrs = {'shape':  'Spheroid'}
         ds['radius_xy'] = shape.alpha
@@ -145,7 +145,7 @@ def calc_intersection(shape, r1, method='v3'):
         ds['inner_radius'] = shape.inner_radius
         ds['inner_radius'].attrs = {'description':'the inner radius of the disk (if > 0 -> annulus case)'}
         ds['phi_max'] = shape.phi_max
-        ds['phi_max'].attrs = {'unit':'Radian', 'description':'the disk phi_max attribut'}
+        ds['phi_max'].attrs = {'unit':'Degree', 'description':'the disk phi_max attribut'}
         ds['z_height'] = shape.z_height
         ds['z_height'].attrs = {'description':'the disk z_height attribut'}
     if (isinstance(shape, Triangle)):

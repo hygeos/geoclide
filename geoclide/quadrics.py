@@ -26,15 +26,17 @@ class Sphere(Shape):
     z_max : float, optional
         The maximum z value of the sphere where z1 is between [0, radius]
     phi_max : float, optional
-        The maximum phi value in radians of the sphere, where phi is between [0, 360]
+        The maximum phi value in degrees of the sphere, where phi is between 0 and 360°
     oTw : Transform, optional
         From object to world space or the transformation applied to the sphere
     wTo : Transform, optional
         From world to object space or the in inverse transformation applied to the sphere
     '''
-    def __init__(self, radius, z_min=None, z_max=None, phi_max=2*math.pi, oTw=None, wTo=None):
+    def __init__(self, radius, z_min=None, z_max=None, phi_max=360., oTw=None, wTo=None):
         if z_min is None: z_min = -radius
         if z_max is None: z_max = radius
+        if (phi_max < 0. or phi_max > 360.):
+            raise ValueError ('The value of the parameter phi_max must in the range: [0, 360]')
         if wTo is None and oTw is None:
             wTo = Transform()
             oTw = Transform()
@@ -51,7 +53,7 @@ class Sphere(Shape):
         self.zmax = clamp(z_max, -self.radius, self.radius)
         self.theta_min = math.acos(clamp(self.zmin/self.radius, -1, 1))
         self.theta_max = math.acos(clamp(self.zmax/self.radius, -1, 1))
-        self.phi_max = clamp(phi_max, 0, 2*math.pi)
+        self.phi_max = phi_max
 
     def is_intersection(self, r1):
         """
@@ -109,9 +111,10 @@ class Sphere(Shape):
         if (phi < 0): phi += 2*math.pi
 
         # Test sphere intersection against clipping parameters
+        phi_max_rad = math.radians(self.phi_max)
         if ((self.zmin > -self.radius and phit.z < self.zmin) or
             (self.zmax <  self.radius and phit.z > self.zmax) or
-            (phi > self.phi_max) ):
+            (phi > phi_max_rad) ):
             if (thit == t1): return False
             if (t1 > ray.maxt): return False
             thit = t1
@@ -122,7 +125,7 @@ class Sphere(Shape):
             if (phi < 0): phi += 2*math.pi
             if ((self.zmin > -self.radius and phit.z < self.zmin) or
                 (self.zmax <  self.radius and phit.z > self.zmax) or
-                (phi > self.phi_max) ):
+                (phi > phi_max_rad) ):
                 return False
 
         return True
@@ -194,9 +197,10 @@ class Sphere(Shape):
         if (phi < 0): phi += 2*math.pi
 
         # Test sphere intersection against clipping parameters
+        phi_max_rad = math.radians(self.phi_max)
         if ((self.zmin > -self.radius and phit.z < self.zmin) or
             (self.zmax <  self.radius and phit.z > self.zmax) or
-            (phi > self.phi_max) ):
+            (phi > phi_max_rad) ):
             if (thit == t1): return None, None, False
             if (t1 > ray.maxt): return None, None, False
             thit = t1
@@ -207,11 +211,11 @@ class Sphere(Shape):
             if (phi < 0): phi += 2*math.pi
             if ((self.zmin > -self.radius and phit.z < self.zmin) or
                 (self.zmax <  self.radius and phit.z > self.zmax) or
-                (phi > self.phi_max) ):
+                (phi > phi_max_rad) ):
                 return None, None, False
 
         # Find parametric representation of sphere hit
-        u = phi / self.phi_max
+        u = phi / phi_max_rad
         theta = math.acos(clamp(phit.z / self.radius, -1, 1))
         v = (theta - self.theta_min) / (self.theta_max - self.theta_min)
 
@@ -220,7 +224,7 @@ class Sphere(Shape):
         invzradius = 1 / zradius
         cosphi = phit.x * invzradius
         sinphi = phit.y * invzradius
-        dpdu = Vector(-self.phi_max * phit.y, self.phi_max * phit.x, 0)
+        dpdu = Vector(-phi_max_rad * phit.y, phi_max_rad * phit.x, 0)
         dpdv = (self.theta_max-self.theta_min) * Vector(phit.z*cosphi, phit.z*sinphi, -self.radius*math.sin(theta)) 
 
         # Initialize _DifferentialGeometry_ from parametric information
@@ -230,7 +234,7 @@ class Sphere(Shape):
         return thit, dg, True
 
     def area(self):
-        return (self.phi_max * self.radius * (self.zmax-self.zmin)) # The sphere / partial sphere area
+        return (math.radians(self.phi_max) * self.radius * (self.zmax-self.zmin)) # The sphere / partial sphere area
     
 
 class Spheroid(Shape):
@@ -437,7 +441,7 @@ class Disk(Shape):
     inner_radius : float, optional
         This is the inner radius in the case of partial disk (or annulus)
     phi_max : float, optional
-        The maximum phi value in radians of the disk/annulus, where phi is between [0, 360]
+        The maximum phi value in degrees of the disk/annulus, where phi is between 0 and 360°
     z_height : float, optional
         the disk height along the z axis
     oTw : Transform, optional
@@ -452,10 +456,12 @@ class Disk(Shape):
     we be rotated from (0.,0.,0.), meaning the disk we be moved from position (0.,0.,5.) to
     (5.,0.,0.).
     '''
-    def __init__(self, radius, inner_radius=0., phi_max=2*math.pi, z_height=0., oTw=None, wTo=None):
+    def __init__(self, radius, inner_radius=0., phi_max=360., z_height=0., oTw=None, wTo=None):
         if wTo is None and oTw is None:
             wTo = Transform()
             oTw = Transform()
+        if (phi_max < 0. or phi_max > 360.):
+            raise ValueError ('The value of the parameter phi_max must in the range: [0, 360]')
         elif (wTo is None and isinstance(oTw, Transform)): wTo = oTw.inverse()
         elif (isinstance(wTo, Transform) and oTw is None): oTw = wTo.inverse()
         if (inner_radius >= radius): raise NameError ('The parameter inner_radius must be < to radius')
@@ -521,10 +527,10 @@ class Disk(Shape):
         
         # partial disk/annulus case
         # check phi value to see if the hit point is inside the partial disk/annulus
-        if (self.phi_max != 2*math.pi):
+        if (self.phi_max < 360.):
             phi = math.atan2(phit.y, phit.x)
             if (phi < 0.): phi += 2*math.pi
-            if (phi > self.phi_max): return False
+            if (phi > math.radians(self.phi_max)): return False
         
         return True
 
@@ -584,14 +590,15 @@ class Disk(Shape):
         # partial disk/annulus case
         # check phi value to see if the hit point is inside the partial disk/annulus
         phi = math.atan2(phit.y, phit.x)
+        phi_max_rad = math.radians(self.phi_max)
         if (phi < 0.): phi += 2*math.pi
-        if (phi > self.phi_max): return None, None, False
+        if (phi > phi_max_rad): return None, None, False
 
         # get the parameteric representation
-        u = phi / self.phi_max
+        u = phi / phi_max_rad
         hit_radius = math.sqrt(hit_radius2)
         v = (self.radius-hit_radius) / (self.radius-self.inner_radius)
-        dpdu = Vector(-self.phi_max*phit.y, self.phi_max*phit.x, 0.)
+        dpdu = Vector(-phi_max_rad*phit.y, phi_max_rad*phit.x, 0.)
         dpdv = Vector(phit.x, phit.y, 0.) * ( (self.inner_radius-self.radius)/hit_radius )
 
         # Initialize _DifferentialGeometry_ from parametric information
@@ -601,5 +608,5 @@ class Disk(Shape):
         return thit, dg, True
     
     def area(self):
-        return 0.5*self.phi_max*(self.radius*self.radius - self.inner_radius*self.inner_radius)
+        return 0.5*math.radians(self.phi_max)*(self.radius*self.radius - self.inner_radius*self.inner_radius)
 

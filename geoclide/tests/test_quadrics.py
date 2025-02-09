@@ -72,6 +72,16 @@ def test_disk():
     ds = gc.calc_intersection(disk, gc.Ray(gc.Point(0.,0.,10.), gc.Vector(0.,0.,-1.), maxt=5.))
     assert (not ds['is_intersection'])
 
+    disk = gc.Disk(radius=1., phi_max=90.)
+    ds = gc.calc_intersection(disk, gc.Ray(gc.Point(0.8,-1e-5,10.), gc.Vector(0.,0.,-1.)))
+    assert (not ds['is_intersection'])
+    ds = gc.calc_intersection(disk, gc.Ray(gc.Point(0.8,1e-5,10.), gc.Vector(0.,0.,-1.)))
+    assert (ds['is_intersection'])
+    ds = gc.calc_intersection(disk, gc.Ray(gc.Point(-1e-5,0.8,10.), gc.Vector(0.,0.,-1.)))
+    assert (not ds['is_intersection'])
+    ds = gc.calc_intersection(disk, gc.Ray(gc.Point(+1e-5,0.8,10.), gc.Vector(0.,0.,-1.)))
+    assert (ds['is_intersection'])
+
     # 2) general cases
     roty_90 = gc.get_rotateY_tf(90.)
     disk = gc.Disk(radius=1.5, z_height=5., oTw=roty_90)
