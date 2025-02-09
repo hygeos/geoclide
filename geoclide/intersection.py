@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from geoclide.basic import Ray, BBox
-from geoclide.quadrics import Sphere, Spheroid
+from geoclide.quadrics import Sphere, Spheroid, Disk
 from geoclide.trianglemesh import Triangle, TriangleMesh
+from geoclide.shapes import Shape
 import xarray as xr
 import numpy as np
 from datetime import datetime
@@ -15,7 +16,7 @@ def calc_intersection(shape, r1, method='v3'):
 
     Parameters
     ----------
-    shape : BBox | Sphere | Spheroid | Triangle | TriangleMesh
+    shape : BBox | Sphere | Spheroid | Disk | Triangle | TriangleMesh
         The shape used for the intersection
     r1 : Ray
         The ray used for the iuntersection
@@ -87,10 +88,7 @@ def calc_intersection(shape, r1, method='v3'):
             thit = None
             phit = None
             nhit = None
-    elif(isinstance(shape, Sphere)      or
-         isinstance(shape, Spheroid)    or
-         isinstance(shape, Triangle)    or 
-         isinstance(shape, TriangleMesh)):
+    elif(issubclass(shape.__class__, Shape)):
         if (isinstance(shape, Triangle) or isinstance(shape, TriangleMesh)):
             thit, dg, is_intersection = shape.intersect(r1, method=method)
         else:
@@ -102,7 +100,8 @@ def calc_intersection(shape, r1, method='v3'):
             phit = None
             nhit = None
     else:
-        raise ValueError('The only supported shape are: BBox and Sphere')
+        raise ValueError('The only supported shape are: BBox, Sphere, Spheroid, Disk, ' +
+                         'Triangle and TriangleMesh')
     
     ds = xr.Dataset(coords={'xyz':np.arange(3)})
     ds['is_intersection'] = is_intersection
@@ -132,13 +131,23 @@ def calc_intersection(shape, r1, method='v3'):
         ds['z_max'] = shape.zmax
         ds['z_max'].attrs = {'description':'the sphere zmax attribut'}
         ds['phi_max'] = shape.phi_max
-        ds['phi_max'].attrs = {'unit':'Radian', 'description':'the sphere phiMax attribut'}
+        ds['phi_max'].attrs = {'unit':'Radian', 'description':'the sphere phi_max attribut'}
     if (isinstance(shape, Spheroid)):
         ds.attrs = {'shape':  'Spheroid'}
         ds['radius_xy'] = shape.alpha
         ds['radius_xy'].attrs = {'description':'the equatorial radius of the spheroid (alpha attribut)'}
         ds['radius_z'] = shape.gamma
         ds['radius_z'].attrs = {'description':'the distance between the spheroid center and pole (gamma attribut)'}
+    if (isinstance(shape, Disk)):
+        ds.attrs = {'shape':  'Disk'}
+        ds['radius'] = shape.radius
+        ds['radius'].attrs = {'description':'the radius of the disk'}
+        ds['inner_radius'] = shape.inner_radius
+        ds['inner_radius'].attrs = {'description':'the inner radius of the disk (if > 0 -> annulus case)'}
+        ds['phi_max'] = shape.phi_max
+        ds['phi_max'].attrs = {'unit':'Radian', 'description':'the disk phi_max attribut'}
+        ds['z_height'] = shape.z_height
+        ds['z_height'].attrs = {'description':'the disk z_height attribut'}
     if (isinstance(shape, Triangle)):
         ds.attrs = {'shape': 'Triangle'}
         ds['p0'] = xr.DataArray(shape.p0.to_numpy(), dims='xyz')
