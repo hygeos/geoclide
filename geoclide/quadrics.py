@@ -49,9 +49,9 @@ class Sphere(Shape):
         self.radius = radius
         self.zmin = clamp(z_min, -self.radius, self.radius)
         self.zmax = clamp(z_max, -self.radius, self.radius)
-        self.thetaMin = math.acos(clamp(self.zmin/self.radius, -1, 1))
-        self.thetaMax = math.acos(clamp(self.zmax/self.radius, -1, 1))
-        self.phiMax = clamp(phi_max, 0, 2*math.pi)
+        self.theta_min = math.acos(clamp(self.zmin/self.radius, -1, 1))
+        self.theta_max = math.acos(clamp(self.zmax/self.radius, -1, 1))
+        self.phi_max = clamp(phi_max, 0, 2*math.pi)
 
     def is_intersection(self, r1):
         """
@@ -111,7 +111,7 @@ class Sphere(Shape):
         # Test sphere intersection against clipping parameters
         if ((self.zmin > -self.radius and phit.z < self.zmin) or
             (self.zmax <  self.radius and phit.z > self.zmax) or
-            (phi > self.phiMax) ):
+            (phi > self.phi_max) ):
             if (thit == t1): return False
             if (t1 > ray.maxt): return False
             thit = t1
@@ -122,7 +122,7 @@ class Sphere(Shape):
             if (phi < 0): phi += 2*math.pi
             if ((self.zmin > -self.radius and phit.z < self.zmin) or
                 (self.zmax <  self.radius and phit.z > self.zmax) or
-                (phi > self.phiMax) ):
+                (phi > self.phi_max) ):
                 return False
 
         return True
@@ -196,7 +196,7 @@ class Sphere(Shape):
         # Test sphere intersection against clipping parameters
         if ((self.zmin > -self.radius and phit.z < self.zmin) or
             (self.zmax <  self.radius and phit.z > self.zmax) or
-            (phi > self.phiMax) ):
+            (phi > self.phi_max) ):
             if (thit == t1): return None, None, False
             if (t1 > ray.maxt): return None, None, False
             thit = t1
@@ -207,21 +207,21 @@ class Sphere(Shape):
             if (phi < 0): phi += 2*math.pi
             if ((self.zmin > -self.radius and phit.z < self.zmin) or
                 (self.zmax <  self.radius and phit.z > self.zmax) or
-                (phi > self.phiMax) ):
+                (phi > self.phi_max) ):
                 return None, None, False
 
         # Find parametric representation of sphere hit
-        u = phi / self.phiMax
+        u = phi / self.phi_max
         theta = math.acos(clamp(phit.z / self.radius, -1, 1))
-        v = (theta - self.thetaMin) / (self.thetaMax - self.thetaMin)
+        v = (theta - self.theta_min) / (self.theta_max - self.theta_min)
 
         # Compute sphere $\dpdu$ and $\dpdv$
         zradius = math.sqrt(phit.x*phit.x + phit.y*phit.y)
         invzradius = 1 / zradius
         cosphi = phit.x * invzradius
         sinphi = phit.y * invzradius
-        dpdu = Vector(-self.phiMax * phit.y, self.phiMax * phit.x, 0)
-        dpdv = (self.thetaMax-self.thetaMin) * Vector(phit.z*cosphi, phit.z*sinphi, -self.radius*math.sin(theta)) 
+        dpdu = Vector(-self.phi_max * phit.y, self.phi_max * phit.x, 0)
+        dpdv = (self.theta_max-self.theta_min) * Vector(phit.z*cosphi, phit.z*sinphi, -self.radius*math.sin(theta)) 
 
         # Initialize _DifferentialGeometry_ from parametric information
         dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
@@ -230,7 +230,7 @@ class Sphere(Shape):
         return thit, dg, True
 
     def area(self):
-        return (self.phiMax * self.radius * (self.zmax-self.zmin)) # The sphere / partial sphere area
+        return (self.phi_max * self.radius * (self.zmax-self.zmin)) # The sphere / partial sphere area
     
 
 class Spheroid(Shape):
@@ -424,3 +424,119 @@ class Spheroid(Shape):
         else: # sphere
             area = 4.*math.pi*self.alpha2
         return area
+    
+
+class Disk(Shape):
+    '''
+    Creation of the class Disk
+
+    Parameters
+    ----------
+    radius : float
+        The disk radius
+    inner_radius : float, optional
+        This is the inner radius in the case of partial disk (or annulus)
+    phi_max : float, optional
+        The maximum phi value in radians of the disk/annulus, where phi is between [0, 360]
+    z_height : float, optional
+        the disk height along the z axis
+    oTw : Transform, optional
+        From object to world space or the transformation applied to the spheroid
+    wTo : Transform, optional
+        From world to object space or the in inverse transformation applied to the spheroid
+    
+    Notes
+    -----
+    Even if z_height is given, the origin for rotation transformation do not change.
+    For exemple: z_height=5 then we apply a rotation of 90 degrees around the y axis, the disk
+    we be rotated from (0.,0.,0.), meaning the disk we be moved from position (0.,0.,5.) to
+    (5.,0.,0.).
+    '''
+    def __init__(self, radius, inner_radius=0., phi_max=2*math.pi, z_height=0., oTw=None, wTo=None):
+        if wTo is None and oTw is None:
+            wTo = Transform()
+            oTw = Transform()
+        elif (wTo is None and isinstance(oTw, Transform)): wTo = oTw.inverse()
+        elif (isinstance(wTo, Transform) and oTw is None): oTw = wTo.inverse()
+        if (inner_radius >= radius): raise NameError ('The parameter inner_radius must be < to radius')
+        if (not np.isscalar(radius)): raise ValueError('The parameters radius must be a scalar')
+        if (not np.isscalar(inner_radius)): raise ValueError('The parameters inner_radius must be a scalar')
+        if (not np.isscalar(phi_max)): raise ValueError('The parameters phi_max must be a scalar')
+        if (not np.isscalar(z_height)): raise ValueError('The parameters z_height must be a scalar')
+        Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
+        self.radius = radius
+        self.inner_radius = inner_radius
+        self.phi_max = phi_max
+        self.z_height = z_height
+
+    def intersect(self, r1):
+        """
+        Test if a ray intersects the disk
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+
+        Returns
+        -------
+        thit : float
+            The t ray variable for its first intersection at the shape surface
+        dg : DifferentialGeometry
+            The parametric parameters at the intersection point
+        is_intersection : bool
+            If there is an intersection -> True, else False
+
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> r1 = gc.Ray(gc.Point(1.2,0.,10.), gc.Vector(0.,0.,-1.))
+        >>> r2 = gc.Ray(gc.Point(0.2,0.,10.), gc.Vector(0.,0.,-1.))
+        >>> r3 = gc.Ray(gc.Point(1.6,0.,10.), gc.Vector(0.,0.,-1.))
+        >>> annulus = gc.Disk(radius=1.5, inner_radius=0.8)
+        >>> annulus.intersect(r1) # hit point is between the inner radius and radius
+        >>> (10.0, <geoclide.shapes.DifferentialGeometry at 0x7f988d9cfce0>, True)
+        >>> annulus.intersect(r2) # the ray passes through the annulus hole, no intersection
+        (None, None, False)
+        >>> annulus.intersect(r3) # the ray passes outside, no intersection
+        (None, None, False)
+        """
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r1)
+        ray.o = self.wTo[r1.o]
+        ray.d = self.wTo[r1.d]
+
+        # no intersection in the case the ray is parallel to the disk's plane
+        if (ray.d.z == 0): return None, False
+        thit = (self.z_height - ray.o.z) / ray.d.z
+        if (thit <= 0 or thit >= ray.maxt): return None, False
+
+        # get the intersection point, and distance between disk center and the intersection
+        phit = ray[thit]
+        hit_radius2 = phit.x*phit.x + phit.y*phit.y
+
+        # if the hit point is outside the disk then no intersection
+        if (hit_radius2 > self.radius*self.radius): return None, None, False
+
+        # annulus case
+        # check that the hit point is not in the annulus hole
+        if (hit_radius2 < self.inner_radius*self.inner_radius): return None, None, False
+        
+        # partial disk/annulus case
+        # check phi value to see if the hit point is inside the partial disk/annulus
+        phi = math.atan2(phit.y, phit.x)
+        if (phi < 0.): phi += 2*math.pi
+        if (phi > self.phi_max): return None, None, False
+
+        # get the parameteric representation
+        u = phi / self.phi_max
+        hit_radius = math.sqrt(hit_radius2)
+        v = (self.radius-hit_radius) / (self.radius-self.inner_radius)
+        dpdu = Vector(-self.phi_max*phit.y, self.phi_max*phit.x, 0.)
+        dpdv = Vector(phit.x, phit.y, 0.) * ( (self.inner_radius-self.radius)/hit_radius )
+
+        # Initialize _DifferentialGeometry_ from parametric information
+        dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
+                                  u, v, r1.d, self)
+        
+        return thit, dg, True

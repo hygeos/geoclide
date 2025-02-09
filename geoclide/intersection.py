@@ -131,7 +131,7 @@ def calc_intersection(shape, r1, method='v3'):
         ds['z_min'].attrs = {'description':'the sphere zmin attribut'}
         ds['z_max'] = shape.zmax
         ds['z_max'].attrs = {'description':'the sphere zmax attribut'}
-        ds['phi_max'] = shape.phiMax
+        ds['phi_max'] = shape.phi_max
         ds['phi_max'].attrs = {'unit':'Radian', 'description':'the sphere phiMax attribut'}
     if (isinstance(shape, Spheroid)):
         ds.attrs = {'shape':  'Spheroid'}
