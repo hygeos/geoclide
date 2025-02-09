@@ -469,6 +469,65 @@ class Disk(Shape):
         self.phi_max = phi_max
         self.z_height = z_height
 
+    def is_intersection(self, r1):
+        """
+        Test if a ray intersects the disk
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+
+        Returns
+        -------
+        is_intersection : bool
+            If there is an intersection -> True, else False
+
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> r1 = gc.Ray(gc.Point(1.2,0.,10.), gc.Vector(0.,0.,-1.))
+        >>> r2 = gc.Ray(gc.Point(0.2,0.,10.), gc.Vector(0.,0.,-1.))
+        >>> r3 = gc.Ray(gc.Point(1.6,0.,10.), gc.Vector(0.,0.,-1.))
+        >>> annulus = gc.Disk(radius=1.5, inner_radius=0.8)
+        >>> annulus.is_intersection(r1) # hit point is between the inner radius and radius
+        >>> True
+        >>> annulus.is_intersection(r2) # the ray passes through the annulus hole, no intersection
+        False
+        >>> annulus.is_intersection(r3) # the ray passes outside, no intersection
+        False
+        """
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r1)
+        ray.o = self.wTo[r1.o]
+        ray.d = self.wTo[r1.d]
+
+        # no intersection in the case the ray is parallel to the disk's plane
+        if (ray.d.z == 0): return False
+        thit = (self.z_height - ray.o.z) / ray.d.z
+        if (thit <= 0 or thit >= ray.maxt): return False
+
+        # get the intersection point, and distance between disk center and the intersection
+        phit = ray[thit]
+        hit_radius2 = phit.x*phit.x + phit.y*phit.y
+
+        # if the hit point is outside the disk then no intersection
+        if (hit_radius2 > self.radius*self.radius): return False
+
+        # annulus case
+        # check that the hit point is not in the annulus hole
+        if (self.inner_radius > 0.):
+            if (hit_radius2 < self.inner_radius*self.inner_radius): return False
+        
+        # partial disk/annulus case
+        # check phi value to see if the hit point is inside the partial disk/annulus
+        if (self.phi_max != 2*math.pi):
+            phi = math.atan2(phit.y, phit.x)
+            if (phi < 0.): phi += 2*math.pi
+            if (phi > self.phi_max): return False
+        
+        return True
+
     def intersect(self, r1):
         """
         Test if a ray intersects the disk
@@ -507,9 +566,9 @@ class Disk(Shape):
         ray.d = self.wTo[r1.d]
 
         # no intersection in the case the ray is parallel to the disk's plane
-        if (ray.d.z == 0): return None, False
+        if (ray.d.z == 0): return None, None, False
         thit = (self.z_height - ray.o.z) / ray.d.z
-        if (thit <= 0 or thit >= ray.maxt): return None, False
+        if (thit <= 0 or thit >= ray.maxt): return None, None, False
 
         # get the intersection point, and distance between disk center and the intersection
         phit = ray[thit]
@@ -540,3 +599,7 @@ class Disk(Shape):
                                   u, v, r1.d, self)
         
         return thit, dg, True
+    
+    def area(self):
+        return 0.5*self.phi_max*(self.radius*self.radius - self.inner_radius*self.inner_radius)
+
