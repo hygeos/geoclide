@@ -8,6 +8,7 @@ from geoclide.basic import Ray, Vector, Point
 from geoclide.transform import Transform
 import math
 import numpy as np
+from geoclide.constante import TWO_PI
 
 
 class Sphere(Shape):
@@ -108,7 +109,7 @@ class Sphere(Shape):
         phit = ray[thit]
         if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
         phi = math.atan2(phit.y, phit.x)
-        if (phi < 0): phi += 2*math.pi
+        if (phi < 0): phi += TWO_PI
 
         # Test sphere intersection against clipping parameters
         phi_max_rad = math.radians(self.phi_max)
@@ -122,7 +123,7 @@ class Sphere(Shape):
             phit = ray[thit]
             if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
             phi = math.atan2(phit.y, phit.x)
-            if (phi < 0): phi += 2*math.pi
+            if (phi < 0): phi += TWO_PI
             if ((self.zmin > -self.radius and phit.z < self.zmin) or
                 (self.zmax <  self.radius and phit.z > self.zmax) or
                 (phi > phi_max_rad) ):
@@ -194,7 +195,7 @@ class Sphere(Shape):
         phit *= self.radius / distance(phit, Point(0., 0., 0.))
         if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
         phi = math.atan2(phit.y, phit.x)
-        if (phi < 0): phi += 2*math.pi
+        if (phi < 0): phi += TWO_PI
 
         # Test sphere intersection against clipping parameters
         phi_max_rad = math.radians(self.phi_max)
@@ -208,7 +209,7 @@ class Sphere(Shape):
             phit = ray[thit]
             if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
             phi = math.atan2(phit.y, phit.x)
-            if (phi < 0): phi += 2*math.pi
+            if (phi < 0): phi += TWO_PI
             if ((self.zmin > -self.radius and phit.z < self.zmin) or
                 (self.zmax <  self.radius and phit.z > self.zmax) or
                 (phi > phi_max_rad) ):
@@ -396,10 +397,10 @@ class Spheroid(Shape):
         phit = ray[thit]
         if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.alpha
         phi = math.atan2(phit.y, phit.x) # because alpha=beta
-        if (phi < 0): phi += 2.*math.pi
+        if (phi < 0): phi += TWO_PI
 
         # Find parametric representation of sphere hit
-        u = phi / (2.*math.pi)
+        u = phi / TWO_PI
         theta = math.acos(clamp(phit.z / self.gamma, -1, 1))
         v = 1 - (theta / math.pi)
 
@@ -409,7 +410,7 @@ class Spheroid(Shape):
         cosphi = phit.x * invzradius
         sinphi = phit.y * invzradius
         fac = -math.pi*(self.alpha/self.gamma)*phit.z
-        dpdu = Vector(-2.*math.pi*phit.y, 2.*math.pi*phit.x, 0.)
+        dpdu = Vector(-TWO_PI*phit.y, TWO_PI*phit.x, 0.)
         dpdv = Vector(fac*cosphi, fac*sinphi, math.pi*self.gamma*math.sin(theta))
 
         # Initialize _DifferentialGeometry_ from parametric information
@@ -421,10 +422,10 @@ class Spheroid(Shape):
     def area(self):
         if (self.gamma < self.alpha): # oblate spheroid
             e = math.sqrt(1 - (self.gamma2/self.alpha2))
-            area = 2*math.pi*self.alpha2 + math.pi*(self.gamma2/e)*math.log((1+e)/(1-e))
+            area = TWO_PI*self.alpha2 + math.pi*(self.gamma2/e)*math.log((1+e)/(1-e))
         elif (self.gamma > self.alpha): # prolate
             e = math.sqrt(1 - (self.alpha2/self.gamma2))
-            area = 2*math.pi*self.alpha2*(1 + (self.gamma/(self.alpha*e))*math.asin(e))
+            area = TWO_PI*self.alpha2*(1 + (self.gamma/(self.alpha*e))*math.asin(e))
         else: # sphere
             area = 4.*math.pi*self.alpha2
         return area
@@ -529,7 +530,7 @@ class Disk(Shape):
         # check phi value to see if the hit point is inside the partial disk/annulus
         if (self.phi_max < 360.):
             phi = math.atan2(phit.y, phit.x)
-            if (phi < 0.): phi += 2*math.pi
+            if (phi < 0.): phi += TWO_PI
             if (phi > math.radians(self.phi_max)): return False
         
         return True
@@ -591,7 +592,7 @@ class Disk(Shape):
         # check phi value to see if the hit point is inside the partial disk/annulus
         phi = math.atan2(phit.y, phit.x)
         phi_max_rad = math.radians(self.phi_max)
-        if (phi < 0.): phi += 2*math.pi
+        if (phi < 0.): phi += TWO_PI
         if (phi > phi_max_rad): return None, None, False
 
         # get the parameteric representation
