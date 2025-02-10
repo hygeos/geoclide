@@ -12,6 +12,8 @@ def test_triangle_intersection():
     p2 = gc.Point(1., 1., 0.)
 
     tri = gc.Triangle(p0, p1, p2)
+    assert (tri.area() == 2.)
+
     ray = gc.Ray(o=gc.Point(0., 0., 1.), d=gc.normalize(gc.Vector(0.999,0.999,-1.)))
 
     thitv2, dgv2, is_intv2 = tri.intersect_v2(ray)
@@ -49,13 +51,15 @@ def test_triangle_transform():
 
     oTw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotateY_tf(45.)
     tri = gc.Triangle(p0, p1, p2, oTw=oTw)
+    assert (tri.area() == 0.5)
+
     ray = gc.Ray(o=gc.Point(0., 0., 4.8), d=gc.normalize(gc.Vector(1.,0.,0.)))
 
     thitv2, dgv2, is_intv2 = tri.intersect(ray, method='v2')
     thitv3, dgv3, is_intv3 = tri.intersect(ray, method='v3')
 
-    assert (is_intv2 is True), 'Problem with v2 intersection test'
-    assert (is_intv3 is True), 'Problem with v3 intersection test'
+    assert (is_intv2), 'Problem with v2 intersection test'
+    assert (is_intv3), 'Problem with v3 intersection test'
     assert (np.isclose(10.2, thitv2, 0., 1e-14)), 'Problem with v2 intersection test'
     assert (np.isclose(10.2, thitv3, 0., 1e-14)), 'Problem with v3 intersection test'
     assert (np.isclose(-math.sqrt(2.)/2., dgv2.n.x, 0., 1e-13)), \
@@ -81,6 +85,12 @@ def test_triangle_transform():
     assert (tri.is_intersection(ray, method='v2')), 'Problem with v2 is_intersection test'
     assert (tri.is_intersection(ray, method='v3')), 'Problem with v3 is_intersection test'
 
+    thitv2_, is_intv2_ = tri.is_intersection_t(ray, method='v2')
+    thitv3_, is_intv3_ = tri.is_intersection_t(ray, method='v3')
+    assert(is_intv2_)
+    assert(is_intv3_)
+    assert (thitv2 == thitv2_)
+    assert (thitv3 == thitv3_)
 
 def test_triangle_mesh():
     # list of vertices
@@ -94,6 +104,8 @@ def test_triangle_mesh():
 
     oTw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotateY_tf(45.)
     tri_mesh = gc.TriangleMesh(vi=vi, v=v, oTw=oTw)
+    assert (tri_mesh.area() == 1.)
+
     ray = gc.Ray(o=gc.Point(0., 0., 4.8), d=gc.normalize(gc.Vector(1.,0.,0.)))
 
     thitv2, dgv2, is_intv2 = tri_mesh.intersect(ray, method='v2')
