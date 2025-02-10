@@ -5,6 +5,24 @@
            #                         #
            ###########################
 
+v1.2.0
+------
+Release date: 10-02-2025
+
+* Add new functions
+    - ang2vec
+    - vec2and
+
+* Add the Disk class
+    - It can be a disk, a partial disk, an annulus or a partial annulus
+
+* Add new method to all 3d objects "is_intersection_t"
+    - the method is faster than intersect method, but gives only thit
+
+* Move tests folder into geoclide folder
+* And some improvements
+
+
 v1.1.1
 ------
 Release date: 07-02-2025
