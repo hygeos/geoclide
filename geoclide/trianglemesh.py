@@ -87,8 +87,228 @@ class Triangle(Shape):
         elif method == 'v2':
             return self.is_intersection_v2(r1)
         else:
-            raise ValueError("Only 'v2' and 'v3' are valid values for method parameter")   
+            raise ValueError("Only 'v2' and 'v3' are valid values for method parameter")
     
+    def is_intersection_t(self, r1, method='v3'):
+        """
+        Test if a Ray intersect with the triangle
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+        method : str, optional
+            Tow choice -> 'v2' (use mainly pbrt v2 intersection test method) or 'v3' (pbrt v3)
+
+        Returns
+        -------
+        thit : float
+            The t ray variable for its first intersection at the shape surface
+        is_intersection : bool
+            If there is an intersection -> True, else False
+        """
+        if method == 'v3':
+            return self.is_intersection_v3_t(r1)
+        elif method == 'v2':
+            return self.is_intersection_v2_t(r1)
+        else:
+            raise ValueError("Only 'v2' and 'v3' are valid values for method parameter")   
+
+    def is_intersection_v2_t(self, r1):
+        """
+        Test if a Ray intersect with the triangle using mainly pbrt v2 method
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+        
+        Returns
+        -------
+        thit : float
+            The t ray variable for its first intersection at the shape surface
+        is_intersection : bool
+            If there is an intersection -> True, else False
+        """
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r1)
+        p0 = self.p0t
+        p1 = self.p1t
+        p2 = self.p2t
+        e1 = p1 - p0
+        e2 = p2 - p0
+        s1 = gv.cross(ray.d, e2)
+        divisor = gv.dot(s1, e1)
+
+        if (divisor == 0):
+            return None, False
+        invDivisor = 1./divisor
+
+        # compute the first barycentric coordinate
+        s = ray.o - p0
+        b1 = gv.dot(s, s1) * invDivisor
+        if (b1 < -0.00000001 or  b1 > 1.00000001):
+            return None, False
+
+        # compute the second barycentric coordinate
+        s2 = gv.cross(s, e1)
+        b2 = gv.dot(ray.d, s2) * invDivisor
+        if (b2 < 0 or  b1+b2 > 1):
+            return None, False
+
+        # compute the time at the intersection point
+        t = gv.dot(e2, s2) * invDivisor
+        if (t < ray.mint or t > ray.maxt):
+            return None, False
+
+        return t, True
+    
+    def is_intersection_v2(self, r1):
+        """
+        Test if a Ray intersect with the triangle using mainly pbrt v2 method
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+        
+        Returns
+        -------
+        out : bool
+            If there is an intersection -> True, else False
+        """
+        _, is_intersection = self.is_intersection_v2_t(r1)
+        return is_intersection
+    
+    def is_intersection_v3_t(self, r1):
+        """
+        Test if a Ray intersect with the triangle using mainly pbrt v3 method
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+        
+        Returns
+        -------
+        thit : float
+            The t ray variable for its first intersection at the shape surface
+        is_intersection : bool
+            If there is an intersection -> True, else False
+        """
+        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r1)
+        p0 = self.p0t
+        p1 = self.p1t
+        p2 = self.p2t
+
+        # Get triangle vertices and translate them in based on ray origin
+        p0t = p0 - ray.o
+        p1t = p1 - ray.o
+        p2t = p2 - ray.o
+
+        kz = gv.vargmax(gv.vabs(ray.d))
+        kx = kz + 1
+        if(kx == 3): kx = 0
+        ky = kx + 1
+        if(ky == 3): ky = 0
+
+        d = gv.permute(ray.d, kx, ky, kz)
+        p0t = gv.permute(p0t, kx, ky, kz)
+        p1t = gv.permute(p1t, kx, ky, kz)
+        p2t = gv.permute(p2t, kx, ky, kz)
+        
+        sx = -d.x/d.z
+        sy = -d.y/d.z
+        sz = 1./d.z
+        p0t.x += sx*p0t.z
+        p0t.y += sy*p0t.z
+        p1t.x += sx*p1t.z
+        p1t.y += sy*p1t.z
+        p2t.x += sx*p2t.z
+        p2t.y += sy*p2t.z
+        
+        # Compute edge function coefficients
+        e0 = (p1t.x * p2t.y) - (p1t.y * p2t.x)
+        e1 = (p2t.x * p0t.y) - (p2t.y * p0t.x)
+        e2 = (p0t.x * p1t.y) - (p0t.y * p1t.x)
+
+        # Perform triangle edge and determinant tests
+        if ((e0 < 0 or e1 < 0 or e2 < 0) and (e0 > 0 or e1 > 0 or e2 > 0)):
+            return None, False
+        det = e0 + e1 + e2
+        if (det == 0): return None, False
+
+        # Compute scaled hit distance to triangle and test against ray $t$ range
+        p0t.z *=  sz
+        p1t.z *=  sz
+        p2t.z *=  sz
+
+        tScaled = e0*p0t.z + e1*p1t.z + e2*p2t.z
+
+        if ( (det < 0 and (tScaled >= 0 or tScaled < ray.maxt*det)) or
+             (det > 0 and (tScaled <= 0 or tScaled > ray.maxt*det)) ):
+            return None, False
+
+        # Compute barycentric coordinates and t value for triangle intersection
+        invDet = 1./det
+        t = tScaled * invDet
+        
+        # Ensure that computed triangle t is conservatively greater than zero
+        maxZt = np.max(np.abs(np.array([p0t.z, p1t.z, p2t.z])))
+        deltaZ = GAMMA3_F64 * maxZt
+        maxXt = np.max(np.abs(np.array([p0t.x, p1t.x, p2t.x])))
+        maxYt = np.max(np.abs(np.array([p0t.y, p1t.y, p2t.y])))
+        deltaX = GAMMA5_F64 * (maxXt + maxZt)
+        deltaY = GAMMA5_F64 * (maxYt + maxZt)
+        deltaE = 2 * (GAMMA2_F64 * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
+        maxE = np.max(np.abs(np.array([e0, e1, e2])))
+        deltaT = 3 * (GAMMA3_F64 * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
+        if (t <= deltaT): return None, False
+
+        # Compute triangle partial derivatives
+        # Below the z components is not needed since we are in 2D with u in x and v un y
+        dpdu = Vector()
+        dpdv = Vector()
+        uv0 = Point(0., 0., 0.)
+        uv1 = Point(1., 0., 0.)
+        uv2 = Point(1., 1., 0.)
+        duv02 = uv0 - uv2
+        duv12 = uv1 - uv2
+        dp02 = p0 - p2
+        dp12 = p1 - p2
+        determinant = duv02.x*duv12.y - duv02.y*duv12.x
+        degenerate = bool(abs(determinant) < 1e-8)
+
+        if (not degenerate):
+            invdet = 1./ determinant
+            dpdu = (duv12.y*dp02 - duv02.y*dp12)*invdet
+            dpdv = (-duv12.x*dp02 + duv02.x*dp12)*invdet
+
+        if ( degenerate or gv.cross(dpdu, dpdv).length_squared() == 0):
+            ng = gv.cross(p2-p0, p1-p0)
+            if ( ng.length_squared() == 0 ):
+                return None, False
+        
+        return t, True
+
+    def is_intersection_v3(self, r1):
+        """
+        Test if a Ray intersect with the triangle using mainly pbrt v3 method
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+        
+        Returns
+        -------
+        out : bool
+            If there is an intersection -> True, else False
+        """
+        _, is_intersection = self.is_intersection_v3_t(r1)
+        return is_intersection
+
     def intersect(self, r1, method='v3'):
         """
         Test if a Ray intersect with the triangle and return intersection information
@@ -324,164 +544,10 @@ class Triangle(Shape):
         dg = DifferentialGeometry(phit, dpdu, dpdv, uvhit.x, uvhit.y, r1.d, self)
         
         return thit, dg, True
-    
-    def is_intersection_v2(self, r1):
-        """
-        Test if a Ray intersect with the triangle using mainly pbrt v2 method
 
-        Parameters
-        ----------
-        r1 : Ray
-            The ray to use for the intersection test
-        
-        Returns
-        -------
-        out : bool
-            If there is an intersection -> True, else False
-        """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        p0 = self.p0t
-        p1 = self.p1t
-        p2 = self.p2t
-        e1 = p1 - p0
-        e2 = p2 - p0
-        s1 = gv.cross(ray.d, e2)
-        divisor = gv.dot(s1, e1)
+    def area(self):
+        return 0.5 * gv.cross(self.p1-self.p0, self.p2-self.p0).length()
 
-        if (divisor == 0):
-            return False
-        invDivisor = 1./divisor
-
-        # compute the first barycentric coordinate
-        s = ray.o - p0
-        b1 = gv.dot(s, s1) * invDivisor
-        if (b1 < -0.00000001 or  b1 > 1.00000001):
-            return False
-
-        # compute the second barycentric coordinate
-        s2 = gv.cross(s, e1)
-        b2 = gv.dot(ray.d, s2) * invDivisor
-        if (b2 < 0 or  b1+b2 > 1):
-            return False
-
-        # compute the time at the intersection point
-        t = gv.dot(e2, s2) * invDivisor
-        if (t < ray.mint or t > ray.maxt):
-            return False
-
-        return True
-    
-    def is_intersection_v3(self, r1):
-        """
-        Test if a Ray intersect with the triangle using mainly pbrt v3 method
-
-        Parameters
-        ----------
-        r1 : Ray
-            The ray to use for the intersection test
-        
-        Returns
-        -------
-        out : bool
-            If there is an intersection -> True, else False
-        """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        p0 = self.p0t
-        p1 = self.p1t
-        p2 = self.p2t
-
-        # Get triangle vertices and translate them in based on ray origin
-        p0t = p0 - ray.o
-        p1t = p1 - ray.o
-        p2t = p2 - ray.o
-
-        kz = gv.vargmax(gv.vabs(ray.d))
-        kx = kz + 1
-        if(kx == 3): kx = 0
-        ky = kx + 1
-        if(ky == 3): ky = 0
-
-        d = gv.permute(ray.d, kx, ky, kz)
-        p0t = gv.permute(p0t, kx, ky, kz)
-        p1t = gv.permute(p1t, kx, ky, kz)
-        p2t = gv.permute(p2t, kx, ky, kz)
-        
-        sx = -d.x/d.z
-        sy = -d.y/d.z
-        sz = 1./d.z
-        p0t.x += sx*p0t.z
-        p0t.y += sy*p0t.z
-        p1t.x += sx*p1t.z
-        p1t.y += sy*p1t.z
-        p2t.x += sx*p2t.z
-        p2t.y += sy*p2t.z
-        
-        # Compute edge function coefficients
-        e0 = (p1t.x * p2t.y) - (p1t.y * p2t.x)
-        e1 = (p2t.x * p0t.y) - (p2t.y * p0t.x)
-        e2 = (p0t.x * p1t.y) - (p0t.y * p1t.x)
-
-        # Perform triangle edge and determinant tests
-        if ((e0 < 0 or e1 < 0 or e2 < 0) and (e0 > 0 or e1 > 0 or e2 > 0)):
-            return False
-        det = e0 + e1 + e2
-        if (det == 0): return False
-
-        # Compute scaled hit distance to triangle and test against ray $t$ range
-        p0t.z *=  sz
-        p1t.z *=  sz
-        p2t.z *=  sz
-
-        tScaled = e0*p0t.z + e1*p1t.z + e2*p2t.z
-
-        if ( (det < 0 and (tScaled >= 0 or tScaled < ray.maxt*det)) or
-             (det > 0 and (tScaled <= 0 or tScaled > ray.maxt*det)) ):
-            return False
-
-        # Compute barycentric coordinates and t value for triangle intersection
-        invDet = 1./det
-        t = tScaled * invDet
-        
-        # Ensure that computed triangle t is conservatively greater than zero
-        maxZt = np.max(np.abs(np.array([p0t.z, p1t.z, p2t.z])))
-        deltaZ = GAMMA3_F64 * maxZt
-        maxXt = np.max(np.abs(np.array([p0t.x, p1t.x, p2t.x])))
-        maxYt = np.max(np.abs(np.array([p0t.y, p1t.y, p2t.y])))
-        deltaX = GAMMA5_F64 * (maxXt + maxZt)
-        deltaY = GAMMA5_F64 * (maxYt + maxZt)
-        deltaE = 2 * (GAMMA2_F64 * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
-        maxE = np.max(np.abs(np.array([e0, e1, e2])))
-        deltaT = 3 * (GAMMA3_F64 * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
-        if (t <= deltaT): return False
-
-        # Compute triangle partial derivatives
-        # Below the z components is not needed since we are in 2D with u in x and v un y
-        dpdu = Vector()
-        dpdv = Vector()
-        uv0 = Point(0., 0., 0.)
-        uv1 = Point(1., 0., 0.)
-        uv2 = Point(1., 1., 0.)
-        duv02 = uv0 - uv2
-        duv12 = uv1 - uv2
-        dp02 = p0 - p2
-        dp12 = p1 - p2
-        determinant = duv02.x*duv12.y - duv02.y*duv12.x
-        degenerate = bool(abs(determinant) < 1e-8)
-
-        if (not degenerate):
-            invdet = 1./ determinant
-            dpdu = (duv12.y*dp02 - duv02.y*dp12)*invdet
-            dpdv = (-duv12.x*dp02 + duv02.x*dp12)*invdet
-
-        if ( degenerate or gv.cross(dpdu, dpdv).length_squared() == 0):
-            ng = gv.cross(p2-p0, p1-p0)
-            if ( ng.length_squared() == 0 ):
-                return False
-        
-        return True
-     
 
 class TriangleMesh(Shape):
     '''
@@ -596,3 +662,42 @@ class TriangleMesh(Shape):
             if (self.triangles[itri].is_intersection(r1, method=method)):
                 return True
         return False
+    
+    def is_intersection_t(self, r1, method='v3'):
+        """
+        Test if a Ray intersect with the triangle mesh
+
+        Parameters
+        ----------
+        r1 : Ray
+            The ray to use for the intersection test
+        method : str, optional
+            Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
+        
+        Returns
+        -------
+        thit : float
+            The t ray variable for its first intersection at the shape surface
+        is_intersection : bool
+            If there is an intersection -> True, else False
+
+        Notes
+        -----
+        The function is_intersection_t can be significantly more consuming than is_intersection. 
+        Because it does not stop at the first intersection, but it finalize the complete loop to
+        return the thit corresponding to the nearest triangle.
+        """
+        thit = float("inf")
+        for itri in range(0, self.ntriangles):
+            thit_bis, is_intersection_bis = self.triangles[itri].is_intersection_t(r1, method=method)
+            if is_intersection_bis:
+                if thit > thit_bis:
+                    thit = thit_bis
+        if thit == float("inf"): return None, False 
+        return thit, True
+    
+    def area(self):
+        area = 0.
+        for itri in range (0, self.ntriangles):
+            area+=self.triangles[itri].area()
+        return area
