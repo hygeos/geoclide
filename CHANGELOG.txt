@@ -5,6 +5,18 @@
            #                         #
            ###########################
 
+v1.2.2
+------
+Release date: 13-02-2025
+
+* Correction of a bug in TriangleMesh constructor
+    - The bug occurred when we set the vi parameter as a 2d array.
+
+* Add tests detecting the corrected bug
+
+* Add docstring to area method for all objects
+
+
 v1.2.1
 ------
 Release date: 13-02-2025
