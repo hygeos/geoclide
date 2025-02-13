@@ -264,6 +264,11 @@ class Sphere(Shape):
         return thit, dg, True
 
     def area(self):
+        """
+        compute the sphere / partial sphere area
+
+        - !! the scale transform is not considered for the area calculation !!
+        """
         return (math.radians(self.phi_max) * self.radius * (self.zmax-self.zmin)) # The sphere / partial sphere area
     
 
@@ -484,6 +489,11 @@ class Spheroid(Shape):
         return thit, dg, True
     
     def area(self):
+        """
+        compute the spheroid area
+
+        - !! the scale transform is not considered for the area calculation !!
+        """
         if (self.gamma < self.alpha): # oblate spheroid
             e = math.sqrt(1 - (self.gamma2/self.alpha2))
             area = TWO_PI*self.alpha2 + math.pi*(self.gamma2/e)*math.log((1+e)/(1-e))
@@ -706,5 +716,10 @@ class Disk(Shape):
         return thit, dg, True
     
     def area(self):
+        """
+        compute the disk / annulus area
+
+        - !! the scale transform is not considered for the area calculation !!
+        """
         return 0.5*math.radians(self.phi_max)*(self.radius*self.radius - self.inner_radius*self.inner_radius)
 

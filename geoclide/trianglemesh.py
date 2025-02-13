@@ -546,6 +546,11 @@ class Triangle(Shape):
         return thit, dg, True
 
     def area(self):
+        """
+        compute the area of the triangle
+
+        - !! the scale transform is not considered for the area calculation !!
+        """
         return 0.5 * gv.cross(self.p1-self.p0, self.p2-self.p0).length()
 
 
@@ -697,6 +702,11 @@ class TriangleMesh(Shape):
         return thit, True
     
     def area(self):
+        """
+        compute the area of the triangle mesh
+
+        - !! the scale transform is not considered for the area calculation !!
+        """
         area = 0.
         for itri in range (0, self.ntriangles):
             area+=self.triangles[itri].area()
