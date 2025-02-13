@@ -582,7 +582,7 @@ class TriangleMesh(Shape):
               not ( (len(v.shape) == 1 and isinstance(v[0], Point)) or (len(v.shape) == 2) )  ):
             raise ValueError('The paramerter v must be a 1d ndarray of Point objects or a 2d ndarray')
         
-        if (len(vi) == 2): vi = vi.flatten()
+        if (len(vi.shape) == 2): vi = vi.flatten()
         self.vertices_index = vi
         self.nvertices = np.amax(vi) + int(1)
         if not isinstance(v[0], Point):

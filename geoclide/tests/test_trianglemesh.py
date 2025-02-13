@@ -137,3 +137,21 @@ def test_triangle_mesh():
 
     assert (tri_mesh.is_intersection(ray, method='v2')), 'Problem with v2 is_intersection test'
     assert (tri_mesh.is_intersection(ray, method='v3')), 'Problem with v3 is_intersection test'
+
+    # test with vi as 2d array
+    tri_mesh = gc.TriangleMesh(vi=vi.reshape(-1,3), v=v, oTw=oTw)
+    thitv2, dgv2, is_intv2 = tri_mesh.intersect(ray, method='v2')
+    thitv3, dgv3, is_intv3 = tri_mesh.intersect(ray, method='v3')
+    assert (is_intv2 is True), 'Problem with v2 intersection test'
+    assert (is_intv3 is True), 'Problem with v3 intersection test'
+    assert (np.isclose(10.2, thitv2, 0., 1e-14)), 'Problem with v2 intersection test'
+    assert (np.isclose(10.2, thitv3, 0., 1e-14)), 'Problem with v3 intersection test'
+
+    # test with v as 1d array of points
+    tri_mesh = gc.TriangleMesh(vi=vi, v=np.array([gc.Point(val) for val in v]), oTw=oTw)
+    thitv2, dgv2, is_intv2 = tri_mesh.intersect(ray, method='v2')
+    thitv3, dgv3, is_intv3 = tri_mesh.intersect(ray, method='v3')
+    assert (is_intv2 is True), 'Problem with v2 intersection test'
+    assert (is_intv3 is True), 'Problem with v3 intersection test'
+    assert (np.isclose(10.2, thitv2, 0., 1e-14)), 'Problem with v2 intersection test'
+    assert (np.isclose(10.2, thitv3, 0., 1e-14)), 'Problem with v3 intersection test'
