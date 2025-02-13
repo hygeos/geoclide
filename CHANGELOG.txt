@@ -5,6 +5,18 @@
            #                         #
            ###########################
 
+v1.2.1
+------
+Release date: 13-02-2025
+
+* Correction in vec2ang function
+    - small correction in the docstring
+    - correct a bug appearing when the parameter v is not a normalized vector
+    - add the missing default value of the parameter vec_view
+
+* Add tests enabling to detect the corrected bug
+
+
 v1.2.0
 ------
 Release date: 10-02-2025
