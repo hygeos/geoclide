@@ -64,7 +64,7 @@ def ang2vec(theta, phi, vec_view='zenith'):
     return v
 
 
-def vec2ang(v, vec_view):
+def vec2ang(v, vec_view='zenith'):
     """
     Convert a direction described by a vector into a direction described by 2 angles
 
@@ -81,7 +81,7 @@ def vec2ang(v, vec_view):
 
     vec_view : str, optional
         Two choices (concerning intial direction at theta=phi=0): 'zenith' (i.e. pointing above) or 
-        'bellow' (i.e. pointing bellow)
+        'nadir' (i.e. pointing bellow)
 
     Returns
     -------
@@ -121,6 +121,7 @@ def vec2ang(v, vec_view):
     else:
         raise ValueError("The value of vec_view parameter must be: 'zenith' or 'nadir")
     
+    v = normalize(v) # ensure v is normalized
     v_ini = Vector(0., 0., 1.)
 
     # In case v = v_ini -> no rotations
