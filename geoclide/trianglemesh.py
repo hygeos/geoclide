@@ -7,6 +7,7 @@ import geoclide.vecope as gv
 import numpy as np
 from geoclide.constante import GAMMA2_F64, GAMMA3_F64, GAMMA5_F64
 from geoclide.transform import Transform
+import math
 
 
 class Triangle(Shape):
@@ -711,3 +712,201 @@ class TriangleMesh(Shape):
         for itri in range (0, self.ntriangles):
             area+=self.triangles[itri].area()
         return area
+    
+
+def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min=0., theta_max=180.,
+                               phi_max=360., oTw=None, wTo=None):
+    """
+    Create a sphere / partial sphere triangleMesh
+
+    Parameters
+    ----------
+    radius : float
+        The sphere radius
+    reso_theta : int, optional
+        The number of lines around the polar theta angle, minimum accepted value is 3
+    reso_phi : int, optional
+        The number of lines around the azimuth phi angle, minimum accepted value is 3
+    theta_min : float, optional
+        The minimum theta value in degrees (partial sphere)
+    theta_max : float, optional
+        The maximum theta value in degrees (partial sphere)
+    phi_max : float, optional
+        The maxium phi value in degrees (partial sphere)
+    oTw : Transform, optional
+        From object to world space or the transformation applied to the spheroid
+    wTo : Transform, optional
+        From world to object space or the in inverse transformation applied to the spheroid
+
+    Results
+    -------
+    out : TriangleMesh
+        The triangle mesh sphere
+    
+    Examples
+    --------
+    >>> import geoclide as gc
+    >>> sphere_msh = gc.create_sphere_trianglemesh(1)
+    """
+    if wTo is None and oTw is None:
+            wTo = Transform()
+            oTw = Transform()
+    if reso_theta is None : reso_theta = max(round(theta_max/10.), 20)
+    if reso_phi is None: reso_phi = max(round(theta_max/10.), 20)
+    if reso_theta < 3 : raise ValueError("the value of reso_theta must >= 3")
+    if reso_phi < 3 : raise ValueError("the value of reso_phi must >= 3")
+    if phi_max == 360. : phi_max = math.tau
+    else: phi_max = math.radians(phi_max)
+    theta_min = math.radians(theta_min)
+    if theta_max == 180. : theta_max = math.pi
+    else : theta_max = math.radians(theta_max)
+
+    # Create meshgrid with and theta
+    theta = np.linspace(theta_min, theta_max, reso_theta)
+    if (phi_max < math.tau):
+        phi = np.linspace(0., phi_max, reso_phi)
+    else:
+        phi = np.linspace(0., phi_max, reso_phi+1)
+    ph, th = np.meshgrid(phi, theta)
+
+    # Compute the Cartesian coordinates for the vertices
+    x = radius * np.sin(th) * np.cos(ph)
+    y = radius * np.sin(th) * np.sin(ph)
+    z = radius * np.cos(th)
+
+    # Fill unique vertices and order them in a 2d array (nvertices, 3)
+    # - from north pole to south along theta
+    # - in the trigonometric direction along phi
+    nvertices = reso_theta*reso_phi - (reso_phi*2) + 2
+    vertices = np.zeros((nvertices, 3))
+
+    if (theta[0] == 0. and theta[-1] == math.pi):
+        nvertices = reso_theta*reso_phi - (reso_phi*2) + 2
+        ntriangle = (nvertices-2)*2
+        if (phi[-1] < math.tau): ntriangle -= 2
+    elif(theta[0] == 0. or theta[-1] == math.pi):
+        nvertices = reso_theta*reso_phi - reso_phi + 1
+        ntriangle = (nvertices-1)*2
+        if (phi[-1] < math.tau): ntriangle -= 1
+    else:
+        nvertices = reso_theta*reso_phi
+        ntriangle = nvertices*2
+    vertices = np.zeros((nvertices, 3))
+
+    if (phi[-1] < math.tau): ntriangle -= max((reso_theta-3)*2,0)
+
+    ini_id0 = 0
+    ini_id1 = nvertices
+    id_xyz0 = 0
+    id_xyz1 = reso_theta
+
+    if (theta[0] == 0.):
+        # Add north pole vertex
+        ini_id0 += 1 
+        id_xyz0 +=1
+        vertices[0] = np.array([x[0, 0], y[0, 0], z[0, 0]])
+
+    if (theta[-1] == math.pi):
+        # Add south pole vertex
+        ini_id1 -= 1
+        id_xyz1 -= 1
+        vertices[-1] = [x[-1, 0], y[-1, 0], z[-1, 0]]
+
+    # Add middle vertices
+    if (phi_max < math.tau):
+        vertices[ini_id0:ini_id1,0] = x[id_xyz0:id_xyz1,:].flatten()
+        vertices[ini_id0:ini_id1,1] = y[id_xyz0:id_xyz1,:].flatten()
+        vertices[ini_id0:ini_id1,2] = z[id_xyz0:id_xyz1,:].flatten()
+    else:
+        vertices[ini_id0:ini_id1,0] = x[id_xyz0:id_xyz1,:-1].flatten()
+        vertices[ini_id0:ini_id1,1] = y[id_xyz0:id_xyz1,:-1].flatten()
+        vertices[ini_id0:ini_id1,2] = z[id_xyz0:id_xyz1,:-1].flatten()
+
+    # === Find faces
+    faces = np.zeros((ntriangle,3), dtype=np.int32)
+    ini_id = 0
+    for ith in range (0, reso_theta-1):
+        if (theta[ith] == 0.):
+            # Case of direct triangle
+            ind_above = 0
+            ind_below = np.arange(reso_phi) + 1
+            ind_below_p1 = np.concatenate((ind_below[1:], [ind_below[0]]))
+            if (phi[-1] < math.tau):
+                faces[0:reso_phi-1,0]=np.full(reso_phi, ind_above)[:-1] # p0
+                faces[0:reso_phi-1,1]=ind_below[:-1]                    # p1 
+                faces[0:reso_phi-1,2]=ind_below_p1[:-1]                 # p2
+                ini_id+=reso_phi-1
+            else:
+                faces[0:reso_phi,0]=np.full(reso_phi, ind_above) # p0
+                faces[0:reso_phi,1]=ind_below                    # p1 
+                faces[0:reso_phi,2]=ind_below_p1                 # p2
+                ini_id+=reso_phi
+        elif(theta[ith]>0. and theta[ith+1]<math.pi):
+            # case with polygones of 4 vertices, then split in 2 to get triangles
+            if (ini_id == 0): p0_id=0
+            else: p0_id = np.max(faces)+1 - reso_phi
+            ind_above = np.arange(reso_phi) + p0_id
+            ind_above_p1 = np.concatenate((ind_above[1:], [ind_above[0]]))
+            ind_below = np.arange(reso_phi) + np.max(ind_above) + 1
+            ind_below_p1 = np.concatenate((ind_below[1:], [ind_below[0]]))
+            if (phi[-1] < math.tau):
+                p0_id_t0 = ind_above[:-1]
+                p1_id_t0 = ind_below[:-1]
+                p2_id_t0 = ind_below_p1[:-1]
+                p0_id_t1 = ind_above[:-1]
+                p1_id_t1 = ind_below_p1[:-1]
+                p2_id_t1 = ind_above_p1[:-1]
+                p0_id_t = np.zeros((p0_id_t0.size+p0_id_t1.size), dtype=np.int32)
+                p1_id_t = np.zeros((p1_id_t0.size+p1_id_t1.size), dtype=np.int32)
+                p2_id_t = np.zeros((p2_id_t0.size+p2_id_t1.size), dtype=np.int32)
+                p0_id_t[0::2] = p0_id_t0
+                p0_id_t[1::2] = p0_id_t1
+                p1_id_t[0::2] = p1_id_t0
+                p1_id_t[1::2] = p1_id_t1
+                p2_id_t[0::2] = p2_id_t0
+                p2_id_t[1::2] = p2_id_t1
+                ini_id0 = ini_id
+                ini_id1 = (ini_id)+2*(reso_phi-1)
+                faces[ini_id0:ini_id1,0] = p0_id_t
+                faces[ini_id0:ini_id1,1] = p1_id_t
+                faces[ini_id0:ini_id1,2] = p2_id_t
+                ini_id += (reso_phi-1)*2   
+            else:
+                p0_id_t0 = ind_above
+                p1_id_t0 = ind_below
+                p2_id_t0 = ind_below_p1
+                p0_id_t1 = ind_above
+                p1_id_t1 = ind_below_p1
+                p2_id_t1 = ind_above_p1
+                p0_id_t = np.zeros((p0_id_t0.size+p0_id_t1.size), dtype=np.int32)
+                p1_id_t = np.zeros((p1_id_t0.size+p1_id_t1.size), dtype=np.int32)
+                p2_id_t = np.zeros((p2_id_t0.size+p2_id_t1.size), dtype=np.int32)
+                p0_id_t[0::2] = p0_id_t0
+                p0_id_t[1::2] = p0_id_t1
+                p1_id_t[0::2] = p1_id_t0
+                p1_id_t[1::2] = p1_id_t1
+                p2_id_t[0::2] = p2_id_t0
+                p2_id_t[1::2] = p2_id_t1
+                ini_id0 = ini_id
+                ini_id1 = (ini_id)+2*reso_phi
+                faces[ini_id0:ini_id1,0] = p0_id_t
+                faces[ini_id0:ini_id1,1] = p1_id_t
+                faces[ini_id0:ini_id1,2] = p2_id_t
+                ini_id += reso_phi*2
+                
+        else:
+            if (ini_id == 0): p0_id=0
+            else: p0_id = np.max(faces)+1 - reso_phi
+            ind_above = np.arange(reso_phi) + p0_id
+            ind_below = np.max(ind_above) + 1
+            ind_above_p1 = np.concatenate((ind_above[1:], [ind_above[0]]))
+            if (phi[-1] < math.tau):
+                faces[-(reso_phi-1):,0]=ind_above[:-1]                    # p0
+                faces[-(reso_phi-1):,1]=np.full(reso_phi, ind_below)[:-1] # p1
+                faces[-(reso_phi-1):,2]=ind_below_p1[:-1]                 # p2
+            else:
+                faces[-reso_phi:,0]=ind_above                    # p0
+                faces[-reso_phi:,1]=np.full(reso_phi, ind_below) # p1
+                faces[-reso_phi:,2]=ind_below_p1                 # p2
+
+    return TriangleMesh(faces, vertices, oTw, wTo)
