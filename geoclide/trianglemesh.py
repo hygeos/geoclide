@@ -8,6 +8,7 @@ import numpy as np
 from geoclide.constante import GAMMA2_F64, GAMMA3_F64, GAMMA5_F64
 from geoclide.transform import Transform
 import math
+import matplotlib.pyplot as plt
 
 
 class Triangle(Shape):
@@ -713,6 +714,37 @@ class TriangleMesh(Shape):
             area+=self.triangles[itri].area()
         return area
     
+    def plot(self, savefig_name=None, **kwargs):
+        """
+        Plot the triangle mesh
+
+        Parameters
+        ----------
+        savefig_name : str, optional
+            If savefig_name is given, the figure is saved with the given name
+        **kwargs
+            All other keyword arguments are passed on to matplotlib plot_trisurf function. 
+            For example: alpha, color, shade, ...
+        
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> prolate = gc.Spheroid(radius_xy=1.5, radius_z=3.)
+        >>> msh = prolate.to_trianglemesh()
+        >>> msh.plot(color='green', edgecolor='k')
+        image
+        """
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        vertices = np.array([val.to_numpy() for val in self.vertices_t])
+        faces = self.vertices_index.reshape(self.ntriangles, 3)
+        if 'color' in kwargs: color = kwargs.pop('color', False)
+        else: color = 'blue'
+        ax.plot_trisurf(vertices[:,0], vertices[:,1], vertices[:,2], triangles = faces, color=color, **kwargs)
+        ax.set_aspect('equal', adjustable='box')
+        if savefig_name is not None: plt.savefig(savefig_name)
+        plt.show()
+    
 
 def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min=0., theta_max=180.,
                                phi_max=360., oTw=None, wTo=None):
@@ -746,7 +778,9 @@ def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min
     Examples
     --------
     >>> import geoclide as gc
-    >>> sphere_msh = gc.create_sphere_trianglemesh(1)
+    >>> msh = gc.create_sphere_trianglemesh(1)
+    >>> msh
+    <geoclide.trianglemesh.TriangleMesh at 0x7fe3a0ea0950>
     """
     if wTo is None and oTw is None:
             wTo = Transform()
