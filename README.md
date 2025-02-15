@@ -31,6 +31,8 @@ $ pip install git+https://github.com/hygeos/geoclide.git
 Run the command `pytest geoclide/tests/ -s -v` to check that everything is running correctly.
 
 ## Available classes/functions
+<details>
+  <summary>Click me</summary>
 | Class/Function | Type | Description |
 | -------------- | ---- | ----------- |
 | `Vector`| Class | vector with x, y and z components |
@@ -72,7 +74,8 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
 | `get_rotate_tf` | Function | get the rotate transform around a given vector/normal |
 | `ang2vec` | Function | convert a direction described by 2 angles into a direction described by a vector |
 | `vec2ang` | Function | convert a direction described by a vector into a direction described by 2 angles |
-
+| `create_sphere_trianglemesh` | Function | create a sphere / partial sphere triangleMesh |
+</details>
 
 
 ## Examples
