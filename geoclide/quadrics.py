@@ -5,7 +5,8 @@ from geoclide.shapes import Shape, DifferentialGeometry
 from geoclide.mathope import clamp, quadratic
 from geoclide.vecope import distance
 from geoclide.basic import Ray, Vector, Point
-from geoclide.transform import Transform
+from geoclide.transform import Transform, get_scale_tf
+from geoclide.trianglemesh import create_sphere_trianglemesh, TriangleMesh
 import math
 import numpy as np
 from geoclide.constante import TWO_PI
@@ -36,6 +37,7 @@ class Sphere(Shape):
     def __init__(self, radius, z_min=None, z_max=None, phi_max=360., oTw=None, wTo=None):
         if z_min is None: z_min = -radius
         if z_max is None: z_max = radius
+        if z_max < z_min : raise ValueError ('zmax must be greater than zmin')
         if (phi_max < 0. or phi_max > 360.):
             raise ValueError ('The value of the parameter phi_max must in the range: [0, 360]')
         if wTo is None and oTw is None:
@@ -271,6 +273,28 @@ class Sphere(Shape):
         """
         return (math.radians(self.phi_max) * self.radius * (self.zmax-self.zmin)) # The sphere / partial sphere area
     
+    def to_trianglemesh(self, reso_theta=None, reso_phi=None):
+        """
+        Convert the sphere to a triangle mesh
+
+        Parameters
+        ----------
+        reso_theta : int, optional
+            The number of lines around the polar theta angle, minimum accepted value is 3
+        reso_phi : int, optional
+            The number of lines around the azimuth phi angle, minimum accepted value is 3
+
+        Returns
+        -------
+        mesh : TriangleMesh
+            The sphere converted to a triangle mesh
+        """
+        theta_min = clamp(math.degrees(self.theta_min), 0., 360.)
+        theta_max = clamp(math.degrees(self.theta_max), 0., 360.)
+        return create_sphere_trianglemesh(self.radius, reso_theta, reso_phi, theta_min, theta_max,
+                                          self.phi_max, self.oTw, self.wTo)
+
+        
 
 class Spheroid(Shape):
     '''
@@ -503,6 +527,26 @@ class Spheroid(Shape):
         else: # sphere
             area = 4.*math.pi*self.alpha2
         return area
+    
+    def to_trianglemesh(self, reso_theta=None, reso_phi=None):
+        """
+        Convert the spheroid to a triangle mesh
+
+        Parameters
+        ----------
+        reso_theta : int, optional
+            The number of lines around the polar theta angle, minimum accepted value is 3
+        reso_phi : int, optional
+            The number of lines around the azimuth phi angle, minimum accepted value is 3
+
+        Returns
+        -------
+        mesh : TriangleMesh
+            The sphere converted to a triangle mesh
+        """
+        oTw_bis = get_scale_tf(self.alpha, self.alpha, self.gamma)
+        msh = create_sphere_trianglemesh(radius=1, reso_theta=reso_theta, reso_phi=reso_phi, oTw=oTw_bis)
+        return TriangleMesh(msh.vertices_index, msh.vertices_t, oTw=self.oTw, wTo=self.wTo)
     
 
 class Disk(Shape):
