@@ -1,4 +1,8 @@
-# Geoclide
+<p align="center">
+<img src="geoclide/img/geoclide_logo.png" width="300">
+</p>
+
+------------------------------------------------
 
 [![image](https://img.shields.io/pypi/v/geoclide.svg)](https://pypi.python.org/pypi/geoclide)
 [![image](https://img.shields.io/conda/vn/conda-forge/geoclide.svg)](https://anaconda.org/conda-forge/geoclide)
@@ -33,7 +37,7 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
 | `Point` | Class | point with x, y and z components |
 | `Normal` | Class | normal with x, y and z components |
 | `Ray` | Class | the ray: r(t) = o + t*d, with 'o' a Point, 'd' a vector and t ∈ [0,inf[ |
-| `BBox` | Class | Bounding box |
+| `BBox` | Class | bounding box |
 | `Sphere` | Class | sphere object. It can be a partial sphere|
 | `Spheroid` | Class | spheroid object (oblate or prolate) |
 | `Disk` | Class | disk object. It can be a partial disk or an annulus/partial annulus |
@@ -66,8 +70,8 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
 | `get_rotateY_tf` | Function | get the rotate (around y axis) transform from scalar in degrees |
 | `get_rotateZ_tf` | Function | get the rotate (around z axis) transform from scalar in degrees |
 | `get_rotate_tf` | Function | get the rotate transform around a given vector/normal |
-| `ang2vec` | Function | Convert a direction described by 2 angles into a direction described by a vector |
-| `vec2ang` | Function | Convert a direction described by a vector into a direction described by 2 angles |
+| `ang2vec` | Function | convert a direction described by 2 angles into a direction described by a vector |
+| `vec2ang` | Function | convert a direction described by a vector into a direction described by 2 angles |
 
 
 
