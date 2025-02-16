@@ -289,8 +289,10 @@ class Sphere(Shape):
         mesh : TriangleMesh
             The sphere converted to a triangle mesh
         """
-        theta_min = clamp(math.degrees(self.theta_min), 0., 360.)
-        theta_max = clamp(math.degrees(self.theta_max), 0., 360.)
+        theta_zmin = clamp(math.degrees(self.theta_min), 0., 360.)
+        theta_zmax = clamp(math.degrees(self.theta_max), 0., 360.)
+        theta_min = min(theta_zmin, theta_zmax)
+        theta_max = max(theta_zmin, theta_zmax)
         return create_sphere_trianglemesh(self.radius, reso_theta, reso_phi, theta_min, theta_max,
                                           self.phi_max, self.oTw, self.wTo)
 
