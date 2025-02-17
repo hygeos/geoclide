@@ -76,12 +76,74 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   | `ang2vec` | Function | convert a direction described by 2 angles into a direction described by a vector |
   | `vec2ang` | Function | convert a direction described by a vector into a direction described by 2 angles |
   | `create_sphere_trianglemesh` | Function | create a sphere / partial sphere triangleMesh |
+  | `create_disk_trianglemesh` | Function | create a disk / partial disk / annulus / partial annulus triangleMesh |
+  | `read_gcnc_trianglemesh` | Function | Read geoclide netcdf4 format and convert it to a TriangleMesh class object |
+
 </details>
 
 
 ## Examples
+
+### How to visualize 3d objects
+The TriangleMesh class have the method plot (which use matplotlib plot_trisurf function).
+The quadric objects can be converted to TriangleMesh (using the method to_trianglemesh) to be visualized.
+
+#### Exemple 1: disk, annulus and partial annulus
+
+```python
+
+>>> import geoclide as gc
+>>> msh = gc.Disk(radius=1.).to_trianglemesh() # disk
+>>> msh.plot(color='green', edgecolor='k')
+>>> msh = gc.Disk(radius=1., inner_radius=0.5).to_trianglemesh() # annulus
+>>> msh.plot(color='green', edgecolor='k')
+>>> msh = gc.Disk(radius=1., inner_radius=0.5, phimax=270).to_trianglemesh() # partial annulus
+>>> msh.plot(color='green', edgecolor='k')
+```
+
+<p align="center">
+<img src="geoclide/img/disk.png" width="250">
+<img src="geoclide/img/annulus.png" width="250">
+<img src="geoclide/img/partial_annulus.png" width="250">
+</p>
+
+
+#### Example 2: sphere and partial spheres
+
+```python
+>>> import geoclide as gc
+>>> msh = gc.Sphere(radius=1.).to_trianglemesh() # sphere
+>>> msh.plot(color='blue', edgecolor='k')
+>>> msh = gc.Sphere(radius=1., zmax=0.5).to_trianglemesh() # partial sphere
+>>> msh.plot(color='blue', edgecolor='k')
+>>> msh = gc.Sphere(radius=1., zmax=0.5, phimax=180.).to_trianglemesh() # partial sphere
+>>> msh.plot(color='blue', edgecolor='k')
+```
+<p align="center">
+<img src="geoclide/img/sphere.png" width="250">
+<img src="geoclide/img/sphere_partial1.png" width="250">
+<img src="geoclide/img/sphere_partial2.png" width="250">
+</p>
+
+
+#### Example 3: spheroid (prolate and oblate)
+
+```python
+>>> import geoclide as gc
+>>> msh = gc.Spheroid(radius_xy=1, radius_z=3).to_trianglemesh() # prolate spheroid
+>>> msh.plot(color='red', edgecolor='k')
+>>> msh = gc.Spheroid(radius_xy=1, radius_z=0.8).to_trianglemesh() # oblate sphere
+>>> msh.plot(color='cyan', edgecolor='k')
+```
+<p align="center">
+<img src="geoclide/img/prolate.png" width="250">
+<img src="geoclide/img/oblate.png" width="250">
+</p>
+
+
+### Basic example
 <details>
-  <summary>Basic exemple</summary>
+  <summary>Click here</summary>
 
   ```python
   >>> import geoclide as gc
@@ -165,8 +227,9 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   ```
 </details>
 
+### Example for remote sensing applications
 <details>
-  <summary>Example for remote sensing applications</summary>
+  <summary>Click here</summary>
 
 
   ```python

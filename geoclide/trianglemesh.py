@@ -750,6 +750,7 @@ class TriangleMesh(Shape):
         ax.plot_trisurf(self.vertices[:,0], self.vertices[:,1], self.vertices[:,2],
                         triangles = self.faces, color=color, **kwargs)
         ax.set_aspect('equal', adjustable='box')
+        plt.tight_layout()
         if savefig_name is not None: plt.savefig(savefig_name)
         plt.show()
     
