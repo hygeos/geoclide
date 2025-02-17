@@ -787,4 +787,4 @@ class Disk(Shape):
             The disk converted to a triangle mesh
         """
         return create_disk_trianglemesh(self.radius, self.inner_radius, reso, self.phi_max,
-                                        self.z_height, self.phi_max, self.oTw, self.wTo)
+                                        self.z_height, self.oTw, self.wTo)
