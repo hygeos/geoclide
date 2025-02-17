@@ -706,6 +706,23 @@ class TriangleMesh(Shape):
             area+=triangle.area()
         return area
     
+    def apply_tf(self, t):
+        """
+        Apply transformation to the triangle mesh
+
+        Parameters
+        ----------
+        t : Tranform
+            The transfomation matrix to apply
+        """
+        if (not isinstance(t, Transform)):
+            raise ValueError('A transform can be multiplied only by another Transform')
+        
+        vertices_t = np.zeros((self.nvertices,3))
+        for iver in range (0, self.nvertices):
+            vertices_t[iver,:] = t[Point(self.vertices[iver,:])].to_numpy()
+        self.vertices = vertices_t
+    
     def plot(self, savefig_name=None, **kwargs):
         """
         Plot the triangle mesh

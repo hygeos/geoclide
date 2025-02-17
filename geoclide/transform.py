@@ -70,11 +70,11 @@ class Transform(object):
         self.m = t.m
         self.mInv = t.mInv
         
-    def __mul__(self, T): 
-        if (not isinstance(T, Transform)):
+    def __mul__(self, t): 
+        if (not isinstance(t, Transform)):
             raise ValueError('A transform can be multiplied only by another Transform')
         
-        return Transform(np.dot(self.m, T.m), np.dot(T.mInv, self.mInv))
+        return Transform(np.dot(self.m, t.m), np.dot(t.mInv, self.mInv))
     
     def __getitem__(self, c):
         """"
@@ -164,7 +164,7 @@ class Transform(object):
         """
         return get_inverse_tf(self)
 
-    def isIdentity(self):
+    def is_identity(self):
         return (self.m[0,0] == 1) and (self.m[0,1] == 0) and (self.m[0,2] == 0) and \
             (self.m[0,3] == 0) and (self.m[1,0] == 0) and (self.m[1,1] == 1) and \
             (self.m[1,2] == 0) and (self.m[1,3] == 0) and (self.m[2,0] == 0) and \
