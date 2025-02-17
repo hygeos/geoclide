@@ -34,7 +34,8 @@ dependencies = [
     "pytest",
     "matplotlib",
     "ipympl",
-    "ipykernel"
+    "ipykernel",
+    "netcdf4"
 ]
 
 [tool.setuptools]
