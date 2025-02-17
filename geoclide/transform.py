@@ -14,8 +14,10 @@ class Transform(object):
 
     Parameters
     ----------
-    m : Transform | np.ndarray, optional
-    mInv : np.ndarray, optional
+    m : Transform | 2-D ndarray, optional
+        The transformation matrix
+    mInv : Transform | 2-D ndarray, optional
+        The inverse transformation matrix
 
     Exemples
     --------

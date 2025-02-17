@@ -562,61 +562,35 @@ class TriangleMesh(Shape):
 
     Parameters
     ----------
-    vi : np.ndarray
-        The 1d ndarray of size (3*ntriangles) containing the vertices indices of triangles (see the parameter v). 
-        The 3 first indices are the vertices (p0, p1 and p3) indices of the first triangle and so on. 
-        It can be a 2d ndarray of shape (ntriangles, 3)
-    v : np.ndarray
-        The vertices xyz coordinates. It is a 1d array of size (nvertices) containing Point objects 
-        where the first element is the coordinate of first vertex and so on. It can be a 2d float array 
-        of size (nvertices, 3).
+    vertices : 2-D ndarray
+        The vertices xyz coordinates. It is a 2d ndarray of size (nvertices, 3) where the 
+        first element is the coordinate of first vertex and so on
+    faces : 2-D ndarray
+        The vertices indices of triangles, a 2d ndarray of shape (ntriangles, 3).
+        The 3 first indices are the vertices (p0, p1 and p3) indices of the first triangle and so on
     oTw : Transform, optional
         From object to world space or the transformation applied to the triangle mesh
     wTo : Transform, optional
         From world to object space or the in inverse transformation applied to the triangle mesh
     '''
-    def __init__(self, vi, v, oTw=None, wTo=None):
-        if (  not isinstance(vi, np.ndarray)                                or
-              not (len(vi.shape) == 1 or len(vi.shape) == 2)                or
-              not (np.issubdtype(vi.dtype, int) or np.issubdtype(vi.dtype, np.integer))  ):
-            raise ValueError('The parameter vi must be a 1d or 2d ndarray of intergers')
-        if (  not ( isinstance(v, np.ndarray) )                                              or
-              not ( (len(v.shape) == 1 and isinstance(v[0], Point)) or (len(v.shape) == 2) )  ):
-            raise ValueError('The paramerter v must be a 1d ndarray of Point objects or a 2d ndarray')
-        
-        if (len(vi.shape) == 2): vi = vi.flatten()
-        self.vertices_index = vi
-        self.nvertices = np.amax(vi) + int(1)
-        if not isinstance(v[0], Point):
-            v_bis = np.empty((self.nvertices), dtype=Point)
-            for iv in range (0, self.nvertices):
-                v_bis[iv] = Point(v[iv,:])
-            self.vertices = v_bis
-        else:
-            self.vertices = v
-        
-        if oTw is None:
-            self.vertices_t = self.vertices
-        else:
-            self.vertices_t = np.empty((self.nvertices), dtype=Point)
-            for iv in range (0, self.nvertices):
-                self.vertices_t[iv] = oTw[self.vertices[iv]]
-        
-        self.ntriangles = int(len(np.atleast_1d(self.vertices_index))/3)
-        self.triangles = np.empty((self.ntriangles), dtype=Triangle)
-            
-        for itri in range(0, self.ntriangles):
-            p0 = self.vertices[self.vertices_index[int(3*itri)]]
-            p1 = self.vertices[self.vertices_index[int(3*itri) + int(1)]]
-            p2 = self.vertices[self.vertices_index[int(3*itri) + int(2)]]
-            p0t = self.vertices_t[self.vertices_index[int(3*itri)]]
-            p1t = self.vertices_t[self.vertices_index[int(3*itri) + int(1)]]
-            p2t = self.vertices_t[self.vertices_index[int(3*itri) + int(2)]]
-            self.triangles[itri] = Triangle(p0, p1, p2, oTw, wTo, p0t, p1t, p2t)
-        
-        Shape.__init__(self, ObjectToWorld = self.triangles[0].oTw,
-                       WorldToObject = self.triangles[0].wTo)
-    
+    def __init__(self, vertices, faces, oTw=None, wTo=None):
+        if wTo is None and oTw is None:
+            wTo = Transform()
+            oTw = Transform()
+        elif (wTo is None and isinstance(oTw, Transform)): wTo = oTw.inverse()
+        elif (isinstance(wTo, Transform) and oTw is None): oTw = wTo.inverse()
+        if (  not isinstance(faces, np.ndarray)                                            or
+              not (len(faces.shape) == 2)                                                  or
+              not (np.issubdtype(faces.dtype, int) or np.issubdtype(faces.dtype, np.integer))  ):
+            raise ValueError('The parameter vi must be a 2d ndarray of intergers')
+        if (  not ( isinstance(vertices, np.ndarray) )  or not ( len(vertices.shape) == 2 )  ):
+            raise ValueError('The paramerter v must be a 2d ndarray')
+        Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
+        self.vertices = vertices
+        self.nvertices = vertices.shape[0]
+        self.faces = faces
+        self.ntriangles = faces.shape[0]
+
     def intersect(self, r1, method='v3'):
         """
         Test if a Ray intersect with the triangle mesh and return intersection information
@@ -640,7 +614,11 @@ class TriangleMesh(Shape):
         dg = None
         thit = float("inf")
         for itri in range(0, self.ntriangles):
-            thit_bis, dg_bis, is_intersection_bis = self.triangles[itri].intersect(r1, method=method)
+            p0 = Point(self.vertices[self.faces[itri,0],:])
+            p1 = Point(self.vertices[self.faces[itri,1],:])
+            p2 = Point(self.vertices[self.faces[itri,2],:])
+            triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+            thit_bis, dg_bis, is_intersection_bis = triangle.intersect(r1, method=method)
             if is_intersection_bis:
                 if thit > thit_bis:
                     thit = thit_bis
@@ -666,7 +644,11 @@ class TriangleMesh(Shape):
             If there is an intersection -> True, else False
         """
         for itri in range(0, self.ntriangles):
-            if (self.triangles[itri].is_intersection(r1, method=method)):
+            p0 = Point(self.vertices[self.faces[itri,0],:])
+            p1 = Point(self.vertices[self.faces[itri,1],:])
+            p2 = Point(self.vertices[self.faces[itri,2],:])
+            triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+            if (triangle.is_intersection(r1, method=method)):
                 return True
         return False
     
@@ -696,7 +678,11 @@ class TriangleMesh(Shape):
         """
         thit = float("inf")
         for itri in range(0, self.ntriangles):
-            thit_bis, is_intersection_bis = self.triangles[itri].is_intersection_t(r1, method=method)
+            p0 = Point(self.vertices[self.faces[itri,0],:])
+            p1 = Point(self.vertices[self.faces[itri,1],:])
+            p2 = Point(self.vertices[self.faces[itri,2],:])
+            triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+            thit_bis, is_intersection_bis = triangle.is_intersection_t(r1, method=method)
             if is_intersection_bis:
                 if thit > thit_bis:
                     thit = thit_bis
@@ -711,7 +697,11 @@ class TriangleMesh(Shape):
         """
         area = 0.
         for itri in range (0, self.ntriangles):
-            area+=self.triangles[itri].area()
+            p0 = Point(self.vertices[self.faces[itri,0],:])
+            p1 = Point(self.vertices[self.faces[itri,1],:])
+            p2 = Point(self.vertices[self.faces[itri,2],:])
+            triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+            area+=triangle.area()
         return area
     
     def plot(self, savefig_name=None, **kwargs):
@@ -736,11 +726,10 @@ class TriangleMesh(Shape):
         """
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        vertices = np.array([val.to_numpy() for val in self.vertices_t])
-        faces = self.vertices_index.reshape(self.ntriangles, 3)
         if 'color' in kwargs: color = kwargs.pop('color', False)
         else: color = 'blue'
-        ax.plot_trisurf(vertices[:,0], vertices[:,1], vertices[:,2], triangles = faces, color=color, **kwargs)
+        ax.plot_trisurf(self.vertices[:,0], self.vertices[:,1], self.vertices[:,2],
+                        triangles = self.faces, color=color, **kwargs)
         ax.set_aspect('equal', adjustable='box')
         if savefig_name is not None: plt.savefig(savefig_name)
         plt.show()
@@ -811,9 +800,6 @@ def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min
     # Fill unique vertices and order them in a 2d array (nvertices, 3)
     # - from north pole to south along theta
     # - in the trigonometric direction along phi
-    nvertices = reso_theta*reso_phi - (reso_phi*2) + 2
-    vertices = np.zeros((nvertices, 3))
-
     if (theta[0] == 0. and theta[-1] == math.pi):
         nvertices = reso_theta*reso_phi - (reso_phi*2) + 2
         ntriangle = (nvertices-2)*2
@@ -943,4 +929,4 @@ def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min
                 faces[-reso_phi:,1]=np.full(reso_phi, ind_below) # p1
                 faces[-reso_phi:,2]=ind_below_p1                 # p2
 
-    return TriangleMesh(faces, vertices, oTw, wTo)
+    return TriangleMesh(vertices, faces, oTw, wTo)

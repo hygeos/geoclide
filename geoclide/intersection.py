@@ -21,8 +21,8 @@ def calc_intersection(shape, r1, method='v3'):
     r1 : Ray
         The ray used for the iuntersection
     method : str, optional
-        Used in triangle intersection test. Only two choice : 'v2' and 'v3'.
-        The 'v3' have more robustness tests, and 'v2' is faster.
+        Used in triangle intersection test. Only two choice  'v2' and 'v3'.
+        The 'v3' method have more robustness tests, and 'v2' is faster
 
     Returns
     ------
@@ -158,10 +158,10 @@ def calc_intersection(shape, r1, method='v3'):
         ds['p2'].attrs = {'description': 'the triangle p2 attribut'}
     if (isinstance(shape, TriangleMesh)):
         ds.attrs = {'shape': 'TriangleMesh'}
-        ds['v'] = xr.DataArray(np.array([pi.to_numpy() for pi in shape.vertices]), dims=['nvertices', 'xyz'])
-        ds['v'].attrs = {'description': 'The vertices xyz coordinates.'}
-        ds['vi'] = xr.DataArray(shape.vertices_index.reshape(shape.ntriangles, 3), dims=['ntriangles', 'p0p1p2'])
-        ds['vi'].attrs = {'description': 'For each triangle, the index of vertices point p0, p1 and p2 (from variable v).'}
+        ds['vertices'] = xr.DataArray(shape.vertices, dims=['nvertices', 'xyz'])
+        ds['vertices'].attrs = {'description': 'The vertices xyz coordinates.'}
+        ds['faces'] = xr.DataArray(shape.faces, dims=['ntriangles', 'p0p1p2'])
+        ds['faces'].attrs = {'description': 'For each triangle, the index of vertices point p0, p1 and p2 (from variable v).'}
         ds.attrs.update({'ntriangles': shape.ntriangles,
                          'nvertices' : shape.nvertices})
     if (not isinstance(shape, BBox)):

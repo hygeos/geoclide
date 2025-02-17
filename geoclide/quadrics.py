@@ -546,9 +546,12 @@ class Spheroid(Shape):
         mesh : TriangleMesh
             The sphere converted to a triangle mesh
         """
-        oTw_bis = get_scale_tf(self.alpha, self.alpha, self.gamma)
-        msh = create_sphere_trianglemesh(radius=1, reso_theta=reso_theta, reso_phi=reso_phi, oTw=oTw_bis)
-        return TriangleMesh(msh.vertices_index, msh.vertices_t, oTw=self.oTw, wTo=self.wTo)
+        rescale_xyz = get_scale_tf(self.alpha, self.alpha, self.gamma)
+        msh = create_sphere_trianglemesh(radius=1, reso_theta=reso_theta, reso_phi=reso_phi)
+        vertices_t = np.zeros((msh.nvertices,3))
+        for iver in range (0, msh.nvertices):
+            vertices_t[iver,:] = rescale_xyz[Point(msh.vertices[iver,:])].to_numpy()
+        return TriangleMesh(vertices_t, msh.faces, oTw=self.oTw, wTo=self.wTo)
     
 
 class Disk(Shape):
