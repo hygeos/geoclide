@@ -979,6 +979,118 @@ def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min
     return TriangleMesh(vertices, faces, oTw, wTo)
 
 
+def create_disk_trianglemesh(radius, inner_radius=0., reso=None, phi_max=360., z_height=0.,
+                             oTw=None, wTo=None):
+    """
+    Create a disk / partial disk / annulus / partial annulus triangleMesh
+
+    Parameters
+    ----------
+    radius : float
+        The disk radius
+    inner_radius : float, optional
+        The inner radius (case of annulus)
+    reso : int, optional
+        The number of lines around the polar phi angle, minimum accepted value is 3
+    phi_max : float, optional
+        The maximum phi value in degrees of the disk/annulus, where phi is between 0 and 360°
+    z_height : float, optional
+        the disk height along the z axis
+    oTw : Transform, optional
+        From object to world space or the transformation applied to the spheroid
+    wTo : Transform, optional
+        From world to object space or the in inverse transformation applied to the spheroid
+
+    Results
+    -------
+    out : TriangleMesh
+        The triangle mesh sphere
+    
+    Examples
+    --------
+    >>> import geoclide as gc
+    >>> msh = gc.create_disk_trianglemesh(1)
+    >>> msh
+    <geoclide.trianglemesh.TriangleMesh at 0x7fa11c504940>
+    """
+    if wTo is None and oTw is None:
+            wTo = Transform()
+            oTw = Transform()
+    if reso is None : reso = max(round(phi_max/10.), 10)
+    if reso < 3 : raise ValueError("the value of reso must >= 3")
+
+    if (phi_max == 360.): phi = np.linspace(0., math.tau, reso+1)[:-1]
+    else: phi = np.linspace(0., math.radians(phi_max), reso)
+
+    x = radius*np.cos(phi)
+    y = radius*np.sin(phi)
+
+    if inner_radius == 0.:
+        # case complete disk
+        nvertices = reso + 1
+        if (phi_max == 360.): ntriangles = reso
+        else: ntriangles = reso - 1
+        vertices = np.zeros((nvertices,3), dtype=np.float64)
+        vertices[1:,0] = x
+        vertices[1:,1] = y
+        vertices[:,2] = z_height
+        vertices_id_outer = np.arange(reso, dtype=np.int32) + 1
+        vertices_id_inner = np.zeros_like(vertices_id_outer)
+        if (phi_max == 360.):
+            p0_id = vertices_id_inner
+            p1_id = vertices_id_outer
+            p2_id = np.concatenate((vertices_id_outer[1:], [vertices_id_outer[0]]))
+        else:
+            p0_id = vertices_id_inner[:-1]
+            p1_id = vertices_id_outer[:-1]
+            p2_id = vertices_id_outer[1:]
+        faces = np.zeros((ntriangles, 3), dtype=np.int32)
+        faces[:,0] = p0_id
+        faces[:,1] = p1_id
+        faces[:,2] = p2_id
+    else:
+        x_inner = inner_radius*np.cos(phi)
+        y_inner = inner_radius*np.sin(phi)
+        nvertices = 2*reso
+        if (phi_max == 360.): ntriangles = nvertices
+        else: ntriangles = nvertices-2
+        vertices = np.zeros((nvertices,3), dtype=np.float64)
+        vertices[:,0] = np.concatenate((x_inner, x))
+        vertices[:,1] = np.concatenate((y_inner, y))
+        vertices[:,2] = z_height
+        vertices_id_inner = np.arange(reso, dtype=np.int32)
+        vertices_id_outer = vertices_id_inner + reso
+        if (phi_max == 360.):
+            p0_id_t0 = vertices_id_inner
+            p1_id_t0 = vertices_id_outer
+            p2_id_t0 = np.concatenate((vertices_id_outer[1:], [vertices_id_outer[0]]))
+            p0_id_t1 = vertices_id_inner
+            p1_id_t1 = np.concatenate((vertices_id_outer[1:], [vertices_id_outer[0]]))
+            p2_id_t1 = np.concatenate((vertices_id_inner[1:], [vertices_id_inner[0]]))
+        else:
+            p0_id_t0 = vertices_id_inner[:-1]
+            p1_id_t0 = vertices_id_outer[:-1]
+            p2_id_t0 = vertices_id_outer[1:]
+            p0_id_t1 = vertices_id_inner[:-1]
+            p1_id_t1 = vertices_id_outer[1:]
+            p2_id_t1 = vertices_id_inner[1:]
+        p0_id_t = np.zeros((p0_id_t0.size+p0_id_t1.size), dtype=np.int32)
+        p1_id_t = np.zeros((p1_id_t0.size+p1_id_t1.size), dtype=np.int32)
+        p2_id_t = np.zeros((p2_id_t0.size+p2_id_t1.size), dtype=np.int32)
+        p0_id_t[0::2] = p0_id_t0
+        p0_id_t[1::2] = p0_id_t1
+        p1_id_t[0::2] = p1_id_t0
+        p1_id_t[1::2] = p1_id_t1
+        p2_id_t[0::2] = p2_id_t0
+        p2_id_t[1::2] = p2_id_t1
+        faces = np.zeros((ntriangles, 3), dtype=np.int32)
+        faces[:,0] = p0_id_t
+        faces[:,1] = p1_id_t
+        faces[:,2] = p2_id_t
+
+    return TriangleMesh(vertices, faces, oTw, wTo)
+
+
 def read_gcnc_trianglemesh(path, **kwargs):
     """
     Read geoclide netcdf4 format and convert it to a TriangleMesh class object

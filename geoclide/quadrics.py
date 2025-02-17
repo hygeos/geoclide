@@ -6,7 +6,7 @@ from geoclide.mathope import clamp, quadratic
 from geoclide.vecope import distance
 from geoclide.basic import Ray, Vector, Point
 from geoclide.transform import Transform, get_scale_tf
-from geoclide.trianglemesh import create_sphere_trianglemesh, TriangleMesh
+from geoclide.trianglemesh import create_sphere_trianglemesh, TriangleMesh, create_disk_trianglemesh
 import math
 import numpy as np
 from geoclide.constante import TWO_PI
@@ -563,7 +563,7 @@ class Disk(Shape):
     radius : float
         The disk radius
     inner_radius : float, optional
-        This is the inner radius in the case of partial disk (or annulus)
+        The inner radius (case of annulus)
     phi_max : float, optional
         The maximum phi value in degrees of the disk/annulus, where phi is between 0 and 360°
     z_height : float, optional
@@ -772,3 +772,19 @@ class Disk(Shape):
         """
         return 0.5*math.radians(self.phi_max)*(self.radius*self.radius - self.inner_radius*self.inner_radius)
 
+    def to_trianglemesh(self, reso=None):
+        """
+        Convert the disk to a triangle mesh
+
+        Parameters
+        ----------
+        reso : int, optional
+            The number of lines around the polar phi angle, minimum accepted value is 3
+
+        Returns
+        -------
+        mesh : TriangleMesh
+            The disk converted to a triangle mesh
+        """
+        return create_disk_trianglemesh(self.radius, self.inner_radius, reso, self.phi_max,
+                                        self.z_height, self.phi_max, self.oTw, self.wTo)
