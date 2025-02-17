@@ -168,3 +168,9 @@ def test_read_gcnc_trianglemesh():
     assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
     assert (np.all(msh_read.faces == msh.faces))
 
+
+def test_trianglemesh_to_dataset():
+    msh1 = gc.Sphere(1.5).to_trianglemesh(reso_theta=18, reso_phi=36)
+    msh2 = msh1.to_dataset()
+    assert (np.all(np.isclose(msh1.vertices, msh2['vertices'].values[0,:,:], 0., 1e-15)))
+    assert (np.all(msh1.faces == msh2['faces'].values[0,:,:]))
