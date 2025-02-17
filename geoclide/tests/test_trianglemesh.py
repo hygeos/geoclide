@@ -145,3 +145,26 @@ def test_triangle_mesh():
 
     assert (tri_mesh.is_intersection(ray, method='v2')), 'Problem with v2 is_intersection test'
     assert (tri_mesh.is_intersection(ray, method='v3')), 'Problem with v3 is_intersection test'
+
+
+def test_read_gcnc_trianglemesh():
+    msh_read = gc.read_gcnc_trianglemesh('geoclide/tests/data/sphere_r1p5_resth18_resph36.gcnc')
+    msh = gc.Sphere(1.5).to_trianglemesh(reso_theta=18, reso_phi=36)
+    assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
+    assert (np.all(msh_read.faces == msh.faces))
+
+    msh_read = gc.read_gcnc_trianglemesh('geoclide/tests/data/sphere_r1p5_resth18_resph18_phimax180.gcnc')
+    msh = gc.Sphere(1.5, phi_max=180.).to_trianglemesh(reso_theta=18, reso_phi=18)
+    assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
+    assert (np.all(msh_read.faces == msh.faces))
+
+    msh_read = gc.read_gcnc_trianglemesh('geoclide/tests/data/oblate_rxy1p5_rz1p2_resth18_resph36.gcnc')
+    msh = gc.Spheroid(1.5, 1.2).to_trianglemesh(reso_theta=18, reso_phi=36)
+    assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
+    assert (np.all(msh_read.faces == msh.faces))
+
+    msh_read = gc.read_gcnc_trianglemesh('geoclide/tests/data/prolate_rxy1p5_rz3_resth18_resph36.gcnc')
+    msh = gc.Spheroid(1.5, 3.).to_trianglemesh(reso_theta=18, reso_phi=36)
+    assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
+    assert (np.all(msh_read.faces == msh.faces))
+

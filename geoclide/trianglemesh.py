@@ -5,10 +5,12 @@ from geoclide.shapes import Shape, DifferentialGeometry
 from geoclide.basic import Vector, Point, Ray
 import geoclide.vecope as gv
 import numpy as np
-from geoclide.constante import GAMMA2_F64, GAMMA3_F64, GAMMA5_F64
+from geoclide.constante import GAMMA2_F64, GAMMA3_F64, GAMMA5_F64, VERSION
 from geoclide.transform import Transform
 import math
 import matplotlib.pyplot as plt
+import xarray as xr
+from datetime import datetime
 
 
 class Triangle(Shape):
@@ -582,9 +584,9 @@ class TriangleMesh(Shape):
         if (  not isinstance(faces, np.ndarray)                                            or
               not (len(faces.shape) == 2)                                                  or
               not (np.issubdtype(faces.dtype, int) or np.issubdtype(faces.dtype, np.integer))  ):
-            raise ValueError('The parameter vi must be a 2d ndarray of intergers')
+            raise ValueError('The parameter faces must be a 2d ndarray of intergers')
         if (  not ( isinstance(vertices, np.ndarray) )  or not ( len(vertices.shape) == 2 )  ):
-            raise ValueError('The paramerter v must be a 2d ndarray')
+            raise ValueError('The paramerter vertices must be a 2d ndarray')
         Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
         self.vertices = vertices
         self.nvertices = vertices.shape[0]
@@ -734,6 +736,34 @@ class TriangleMesh(Shape):
         if savefig_name is not None: plt.savefig(savefig_name)
         plt.show()
     
+    def to_dataset(self, name='none'):
+        """
+        Create an xarray dataset where the triangle mesh information are stored
+
+        Parameters
+        ----------
+        name : str, optional
+            The name of the triangle mesh to be stored
+        
+        Returns
+        -------
+        out : xr.Dataset
+            The dataset with the triangle mesh information
+        """
+        ds = xr.Dataset(coords={'xyz':np.arange(3)})
+        vertices = np.zeros((1,self.nvertices,3), np.float64)
+        faces = np.zeros((1,self.ntriangles,3), np.int32)
+        vertices[0,:,:] = self.vertices
+        faces[0,:,:] = self.faces
+        ds['obj_names'] = xr.DataArray(np.array([name]), dims=['nboj'])
+        ds['vertices'] = xr.DataArray(vertices, dims=['nboj', 'nvertices', 'xyz'])
+        ds['vertices'].attrs = {'description': 'The vertices xyz coordinates.'}
+        ds['faces'] = xr.DataArray(faces, dims=['nobj', 'ntriangles', 'p0p1p2'])
+        ds['faces'].attrs = {'description': 'For each triangle, the index of vertices point p0, p1 and p2.'}
+        date = datetime.now().strftime("%Y-%m-%d")  
+        ds.attrs.update({'date':date, 'version': VERSION})
+        return ds
+
 
 def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min=0., theta_max=180.,
                                phi_max=360., oTw=None, wTo=None):
@@ -774,8 +804,8 @@ def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min
     if wTo is None and oTw is None:
             wTo = Transform()
             oTw = Transform()
-    if reso_theta is None : reso_theta = max(round(theta_max/10.), 20)
-    if reso_phi is None: reso_phi = max(round(theta_max/10.), 20)
+    if reso_theta is None : reso_theta = max(round(theta_max/10.), 10)
+    if reso_phi is None: reso_phi = max(round(theta_max/10.), 10)
     if reso_theta < 3 : raise ValueError("the value of reso_theta must >= 3")
     if reso_phi < 3 : raise ValueError("the value of reso_phi must >= 3")
     if phi_max == 360. : phi_max = math.tau
@@ -930,3 +960,28 @@ def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min
                 faces[-reso_phi:,2]=ind_below_p1                 # p2
 
     return TriangleMesh(vertices, faces, oTw, wTo)
+
+
+def read_gcnc_trianglemesh(path, **kwargs):
+    """
+    Read geoclide netcdf4 format and convert it to a TriangleMesh class object
+
+    Parameters
+    ----------
+    path : str
+        The xarray path parameter
+    **kwargs
+        The keyword arguments are passed on to to_necdf xarray Dataset method
+
+    Returns
+    -------
+    out : TriangleMesh
+        The triangle mesh
+    """
+    if 'path' in kwargs: kwargs.pop('path', False)
+    if not path.endswith('gcnc'):
+        raise ValueError("Only the geoclide netcdf4 format (ending with 'gcnc') is accepted")
+    if 'engine' in kwargs: engine = kwargs.pop('engine', False)
+    else: engine = 'netcdf4'
+    ds = xr.open_dataset(path, engine=engine, **kwargs)
+    return TriangleMesh(ds['vertices'].values[0,:,:], ds['faces'].values[0,:,:])
