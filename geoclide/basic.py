@@ -65,7 +65,10 @@ class Vector(object):
 
     def __eq__(self, v2):
         if isinstance(v2, Vector):
-            return (self.x==v2.x) and (self.y==v2.y) and (self.z==v2.z)
+            if isinstance(self.x, np.ndarray):
+                return np.all(self.x==v2.x) and np.all(self.y==v2.y) and np.all(self.z==v2.z)
+            else:
+                return (self.x==v2.x) and (self.y==v2.y) and (self.z==v2.z)
         else:
             raise ValueError('Equality with a Vector must be only with another Vector')
 
@@ -82,22 +85,14 @@ class Vector(object):
             raise ValueError('Substraction with a Vector must be only with another Vector')
 
     def __truediv__(self, sca):
-        if (np.isscalar(sca)):
-            div = (1./sca)
-            return Vector(self.x*div, self.y*div, self.z*div) 
-        else:
-            raise ValueError('A Vector can be divided only by a scalar')
+        div = (1./sca)
+        return Vector(self.x*div, self.y*div, self.z*div) 
+
     def __mul__(self, sca): 
-        if (np.isscalar(sca)):
-            return Vector(sca*self.x, sca*self.y, sca*self.z)
-        else:
-            raise ValueError('A Vector can be multiplied only by a scalar')
+        return Vector(sca*self.x, sca*self.y, sca*self.z)
         
     def __rmul__(self, sca): 
-        if (np.isscalar(sca)):
-            return Vector(sca*self.x, sca*self.y, sca*self.z)
-        else:
-            raise ValueError('A Vector can be multiplied only by a scalar')
+        return Vector(sca*self.x, sca*self.y, sca*self.z)
     
     def __neg__(self):
         return Vector(-self.x, -self.y, -self.z)
@@ -192,7 +187,10 @@ class Point(object):
 
     def __eq__(self, p2):
         if isinstance(p2, Point):
-            return (self.x==p2.x) and (self.y==p2.y) and (self.z==p2.z)
+            if isinstance(self.x, np.ndarray):
+                return np.all(self.x==p2.x) and np.all(self.y==p2.y) and np.all(self.z==p2.z)
+            else:
+                return (self.x==p2.x) and (self.y==p2.y) and (self.z==p2.z)
         else:
             raise ValueError('Equality with a Point must be only with another Point')
 
@@ -212,23 +210,14 @@ class Point(object):
             raise ValueError('Substraction with a Point must be with another Point or a Vector')
 
     def __truediv__(self, sca):
-        if (np.isscalar(sca)):
-            div = (1./sca)
-            return Point(self.x*div, self.y*div, self.z*div) 
-        else:
-            raise ValueError('A Point can be divided only by a scalar')
+        div = (1./sca)
+        return Point(self.x*div, self.y*div, self.z*div) 
 
     def __mul__(self, sca): 
-        if (np.isscalar(sca)):
-            return Point(sca*self.x, sca*self.y, sca*self.z)
-        else:
-            raise ValueError('A Point can be multiplied only by a scalar')
-    
+        return Point(sca*self.x, sca*self.y, sca*self.z)
+
     def __rmul__(self, sca): 
-        if (np.isscalar(sca)):
-            return Point(sca*self.x, sca*self.y, sca*self.z)
-        else:
-            raise ValueError('A Point can be multiplied only by a scalar')
+        return Point(sca*self.x, sca*self.y, sca*self.z)
     
     def __neg__(self):
         return Point(-self.x, -self.y, -self.z)
@@ -255,6 +244,7 @@ class Point(object):
     def to_numpy(self):
         if isinstance(self.x, np.ndarray) : return np.array([self.x, self.y, self.z], dtype=np.float64).T
         else : return np.array([self.x, self.y, self.z], dtype=np.float64)
+
 
 class Normal(object):
     """
@@ -315,7 +305,10 @@ class Normal(object):
 
     def __eq__(self, n2):
         if isinstance(n2, Normal):
-            return (self.x==n2.x) and (self.y==n2.y) and (self.z==n2.z)
+            if isinstance(self.x, np.ndarray):
+                return np.all(self.x==n2.x) and np.all(self.y==n2.y) and np.all(self.z==n2.z)
+            else:
+                return (self.x==n2.x) and (self.y==n2.y) and (self.z==n2.z)
         else:
             raise ValueError('Equality with a Normal must be only with another Normal')
 
@@ -332,23 +325,14 @@ class Normal(object):
             raise ValueError('Substraction with a Normal must be only with another Normal')
 
     def __truediv__(self, sca):
-        if (np.isscalar(sca)):
-            div = (1./sca)
-            return Normal(self.x*div, self.y*div, self.z*div) 
-        else:
-            raise ValueError('A Normal can be divided only by a scalar')
+        div = (1./sca)
+        return Normal(self.x*div, self.y*div, self.z*div) 
 
     def __mul__(self, sca):
-        if (np.isscalar(sca)):
-            return Normal(sca*self.x, sca*self.y, sca*self.z)
-        else:
-            raise ValueError('A Normal can be multiplied only by a scalar')
+        return Normal(sca*self.x, sca*self.y, sca*self.z)
     
     def __rmul__(self, sca):
-        if (np.isscalar(sca)):
-            return Normal(sca*self.x, sca*self.y, sca*self.z)
-        else:
-            raise ValueError('A Normal can be multiplied only by a scalar')
+        return Normal(sca*self.x, sca*self.y, sca*self.z)
     
     def __neg__(self):
         return Normal(-self.x, -self.y, -self.z)
@@ -381,8 +365,7 @@ class Normal(object):
 
     def to_numpy(self):
         if isinstance(self.x, np.ndarray) : return np.array([self.x, self.y, self.z], dtype=np.float64).T
-        else : return np.array([self.x, self.y, self.z], dtype=np.float64)
-    
+        else : return np.array([self.x, self.y, self.z], dtype=np.float64)   
 
 
 class Ray(object):
