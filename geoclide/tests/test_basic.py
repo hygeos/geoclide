@@ -240,3 +240,36 @@ def test_bbox():
     assert (t0 == 0.)
     assert (np.isclose(857.3214099741128, t1, 0., 1e-14))
 
+
+def test_basic_array():
+    p1 = gc.Point(5,2,10)
+    p2 = gc.Point(4,2,1)
+    parr = np.vstack((p1.to_numpy(), p2.to_numpy()))
+    p1p2 = gc.Point(parr)
+    assert (p1 == gc.Point(p1p2.x[0], p1p2.y[0], p1p2.z[0]))
+    assert (p2 == gc.Point(p1p2.x[1], p1p2.y[1], p1p2.z[1]))
+    assert (p1p2 == gc.Point(parr[:,0], parr[:,1], parr[:,2]))
+
+    n1 = gc.Normal(5,2,10)
+    n2 = gc.Normal(4,2,1)
+    narr = np.vstack((n1.to_numpy(), n2.to_numpy()))
+    n1n2 = gc.Normal(narr)
+    assert (n1 == gc.Normal(n1n2.x[0], n1n2.y[0], n1n2.z[0]))
+    assert (n2 == gc.Normal(n1n2.x[1], n1n2.y[1], n1n2.z[1]))
+    assert (n1n2 == gc.Normal(narr[:,0], narr[:,1], narr[:,2]))
+
+    v1 = gc.Vector(5,2,10)
+    v2 = gc.Vector(4,2,1)
+    arr = np.vstack((v1.to_numpy(), v2.to_numpy()))
+    v1v2 = gc.Vector(arr)
+    assert (v1 == gc.Vector(v1v2.x[0], v1v2.y[0], v1v2.z[0]))
+    assert (v2 == gc.Vector(v1v2.x[1], v1v2.y[1], v1v2.z[1]))
+    assert (v1v2 == gc.Vector(arr[:,0], arr[:,1], arr[:,2]))
+    v1v2_x3 = 3*v1v2
+    v1_x3 = 3*v1
+    v2_x3 = 3*v2
+    assert (np.all(v1_x3.to_numpy() == v1v2_x3.to_numpy()[0,:]))
+    assert (np.all(v2_x3.to_numpy() == v1v2_x3.to_numpy()[1,:]))
+
+
+
