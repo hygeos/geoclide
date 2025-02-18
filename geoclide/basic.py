@@ -10,40 +10,57 @@ class Vector(object):
     """
     Parameters
     ----------
-    x : float | Point | Vector | Normal | np.ndarray, optional
-        If scalar -> x component of the vector.
-        Else, circumvent the y and z parameters and take the components of the Point/Vector/Normal/np.ndarray.
-    y : float, optional
-        The y component of the vector.
-    z : float, optional
-        The z component of the vector.
+    x : float | 1-D ndarray | 2-D ndarray | Point | Vector | Normal, optional
+        The x component(s) of the vector (see notes)
+    y : float | 1-D ndarray, optional
+        The y component(s) of the vector
+    z : float | 1-D ndarray, optional
+        The z component(s) of the vector
+
+    Notes
+    -----
+    - if the parameter x is a 1-D ndarray of size 3 and y and z are None, the values of x, y and z
+      will be equal to respectively x[0], x[1], and x[2]
+    - if the parameter x is a 2-D ndarray of shape (n,3) and y and z are None, the values of x, y 
+      and z will be equal to respectively x[:,0], x[:,1], and x[:,2]
+    - if the parameter x is a Point, Vector or Normal, it will circumvent the y and z parameters 
+      and take the components of the Point/Vector/Normal for x, y and z values
 
     Examples
     --------
     >>> import geoclide as gc
     >>> v1 = gc.Vector(0.,0.,1.)
     >>> v1
-    >>> Vector(0,0,1)
+    Vector(0,0,1)
     """
-    def __init__(self, x = 0., y = 0., z = 0.):
-        if ( np.isscalar(x) and
-             np.isscalar(y) and
-             np.isscalar(z) ):
-            self.x = float(x)
-            self.y = float(y)
-            self.z = float(z)
-        elif ( isinstance(x, Vector) or
-               isinstance(x, Point) or
-               isinstance(x, Normal) ):
+    def __init__(self, x = None, y = None, z = None):
+        if (x is None and y is None and z is None):
+            self.x = 0.
+            self.y = 0.
+            self.z = 0.
+        elif ( isinstance(x, Vector) or isinstance(x, Point) or isinstance(x, Normal) ):
             self.x = x.x
             self.y = x.y
             self.z = x.z
-        elif ( isinstance(x, np.ndarray) and
-               len(x) == 3 ):
-            self.x = float(x[0])
-            self.y = float(x[1])
-            self.z = float(x[2])
-        else: 
+        elif (isinstance(x, np.ndarray) and (y is None and z is None)):
+            if (len(x.shape) == 1 and len(x) == 3):
+                self.x = float(x[0])
+                self.y = float(x[1])
+                self.z = float(x[2])
+            elif(len(x.shape) == 2 and x.shape[1] == 3):
+                self.x = x[:,0].astype(np.float64)
+                self.y = x[:,1].astype(np.float64)
+                self.z = x[:,2].astype(np.float64)
+            else:ValueError("Wrong parameter value(s)")
+        elif (np.isscalar(x) and np.isscalar(y) and np.isscalar(z)):
+            self.x = float(x)
+            self.y = float(y)
+            self.z = float(z)
+        elif (isinstance(x, np.ndarray) and isinstance(y, np.ndarray) and isinstance(z, np.ndarray)):
+            self.x = x.astype(np.float64)
+            self.y = y.astype(np.float64)
+            self.z = z.astype(np.float64)
+        else:
             raise ValueError("Wrong parameter value(s)")
 
     def __eq__(self, v2):
@@ -108,50 +125,69 @@ class Vector(object):
         return self.x*self.x + self.y*self.y + self.z*self.z
     
     def length(self):
-        return math.sqrt(self.length_squared()) # L2 norm
+        if isinstance(self.x, np.ndarray): return np.sqrt(self.length_squared())
+        else: return math.sqrt(self.length_squared())
 
     def to_numpy(self):
-        return np.array([self.x, self.y, self.z], dtype=np.float64)
+        if isinstance(self.x, np.ndarray) : return np.array([self.x, self.y, self.z], dtype=np.float64).T
+        else : return np.array([self.x, self.y, self.z], dtype=np.float64)
     
 
 class Point(object):
     """
     Parameters
     ----------
-    x : float | Point | Vector | Normal | np.ndarray, optional
-        If scalar -> x component of the point.
-        Else, circumvent the y and z parameters and take the components of the Point/Vector/Normal/np.ndarray.
-    y : float, optional
-        The y component of the point.
-    z : float, optional
-        The z component of the point.
+     x : float | 1-D ndarray | 2-D ndarray | Point | Vector | Normal, optional
+        The x component(s) of the point (see notes)
+    y : float | 1-D ndarray, optional
+        The y component(s) of the point
+    z : float | 1-D ndarray, optional
+        The z component(s) of the point
+
+    Notes
+    -----
+    - if the parameter x is a 1-D ndarray of size 3 and y and z are None, the values of x, y and z
+      will be equal to respectively x[0], x[1], and x[2]
+    - if the parameter x is a 2-D ndarray of shape (n,3) and y and z are None, the values of x, y 
+      and z will be equal to respectively x[:,0], x[:,1], and x[:,2]
+    - if the parameter x is a Point, Vector or Normal, it will circumvent the y and z parameters 
+      and take the components of the Point/Vector/Normal for x, y and z values
 
     Examples
     --------
     >>> import geoclide as gc
     >>> p1 = gc.Point(0.,0.,1.)
     >>> p1
-    >>> Point(0,0,1)
+    Point(0,0,1)
     """
-    def __init__(self, x = 0., y = 0., z = 0.):
-        if ( np.isscalar(x) and
-             np.isscalar(y) and
-             np.isscalar(z) ):
-            self.x = float(x)
-            self.y = float(y)
-            self.z = float(z)
-        elif ( isinstance(x, Vector) or
-               isinstance(x, Point) or
-               isinstance(x, Normal) ):
+    def __init__(self, x = None, y = None, z = None):
+        if (x is None and y is None and z is None):
+            self.x = 0.
+            self.y = 0.
+            self.z = 0.
+        elif ( isinstance(x, Vector) or isinstance(x, Point) or isinstance(x, Normal) ):
             self.x = x.x
             self.y = x.y
             self.z = x.z
-        elif ( isinstance(x, np.ndarray) and
-               len(x) == 3 ):
-            self.x = float(x[0])
-            self.y = float(x[1])
-            self.z = float(x[2])
-        else: 
+        elif (isinstance(x, np.ndarray) and (y is None and z is None)):
+            if (len(x.shape) == 1 and len(x) == 3):
+                self.x = float(x[0])
+                self.y = float(x[1])
+                self.z = float(x[2])
+            elif(len(x.shape) == 2 and x.shape[1] == 3):
+                self.x = x[:,0].astype(np.float64)
+                self.y = x[:,1].astype(np.float64)
+                self.z = x[:,2].astype(np.float64)
+            else:ValueError("Wrong parameter value(s)")
+        elif (np.isscalar(x) and np.isscalar(y) and np.isscalar(z)):
+            self.x = float(x)
+            self.y = float(y)
+            self.z = float(z)
+        elif (isinstance(x, np.ndarray) and isinstance(y, np.ndarray) and isinstance(z, np.ndarray)):
+            self.x = x.astype(np.float64)
+            self.y = y.astype(np.float64)
+            self.z = z.astype(np.float64)
+        else:
             raise ValueError("Wrong parameter value(s)")
 
     def __eq__(self, p2):
@@ -217,46 +253,64 @@ class Point(object):
         return 'Point(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
 
     def to_numpy(self):
-        return np.array([self.x, self.y, self.z], dtype=np.float64)
+        if isinstance(self.x, np.ndarray) : return np.array([self.x, self.y, self.z], dtype=np.float64).T
+        else : return np.array([self.x, self.y, self.z], dtype=np.float64)
 
 class Normal(object):
     """
     Parameters
     ----------
-    x : float | Point | Vector | Normal | np.ndarray, optional
-        If scalar -> x component of the normal.
-        Else, circumvent the y and z parameters and take the components of the Point/Vector/Normal/np.ndarray.
-    y : float, optional
-        The y component of the normal.
-    z : float, optional
-        The z component of the normal.
+     x : float | 1-D ndarray | 2-D ndarray | Point | Vector | Normal, optional
+        The x component(s) of the normal (see notes)
+    y : float | 1-D ndarray, optional
+        The y component(s) of the normal
+    z : float | 1-D ndarray, optional
+        The z component(s) of the normal
+
+    Notes
+    -----
+    - if the parameter x is a 1-D ndarray of size 3 and y and z are None, the values of x, y and z
+      will be equal to respectively x[0], x[1], and x[2]
+    - if the parameter x is a 2-D ndarray of shape (n,3) and y and z are None, the values of x, y 
+      and z will be equal to respectively x[:,0], x[:,1], and x[:,2]
+    - if the parameter x is a Point, Vector or Normal, it will circumvent the y and z parameters 
+      and take the components of the Point/Vector/Normal for x, y and z values
 
     Examples
     --------
     >>> import geoclide as gc
     >>> n1 = gc.Normal(0.,0.,1.)
     >>> n1
-    >>> Normal(0,0,1)
+    Normal(0,0,1)
     """
-    def __init__(self, x = 0., y = 0., z = 0.):
-        if ( np.isscalar(x) and
-             np.isscalar(y) and
-             np.isscalar(z) ):
-            self.x = float(x)
-            self.y = float(y)
-            self.z = float(z)
-        elif ( isinstance(x, Vector) or
-               isinstance(x, Point) or
-               isinstance(x, Normal) ):
+    def __init__(self, x = None, y = None, z = None):
+        if (x is None and y is None and z is None):
+            self.x = 0.
+            self.y = 0.
+            self.z = 0.
+        elif ( isinstance(x, Vector) or isinstance(x, Point) or isinstance(x, Normal) ):
             self.x = x.x
             self.y = x.y
             self.z = x.z
-        elif ( isinstance(x, np.ndarray) and
-               len(x) == 3 ):
-            self.x = float(x[0])
-            self.y = float(x[1])
-            self.z = float(x[2])
-        else: 
+        elif (isinstance(x, np.ndarray) and (y is None and z is None)):
+            if (len(x.shape) == 1 and len(x) == 3):
+                self.x = float(x[0])
+                self.y = float(x[1])
+                self.z = float(x[2])
+            elif(len(x.shape) == 2 and x.shape[1] == 3):
+                self.x = x[:,0].astype(np.float64)
+                self.y = x[:,1].astype(np.float64)
+                self.z = x[:,2].astype(np.float64)
+            else:ValueError("Wrong parameter value(s)")
+        elif (np.isscalar(x) and np.isscalar(y) and np.isscalar(z)):
+            self.x = float(x)
+            self.y = float(y)
+            self.z = float(z)
+        elif (isinstance(x, np.ndarray) and isinstance(y, np.ndarray) and isinstance(z, np.ndarray)):
+            self.x = x.astype(np.float64)
+            self.y = y.astype(np.float64)
+            self.z = z.astype(np.float64)
+        else:
             raise ValueError("Wrong parameter value(s)")
 
     def __eq__(self, n2):
@@ -322,10 +376,13 @@ class Normal(object):
         return self.x*self.x + self.y*self.y + self.z*self.z
     
     def length(self):
-        return math.sqrt(self.length_squared()) # L2 norm
+        if isinstance(self.x, np.ndarray): return np.sqrt(self.length_squared())
+        else: return math.sqrt(self.length_squared())
 
     def to_numpy(self):
-        return np.array([self.x, self.y, self.z], dtype=np.float64)
+        if isinstance(self.x, np.ndarray) : return np.array([self.x, self.y, self.z], dtype=np.float64).T
+        else : return np.array([self.x, self.y, self.z], dtype=np.float64)
+    
 
 
 class Ray(object):
