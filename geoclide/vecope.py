@@ -23,7 +23,7 @@ def dot(a, b):
     
     Results
     -------
-    out : float
+    out : float | 1-D ndarray
         The result of the dot product i.e. sum of products
 
     Examples
@@ -140,20 +140,38 @@ def coordinate_system(v1, method="m2"):
 
     # used in pbrt v4    
     if (method == "m2"):
-        if v1.z > 0:sign = 1.
-        else: sign =-1.
+        if (isinstance(v1.x, np.ndarray)):
+            sign = np.ones_like(v1.x)
+            sign[v1.z<=0] = -1
+        else:
+            if v1.z > 0:sign = 1.
+            else: sign =-1.
         term_1 = -1. / (sign + v1.z)
         term_2 = v1.x * v1.y * term_1
         v2 = Vector(1 + sign * (v1.x*v1.x) * term_1, sign * term_2, -sign * v1.x)
         v3 = Vector(term_2, sign + (v1.y*v1.y) * term_1, -v1.y)
     # used in pbrt v2 and v3
     elif (method == "m1"):
-        if (abs(v1.x) > abs(v1.y)):
-            invLen = 1/ math.sqrt(v1.x*v1.x + v1.z*v1.z)
-            v2 = Vector(-v1.z*invLen, 0, v1.x*invLen)
+        if (isinstance(v1.x, np.ndarray)):
+            v2 = np.zeros((len(v1.x), 3), np.float64)
+            cond = np.abs(v1.x) > np.abs(v1.y)
+            not_cond = np.logical_not(cond)
+            any_cond = np.any(cond)
+            any_not_cond = np.any(not_cond)
+            if any_cond:
+                v2[cond,0] =  (1./np.sqrt(v1.x*v1.x + v1.z*v1.z)) * -v1.z
+                v2[cond,2] =  (1./np.sqrt(v1.x*v1.x + v1.z*v1.z)) * v1.x
+            if any_not_cond:
+                v2[not_cond,1] = (1./np.sqrt(v1.x*v1.x + v1.z*v1.z)) * v1.z
+                v2[not_cond,2] = (1./np.sqrt(v1.x*v1.x + v1.z*v1.z)) * -v1.y
+            v2 = Vector(v2)
         else:
-            invLen = 1/ math.sqrt(v1.y*v1.y + v1.z*v1.z)
-            v2 = Vector(0, v1.z*invLen, -v1.y*invLen)
+            if (abs(v1.x) > abs(v1.y)):
+                invLen = 1/ math.sqrt(v1.x*v1.x + v1.z*v1.z)
+                v2 = Vector(-v1.z*invLen, 0, v1.x*invLen)
+            else:
+                invLen = 1/ math.sqrt(v1.y*v1.y + v1.z*v1.z)
+                v2 = Vector(0, v1.z*invLen, -v1.y*invLen)
         v3 = cross(v1, v2)
     else:
         raise ValueError("Only 2 choices for parameter method: 'm1' or 'm2'")
@@ -174,7 +192,7 @@ def distance(p1, p2):
 
     Results
     -------
-    out : float
+    out : float | 1-D ndarray
         The distance between the 2 points
     
     Examples
@@ -223,7 +241,14 @@ def face_forward(a, b):
     """
     if (isinstance(a, Vector) or isinstance(a, Normal)) and \
     (isinstance(b, Vector) or isinstance(b, Normal)):
-        return (a*-1) if (dot(a, b) < 0) else a
+        if isinstance(a.x, np.ndarray):
+            a_bis = a.to_numpy()
+            cond = dot(a, b) < 0
+            if np.any(cond): a_bis[cond,:] *= -1
+            if(isinstance(a, Vector)): return Vector(a_bis)
+            else: return Normal(a_bis)
+        else:
+            return (a*-1) if (dot(a, b) < 0) else a
     else:
         raise ValueError('Only Vector or Normal parameters are accepted')
 
@@ -239,8 +264,8 @@ def vmax(a):
     
     Results
     -------
-    out: float
-        The largest vector/point/normal value
+    out: float | 1-D ndarray
+        The largest vector/point/normal value(s)
     
     Examples
     --------
@@ -250,7 +275,11 @@ def vmax(a):
     3
     """
     if isinstance(a, Vector) or isinstance(a, Point) or isinstance(a, Normal):
-        return int(np.max(a.to_numpy()))
+        if (isinstance(a.x, np.ndarray)):
+            return np.maximum(a.x, np.maximum(a.y, a.z))
+        else:
+            return max(a.x, max(a.y, a.z))
+
     else:
         raise ValueError('Only a Vector, a Point or a Normal parameter is accepted')
 
@@ -266,8 +295,8 @@ def vmin(a):
     
     Results
     -------
-    out: float
-        The smallest vector/point/normal value
+    out: float | 1-D ndarray
+        The smallest vector/point/normal value(s)
     
     Examples
     --------
@@ -277,7 +306,10 @@ def vmin(a):
     1
     """
     if isinstance(a, Vector) or isinstance(a, Point) or isinstance(a, Normal):
-        return int(np.min(a.to_numpy()))
+        if (isinstance(a.x, np.ndarray)):
+            return np.minimum(a.x, np.minimum(a.y, a.z))
+        else:
+            return min(a.x, min(a.y, a.z))
     else:
         raise ValueError('Only a Vector, a Point or a Normal parameter is accepted')
     
@@ -293,8 +325,8 @@ def vargmax(a):
     
     Results
     -------
-    out: int
-        The index of the largest vector/point/normal value
+    out: int | 1-D ndarray
+        The index of the largest vector/point/normal value(s)
     
     Examples
     --------
@@ -304,8 +336,19 @@ def vargmax(a):
     1
     """
     if isinstance(a, Vector) or isinstance(a, Point) or isinstance(a, Normal):
-        return (0 if a.x>a.z else 2) if (a.x>a.y) else (1 if a.y>a.z else 2)
-        #return int(np.argmax(a.to_numpy()))
+        if (isinstance(a.x, np.ndarray)):
+            a_bis = np.zeros_like(a.x, dtype=np.int32)
+            c1 = a.x>a.y
+            not_c1 = np.logical_not(c1)
+            c2 = a.x<=a.z
+            c3 = a.y>a.z
+            not_c3 = np.logical_not(c3)
+            a_bis[np.logical_and(c1, c2)] = 2
+            a_bis[np.logical_and(not_c1, c3)] = 1
+            a_bis[np.logical_and(not_c1, not_c3)] = 2
+            return a_bis
+        else:
+            return (0 if a.x>a.z else 2) if (a.x>a.y) else (1 if a.y>a.z else 2)
     else:
         raise ValueError('Only a Vector, a Point or a Normal parameter is accepted')
 
@@ -321,8 +364,8 @@ def vargmin(a):
     
     Results
     -------
-    out: int
-        The index of the smallest vector/point/normal value
+    out: int | 1-D ndarray
+        The index of the smallest vector/point/normal value(s)
     
     Examples
     --------
@@ -332,8 +375,19 @@ def vargmin(a):
     2
     """
     if isinstance(a, Vector) or isinstance(a, Point) or isinstance(a, Normal):
-        return (0 if a.x<a.z else 2) if (a.x<a.y) else (1 if a.y<a.z else 2)
-        #return int(np.argmin(a.to_numpy()))
+        if (isinstance(a.x, np.ndarray)):
+            a_bis = np.zeros_like(a.x, dtype=np.int32)
+            c1 = a.x<a.y
+            not_c1 = np.logical_not(c1)
+            c2 = a.x>=a.z
+            c3 = a.y<a.z
+            not_c3 = np.logical_not(c3)
+            a_bis[np.logical_and(c1, c2)] = 2
+            a_bis[np.logical_and(not_c1, c3)] = 1
+            a_bis[np.logical_and(not_c1, not_c3)] = 2
+            return a_bis
+        else:
+            return (0 if a.x<a.z else 2) if (a.x<a.y) else (1 if a.y<a.z else 2)
     else:
         raise ValueError('Only a Vector, a Point or a Normal parameter is accepted')
     
@@ -349,20 +403,29 @@ def vabs(a):
     
     Results
     -------
-    out: in progress...
-    
+    out: Vector | Point | Normal | 1-D ndarray
+        The Vector / Point / Normal with absolute values
     """
     if isinstance(a, Vector):
-        return Vector(abs(a.x), abs(a.y), abs(a.z))
+        if (isinstance(a.x, np.ndarray)):
+            return Vector(np.abs(a.x), np.abs(a.y), np.abs(a.z))
+        else:
+            return Vector(abs(a.x), abs(a.y), abs(a.z))
     elif isinstance(a, Point):
-        return Point(abs(a.x), abs(a.y), abs(a.z))
+        if (isinstance(a.x, np.ndarray)):
+            return Point(np.abs(a.x), np.abs(a.y), np.abs(a.z))
+        else:
+            return Point(abs(a.x), abs(a.y), abs(a.z))
     elif isinstance(a, Normal):
-        return Normal(abs(a.x), abs(a.y), abs(a.z))
+        if (isinstance(a.x, np.ndarray)):
+            return Normal(np.abs(a.x), np.abs(a.y), np.abs(a.z))
+        else:
+            return Normal(abs(a.x), abs(a.y), abs(a.z))
     else:
         raise ValueError('Only a Vector, a Point or a Normal parameter is accepted')
 
 
-def permute(a, ix, iy=None, iz=None):
+def permute(a, ix=None, iy=None, iz=None):
     """
     Permutes the vector/point/normal values according to the given indices
 
@@ -391,20 +454,26 @@ def permute(a, ix, iy=None, iz=None):
     >>> gc.permute(v1, np.array([1, 0, 2]))
     Vector(3.0, 2.0, 1.0)
     """
-    if isinstance(a, Vector) or isinstance(a, Point) or isinstance(a, Normal):
-        if (isinstance(ix, np.ndarray)):
-            if len(ix) != 3:
-                raise ValueError("The size of the given array must be 3")
-            if (  not ( (isinstance(ix[0], np.integer)) and
-                       (isinstance(ix[1], np.integer)) and
-                       (isinstance(ix[2], np.integer)) )  ):
-                raise ValueError("The components of the given array must be integers")
-            return Vector(a[ix[0]], a[ix[1]], a[ix[2]])
-        elif( (isinstance(ix, int) or isinstance(ix, np.integer)) and
-              (isinstance(iy, int) or isinstance(iy, np.integer)) and
-              (isinstance(iz, int) or isinstance(iz, np.integer)) ):
-            return Vector(a[ix], a[iy], a[iz])
-        else:
-            raise ValueError("Wrong parameter value(s) for ix and/or iy and/or iz")
-    else:
+    if not(isinstance(a, Vector) or isinstance(a, Point) or isinstance(a, Normal)):
         raise NameError('The parameter a must be a Vector or Point or Normal')
+    if ix is None : ix = int(0)
+    if iy is None : iy = int(1)
+    if iz is None : iz = int(2)
+    if (isinstance(ix, np.ndarray) and len(ix.shape) == 1):
+        if len(ix) != 3:
+            raise ValueError("The size of the given array must be 3")
+        if (  not ( (isinstance(ix[0], np.integer)) and
+                    (isinstance(ix[1], np.integer)) and
+                    (isinstance(ix[2], np.integer)) )  ):
+            raise ValueError("The components of the given array must be integers")
+        iy = ix[1]
+        iz = ix[2]
+        ix = ix[0]
+    elif(not ( (isinstance(ix, int) or isinstance(ix, np.integer)) and
+               (isinstance(iy, int) or isinstance(iy, np.integer)) and
+               (isinstance(iz, int) or isinstance(iz, np.integer)) ) ):
+        raise ValueError("Wrong parameter value(s) for ix and/or iy and/or iz")
+    
+    if (isinstance(a, Vector)): return Vector(a[ix], a[iy], a[iz])
+    elif (isinstance(a, Point)): return Point(a[ix], a[iy], a[iz])
+    else: return Normal(a[ix], a[iy], a[iz])
