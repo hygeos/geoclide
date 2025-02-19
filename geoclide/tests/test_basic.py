@@ -248,7 +248,7 @@ def test_basic_array():
     p1p2 = gc.Point(parr)
     assert (p1 == gc.Point(p1p2.x[0], p1p2.y[0], p1p2.z[0]))
     assert (p2 == gc.Point(p1p2.x[1], p1p2.y[1], p1p2.z[1]))
-    assert (p1p2 == gc.Point(parr[:,0], parr[:,1], parr[:,2]))
+    assert (np.all(p1p2 == gc.Point(parr[:,0], parr[:,1], parr[:,2])))
 
     n1 = gc.Normal(5,2,10)
     n2 = gc.Normal(4,2,1)
@@ -256,7 +256,7 @@ def test_basic_array():
     n1n2 = gc.Normal(narr)
     assert (n1 == gc.Normal(n1n2.x[0], n1n2.y[0], n1n2.z[0]))
     assert (n2 == gc.Normal(n1n2.x[1], n1n2.y[1], n1n2.z[1]))
-    assert (n1n2 == gc.Normal(narr[:,0], narr[:,1], narr[:,2]))
+    assert (np.all(n1n2 == gc.Normal(narr[:,0], narr[:,1], narr[:,2])))
 
     v1 = gc.Vector(5,2,10)
     v2 = gc.Vector(4,2,1)
@@ -264,7 +264,7 @@ def test_basic_array():
     v1v2 = gc.Vector(arr)
     assert (v1 == gc.Vector(v1v2.x[0], v1v2.y[0], v1v2.z[0]))
     assert (v2 == gc.Vector(v1v2.x[1], v1v2.y[1], v1v2.z[1]))
-    assert (v1v2 == gc.Vector(arr[:,0], arr[:,1], arr[:,2]))
+    assert (np.all(v1v2 == gc.Vector(arr[:,0], arr[:,1], arr[:,2])))
     v1v2_x3 = 3*v1v2
     v1_x3 = 3*v1
     v2_x3 = 3*v2
@@ -324,5 +324,5 @@ def test_bbox_ray_array():
 
     b_set_bis = gc.BBox(set_p1)
     b_set_bis = b_set_bis.union(set_p2)
-    assert (b_set.pmin == b_set_bis.pmin)
-    assert (b_set.pmax == b_set_bis.pmax)
+    assert (np.all(b_set.pmin == b_set_bis.pmin))
+    assert (np.all(b_set.pmax == b_set_bis.pmax))
