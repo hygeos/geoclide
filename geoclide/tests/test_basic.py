@@ -310,13 +310,19 @@ def test_bbox_ray_array():
     assert (t1_2 == t1_set[3])
 
     size = 2
-    set_p1 = np.zeros((size, 3), dtype=np.float64)
-    set_p2 = np.ones_like(set_p1)
-    set_p1[:,0] = np.arange(size)
-    set_p2[:,0] = np.arange(size) + 1
-    b_set = gc.BBox(gc.Point(set_p1), gc.Point(set_p2))
-    print(b_set.is_inside(gc.Point(set_p1[0,:])))
-    assert (np.all(b_set.is_inside(gc.Point(set_p1[0,:])) == np.array([True, False])))
-    assert (np.all(b_set.is_inside(gc.Point(set_p2[0,:])) == np.array([True, True])))
-    assert (np.all(b_set.is_inside(gc.Point(set_p1)) == np.array([True, True])))
-    assert (np.all(b_set.is_inside(gc.Point(set_p2)) == np.array([True, True])))
+    set_1 = np.zeros((size, 3), dtype=np.float64)
+    set_2 = np.ones_like(set_1)
+    set_1[:,0] = np.arange(size)
+    set_2[:,0] = np.arange(size) + 1
+    set_p1 = gc.Point(set_1)
+    set_p2 = gc.Point(set_2)
+    b_set = gc.BBox(set_p1, set_p2)
+    assert (np.all(b_set.is_inside(gc.Point(set_1[0,:])) == np.array([True, False])))
+    assert (np.all(b_set.is_inside(gc.Point(set_2[0,:])) == np.array([True, True])))
+    assert (np.all(b_set.is_inside(set_p1) == np.array([True, True])))
+    assert (np.all(b_set.is_inside(set_p2) == np.array([True, True])))
+
+    b_set_bis = gc.BBox(set_p1)
+    b_set_bis = b_set_bis.union(set_p2)
+    assert (b_set.pmin == b_set_bis.pmin)
+    assert (b_set.pmax == b_set_bis.pmax)

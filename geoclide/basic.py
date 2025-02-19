@@ -530,25 +530,42 @@ class BBox(object):
         >>> b2
         pmin=Point(0.0, 0.0, 0.0), pmax=Point(1.0, 1.0, 3.0)
         """
-        b_union = BBox()
+        pmin = Point()
+        pmax = Point()
         if isinstance(b, Point):
-            b_union.pmin.x = min(self.pmin.x, b.x)
-            b_union.pmin.y = min(self.pmin.y, b.y)
-            b_union.pmin.z = min(self.pmin.z, b.z)
-            b_union.pmax.x = max(self.pmax.x, b.x)
-            b_union.pmax.y = max(self.pmax.y, b.y)
-            b_union.pmax.z = max(self.pmax.z, b.z)
+            if isinstance(b.x, np.ndarray) or isinstance(self.p0.x, np.ndarray):
+                pmin.x = np.minimum(self.pmin.x, b.x)
+                pmin.y = np.minimum(self.pmin.y, b.y)
+                pmin.z = np.minimum(self.pmin.z, b.z)
+                pmax.x = np.maximum(self.pmax.x, b.x)
+                pmax.y = np.maximum(self.pmax.y, b.y)
+                pmax.z = np.maximum(self.pmax.z, b.z)
+            else:
+                pmin.x = min(self.pmin.x, b.x)
+                pmin.y = min(self.pmin.y, b.y)
+                pmin.z = min(self.pmin.z, b.z)
+                pmax.x = max(self.pmax.x, b.x)
+                pmax.y = max(self.pmax.y, b.y)
+                pmax.z = max(self.pmax.z, b.z)
         elif isinstance(b, BBox):
-            b_union.pmin.x = min(self.pmin.x, b.pmin.x)
-            b_union.pmin.y = min(self.pmin.y, b.pmin.y)
-            b_union.pmin.z = min(self.pmin.z, b.pmin.z)
-            b_union.pmax.x = max(self.pmax.x, b.pmax.x)
-            b_union.pmax.y = max(self.pmax.y, b.pmax.y)
-            b_union.pmax.z = max(self.pmax.z, b.pmax.z)
+            if isinstance(b.p0.x, np.ndarray) or isinstance(self.p0.x, np.ndarray):
+                pmin.x = np.minimum(self.pmin.x, b.pmin.x)
+                pmin.y = np.minimum(self.pmin.y, b.pmin.y)
+                pmin.z = np.minimum(self.pmin.z, b.pmin.z)
+                pmax.x = np.maximum(self.pmax.x, b.pmax.x)
+                pmax.y = np.maximum(self.pmax.y, b.pmax.y)
+                pmax.z = np.maximum(self.pmax.z, b.pmax.z)
+            else:
+                pmin.x = min(self.pmin.x, b.pmin.x)
+                pmin.y = min(self.pmin.y, b.pmin.y)
+                pmin.z = min(self.pmin.z, b.pmin.z)
+                pmax.x = max(self.pmax.x, b.pmax.x)
+                pmax.y = max(self.pmax.y, b.pmax.y)
+                pmax.z = max(self.pmax.z, b.pmax.z)
         else:
             raise ValueError('The union must be with another BBox or Point')
 
-        return b_union
+        return BBox(pmin, pmax)
 
     def is_inside(self, p):
         """
