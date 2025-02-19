@@ -838,7 +838,27 @@ def get_common_vertices(b1, b2):
     >>> gc.get_common_vertices(b1, b2)
     array([ True, False, False,  True,  True, False, False,  True])
     """
-    return np.array(list((map(lambda x: x in b2.vertices, b1.vertices))))
+    if not isinstance(b1, BBox) or not isinstance(b2, BBox):
+        raise ValueError("The parameters b1 and b2 must be both BBox objects")
+    
+    size = 1
+    if isinstance(b1.p0.x, np.ndarray): size = max(len(b1.p0.x), size)
+    if isinstance(b2.p0.x, np.ndarray): size = max(len(b2.p0.x), size)
+        
+    if size > 1:
+        res = np.full((size, 8), False, dtype=bool)
+        for i in range (0, 8):
+            res[:,i] = np.logical_or.reduce((b1.vertices[i]==b2.vertices[0],
+                                             b1.vertices[i]==b2.vertices[1],
+                                             b1.vertices[i]==b2.vertices[2],
+                                             b1.vertices[i]==b2.vertices[3],
+                                             b1.vertices[i]==b2.vertices[4],
+                                             b1.vertices[i]==b2.vertices[5],
+                                             b1.vertices[i]==b2.vertices[6],
+                                             b1.vertices[i]==b2.vertices[7]))
+        return res
+    else:
+        return np.array(list((map(lambda x: x in b2.vertices, b1.vertices))))
 
 
 def get_common_face(b1, b2, fill_value=None):

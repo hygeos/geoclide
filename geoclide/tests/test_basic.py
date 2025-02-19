@@ -272,6 +272,21 @@ def test_basic_array():
     assert (np.all(v2_x3.to_numpy() == v1v2_x3.to_numpy()[1,:]))
 
 
+def test_bbox_array():
+    size = 2
+    set_1 = np.zeros((size, 3), dtype=np.float64)
+    set_2 = np.ones_like(set_1)
+    set_1[:,0] = np.arange(size)
+    set_2[:,0] = np.arange(size) + 1
+    set_p1 = gc.Point(set_1)
+    set_p2 = gc.Point(set_2)
+    b_set = gc.BBox(set_p1, set_p2)
+    b1 = gc.BBox(gc.Point(set_1[0,:]), gc.Point(set_2[0,:]))
+    b2 = gc.BBox(gc.Point(set_1[1,:]), gc.Point(set_2[1,:]))
+    assert (np.all(gc.get_common_vertices(b_set, b1)[0,:] == gc.get_common_vertices(b1, b1)))
+    assert (np.all(gc.get_common_vertices(b_set, b1)[1,:] == gc.get_common_vertices(b2, b1)))
+
+
 def test_bbox_ray_array():
     arr1 = np.array([[0., 0., 0.], [1., 1., 1.]], dtype=np.float64)
     arr2 = np.array([[0., 0., 1.], [1., 0., 0.]], dtype=np.float64)
