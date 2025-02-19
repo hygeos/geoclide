@@ -554,9 +554,14 @@ class BBox(object):
         """
         Test if Point P is included in BBox
         """
-        return (p.x >= self.pmin.x) and (p.x <= self.pmax.x) and \
-               (p.y >= self.pmin.y) and (p.y <= self.pmax.y) and \
-               (p.z >= self.pmin.z) and (p.z <= self.pmax.z)
+        if isinstance(self.p0.x, np.ndarray) or isinstance(p.x, np.ndarray):
+            return np.logical_and.reduce(((p.x >= self.pmin.x), (p.x <= self.pmax.x), \
+                                          (p.y >= self.pmin.y), (p.y <= self.pmax.y), \
+                                          (p.z >= self.pmin.z), (p.z <= self.pmax.z)))
+        else:
+            return (p.x >= self.pmin.x) and (p.x <= self.pmax.x) and \
+                   (p.y >= self.pmin.y) and (p.y <= self.pmax.y) and \
+                   (p.z >= self.pmin.z) and (p.z <= self.pmax.z)
 
     def is_intersection(self, r1) :
         """

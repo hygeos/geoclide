@@ -308,3 +308,15 @@ def test_bbox_ray_array():
     assert (t1_1 == t1_set[2])
     assert (t0_2 == t0_set[3])
     assert (t1_2 == t1_set[3])
+
+    size = 2
+    set_p1 = np.zeros((size, 3), dtype=np.float64)
+    set_p2 = np.ones_like(set_p1)
+    set_p1[:,0] = np.arange(size)
+    set_p2[:,0] = np.arange(size) + 1
+    b_set = gc.BBox(gc.Point(set_p1), gc.Point(set_p2))
+    print(b_set.is_inside(gc.Point(set_p1[0,:])))
+    assert (np.all(b_set.is_inside(gc.Point(set_p1[0,:])) == np.array([True, False])))
+    assert (np.all(b_set.is_inside(gc.Point(set_p2[0,:])) == np.array([True, True])))
+    assert (np.all(b_set.is_inside(gc.Point(set_p1)) == np.array([True, True])))
+    assert (np.all(b_set.is_inside(gc.Point(set_p2)) == np.array([True, True])))
