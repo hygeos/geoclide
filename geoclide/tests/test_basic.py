@@ -273,7 +273,7 @@ def test_basic_array():
 
 
 def test_bbox_array():
-    size = 2
+    size = 4
     set_1 = np.zeros((size, 3), dtype=np.float64)
     set_2 = np.ones_like(set_1)
     set_1[:,0] = np.arange(size)
@@ -283,8 +283,18 @@ def test_bbox_array():
     b_set = gc.BBox(set_p1, set_p2)
     b1 = gc.BBox(gc.Point(set_1[0,:]), gc.Point(set_2[0,:]))
     b2 = gc.BBox(gc.Point(set_1[1,:]), gc.Point(set_2[1,:]))
+    b3 = gc.BBox(gc.Point(set_1[2,:]), gc.Point(set_2[2,:]))
+    b4 = gc.BBox(gc.Point(set_1[3,:]), gc.Point(set_2[3,:]))
+
     assert (np.all(gc.get_common_vertices(b_set, b1)[0,:] == gc.get_common_vertices(b1, b1)))
     assert (np.all(gc.get_common_vertices(b_set, b1)[1,:] == gc.get_common_vertices(b2, b1)))
+    assert (np.all(b_set.common_vertices(b1)[0,:] == b1.common_vertices(b1)))
+    assert (np.all(b_set.common_vertices(b1)[1,:] == b2.common_vertices(b1)))
+
+    assert(gc.get_common_face(b_set, b2, fill_value=-1)[0] == gc.get_common_face(b1, b2, fill_value=-1))
+    assert(gc.get_common_face(b_set, b2, fill_value=-1)[1] == gc.get_common_face(b2, b2, fill_value=-1))
+    assert(gc.get_common_face(b_set, b2, fill_value=-1)[2] == gc.get_common_face(b3, b2, fill_value=-1))
+    assert(gc.get_common_face(b_set, b2, fill_value=-1)[3] == gc.get_common_face(b4, b2, fill_value=-1))
 
 
 def test_bbox_ray_array():

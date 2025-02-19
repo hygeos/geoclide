@@ -758,7 +758,7 @@ class BBox(object):
         
         Returns
         -------
-        out : np.ndarray
+        out : 1-D ndarray | 2D ndarray
         Return an array of boolean indicating if the BBox vertices are
         common to the secondary BBox (b) vertices
 
@@ -795,8 +795,8 @@ class BBox(object):
 
         Returns
         -------
-        out : integer | None
-            Return the index of the common face or fill_value
+        out : integer | fill_value | 1-D ndarray
+            Return the index / indices of the common face or fill_value
         
         Examples
         --------
@@ -824,7 +824,7 @@ def get_common_vertices(b1, b2):
     
     Returns
     -------
-    out : np.ndarray
+    out : 1-D ndarray | 2D ndarray
         Return an array of boolean indicating if the principal BBox (b1)
         vertices are common to secondary BBox (b2) vertices
 
@@ -885,8 +885,8 @@ def get_common_face(b1, b2, fill_value=None):
 
     Returns
     -------
-    out : integer | None
-        Return the index of the common face or fill_value
+    out : integer | fill_value | 1-D ndarray
+        Return the index / indices of the common face or fill_value
 
     Examples
     --------
@@ -899,21 +899,47 @@ def get_common_face(b1, b2, fill_value=None):
     1
     """
     ok = get_common_vertices(b1,b2)
-    if ok.sum()==4:
-        n  = np.arange(8)[ok]
-        if   np.array_equal(n, np.array([1,2,5,6])):
-            return 0
-        elif np.array_equal(n, np.array([0,3,4,7])):
-            return 1
-        elif np.array_equal(n, np.array([2,3,6,7])):
-            return 2
-        elif np.array_equal(n, np.array([0,1,4,5])):
-            return 3
-        elif np.array_equal(n, np.array([4,5,6,7])):
-            return 4
-        elif np.array_equal(n, np.array([0,1,2,3])):
-            return 5
-        else: return fill_value
+    if len(ok.shape) > 1 :
+        size1 = ok.shape[0]
+        cond = ok.sum(axis=1) == 4
+        res = np.full(size1, fill_value, dtype=np.float64)
+        if any(cond):
+            n = np.zeros((size1,8), dtype=np.int32)
+            for i in range (0, 8):
+                n[:,i] = i
+            size2 = cond.sum()
+            res_bis = res[cond]
+            n = n[cond][ok[cond]].reshape(size2,4)
+            m1 = np.repeat(np.array([[1, 2, 5, 6]]), size2, axis=0)
+            m2 = np.repeat(np.array([[0, 3, 4, 7]]), size2, axis=0)
+            m3 = np.repeat(np.array([[2, 3, 6, 7]]), size2, axis=0)
+            m4 = np.repeat(np.array([[0, 1, 4, 5]]), size2, axis=0)
+            m5 = np.repeat(np.array([[4, 5, 6, 7]]), size2, axis=0)
+            m6 = np.repeat(np.array([[0, 1, 2, 3]]), size2, axis=0)
+            res_bis[np.all(n == m1, axis=1)] = 0
+            res_bis[np.all(n == m2, axis=1)] = 1
+            res_bis[np.all(n == m3, axis=1)] = 2
+            res_bis[np.all(n == m4, axis=1)] = 3
+            res_bis[np.all(n == m5, axis=1)] = 4
+            res_bis[np.all(n == m6, axis=1)] = 5
+        res[cond] = res_bis
+        return res
+    else:
+        if ok.sum()==4:
+            n  = np.arange(8)[ok]
+            if   np.array_equal(n, np.array([1,2,5,6])):
+                return 0
+            elif np.array_equal(n, np.array([0,3,4,7])):
+                return 1
+            elif np.array_equal(n, np.array([2,3,6,7])):
+                return 2
+            elif np.array_equal(n, np.array([0,1,4,5])):
+                return 3
+            elif np.array_equal(n, np.array([4,5,6,7])):
+                return 4
+            elif np.array_equal(n, np.array([0,1,2,3])):
+                return 5
+            else: return fill_value
 
-    else :
-        return fill_value
+        else :
+            return fill_value
