@@ -464,9 +464,13 @@ class BBox(object):
     pmin=Point(0.0, 0.0, 0.0), pmax=Point(1.0, 1.0, 1.0)
     '''
     def __init__(self, p1=None, p2=None):
-        if (isinstance(p1, Point)  and isinstance(p2, Point)):
-            self.pmin = Point(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z))
-            self.pmax = Point(max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z))
+        if (isinstance(p1, Point) and isinstance(p2, Point)):
+            if isinstance(p1.x, np.ndarray) or isinstance(p2.x, np.ndarray):
+                self.pmin = Point(np.minimum(p1.x, p2.x), np.minimum(p1.y, p2.y), np.minimum(p1.z, p2.z))
+                self.pmax = Point(np.maximum(p1.x, p2.x), np.maximum(p1.y, p2.y), np.maximum(p1.z, p2.z))  
+            else:
+                self.pmin = Point(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z))
+                self.pmax = Point(max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z))
         elif (p1 is None and p2 is None):
             self.pmin = Point(float("inf"), float("inf"), float("inf"))
             self.pmax = Point(float("-inf"), float("-inf"), float("-inf"))
@@ -603,12 +607,17 @@ class BBox(object):
                 invRayDir[r1.d[i]!= 0] = 1. / r1.d[i][r1.d[i]!= 0]
                 tNear = (pmin[:,i] - r1.o[i]) * invRayDir
                 tFar  = (pmax[:,i] - r1.o[i]) * invRayDir
-                cond = tNear > tFar
-                tNear[cond], tFar[cond] = tFar[cond], tNear[cond]
+                c1 = tNear > tFar
+                tNear[c1], tFar[c1] = tFar[c1], tNear[c1]
                 tFar *= 1 + 2*GAMMA3_F64
-                t0[tNear > t0] = tNear[tNear > t0]
-                t1[tFar < t1] = tFar[tFar < t1]
-                is_intersection[t0>t1] = False
+                c2 = np.logical_and(tNear > t0, is_intersection)
+                c3 = np.logical_and(tFar < t1, is_intersection)
+                t0[c2] = tNear[c2]
+                t1[c3] = tFar[c3]
+                c4 = t0>t1
+                is_intersection[c4] = False
+                t0[c4] = 0.
+                t1[c4] = 0.
             return is_intersection
         else:
             t0 = 0.
@@ -688,12 +697,17 @@ class BBox(object):
                 invRayDir[r1.d[i]!= 0] = 1. / r1.d[i][r1.d[i]!= 0]
                 tNear = (pmin[:,i] - r1.o[i]) * invRayDir
                 tFar  = (pmax[:,i] - r1.o[i]) * invRayDir
-                cond = tNear > tFar
-                tNear[cond], tFar[cond] = tFar[cond], tNear[cond]
+                c1 = tNear > tFar
+                tNear[c1], tFar[c1] = tFar[c1], tNear[c1]
                 tFar *= 1 + 2*GAMMA3_F64
-                t0[tNear > t0] = tNear[tNear > t0]
-                t1[tFar < t1] = tFar[tFar < t1]
-                is_intersection[t0>t1] = False
+                c2 = np.logical_and(tNear > t0, is_intersection)
+                c3 = np.logical_and(tFar < t1, is_intersection)
+                t0[c2] = tNear[c2]
+                t1[c3] = tFar[c3]
+                c4 = t0>t1
+                is_intersection[c4] = False
+                t0[c4] = 0.
+                t1[c4] = 0.
             return t0, t1, is_intersection
         else:
             t0 = 0.
