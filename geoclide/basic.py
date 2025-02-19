@@ -546,13 +546,13 @@ class BBox(object):
 
         return b_union
 
-    def is_inside(self, P):
+    def is_inside(self, p):
         """
         Test if Point P is included in BBox
         """
-        return (P.x >= self.pmin.x) and (P.x <= self.pmax.x) and \
-               (P.y >= self.pmin.y) and (P.y <= self.pmax.y) and \
-               (P.z >= self.pmin.z) and (P.z <= self.pmax.z)
+        return (p.x >= self.pmin.x) and (p.x <= self.pmax.x) and \
+               (p.y >= self.pmin.y) and (p.y <= self.pmax.y) and \
+               (p.z >= self.pmin.z) and (p.z <= self.pmax.z)
 
     def is_intersection(self, r1) :
         """
@@ -565,7 +565,7 @@ class BBox(object):
 
         Returns
         -------
-        out : bool,
+        out : bool | 1-D ndarray
             If there is at least 1 intersection -> True, else False.
 
         Examples
@@ -584,19 +584,46 @@ class BBox(object):
         True
         """
         if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        t0 = 0.
-        t1 = r1.maxt
-        for i in range(3):
-            if r1.d[i]!= 0 : invRayDir = 1. / r1.d[i]
-            else : invRayDir = math.inf
-            tNear = (self.pmin[i] - r1.o[i]) * invRayDir
-            tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
-            if (tNear > tFar): tNear, tFar = tFar, tNear
-            tFar *= 1 + 2*GAMMA3_F64
-            t0 = tNear if tNear > t0 else t0
-            t1 = tFar  if  tFar < t1 else t1
-            if (t0 > t1) : return False
-        return True
+        if isinstance(r1.o.x, np.ndarray):
+            s_comp = len(r1.o.x)
+            t0 = np.zeros(s_comp, dtype=np.float64)
+            t1 = np.full(s_comp, r1.maxt, dtype=np.float64)
+            is_intersection = np.full(s_comp, True)
+            invRayDir = np.zeros(s_comp, dtype=np.float64)
+            pmin = np.zeros((s_comp, 3), dtype=np.float64)
+            pmax = np.zeros((s_comp, 3), dtype=np.float64)
+            pmin[:,0] = self.pmin[0]
+            pmin[:,1] = self.pmin[1]
+            pmin[:,2] = self.pmin[2]
+            pmax[:,0] = self.pmax[0]
+            pmax[:,1] = self.pmax[1]
+            pmax[:,2] = self.pmax[2]
+            for i in range(3):
+                invRayDir[:] = math.inf
+                invRayDir[r1.d[i]!= 0] = 1. / r1.d[i][r1.d[i]!= 0]
+                tNear = (pmin[:,i] - r1.o[i]) * invRayDir
+                tFar  = (pmax[:,i] - r1.o[i]) * invRayDir
+                cond = tNear > tFar
+                tNear[cond], tFar[cond] = tFar[cond], tNear[cond]
+                tFar *= 1 + 2*GAMMA3_F64
+                t0[tNear > t0] = tNear[tNear > t0]
+                t1[tFar < t1] = tFar[tFar < t1]
+                is_intersection[t0>t1] = False
+            return is_intersection
+        else:
+            t0 = 0.
+            t1 = r1.maxt
+            for i in range(3):
+                if r1.d[i]!= 0 : invRayDir = 1. / r1.d[i]
+                else : invRayDir = math.inf
+                tNear = (self.pmin[i] - r1.o[i]) * invRayDir
+                tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
+                if (tNear > tFar): tNear, tFar = tFar, tNear
+                tFar *= 1 + 2*GAMMA3_F64
+                t0 = tNear if tNear > t0 else t0
+                t1 = tFar  if  tFar < t1 else t1
+                if (t0 > t1) : return False
+            return True
 
     def intersect(self, r1) :
         """
@@ -610,17 +637,17 @@ class BBox(object):
         Parameters
         ----------
         r1 : Ray
-            The ray to use for the intersection test
+            The ray(s) to use for the intersection test
 
         Returns
         -------
-        t0 : float
+        t0 : float | 1-D ndarray
             The t ray variable for the first intersection.
             In case of only 1 intersection it represents nothing. 
-        t1 : float
+        t1 : float | 1-D ndarray
             The t ray variable for the second intersection.
             In case of only 1 intersection, t1 becomes the t ray variable for the first intersection.
-        is_intersection : bool
+        is_intersection : bool | 1-D ndarray
             If there is at least 1 intersection -> True, else False.
 
         Examples
@@ -642,19 +669,46 @@ class BBox(object):
         Point(0.5, 0.5, 1.0)
         """
         if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        t0 = 0.
-        t1 = r1.maxt
-        for i in range(3):
-            if r1.d[i]!= 0 : invRayDir = 1. / r1.d[i]
-            else : invRayDir = math.inf
-            tNear = (self.pmin[i] - r1.o[i]) * invRayDir
-            tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
-            if (tNear > tFar): tNear, tFar = tFar, tNear
-            tFar *= 1 + 2*GAMMA3_F64
-            t0 = tNear if tNear > t0 else t0
-            t1 = tFar  if  tFar < t1 else t1
-            if (t0 > t1) : return 0., 0., False
-        return t0, t1, True
+        if isinstance(r1.o.x, np.ndarray):
+            s_comp = len(r1.o.x)
+            t0 = np.zeros(s_comp, dtype=np.float64)
+            t1 = np.full(s_comp, r1.maxt, dtype=np.float64)
+            is_intersection = np.full(s_comp, True)
+            invRayDir = np.zeros(s_comp, dtype=np.float64)
+            pmin = np.zeros((s_comp, 3), dtype=np.float64)
+            pmax = np.zeros((s_comp, 3), dtype=np.float64)
+            pmin[:,0] = self.pmin[0]
+            pmin[:,1] = self.pmin[1]
+            pmin[:,2] = self.pmin[2]
+            pmax[:,0] = self.pmax[0]
+            pmax[:,1] = self.pmax[1]
+            pmax[:,2] = self.pmax[2]
+            for i in range(3):
+                invRayDir[:] = math.inf
+                invRayDir[r1.d[i]!= 0] = 1. / r1.d[i][r1.d[i]!= 0]
+                tNear = (pmin[:,i] - r1.o[i]) * invRayDir
+                tFar  = (pmax[:,i] - r1.o[i]) * invRayDir
+                cond = tNear > tFar
+                tNear[cond], tFar[cond] = tFar[cond], tNear[cond]
+                tFar *= 1 + 2*GAMMA3_F64
+                t0[tNear > t0] = tNear[tNear > t0]
+                t1[tFar < t1] = tFar[tFar < t1]
+                is_intersection[t0>t1] = False
+            return t0, t1, is_intersection
+        else:
+            t0 = 0.
+            t1 = r1.maxt
+            for i in range(3):
+                if r1.d[i]!= 0 : invRayDir = 1. / r1.d[i]
+                else : invRayDir = math.inf
+                tNear = (self.pmin[i] - r1.o[i]) * invRayDir
+                tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
+                if (tNear > tFar): tNear, tFar = tFar, tNear
+                tFar *= 1 + 2*GAMMA3_F64
+                t0 = tNear if tNear > t0 else t0
+                t1 = tFar  if  tFar < t1 else t1
+                if (t0 > t1) : return 0., 0., False
+            return t0, t1, True
 
     def common_vertices(self, b):
         """
