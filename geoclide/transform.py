@@ -108,7 +108,8 @@ class Transform(object):
             yp = self.m[1,0]*c.x + self.m[1,1]*c.y + self.m[1,2]*c.z + self.m[1,3]
             zp = self.m[2,0]*c.x + self.m[2,1]*c.y + self.m[2,2]*c.z + self.m[2,3]
             wp = self.m[3,0]*c.x + self.m[3,1]*c.y + self.m[3,2]*c.z + self.m[3,3]
-            if (wp == 1):
+            if ((not isinstance(wp, np.ndarray) and wp == 1) or
+                (isinstance(wp, np.ndarray) and np.all(wp == 1)) ):
                 return Point(xp, yp, zp)
             else: 
                 return Point(xp, yp, zp)/wp
