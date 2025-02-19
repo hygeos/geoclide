@@ -272,4 +272,35 @@ def test_basic_array():
     assert (np.all(v2_x3.to_numpy() == v1v2_x3.to_numpy()[1,:]))
 
 
+def test_bbox_ray_array():
+    arr1 = np.array([[0., 0., 0.], [1., 1., 1.]], dtype=np.float64)
+    arr2 = np.array([[0., 0., 1.], [1., 0., 0.]], dtype=np.float64)
+    size = 4
+    arr1_bis = np.zeros((size, 3), dtype=np.float64)
+    arr2_bis = np.zeros((size, 3), dtype=np.float64)
+    arr1_bis[0::2,:] = arr1[0,:]
+    arr1_bis[1::2,:] = arr1[1,:]
+    arr2_bis[0::2,:] = arr2[0,:]
+    arr2_bis[1::2,:] = arr2[1,:]
+    p_set = gc.Point(arr1_bis)
+    v_set = gc.Vector(arr2_bis)
+    r_set = gc.Ray(p_set, v_set)
+    r1 = gc.Ray(gc.Point(0., 0., 0.), gc.Vector(0., 0., 1.))
+    r2 = gc.Ray(gc.Point(1., 1., 1.), gc.Vector(1., 0., 0.))
+    b1 = gc.BBox(gc.Point(-2., -2., 0.25), gc.Point(2., 2., 0.75))
 
+    is_int1 = b1.is_intersection(r1)
+    is_int2 = b1.is_intersection(r2)
+    is_int_set = b1.is_intersection(r_set)
+    assert (is_int1 == is_int_set[0])
+    assert (is_int2 == is_int_set[1])
+    assert (is_int1 == is_int_set[2])
+    assert (is_int2 == is_int_set[3])
+
+    t0_1, t1_1, is_int1 = b1.intersect(r1)
+    t0_2, t1_2, is_int2 = b1.intersect(r2)
+    t0_set, t1_set, is_int_set = b1.intersect(r_set)
+    assert (t0_1 == t0_set[0])
+    assert (t1_1 == t1_set[0])
+    assert (t0_2 == t0_set[1])
+    assert (t1_2 == t1_set[1])
