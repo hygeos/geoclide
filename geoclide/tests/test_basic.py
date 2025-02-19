@@ -304,3 +304,7 @@ def test_bbox_ray_array():
     assert (t1_1 == t1_set[0])
     assert (t0_2 == t0_set[1])
     assert (t1_2 == t1_set[1])
+    assert (t0_1 == t0_set[2])
+    assert (t1_1 == t1_set[2])
+    assert (t0_2 == t0_set[3])
+    assert (t1_2 == t1_set[3])
