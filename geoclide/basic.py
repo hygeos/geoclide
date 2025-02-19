@@ -65,8 +65,8 @@ class Vector(object):
 
     def __eq__(self, v2):
         if isinstance(v2, Vector):
-            if isinstance(self.x, np.ndarray):
-                return np.all(self.x==v2.x) and np.all(self.y==v2.y) and np.all(self.z==v2.z)
+            if isinstance(self.x, np.ndarray) or isinstance(v2.x, np.ndarray) :
+                return np.logical_and.reduce((self.x==v2.x, self.y==v2.y, self.z==v2.z))
             else:
                 return (self.x==v2.x) and (self.y==v2.y) and (self.z==v2.z)
         else:
@@ -187,8 +187,8 @@ class Point(object):
 
     def __eq__(self, p2):
         if isinstance(p2, Point):
-            if isinstance(self.x, np.ndarray):
-                return np.all(self.x==p2.x) and np.all(self.y==p2.y) and np.all(self.z==p2.z)
+            if isinstance(self.x, np.ndarray) or isinstance(p2.x, np.ndarray) :
+                return np.logical_and.reduce((self.x==p2.x, self.y==p2.y, self.z==p2.z))
             else:
                 return (self.x==p2.x) and (self.y==p2.y) and (self.z==p2.z)
         else:
@@ -305,8 +305,8 @@ class Normal(object):
 
     def __eq__(self, n2):
         if isinstance(n2, Normal):
-            if isinstance(self.x, np.ndarray):
-                return np.all(self.x==n2.x) and np.all(self.y==n2.y) and np.all(self.z==n2.z)
+            if isinstance(self.x, np.ndarray) or isinstance(n2.x, np.ndarray) :
+                return np.logical_and.reduce((self.x==n2.x, self.y==n2.y, self.z==n2.z))
             else:
                 return (self.x==n2.x) and (self.y==n2.y) and (self.z==n2.z)
         else:
