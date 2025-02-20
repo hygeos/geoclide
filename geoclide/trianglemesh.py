@@ -146,28 +146,29 @@ class Triangle(Shape):
         divisor = gv.dot(s1, e1)
 
         if (isinstance(p0.x, np.ndarray)):
-            size = len(p0.x)
-            is_intersection = np.full(size, True)
-            c1 = divisor == 0
-            invDivisor = 1./divisor
+            with np.errstate(divide='ignore', invalid='ignore'):
+                size = len(p0.x)
+                is_intersection = np.full(size, True)
+                c1 = divisor == 0
+                invDivisor = 1./divisor
 
-            # compute the first barycentric coordinate
-            s = ray.o - p0
-            b1 = gv.dot(s, s1) * invDivisor
-            c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
+                # compute the first barycentric coordinate
+                s = ray.o - p0
+                b1 = gv.dot(s, s1) * invDivisor
+                c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
 
-            # compute the second barycentric coordinate
-            s2 = gv.cross(s, e1)
-            b2 = gv.dot(ray.d, s2) * invDivisor
-            c3 = np.logical_or(b2 < 0, b1+b2 > 1)
+                # compute the second barycentric coordinate
+                s2 = gv.cross(s, e1)
+                b2 = gv.dot(ray.d, s2) * invDivisor
+                c3 = np.logical_or(b2 < 0, b1+b2 > 1)
 
-            # compute the time at the intersection point
-            t = gv.dot(e2, s2) * invDivisor
-            c4 = np.logical_or(t < ray.mint, t > ray.maxt)
+                # compute the time at the intersection point
+                t = gv.dot(e2, s2) * invDivisor
+                c4 = np.logical_or(t < ray.mint, t > ray.maxt)
 
-            c5 = np.logical_or.reduce((c1, c2, c3, c4))
-            is_intersection[c5] = False
-            t[c5] = None
+                c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                is_intersection[c5] = False
+                t[c5] = None
         else:
             if (divisor == 0):
                 return None, False
@@ -402,28 +403,29 @@ class Triangle(Shape):
         divisor = gv.dot(s1, e1)
 
         if (isinstance(p0.x, np.ndarray)):
-            size = len(p0.x)
-            is_intersection = np.full(size, True)
-            c1 = divisor == 0
-            invDivisor = 1./divisor
+            with np.errstate(divide='ignore', invalid='ignore'):
+                size = len(p0.x)
+                is_intersection = np.full(size, True)
+                c1 = divisor == 0
+                invDivisor = 1./divisor
 
-            # compute the first barycentric coordinate
-            s = ray.o - p0
-            b1 = gv.dot(s, s1) * invDivisor
-            c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
+                # compute the first barycentric coordinate
+                s = ray.o - p0
+                b1 = gv.dot(s, s1) * invDivisor
+                c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
 
-            # compute the second barycentric coordinate
-            s2 = gv.cross(s, e1)
-            b2 = gv.dot(ray.d, s2) * invDivisor
-            c3 = np.logical_or(b2 < 0, b1+b2 > 1)
+                # compute the second barycentric coordinate
+                s2 = gv.cross(s, e1)
+                b2 = gv.dot(ray.d, s2) * invDivisor
+                c3 = np.logical_or(b2 < 0, b1+b2 > 1)
 
-            # compute the time at the intersection point
-            t = gv.dot(e2, s2) * invDivisor
-            c4 = np.logical_or(t < ray.mint, t > ray.maxt)
+                # compute the time at the intersection point
+                t = gv.dot(e2, s2) * invDivisor
+                c4 = np.logical_or(t < ray.mint, t > ray.maxt)
 
-            c5 = np.logical_or.reduce((c1, c2, c3, c4))
-            is_intersection[c5] = False
-            t[c5] = None
+                c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                is_intersection[c5] = False
+                t[c5] = None
         else:
             if (divisor == 0):
                 return None, None, False
@@ -460,17 +462,18 @@ class Triangle(Shape):
         dp2 = p1 - p2
         determinant = du1 * dv2 - dv1 * du2
 
-        if (determinant == 0):
-            dpdu, dpdv = gv.coordinate_system(gv.normalize(gv.cross(e2, e1)))
-        else:
-            invdet = 1./determinant
-            dpdu = ( dp1*dv2   - dp2*dv1) * invdet
-            dpdv = (dp1*(-du2) + dp2*du1) * invdet
-        
-        # interpolate $(u,v)$ triangle parametric coordinates
-        b0 = 1 - b1 - b2
-        tu = b0*uvs[0][0] + b1*uvs[1][0] + b2*uvs[2][0]
-        tv = b0*uvs[0][1] + b1*uvs[1][1] + b2*uvs[2][1]
+        with np.errstate(divide='ignore', invalid='ignore'):
+            if (determinant == 0):
+                dpdu, dpdv = gv.coordinate_system(gv.normalize(gv.cross(e2, e1)))
+            else:
+                invdet = 1./determinant
+                dpdu = ( dp1*dv2   - dp2*dv1) * invdet
+                dpdv = (dp1*(-du2) + dp2*du1) * invdet
+            
+            # interpolate $(u,v)$ triangle parametric coordinates
+            b0 = 1 - b1 - b2
+            tu = b0*uvs[0][0] + b1*uvs[1][0] + b2*uvs[2][0]
+            tv = b0*uvs[0][1] + b1*uvs[1][1] + b2*uvs[2][1]
 
         # fill the DifferentialGeometry and thit
         dg = DifferentialGeometry(ray[t], dpdu, dpdv, tu, tv, r1.d, self)
@@ -646,7 +649,7 @@ class TriangleMesh(Shape):
         self.faces = faces
         self.ntriangles = faces.shape[0]
 
-    def intersect(self, r1, method='v3'):
+    def intersect(self, r1, method='v3', fast_test=False):
         """
         Test if a Ray intersect with the triangle mesh and return intersection information
 
@@ -656,7 +659,9 @@ class TriangleMesh(Shape):
             The ray to use for the intersection test
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
-        
+        fast_test : bool
+            The optimisation is interesting with 50 - 100 triangles, and can be really significant with 
+            more than 1000 triangles
         Returns
         -------
         thit : float
@@ -666,21 +671,41 @@ class TriangleMesh(Shape):
         is_intersection : bool
             If there is an intersection -> True, else False
         """
-        dg = None
-        thit = float("inf")
-        for itri in range(0, self.ntriangles):
-            p0 = Point(self.vertices[self.faces[itri,0],:])
-            p1 = Point(self.vertices[self.faces[itri,1],:])
-            p2 = Point(self.vertices[self.faces[itri,2],:])
-            triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
-            thit_bis, dg_bis, is_intersection_bis = triangle.intersect(r1, method=method)
-            if is_intersection_bis:
-                if thit > thit_bis:
-                    thit = thit_bis
-                    dg = dg_bis
-        if dg is None: return None, None, False
-            
-        return thit, dg, True
+        if not fast_test:
+            dg = None
+            thit = float("inf")
+            for itri in range(0, self.ntriangles):
+                p0 = Point(self.vertices[self.faces[itri,0],:])
+                p1 = Point(self.vertices[self.faces[itri,1],:])
+                p2 = Point(self.vertices[self.faces[itri,2],:])
+                triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                thit_bis, dg_bis, is_intersection_bis = triangle.intersect(r1, method=method)
+                if is_intersection_bis:
+                    if thit > thit_bis:
+                        thit = thit_bis
+                        dg = dg_bis
+            if dg is None: return None, None, False
+                
+            return thit, dg, True
+        else:
+            p0 = Point(self.vertices[self.faces[:,0],:])
+            p1 = Point(self.vertices[self.faces[:,1],:])
+            p2 = Point(self.vertices[self.faces[:,2],:])
+            triangles = Triangle(p0, p1, p2, self.oTw, self.wTo)
+            thit_bis, dg_bis, is_intersection_bis = triangles.intersect(r1, method=method)
+
+            if np.any(is_intersection_bis):
+                near_id = np.nanargmin(thit_bis)
+                thit = thit_bis[near_id]
+                dg = DifferentialGeometry(Point(dg_bis.p.to_numpy()[near_id]),
+                                        Vector(dg_bis.dpdu.to_numpy()[near_id]),
+                                        Vector(dg_bis.dpdv.to_numpy()[near_id]),
+                                        dg_bis.u[near_id], dg_bis.v[near_id],
+                                        dg_bis.ray_dir, dg_bis.shape)
+                
+                return thit, dg, True
+            else:
+                return None, None, False
     
     def is_intersection(self, r1, method='v3'):
         """
