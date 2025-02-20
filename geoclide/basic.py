@@ -419,9 +419,8 @@ class Ray(object):
             self.maxt = maxt
 
     def __getitem__(self, t):
-        if (not np.isscalar(t)):
-            raise ValueError('The value must be a scalar')
-        elif ( t < self.mint or t > self.maxt):
+        if (  (isinstance(t, np.ndarray) and np.any(np.logical_or(t < self.mint, t > self.maxt))) or
+              (not isinstance(t, np.ndarray) and (t < self.mint or t > self.maxt))  ):
             raise ValueError(f"The value {t} is out of bounds. It must be between {self.mint} and {self.maxt}")
         else:
             return (self.o + self.d*t)
