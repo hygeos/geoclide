@@ -7,6 +7,6 @@ from geoclide.transform import Transform, get_translate_tf, get_scale_tf, \
 from geoclide.quadrics import Sphere, Spheroid, Disk
 from geoclide.intersection import calc_intersection
 from geoclide.trianglemesh import Triangle, TriangleMesh, create_sphere_trianglemesh, \
-    read_gcnc_trianglemesh, create_disk_trianglemesh
+    read_trianglemesh, create_disk_trianglemesh
 from geoclide.constante import VERSION, GAMMA2_F32, GAMMA2_F64, GAMMA3_F32, GAMMA3_F64, GAMMA5_F32, GAMMA5_F64, TWO_PI
 from geoclide.advancedvecope import ang2vec, vec2ang

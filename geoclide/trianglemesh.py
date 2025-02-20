@@ -11,6 +11,7 @@ import math
 import matplotlib.pyplot as plt
 import xarray as xr
 from datetime import datetime
+import trimesh
 
 
 class Triangle(Shape):
@@ -1099,19 +1100,45 @@ def read_gcnc_trianglemesh(path, **kwargs):
     Parameters
     ----------
     path : str
-        The xarray path parameter
+        The xarray filename_or_obj parameter
     **kwargs
-        The keyword arguments are passed on to to_necdf xarray Dataset method
+        The keyword arguments are passed on to xarray open_dataset method
 
     Returns
     -------
     out : TriangleMesh
         The triangle mesh
     """
-    if 'path' in kwargs: kwargs.pop('path', False)
+    if 'filename_or_obj' in kwargs: kwargs.pop('filename_or_obj', False)
     if not path.endswith('gcnc'):
         raise ValueError("Only the geoclide netcdf4 format (ending with 'gcnc') is accepted")
     if 'engine' in kwargs: engine = kwargs.pop('engine', False)
     else: engine = 'netcdf4'
     ds = xr.open_dataset(path, engine=engine, **kwargs)
     return TriangleMesh(ds['vertices'].values[0,:,:], ds['faces'].values[0,:,:])
+
+
+def read_trianglemesh(path, **kwargs):
+    """
+    Open mesh file
+
+    - if gcnc format use xarray, else use trimesh
+
+    Parameters
+    ----------
+    path : str
+        The xarray filename_or_obj or trimesh file_obj parameter
+    **kwargs
+        The keyword arguments are passed on to xarray open_dataset or trimesh load method
+    
+    Returns
+    -------
+    out : TriangleMesh
+        The triangle mesh
+    """
+
+    if path.endswith('gcnc'):
+        return read_gcnc_trianglemesh(path, **kwargs)
+    else:
+        msh = trimesh.load(path, **kwargs)
+        return TriangleMesh(msh.vertices, msh.faces)

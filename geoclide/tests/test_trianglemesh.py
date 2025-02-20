@@ -151,42 +151,42 @@ def test_triangle_mesh():
 
 
 def test_read_gcnc_trianglemesh():
-    msh_read = gc.read_gcnc_trianglemesh(ROOTPATH + '/geoclide/tests/data/sphere_r1p5_resth18_resph36.gcnc')
+    msh_read = gc.read_trianglemesh(ROOTPATH + '/geoclide/tests/data/sphere_r1p5_resth18_resph36.gcnc')
     msh = gc.Sphere(1.5).to_trianglemesh(reso_theta=18, reso_phi=36)
     assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
     assert (np.all(msh_read.faces == msh.faces))
 
-    msh_read = gc.read_gcnc_trianglemesh(ROOTPATH + '/geoclide/tests/data/sphere_r1p5_resth18_resph18_phimax180.gcnc')
+    msh_read = gc.read_trianglemesh(ROOTPATH + '/geoclide/tests/data/sphere_r1p5_resth18_resph18_phimax180.gcnc')
     msh = gc.Sphere(1.5, phi_max=180.).to_trianglemesh(reso_theta=18, reso_phi=18)
     assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
     assert (np.all(msh_read.faces == msh.faces))
 
-    msh_read = gc.read_gcnc_trianglemesh(ROOTPATH + '/geoclide/tests/data/oblate_rxy1p5_rz1p2_resth18_resph36.gcnc')
+    msh_read = gc.read_trianglemesh(ROOTPATH + '/geoclide/tests/data/oblate_rxy1p5_rz1p2_resth18_resph36.gcnc')
     msh = gc.Spheroid(1.5, 1.2).to_trianglemesh(reso_theta=18, reso_phi=36)
     assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
     assert (np.all(msh_read.faces == msh.faces))
 
-    msh_read = gc.read_gcnc_trianglemesh(ROOTPATH + '/geoclide/tests/data/prolate_rxy1p5_rz3_resth18_resph36.gcnc')
+    msh_read = gc.read_trianglemesh(ROOTPATH + '/geoclide/tests/data/prolate_rxy1p5_rz3_resth18_resph36.gcnc')
     msh = gc.Spheroid(1.5, 3.).to_trianglemesh(reso_theta=18, reso_phi=36)
     assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
     assert (np.all(msh_read.faces == msh.faces))
 
-    msh_read = gc.read_gcnc_trianglemesh(ROOTPATH + '/geoclide/tests/data/disk_r1_reso36.gcnc')
+    msh_read = gc.read_trianglemesh(ROOTPATH + '/geoclide/tests/data/disk_r1_reso36.gcnc')
     msh = gc.Disk(1.).to_trianglemesh(reso=36)
     assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
     assert (np.all(msh_read.faces == msh.faces))
 
-    msh_read = gc.read_gcnc_trianglemesh(ROOTPATH + '/geoclide/tests/data/disk_r1_zh5_reso36.gcnc')
+    msh_read = gc.read_trianglemesh(ROOTPATH + '/geoclide/tests/data/disk_r1_zh5_reso36.gcnc')
     msh = gc.Disk(1., z_height=5.).to_trianglemesh(reso=36)
     assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
     assert (np.all(msh_read.faces == msh.faces))
 
-    msh_read = gc.read_gcnc_trianglemesh(ROOTPATH + '/geoclide/tests/data/annulus_r1_ir0p5_reso36.gcnc')
+    msh_read = gc.read_trianglemesh(ROOTPATH + '/geoclide/tests/data/annulus_r1_ir0p5_reso36.gcnc')
     msh = gc.Disk(1., inner_radius=0.5).to_trianglemesh(reso=36)
     assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
     assert (np.all(msh_read.faces == msh.faces))
 
-    msh_read = gc.read_gcnc_trianglemesh(ROOTPATH + '/geoclide/tests/data/annulus_partial_r1_ir0p5_reso27_phimax270.gcnc')
+    msh_read = gc.read_trianglemesh(ROOTPATH + '/geoclide/tests/data/annulus_partial_r1_ir0p5_reso27_phimax270.gcnc')
     msh = gc.Disk(1., inner_radius=0.5, phi_max=270).to_trianglemesh(reso=27)
     assert (np.all(np.isclose(msh_read.vertices, msh.vertices, 0., 1e-15)))
     assert (np.all(msh_read.faces == msh.faces))
