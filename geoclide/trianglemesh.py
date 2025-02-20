@@ -724,17 +724,22 @@ class TriangleMesh(Shape):
             vertices_t[iver,:] = t[Point(self.vertices[iver,:])].to_numpy()
         self.vertices = vertices_t
     
-    def plot(self, savefig_name=None, **kwargs):
+    def plot(self, source=None, savefig_name=None, **kwargs):
         """
         Plot the triangle mesh
 
         Parameters
         ----------
+        source : str
+            The package used for the plot, only 2 option -> 'matplotlib' or 'trimesh'. 
+            If source = None, use matplolib for mesh with ntriangle < 5000, else use trimesh
         savefig_name : str, optional
-            If savefig_name is given, the figure is saved with the given name
+            If savefig_name is given, the figure is saved with the given name (only 
+            if source='matplotlib)
         **kwargs
             All other keyword arguments are passed on to matplotlib plot_trisurf function. 
-            For example: alpha, color, shade, ...
+            For example: alpha, color, shade, ... 
+            If source = 'trimesh' then the keyword arguments passed on to show Trimesh method 
         
         Examples
         --------
@@ -744,16 +749,23 @@ class TriangleMesh(Shape):
         >>> msh.plot(color='green', edgecolor='k')
         image
         """
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        if 'color' in kwargs: color = kwargs.pop('color', False)
-        else: color = 'blue'
-        ax.plot_trisurf(self.vertices[:,0], self.vertices[:,1], self.vertices[:,2],
-                        triangles = self.faces, color=color, **kwargs)
-        ax.set_aspect('equal', adjustable='box')
-        plt.tight_layout()
-        if savefig_name is not None: plt.savefig(savefig_name)
-        plt.show()
+        if ((source is None and self.ntriangles < 5000) or source == 'matplotlib'):
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            if 'color' in kwargs: color = kwargs.pop('color', False)
+            else: color = 'blue'
+            ax.plot_trisurf(self.vertices[:,0], self.vertices[:,1], self.vertices[:,2],
+                            triangles = self.faces, color=color, **kwargs)
+            ax.set_aspect('equal', adjustable='box')
+            plt.tight_layout()
+            if savefig_name is not None: plt.savefig(savefig_name)
+            plt.show()
+        elif ((source is None and self.ntriangles >= 5000) or source == 'trimesh'):
+            msh = trimesh.Trimesh(self.vertices, self.faces)
+            return msh.show(**kwargs)
+        else:
+            raise ValueError("Unknown source. Please choose between: 'matplotlib' or 'trimesh'")
+
     
     def to_dataset(self, name='none'):
         """
