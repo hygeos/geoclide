@@ -57,8 +57,6 @@ class DifferentialGeometry(object):
         elif ( isinstance(p, Point)        and
                isinstance(dpdu, Vector)    and
                isinstance(dpdv, Vector)    and
-               np.isscalar(u)              and
-               np.isscalar(v)              and
                isinstance(ray_dir, Vector)):
             self.p = p
             self.dpdu = dpdu

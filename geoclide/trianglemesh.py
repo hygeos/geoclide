@@ -145,28 +145,54 @@ class Triangle(Shape):
         s1 = gv.cross(ray.d, e2)
         divisor = gv.dot(s1, e1)
 
-        if (divisor == 0):
-            return None, False
-        invDivisor = 1./divisor
+        if (isinstance(p0.x, np.ndarray)):
+            size = len(p0.x)
+            is_intersection = np.full(size, True)
+            c1 = divisor == 0
+            invDivisor = 1./divisor
 
-        # compute the first barycentric coordinate
-        s = ray.o - p0
-        b1 = gv.dot(s, s1) * invDivisor
-        if (b1 < -0.00000001 or  b1 > 1.00000001):
-            return None, False
+            # compute the first barycentric coordinate
+            s = ray.o - p0
+            b1 = gv.dot(s, s1) * invDivisor
+            c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
 
-        # compute the second barycentric coordinate
-        s2 = gv.cross(s, e1)
-        b2 = gv.dot(ray.d, s2) * invDivisor
-        if (b2 < 0 or  b1+b2 > 1):
-            return None, False
+            # compute the second barycentric coordinate
+            s2 = gv.cross(s, e1)
+            b2 = gv.dot(ray.d, s2) * invDivisor
+            c3 = np.logical_or(b2 < 0, b1+b2 > 1)
 
-        # compute the time at the intersection point
-        t = gv.dot(e2, s2) * invDivisor
-        if (t < ray.mint or t > ray.maxt):
-            return None, False
+            # compute the time at the intersection point
+            t = gv.dot(e2, s2) * invDivisor
+            c4 = np.logical_or(t < ray.mint, t > ray.maxt)
 
-        return t, True
+            c5 = np.logical_or.reduce((c1, c2, c3, c4))
+            is_intersection[c5] = False
+            t[c5] = None
+        else:
+            if (divisor == 0):
+                return None, False
+            invDivisor = 1./divisor
+
+            # compute the first barycentric coordinate
+            s = ray.o - p0
+            b1 = gv.dot(s, s1) * invDivisor
+            if (b1 < -0.00000001 or  b1 > 1.00000001):
+                return None, False
+
+            # compute the second barycentric coordinate
+            s2 = gv.cross(s, e1)
+            b2 = gv.dot(ray.d, s2) * invDivisor
+            if (b2 < 0 or  b1+b2 > 1):
+                return None, False
+
+            # compute the time at the intersection point
+            t = gv.dot(e2, s2) * invDivisor
+            if (t < ray.mint or t > ray.maxt):
+                return None, False
+            
+            is_intersection = True
+
+        return t, is_intersection
     
     def is_intersection_v2(self, r1):
         """
@@ -375,26 +401,52 @@ class Triangle(Shape):
         s1 = gv.cross(ray.d, e2)
         divisor = gv.dot(s1, e1)
 
-        if (divisor == 0):
-            return None, None, False
-        invDivisor = 1./divisor
+        if (isinstance(p0.x, np.ndarray)):
+            size = len(p0.x)
+            is_intersection = np.full(size, True)
+            c1 = divisor == 0
+            invDivisor = 1./divisor
 
-        # compute the first barycentric coordinate
-        s = ray.o - p0
-        b1 = gv.dot(s, s1) * invDivisor
-        if (b1 < -0.00000001 or  b1 > 1.00000001):
-            return None, None, False
+            # compute the first barycentric coordinate
+            s = ray.o - p0
+            b1 = gv.dot(s, s1) * invDivisor
+            c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
 
-        # compute the second barycentric coordinate
-        s2 = gv.cross(s, e1)
-        b2 = gv.dot(ray.d, s2) * invDivisor
-        if (b2 < 0 or  b1+b2 > 1):
-            return None, None, False
+            # compute the second barycentric coordinate
+            s2 = gv.cross(s, e1)
+            b2 = gv.dot(ray.d, s2) * invDivisor
+            c3 = np.logical_or(b2 < 0, b1+b2 > 1)
 
-        # compute the time at the intersection point
-        t = gv.dot(e2, s2) * invDivisor
-        if (t < ray.mint or t > ray.maxt):
-            return None, None, False
+            # compute the time at the intersection point
+            t = gv.dot(e2, s2) * invDivisor
+            c4 = np.logical_or(t < ray.mint, t > ray.maxt)
+
+            c5 = np.logical_or.reduce((c1, c2, c3, c4))
+            is_intersection[c5] = False
+            t[c5] = None
+        else:
+            if (divisor == 0):
+                return None, None, False
+            invDivisor = 1./divisor
+
+            # compute the first barycentric coordinate
+            s = ray.o - p0
+            b1 = gv.dot(s, s1) * invDivisor
+            if (b1 < -0.00000001 or  b1 > 1.00000001):
+                return None, None, False
+
+            # compute the second barycentric coordinate
+            s2 = gv.cross(s, e1)
+            b2 = gv.dot(ray.d, s2) * invDivisor
+            if (b2 < 0 or  b1+b2 > 1):
+                return None, None, False
+
+            # compute the time at the intersection point
+            t = gv.dot(e2, s2) * invDivisor
+            if (t < ray.mint or t > ray.maxt):
+                return None, None, False
+            
+            is_intersection = True
 
         # compute triangle partial derivatives
         uvs = np.array([[0., 0.], [1., 0.], [1., 1.]])
@@ -424,7 +476,7 @@ class Triangle(Shape):
         dg = DifferentialGeometry(ray[t], dpdu, dpdv, tu, tv, r1.d, self)
         thit = t
 
-        return thit, dg, True
+        return thit, dg, is_intersection
     
     def intersect_v3(self, r1):
         """
