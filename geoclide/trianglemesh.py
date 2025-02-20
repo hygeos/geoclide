@@ -766,7 +766,6 @@ class TriangleMesh(Shape):
         else:
             raise ValueError("Unknown source. Please choose between: 'matplotlib' or 'trimesh'")
 
-    
     def to_dataset(self, name='none'):
         """
         Create an xarray dataset where the triangle mesh information are stored
@@ -794,6 +793,25 @@ class TriangleMesh(Shape):
         date = datetime.now().strftime("%Y-%m-%d")  
         ds.attrs.update({'date':date, 'version': VERSION})
         return ds
+    
+    def write(self, path, **kwargs):
+        """
+        Save the mesh
+
+        - if gcnc format use xarray, else use trimesh
+
+        Parameters
+        ----------
+        path : str
+            The xarray to_netcdf path paramter (or trimesh)
+        **kwargs
+            The keyword arguments are passed on to xarray to_netcdf or trimesh export method
+        """
+        if path.endswith('gcnc'):
+            self.to_dataset().to_netcdf(path, **kwargs)
+        else:
+            msh = trimesh.Trimesh(self.vertices, self.faces)
+            msh.export(path, **kwargs)
 
 
 def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min=0., theta_max=180.,
