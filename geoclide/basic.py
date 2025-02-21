@@ -33,6 +33,7 @@ class Vector(object):
     >>> v1
     Vector(0,0,1)
     """
+    __array_priority__ = 1
     def __init__(self, x = None, y = None, z = None):
         if (x is None and y is None and z is None):
             self.x = 0.
@@ -155,6 +156,7 @@ class Point(object):
     >>> p1
     Point(0,0,1)
     """
+    __array_priority__ = 1
     def __init__(self, x = None, y = None, z = None):
         if (x is None and y is None and z is None):
             self.x = 0.
@@ -211,7 +213,7 @@ class Point(object):
 
     def __truediv__(self, sca):
         div = (1./sca)
-        return Point(self.x*div, self.y*div, self.z*div) 
+        return Point(self.x*div, self.y*div, self.z*div)
 
     def __mul__(self, sca): 
         return Point(sca*self.x, sca*self.y, sca*self.z)
@@ -273,6 +275,7 @@ class Normal(object):
     >>> n1
     Normal(0,0,1)
     """
+    __array_priority__ = 1
     def __init__(self, x = None, y = None, z = None):
         if (x is None and y is None and z is None):
             self.x = 0.
