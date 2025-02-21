@@ -661,7 +661,7 @@ class TriangleMesh(Shape):
             Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
         fast_test : bool
             The optimisation is interesting with 50 - 100 triangles, and can be really significant with 
-            more than 1000 triangles
+            more than 1000 triangles (can be 100 times faster!)
         Returns
         -------
         thit : float
@@ -707,7 +707,7 @@ class TriangleMesh(Shape):
             else:
                 return None, None, False
     
-    def is_intersection(self, r1, method='v3'):
+    def is_intersection(self, r1, method='v3', fast_test=False):
         """
         Test if a Ray intersect with the triangle mesh
 
@@ -717,22 +717,35 @@ class TriangleMesh(Shape):
             The ray to use for the intersection test
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
+        fast_test : bool
+            The optimisation is interesting with 200 - 800 triangles, and can be really significant with 
+            more than 5000 triangles
         
         Returns
         -------
         out : bool
             If there is an intersection -> True, else False
         """
-        for itri in range(0, self.ntriangles):
-            p0 = Point(self.vertices[self.faces[itri,0],:])
-            p1 = Point(self.vertices[self.faces[itri,1],:])
-            p2 = Point(self.vertices[self.faces[itri,2],:])
-            triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
-            if (triangle.is_intersection(r1, method=method)):
+        if not fast_test:
+            for itri in range(0, self.ntriangles):
+                p0 = Point(self.vertices[self.faces[itri,0],:])
+                p1 = Point(self.vertices[self.faces[itri,1],:])
+                p2 = Point(self.vertices[self.faces[itri,2],:])
+                triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                if (triangle.is_intersection(r1, method=method)):
+                    return True
+            return False
+        else:
+            p0 = Point(self.vertices[self.faces[:,0],:])
+            p1 = Point(self.vertices[self.faces[:,1],:])
+            p2 = Point(self.vertices[self.faces[:,2],:])
+            triangles = Triangle(p0, p1, p2, self.oTw, self.wTo)
+            if np.any(triangles.is_intersection(r1, method=method)):
                 return True
-        return False
+            else:
+                return False
     
-    def is_intersection_t(self, r1, method='v3'):
+    def is_intersection_t(self, r1, method='v3', fast_test=False):
         """
         Test if a Ray intersect with the triangle mesh
 
@@ -742,6 +755,9 @@ class TriangleMesh(Shape):
             The ray to use for the intersection test
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
+        fast_test : bool
+            The optimisation is interesting with 50 - 100 triangles, and can be really significant with 
+            more than 1000 triangles (can be 100 times faster!)
         
         Returns
         -------
@@ -756,18 +772,30 @@ class TriangleMesh(Shape):
         Because it does not stop at the first intersection, but it finalize the complete loop to
         return the thit corresponding to the nearest triangle.
         """
-        thit = float("inf")
-        for itri in range(0, self.ntriangles):
-            p0 = Point(self.vertices[self.faces[itri,0],:])
-            p1 = Point(self.vertices[self.faces[itri,1],:])
-            p2 = Point(self.vertices[self.faces[itri,2],:])
-            triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
-            thit_bis, is_intersection_bis = triangle.is_intersection_t(r1, method=method)
-            if is_intersection_bis:
-                if thit > thit_bis:
-                    thit = thit_bis
-        if thit == float("inf"): return None, False 
-        return thit, True
+        if not fast_test:
+            thit = float("inf")
+            for itri in range(0, self.ntriangles):
+                p0 = Point(self.vertices[self.faces[itri,0],:])
+                p1 = Point(self.vertices[self.faces[itri,1],:])
+                p2 = Point(self.vertices[self.faces[itri,2],:])
+                triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                thit_bis, is_intersection_bis = triangle.is_intersection_t(r1, method=method)
+                if is_intersection_bis:
+                    if thit > thit_bis:
+                        thit = thit_bis
+            if thit == float("inf"): return None, False 
+            return thit, True
+        else:
+            p0 = Point(self.vertices[self.faces[:,0],:])
+            p1 = Point(self.vertices[self.faces[:,1],:])
+            p2 = Point(self.vertices[self.faces[:,2],:])
+            triangles = Triangle(p0, p1, p2, self.oTw, self.wTo)
+            thit_bis, is_intersection_bis = triangles.is_intersection_t(r1, method=method)
+            if np.any(is_intersection_bis):
+                near_id = np.nanargmin(thit_bis)
+                return thit_bis[near_id], True
+            else:
+                return None, False
     
     def area(self):
         """
