@@ -179,7 +179,6 @@ def test_vabs():
 def test_permute():
     v1 = gc.Vector(2., 3., 1.)
     assert (gc.permute(v1, 1, 0, 2) == gc.Vector(3.0, 2.0, 1.0))
-    assert (gc.permute(v1, np.array([1, 0, 2])) == gc.Vector(3.0, 2.0, 1.0))
 
     v1 = gc.Vector(5,2,10)
     v2 = gc.Vector(-4,-2,-1)

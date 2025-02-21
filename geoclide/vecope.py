@@ -432,13 +432,12 @@ def permute(a, ix=None, iy=None, iz=None):
     Parameters
     ----------
     a : Vector | Point | Normal
-    ix : int | np.ndarray
-        The index of the value we want to keep as a remplacement for the x component.
-        If ix is an np.ndarray -> the 1st component is ix and circumvent iy and iz parameters by the 2nd and 3th array components
-    iy : int, optional
-        The index of the value we want to keep as a remplacement for the y component.
-    iz : int, optional
-        The index of the value we want to keep as a remplacement for the z component.
+    ix : int | np.ndarray | list, optional
+        The index/indices of the value(s) we want to keep as a remplacement for the x component(s).
+    iy : int | np.ndarray | list, optional
+        The index/indices of the value(s) we want to keep as a remplacement for the y component(s).
+    iz : int | np.ndarray | list, optional
+        The index/indices of the value(s) we want to keep as a remplacement for the z component(s).
     
     Results
     -------
@@ -451,29 +450,31 @@ def permute(a, ix=None, iy=None, iz=None):
     >>> v1 = gc.Vector(2., 3., 1.)
     >>> gc.permute(v1, 1, 0, 2)
     Vector(3.0, 2.0, 1.0)
-    >>> gc.permute(v1, np.array([1, 0, 2]))
+    >>> gc.permute(v1, 1, 0, 2])
     Vector(3.0, 2.0, 1.0)
+    >>> p_set = np.array([[0.,0.,3.], [1.,0.,0.], [-0.5,0.,0.], [0.,-3.,0.]])
+    >>> p_set = gc.Point(p_set)
+    >>> gc.permute(p_set, [2,0,0,1], 1, 2).to_numpy()
+    array([[ 3. ,  0. ,  3. ],
+           [ 1. ,  0. ,  0. ],
+           [-0.5,  0. ,  0. ],
+           [ 0. , -3. ,  0. ]])
     """
     if not(isinstance(a, Vector) or isinstance(a, Point) or isinstance(a, Normal)):
         raise NameError('The parameter a must be a Vector or Point or Normal')
     if ix is None : ix = int(0)
     if iy is None : iy = int(1)
     if iz is None : iz = int(2)
-    if (isinstance(ix, np.ndarray) and len(ix.shape) == 1):
-        if len(ix) != 3:
-            raise ValueError("The size of the given array must be 3")
-        if (  not ( (isinstance(ix[0], np.integer)) and
-                    (isinstance(ix[1], np.integer)) and
-                    (isinstance(ix[2], np.integer)) )  ):
-            raise ValueError("The components of the given array must be integers")
-        iy = ix[1]
-        iz = ix[2]
-        ix = ix[0]
-    elif(not ( (isinstance(ix, int) or isinstance(ix, np.integer)) and
-               (isinstance(iy, int) or isinstance(iy, np.integer)) and
-               (isinstance(iz, int) or isinstance(iz, np.integer)) ) ):
-        raise ValueError("Wrong parameter value(s) for ix and/or iy and/or iz")
-    
-    if (isinstance(a, Vector)): return Vector(a[ix], a[iy], a[iz])
-    elif (isinstance(a, Point)): return Point(a[ix], a[iy], a[iz])
-    else: return Normal(a[ix], a[iy], a[iz])
+
+    if ( isinstance(ix, np.ndarray) or isinstance(ix, list) or
+         isinstance(iy, np.ndarray) or isinstance(iy, list) or
+         isinstance(iz, np.ndarray) or isinstance(iy, list)):
+        a_arr = a.to_numpy()
+    if ( isinstance(ix, np.ndarray) or isinstance(ix, list) ): ax = a_arr[np.arange(len(ix)), ix]
+    else: ax=a[ix]
+    if ( isinstance(iy, np.ndarray) or isinstance(iy, list) ): ay = a_arr[np.arange(len(iy)), iy]
+    else: ay=a[iy]
+    if ( isinstance(iz, np.ndarray) or isinstance(iz, list) ): az = a_arr[np.arange(len(iz)), iz]
+    else: az=a[iz]
+    return a.__class__(ax, ay, az)
+
