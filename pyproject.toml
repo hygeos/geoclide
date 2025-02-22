@@ -35,7 +35,8 @@ dependencies = [
     "matplotlib",
     "ipympl",
     "ipykernel",
-    "netcdf4"
+    "netcdf4",
+    "trimesh"
 ]
 
 [tool.setuptools]

@@ -15,3 +15,4 @@ dependencies:
 - ipympl
 - ipykernel
 - netcdf4
+- trimesh
