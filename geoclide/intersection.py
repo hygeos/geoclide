@@ -10,7 +10,7 @@ import numpy as np
 from datetime import datetime
 from geoclide.constante import VERSION
 
-def calc_intersection(shape, r1, method='v3'):
+def calc_intersection(shape, r1, **kwargs):
     """
     Performs intersection test between a shape and a ray and returns dataset
 
@@ -20,9 +20,8 @@ def calc_intersection(shape, r1, method='v3'):
         The shape used for the intersection
     r1 : Ray
         The ray used for the iuntersection
-    method : str, optional
-        Used in triangle intersection test. Only two choice  'v2' and 'v3'.
-        The 'v3' method have more robustness tests, and 'v2' is faster
+    **kwargs
+        The keyword arguments are passed on to intersect method
 
     Returns
     ------
@@ -89,10 +88,7 @@ def calc_intersection(shape, r1, method='v3'):
             phit = None
             nhit = None
     elif(issubclass(shape.__class__, Shape)):
-        if (isinstance(shape, Triangle) or isinstance(shape, TriangleMesh)):
-            thit, dg, is_intersection = shape.intersect(r1, method=method)
-        else:
-            thit, dg, is_intersection = shape.intersect(r1)
+        thit, dg, is_intersection = shape.intersect(r1, **kwargs)
         if is_intersection:
             phit = dg.p
             nhit = dg.n
