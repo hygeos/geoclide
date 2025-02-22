@@ -582,14 +582,14 @@ class BBox(object):
                    (p.y >= self.pmin.y) and (p.y <= self.pmax.y) and \
                    (p.z >= self.pmin.z) and (p.z <= self.pmax.z)
 
-    def is_intersection(self, r1) :
+    def is_intersection(self, r) :
         """
         Test if a ray intersects the BBox
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
 
         Returns
         -------
@@ -611,54 +611,10 @@ class BBox(object):
         >>> b1.is_intersection(r1)
         True
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        if isinstance(r1.o.x, np.ndarray):
-            s_comp = len(r1.o.x)
-            t0 = np.zeros(s_comp, dtype=np.float64)
-            t1 = np.full(s_comp, r1.maxt, dtype=np.float64)
-            is_intersection = np.full(s_comp, True)
-            invRayDir = np.zeros(s_comp, dtype=np.float64)
-            pmin = np.zeros((s_comp, 3), dtype=np.float64)
-            pmax = np.zeros((s_comp, 3), dtype=np.float64)
-            pmin[:,0] = self.pmin[0]
-            pmin[:,1] = self.pmin[1]
-            pmin[:,2] = self.pmin[2]
-            pmax[:,0] = self.pmax[0]
-            pmax[:,1] = self.pmax[1]
-            pmax[:,2] = self.pmax[2]
-            for i in range(3):
-                invRayDir[:] = math.inf
-                invRayDir[r1.d[i]!= 0] = 1. / r1.d[i][r1.d[i]!= 0]
-                tNear = (pmin[:,i] - r1.o[i]) * invRayDir
-                tFar  = (pmax[:,i] - r1.o[i]) * invRayDir
-                c1 = tNear > tFar
-                tNear[c1], tFar[c1] = tFar[c1], tNear[c1]
-                tFar *= 1 + 2*GAMMA3_F64
-                c2 = np.logical_and(tNear > t0, is_intersection)
-                c3 = np.logical_and(tFar < t1, is_intersection)
-                t0[c2] = tNear[c2]
-                t1[c3] = tFar[c3]
-                c4 = t0>t1
-                is_intersection[c4] = False
-                t0[c4] = 0.
-                t1[c4] = 0.
-            return is_intersection
-        else:
-            t0 = 0.
-            t1 = r1.maxt
-            for i in range(3):
-                if r1.d[i]!= 0 : invRayDir = 1. / r1.d[i]
-                else : invRayDir = math.inf
-                tNear = (self.pmin[i] - r1.o[i]) * invRayDir
-                tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
-                if (tNear > tFar): tNear, tFar = tFar, tNear
-                tFar *= 1 + 2*GAMMA3_F64
-                t0 = tNear if tNear > t0 else t0
-                t1 = tFar  if  tFar < t1 else t1
-                if (t0 > t1) : return False
-            return True
+        t0, t1, is_intersection = self.intersect(r)
+        return is_intersection
 
-    def intersect(self, r1) :
+    def intersect(self, r) :
         """
         Test if a ray intersects the BBox
 
@@ -669,7 +625,7 @@ class BBox(object):
 
         Parameters
         ----------
-        r1 : Ray
+        r : Ray
             The ray(s) to use for the intersection test
 
         Returns
@@ -701,46 +657,50 @@ class BBox(object):
         >>> r1[t1]
         Point(0.5, 0.5, 1.0)
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        if isinstance(r1.o.x, np.ndarray):
-            s_comp = len(r1.o.x)
-            t0 = np.zeros(s_comp, dtype=np.float64)
-            t1 = np.full(s_comp, r1.maxt, dtype=np.float64)
-            is_intersection = np.full(s_comp, True)
-            invRayDir = np.zeros(s_comp, dtype=np.float64)
-            pmin = np.zeros((s_comp, 3), dtype=np.float64)
-            pmax = np.zeros((s_comp, 3), dtype=np.float64)
-            pmin[:,0] = self.pmin[0]
-            pmin[:,1] = self.pmin[1]
-            pmin[:,2] = self.pmin[2]
-            pmax[:,0] = self.pmax[0]
-            pmax[:,1] = self.pmax[1]
-            pmax[:,2] = self.pmax[2]
-            for i in range(3):
-                invRayDir[:] = math.inf
-                invRayDir[r1.d[i]!= 0] = 1. / r1.d[i][r1.d[i]!= 0]
-                tNear = (pmin[:,i] - r1.o[i]) * invRayDir
-                tFar  = (pmax[:,i] - r1.o[i]) * invRayDir
-                c1 = tNear > tFar
-                tNear[c1], tFar[c1] = tFar[c1], tNear[c1]
-                tFar *= 1 + 2*GAMMA3_F64
-                c2 = np.logical_and(tNear > t0, is_intersection)
-                c3 = np.logical_and(tFar < t1, is_intersection)
-                t0[c2] = tNear[c2]
-                t1[c3] = tFar[c3]
-                c4 = t0>t1
-                is_intersection[c4] = False
-                t0[c4] = 0.
-                t1[c4] = 0.
+        if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
+        is_r_arr = isinstance(r.o.x, np.ndarray)
+        is_bbox_arr = isinstance(self.pmin.x, np.ndarray)
+        if is_r_arr or is_bbox_arr:
+            with np.errstate(divide='ignore', invalid='ignore'):
+                size = 1
+                if is_bbox_arr: size = max(size, len(self.pmin.x))
+                if is_r_arr: size = max(size, len(r.o.x))
+                t0 = np.zeros(size, dtype=np.float64)
+                t1 = np.full(size, r.maxt, dtype=np.float64)
+                is_intersection = np.full(size, True)
+                if is_r_arr:
+                    invRayDir = np.zeros(size, dtype=np.float64)
+                for i in range(3):
+                    c0 = r.d[i] != 0
+                    if is_r_arr:
+                        invRayDir[:] = math.inf
+                        invRayDir[c0] = 1. / r.d[i][c0]
+                    else:
+                        invRayDir = math.inf
+                        if c0 : invRayDir = 1. / r.d[i]
+                        else : invRayDir = math.inf
+                    tNear = (self.pmin[i] - r.o[i]) * invRayDir
+                    tFar  = (self.pmax[i] - r.o[i]) * invRayDir
+                    c1 = tNear > tFar
+                    tNear[c1], tFar[c1] = tFar[c1], tNear[c1]
+                    tFar *= 1 + 2*GAMMA3_F64
+                    c2 = np.logical_and(tNear > t0, is_intersection)
+                    c3 = np.logical_and(tFar < t1, is_intersection)
+                    t0[c2] = tNear[c2]
+                    t1[c3] = tFar[c3]
+                    c4 = t0>t1
+                    is_intersection[c4] = False
+                    t0[c4] = 0.
+                    t1[c4] = 0.
             return t0, t1, is_intersection
         else:
             t0 = 0.
-            t1 = r1.maxt
+            t1 = r.maxt
             for i in range(3):
-                if r1.d[i]!= 0 : invRayDir = 1. / r1.d[i]
+                if r.d[i]!= 0 : invRayDir = 1. / r.d[i]
                 else : invRayDir = math.inf
-                tNear = (self.pmin[i] - r1.o[i]) * invRayDir
-                tFar  = (self.pmax[i] - r1.o[i]) * invRayDir
+                tNear = (self.pmin[i] - r.o[i]) * invRayDir
+                tFar  = (self.pmax[i] - r.o[i]) * invRayDir
                 if (tNear > tFar): tNear, tFar = tFar, tNear
                 tFar *= 1 + 2*GAMMA3_F64
                 t0 = tNear if tNear > t0 else t0
