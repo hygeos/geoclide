@@ -351,3 +351,32 @@ def test_bbox_ray_array():
     b_set_bis = b_set_bis.union(set_p2)
     assert (np.all(b_set.pmin == b_set_bis.pmin))
     assert (np.all(b_set.pmax == b_set_bis.pmax))
+
+    nx = 2
+    ny = 2
+    nz = 2
+    x = np.linspace(0., 1., nx)
+    y = np.linspace(0., 1., ny)
+    z = np.linspace(0., 1., nz)
+    x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
+    pmin_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
+    x = np.linspace(1., 2., nx)
+    y = np.linspace(1., 2., ny)
+    z = np.linspace(1., 2., nz)
+    x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
+    pmax_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
+    r0 = gc.Ray(gc.Point(-2., 0., 0.25), gc.normalize(gc.Vector(1, 0., 0.5)))
+    pmin = gc.Point(pmin_arr)
+    pmax = gc.Point(pmax_arr)
+    b_set = gc.BBox(pmin, pmax)
+    t0, t1, is_int1 = b_set.intersect(r0)
+    nboxes = pmin_arr.shape[0]
+    t0_ = np.zeros(nboxes, dtype=np.float64)
+    t1_ = np.zeros_like(t0)
+    is_int_ = np.full(nboxes, False, dtype=bool)
+    for ib in range (0, nboxes):
+        bi = gc.BBox(gc.Point(pmin_arr[ib,:]), gc.Point(pmax_arr[ib,:]))
+        t0_[ib], t1_[ib], is_int_[ib] = bi.intersect(r0)
+    assert (np.all(t0 == t0_))
+    assert (np.all(t1 == t1_))
+    assert (np.all(is_int1 == is_int_))
