@@ -84,63 +84,6 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
 
 ## Examples
 
-### How to visualize 3d objects
-The TriangleMesh class have the method plot (which use matplotlib plot_trisurf function).
-The quadric objects can be converted to TriangleMesh (using the method to_trianglemesh) to be visualized.
-
-#### Exemple 1: disk, annulus and partial annulus
-
-```python
-
->>> import geoclide as gc
->>> msh = gc.Disk(radius=1.).to_trianglemesh() # disk
->>> msh.plot(color='green', edgecolor='k')
->>> msh = gc.Disk(radius=1., inner_radius=0.5).to_trianglemesh() # annulus
->>> msh.plot(color='green', edgecolor='k')
->>> msh = gc.Disk(radius=1., inner_radius=0.5, phimax=270).to_trianglemesh() # partial annulus
->>> msh.plot(color='green', edgecolor='k')
-```
-
-<p align="center">
-<img src="geoclide/img/disk.png" width="250">
-<img src="geoclide/img/annulus.png" width="250">
-<img src="geoclide/img/partial_annulus.png" width="250">
-</p>
-
-
-#### Example 2: sphere and partial spheres
-
-```python
->>> import geoclide as gc
->>> msh = gc.Sphere(radius=1.).to_trianglemesh() # sphere
->>> msh.plot(color='blue', edgecolor='k')
->>> msh = gc.Sphere(radius=1., zmax=0.5).to_trianglemesh() # partial sphere
->>> msh.plot(color='blue', edgecolor='k')
->>> msh = gc.Sphere(radius=1., zmax=0.5, phimax=180.).to_trianglemesh() # partial sphere
->>> msh.plot(color='blue', edgecolor='k')
-```
-<p align="center">
-<img src="geoclide/img/sphere.png" width="250">
-<img src="geoclide/img/sphere_partial1.png" width="250">
-<img src="geoclide/img/sphere_partial2.png" width="250">
-</p>
-
-
-#### Example 3: spheroid (prolate and oblate)
-
-```python
->>> import geoclide as gc
->>> msh = gc.Spheroid(radius_xy=1, radius_z=3).to_trianglemesh() # prolate spheroid
->>> msh.plot(color='red', edgecolor='k')
->>> msh = gc.Spheroid(radius_xy=1, radius_z=0.8).to_trianglemesh() # oblate sphere
->>> msh.plot(color='cyan', edgecolor='k')
-```
-<p align="center">
-<img src="geoclide/img/prolate.png" width="250">
-<img src="geoclide/img/oblate.png" width="250">
-</p>
-
-
 ### Basic example
 <details>
   <summary>Click here</summary>
@@ -265,3 +208,123 @@ The quadric objects can be converted to TriangleMesh (using the method to_triang
   print ("Satellite position (sp case) ", ds_sp['phit'].values)
   ```
 </details>
+
+
+### How to create quadrics (disk, sphere and spheroid)
+
+<details>
+  <summary>Click here</summary>
+
+  #### disk, annulus and partial annulus
+
+  ```python
+
+  >>> import geoclide as gc
+  >>> msh = gc.Disk(radius=1.).to_trianglemesh() # disk
+  >>> msh.plot(color='green', edgecolor='k')
+  >>> msh = gc.Disk(radius=1., inner_radius=0.5).to_trianglemesh() # annulus
+  >>> msh.plot(color='green', edgecolor='k')
+  >>> msh = gc.Disk(radius=1., inner_radius=0.5, phimax=270).to_trianglemesh() # partial annulus
+  >>> msh.plot(color='green', edgecolor='k')
+  ```
+
+  <p align="center">
+  <img src="geoclide/img/disk.png" width="250">
+  <img src="geoclide/img/annulus.png" width="250">
+  <img src="geoclide/img/partial_annulus.png" width="250">
+  </p>
+
+
+  #### sphere and partial spheres
+
+  ```python
+  >>> import geoclide as gc
+  >>> msh = gc.Sphere(radius=1.).to_trianglemesh() # sphere
+  >>> msh.plot(color='blue', edgecolor='k')
+  >>> msh = gc.Sphere(radius=1., zmax=0.5).to_trianglemesh() # partial sphere
+  >>> msh.plot(color='blue', edgecolor='k')
+  >>> msh = gc.Sphere(radius=1., zmax=0.5, phimax=180.).to_trianglemesh() # partial sphere
+  >>> msh.plot(color='blue', edgecolor='k')
+  ```
+  <p align="center">
+  <img src="geoclide/img/sphere.png" width="250">
+  <img src="geoclide/img/sphere_partial1.png" width="250">
+  <img src="geoclide/img/sphere_partial2.png" width="250">
+  </p>
+
+
+  #### spheroid (prolate and oblate)
+
+  ```python
+  >>> import geoclide as gc
+  >>> msh = gc.Spheroid(radius_xy=1, radius_z=3).to_trianglemesh() # prolate spheroid
+  >>> msh.plot(color='red', edgecolor='k')
+  >>> msh = gc.Spheroid(radius_xy=1, radius_z=0.8).to_trianglemesh() # oblate sphere
+  >>> msh.plot(color='cyan', edgecolor='k')
+  ```
+  <p align="center">
+  <img src="geoclide/img/prolate.png" width="250">
+  <img src="geoclide/img/oblate.png" width="250">
+  </p>
+</details>
+
+### Accelerate the calculations using numpy ndarray
+
+<details>
+  <summary>Click here</summary>
+
+  #### Bounding Box - ray intersection tests
+  Here we create 1000000 bounding boxes and 1 ray
+  ```python
+  >>> import numpy as np
+  >>> import geoclide as gc
+  >>> from time import process_time
+  >>> nx = 100
+  >>> ny = 100
+  >>> nz = 100
+  >>> x = np.linspace(0., nx-1, nx, np.float64)
+  >>> y = np.linspace(0., ny-1, ny, np.float64)
+  >>> z = np.linspace(0., nz-1, nz, np.float64)
+  >>> x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
+  >>> pmin_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
+  >>> x = np.linspace(1., nx, nx, np.float64)
+  >>> y = np.linspace(1., ny, ny, np.float64)
+  >>> z = np.linspace(1., nz, nz, np.float64)
+  >>> x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
+  >>> pmax_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
+  >>> r0 = gc.Ray(gc.Point(-2., 0., 0.25), gc.normalize(gc.Vector(1, 0., 0.5)))
+  ```
+  
+  Test intersection tests using a loop:
+  ```python
+  >>> start = process_time()
+  ... nboxes = pmin_arr.shape[0]
+  ... t0_ = np.zeros(nboxes, dtype=np.float64)
+  ... t1_ = np.zeros_like(t0_)
+  ... is_int_ = np.full(nboxes, False, dtype=bool)
+  ... 
+  ... for ib in range (0, nboxes):
+  ...     bi = gc.BBox(gc.Point(pmin_arr[ib,:]), gc.Point(pmax_arr[ib,:]))
+  ...     t0_[ib], t1_[ib], is_int_[ib] = bi.intersect(r0)
+  ... end = process_time()
+  ... 
+  >>> end - start # elapsed time in seconds
+  6.878407069000001
+  ```
+
+  Test intersection tests using ndarray calculations (only since geoclide 2.0.0)
+  ```python
+  >>> start = process_time()
+  ... pmin = gc.Point(pmin_arr)
+  ... pmax = gc.Point(pmax_arr)
+  ... b_set = gc.BBox(pmin, pmax)
+  ... t0, t1, is_int1 = b_set.intersect(r0)
+  ... end = process_time()
+  ...
+  >>> end - start # elapsed time in seconds
+  0.06373456800000099
+  ```
+  
+  In this example, we are approximately 100 times faster by using ndarray calculations.
+</details>
+
