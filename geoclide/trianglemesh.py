@@ -119,7 +119,7 @@ class Triangle(Shape):
         else:
             raise ValueError("Only 'v2' and 'v3' are valid values for method parameter")   
 
-    def is_intersection_v2_t(self, r1):
+    def is_intersection_v2_t(self, r, diag_calc=False):
         """
         Test if a Ray intersect with the triangle using mainly pbrt v2 method
 
@@ -135,18 +135,108 @@ class Triangle(Shape):
         is_intersection : bool
             If there is an intersection -> True, else False
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        p0 = self.p0t
-        p1 = self.p1t
-        p2 = self.p2t
-        e1 = p1 - p0
-        e2 = p2 - p0
-        s1 = gv.cross(ray.d, e2)
-        divisor = gv.dot(s1, e1)
+        if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
+        is_r_arr = isinstance(r.o.x, np.ndarray)
+        is_p_arr = isinstance(self.p0.x, np.ndarray)
 
-        if (isinstance(p0.x, np.ndarray)):
+        if (is_p_arr and is_r_arr and not diag_calc):
+            # TODO remove the loop in one of the next release
             with np.errstate(divide='ignore', invalid='ignore'):
+                nrays = len(r.o.x)
+                ntriangles = len(self.p0.x)
+                is_intersection_2d = np.full((ntriangles, nrays), True, dtype=bool)
+                t_2d = np.zeros((ntriangles, nrays), dtype=np.float64)
+                if ntriangles >= nrays:
+                    r_o_arr = r.o.to_numpy()
+                    r_d_arr = r.d.to_numpy()
+                    rmint = np.zeros(nrays, dtype=np.float64)
+                    rmaxt = np.zeros_like(rmint)
+                    rmint[:] = r.mint
+                    rmaxt[:] = r.maxt
+                    for ir in range (0, nrays):
+                        ray = Ray(Point(r_o_arr[ir,:]), Vector(r_d_arr[ir,:]), rmint[ir], rmaxt[ir])
+                        p0 = self.p0t
+                        p1 = self.p1t
+                        p2 = self.p2t
+
+                        e1 = p1 - p0
+                        e2 = p2 - p0
+                        s1 = gv.cross(ray.d, e2)
+                        divisor = gv.dot(s1, e1)
+
+                        is_intersection = np.full(ntriangles, True, dtype=bool)
+                        c1 = divisor == 0
+                        invDivisor = 1./divisor
+
+                        # compute the first barycentric coordinate
+                        s = ray.o - p0
+                        b1 = gv.dot(s, s1) * invDivisor
+                        c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
+
+                        # compute the second barycentric coordinate
+                        s2 = gv.cross(s, e1)
+                        b2 = gv.dot(ray.d, s2) * invDivisor
+                        c3 = np.logical_or(b2 < 0, b1+b2 > 1)
+
+                        # compute the time at the intersection point
+                        t = gv.dot(e2, s2) * invDivisor
+                        c4 = np.logical_or(t < ray.mint, t > ray.maxt)
+
+                        c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                        is_intersection[c5] = False
+                        t[c5] = None
+                        is_intersection_2d[:,ir] = is_intersection
+                        t_2d[:,ir] = t
+                    return t_2d, is_intersection_2d
+                else: # nrays > npoints
+                    ray = Ray(r)
+                    p0t_arr = self.p0t.to_numpy()
+                    p1t_arr = self.p1t.to_numpy()
+                    p2t_arr = self.p2t.to_numpy()
+                    for ip in range (0, ntriangles):
+                        p0 = Point(p0t_arr[ip,:])
+                        p1 = Point(p1t_arr[ip,:])
+                        p2 = Point(p2t_arr[ip,:])
+
+                        e1 = p1 - p0
+                        e2 = p2 - p0
+                        s1 = gv.cross(ray.d, e2)
+                        divisor = gv.dot(s1, e1)
+                        is_intersection = np.full(nrays, True, dtype=bool)
+                        c1 = divisor == 0
+                        invDivisor = 1./divisor
+
+                        # compute the first barycentric coordinate
+                        s = ray.o - p0
+                        b1 = gv.dot(s, s1) * invDivisor
+                        c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
+
+                        # compute the second barycentric coordinate
+                        s2 = gv.cross(s, e1)
+                        b2 = gv.dot(ray.d, s2) * invDivisor
+                        c3 = np.logical_or(b2 < 0, b1+b2 > 1)
+
+                        # compute the time at the intersection point
+                        t = gv.dot(e2, s2) * invDivisor
+                        c4 = np.logical_or(t < ray.mint, t > ray.maxt)
+
+                        c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                        is_intersection[c5] = False
+                        t[c5] = None
+                        is_intersection_2d[:,ip] = is_intersection
+                        t_2d[:,ip] = t
+                    return t_2d, is_intersection_2d
+        elif (is_p_arr or is_r_arr):
+            with np.errstate(divide='ignore', invalid='ignore'):
+                ray = Ray(r)
+                p0 = self.p0t
+                p1 = self.p1t
+                p2 = self.p2t
+                e1 = p1 - p0
+                e2 = p2 - p0
+                s1 = gv.cross(ray.d, e2)
+                divisor = gv.dot(s1, e1)
+
                 size = len(p0.x)
                 is_intersection = np.full(size, True)
                 c1 = divisor == 0
@@ -170,6 +260,15 @@ class Triangle(Shape):
                 is_intersection[c5] = False
                 t[c5] = None
         else:
+            ray = Ray(r)
+            p0 = self.p0t
+            p1 = self.p1t
+            p2 = self.p2t
+            e1 = p1 - p0
+            e2 = p2 - p0
+            s1 = gv.cross(ray.d, e2)
+            divisor = gv.dot(s1, e1)
+
             if (divisor == 0):
                 return None, False
             invDivisor = 1./divisor
