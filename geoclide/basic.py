@@ -252,7 +252,7 @@ class Normal(object):
     """
     Parameters
     ----------
-     x : float | 1-D ndarray | 2-D ndarray | Point | Vector | Normal, optional
+    x : float | 1-D ndarray | 2-D ndarray | Point | Vector | Normal, optional
         The x component(s) of the normal (see notes)
     y : float | 1-D ndarray, optional
         The y component(s) of the normal
@@ -582,7 +582,7 @@ class BBox(object):
                    (p.y >= self.pmin.y) and (p.y <= self.pmax.y) and \
                    (p.z >= self.pmin.z) and (p.z <= self.pmax.z)
 
-    def is_intersection(self, r) :
+    def is_intersection(self, r, diag_calc=False) :
         """
         Test if a ray intersects the BBox
 
@@ -590,10 +590,14 @@ class BBox(object):
         ----------
         r : Ray
             The ray(s) to use for the intersection test
+        diag_calc : bool
+            Perform diagonal calculations in case BBox and Ray have ndarray point components, 
+            meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
+            r(i) and bbox(i). The same size for the BBox and the Ray is required.
 
         Returns
         -------
-        out : bool | 1-D ndarray
+        out : bool | 1-D ndarray| 2-D ndarray
             If there is at least 1 intersection -> True, else False.
 
         Examples
@@ -611,10 +615,10 @@ class BBox(object):
         >>> b1.is_intersection(r1)
         True
         """
-        t0, t1, is_intersection = self.intersect(r)
+        t0, t1, is_intersection = self.intersect(r, diag_calc=diag_calc)
         return is_intersection
 
-    def intersect(self, r) :
+    def intersect(self, r, diag_calc=False) :
         """
         Test if a ray intersects the BBox
 
@@ -627,16 +631,20 @@ class BBox(object):
         ----------
         r : Ray
             The ray(s) to use for the intersection test
+        diag_calc : bool
+            Perform diagonal calculations in case BBox and Ray have ndarray point components, 
+            meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
+            r(i) and bbox(i). The same size for the BBox and the Ray is required.
 
         Returns
         -------
-        t0 : float | 1-D ndarray
+        t0 : float | 1-D ndarray | 2-D ndarray
             The t ray variable for the first intersection.
             In case of only 1 intersection it represents nothing. 
-        t1 : float | 1-D ndarray
+        t1 : float | 1-D ndarray | 2-D ndarray
             The t ray variable for the second intersection.
             In case of only 1 intersection, t1 becomes the t ray variable for the first intersection.
-        is_intersection : bool | 1-D ndarray
+        is_intersection : bool | 1-D ndarray | 2-D ndarray
             If there is at least 1 intersection -> True, else False.
 
         Examples
@@ -660,7 +668,33 @@ class BBox(object):
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         is_r_arr = isinstance(r.o.x, np.ndarray)
         is_bbox_arr = isinstance(self.pmin.x, np.ndarray)
-        if is_r_arr or is_bbox_arr:
+        if is_r_arr and is_bbox_arr and not diag_calc:
+            with np.errstate(divide='ignore', invalid='ignore'):
+                b_size = len(self.pmin.x)
+                r_size = len(r.o.x)
+                t0 = np.zeros((b_size, r_size), dtype=np.float64)
+                t1 = np.full((b_size, r_size), r.maxt, dtype=np.float64)
+                is_intersection = np.full((b_size, r_size), True)
+                invRayDir = np.zeros(r_size, dtype=np.float64)
+                for i in range(3):
+                        c0 = r.d[i] != 0
+                        invRayDir[:] = math.inf
+                        invRayDir[c0] = 1. / r.d[i][c0]
+                        tNear = (self.pmin[i][:,None] - r.o[i][None,:]) * invRayDir
+                        tFar  = (self.pmax[i][:,None] - r.o[i][None,:]) * invRayDir
+                        c1 = tNear > tFar
+                        tNear[c1], tFar[c1] = tFar[c1], tNear[c1]
+                        tFar *= 1 + 2*GAMMA3_F64
+                        c2 = np.logical_and(tNear > t0, is_intersection)
+                        c3 = np.logical_and(tFar < t1, is_intersection)
+                        t0[c2] = tNear[c2]
+                        t1[c3] = tFar[c3]
+                        c4 = t0>t1
+                        is_intersection[c4] = False
+                        t0[c4] = 0.
+                        t1[c4] = 0.
+            return t0, t1, is_intersection
+        elif is_r_arr or is_bbox_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
                 size = 1
                 if is_bbox_arr: size = max(size, len(self.pmin.x))
