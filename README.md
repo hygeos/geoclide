@@ -220,12 +220,12 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   ```python
 
   >>> import geoclide as gc
-  >>> msh = gc.Disk(radius=1.).to_trianglemesh() # disk
-  >>> msh.plot(color='green', edgecolor='k')
-  >>> msh = gc.Disk(radius=1., inner_radius=0.5).to_trianglemesh() # annulus
-  >>> msh.plot(color='green', edgecolor='k')
-  >>> msh = gc.Disk(radius=1., inner_radius=0.5, phimax=270).to_trianglemesh() # partial annulus
-  >>> msh.plot(color='green', edgecolor='k')
+  >>> disk = gc.Disk(radius=1.)
+  >>> disk.plot(color='green', edgecolor='k')
+  >>> annulus = gc.Disk(radius=1., inner_radius=0.5)
+  >>> annulus.plot(color='green', edgecolor='k')
+  >>> partial_annulus = gc.Disk(radius=1., inner_radius=0.5, phimax=270)
+  >>> partial_annulus.plot(color='green', edgecolor='k')
   ```
 
   <p align="center">
@@ -239,12 +239,12 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
 
   ```python
   >>> import geoclide as gc
-  >>> msh = gc.Sphere(radius=1.).to_trianglemesh() # sphere
-  >>> msh.plot(color='blue', edgecolor='k')
-  >>> msh = gc.Sphere(radius=1., zmax=0.5).to_trianglemesh() # partial sphere
-  >>> msh.plot(color='blue', edgecolor='k')
-  >>> msh = gc.Sphere(radius=1., zmax=0.5, phimax=180.).to_trianglemesh() # partial sphere
-  >>> msh.plot(color='blue', edgecolor='k')
+  >>> sphere = gc.Sphere(radius=1.)
+  >>> sphere.plot(color='blue', edgecolor='k')
+  >>> partial_sphere1 = gc.Sphere(radius=1., zmax=0.5)
+  >>> partial_sphere1.plot(color='blue', edgecolor='k')
+  >>> partial_sphere2 = gc.Sphere(radius=1., zmax=0.5, phimax=180.)
+  >>> partial_sphere2.plot(color='blue', edgecolor='k')
   ```
   <p align="center">
   <img src="geoclide/img/sphere.png" width="250">
@@ -257,10 +257,10 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
 
   ```python
   >>> import geoclide as gc
-  >>> msh = gc.Spheroid(radius_xy=1, radius_z=3).to_trianglemesh() # prolate spheroid
-  >>> msh.plot(color='red', edgecolor='k')
-  >>> msh = gc.Spheroid(radius_xy=1, radius_z=0.8).to_trianglemesh() # oblate sphere
-  >>> msh.plot(color='cyan', edgecolor='k')
+  >>> prolate = gc.Spheroid(radius_xy=1, radius_z=3)
+  >>> prolate.plot(color='red', edgecolor='k')
+  >>> oblate = gc.Spheroid(radius_xy=1, radius_z=0.8)
+  >>> oblate.plot(color='cyan', edgecolor='k')
   ```
   <p align="center">
   <img src="geoclide/img/prolate.png" width="250">
@@ -327,7 +327,7 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   
   In this example, we are approximately 100 times faster by using ndarray calculations.
   </details>
-  
+
   #### Bounding BBox - Ray intersection test (multiples bboxes and multiple rays)
   <details>
   <summary>Click here</summary>

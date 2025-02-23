@@ -295,6 +295,20 @@ class Sphere(Shape):
         theta_max = max(theta_zmin, theta_zmax)
         return create_sphere_trianglemesh(self.radius, reso_theta, reso_phi, theta_min, theta_max,
                                           self.phi_max, self.oTw, self.wTo)
+    
+    def plot(self, **kwargs):
+        """
+        Plot the sphere
+
+        - The sphere is first converted to a triangle mesh then the TriangleMesh 
+          plot method is used
+
+        Parameters
+        ----------
+        **kwargs
+            The keyword arguments are passed on to the TriangleMesh plot method
+        """
+        return self.to_trianglemesh().plot(**kwargs)
 
         
 
@@ -544,7 +558,7 @@ class Spheroid(Shape):
         Returns
         -------
         mesh : TriangleMesh
-            The sphere converted to a triangle mesh
+            The spheroid converted to a triangle mesh
         """
         rescale_xyz = get_scale_tf(self.alpha, self.alpha, self.gamma)
         msh = create_sphere_trianglemesh(radius=1, reso_theta=reso_theta, reso_phi=reso_phi)
@@ -552,6 +566,20 @@ class Spheroid(Shape):
         for iver in range (0, msh.nvertices):
             vertices_t[iver,:] = rescale_xyz[Point(msh.vertices[iver,:])].to_numpy()
         return TriangleMesh(vertices_t, msh.faces, oTw=self.oTw, wTo=self.wTo)
+    
+    def plot(self, **kwargs):
+        """
+        Plot the spheroid
+
+        - The spheroid is first converted to a triangle mesh then the TriangleMesh 
+          plot method is used
+
+        Parameters
+        ----------
+        **kwargs
+            The keyword arguments are passed on to the TriangleMesh plot method
+        """
+        return self.to_trianglemesh().plot(**kwargs)
     
 
 class Disk(Shape):
@@ -788,3 +816,17 @@ class Disk(Shape):
         """
         return create_disk_trianglemesh(self.radius, self.inner_radius, reso, self.phi_max,
                                         self.z_height, self.oTw, self.wTo)
+    
+    def plot(self, **kwargs):
+        """
+        Plot the disk
+
+        - The disk is first converted to a triangle mesh then the TriangleMesh 
+          plot method is used
+
+        Parameters
+        ----------
+        **kwargs
+            The keyword arguments are passed on to the TriangleMesh plot method
+        """
+        return self.to_trianglemesh().plot(**kwargs)
