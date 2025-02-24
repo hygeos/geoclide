@@ -247,6 +247,15 @@ def face_forward(a, b):
             if np.any(cond): a_bis[cond,:] *= -1
             if(isinstance(a, Vector)): return Vector(a_bis)
             else: return Normal(a_bis)
+        elif isinstance(b.x, np.ndarray):
+            a_bis = np.zeros_like(b.to_numpy())
+            a_bis[:,0] = a.x
+            a_bis[:,1] = a.y
+            a_bis[:,2] = a.z
+            cond = dot(a, b) < 0
+            if np.any(cond): a_bis[cond,:] *= -1
+            if(isinstance(a, Vector)): return Vector(a_bis)
+            else: return Normal(a_bis)
         else:
             return (a*-1) if (dot(a, b) < 0) else a
     else:
