@@ -126,13 +126,13 @@ class Triangle(Shape):
         Parameters
         ----------
         r1 : Ray
-            The ray to use for the intersection test
+            The ray(s) to use for the intersection test
         
         Returns
         -------
-        thit : float
+        thit : float | 1-D ndarray | 2-D ndarray
             The t ray variable for its first intersection at the shape surface
-        is_intersection : bool
+        is_intersection : bool | 1-D ndarray | 2-D ndarray
             If there is an intersection -> True, else False
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
@@ -193,10 +193,10 @@ class Triangle(Shape):
                     p0t_arr = self.p0t.to_numpy()
                     p1t_arr = self.p1t.to_numpy()
                     p2t_arr = self.p2t.to_numpy()
-                    for ip in range (0, ntriangles):
-                        p0 = Point(p0t_arr[ip,:])
-                        p1 = Point(p1t_arr[ip,:])
-                        p2 = Point(p2t_arr[ip,:])
+                    for itri in range (0, ntriangles):
+                        p0 = Point(p0t_arr[itri,:])
+                        p1 = Point(p1t_arr[itri,:])
+                        p2 = Point(p2t_arr[itri,:])
 
                         e1 = p1 - p0
                         e2 = p2 - p0
@@ -223,8 +223,8 @@ class Triangle(Shape):
                         c5 = np.logical_or.reduce((c1, c2, c3, c4))
                         is_intersection[c5] = False
                         t[c5] = None
-                        is_intersection_2d[:,ip] = is_intersection
-                        t_2d[:,ip] = t
+                        is_intersection_2d[itri,:] = is_intersection
+                        t_2d[itri,:] = t
                     return t_2d, is_intersection_2d
         elif (is_p_arr or is_r_arr):
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -539,7 +539,7 @@ class Triangle(Shape):
         else:
             raise ValueError("Only 'v2' and 'v3' are valid values for method parameter")   
         
-    def intersect_v2(self, r1):
+    def intersect_v2(self, r, diag_calc=False):
         """
         Test if a Ray intersect with the triangle using mainly pbrt v2 method,
         and return intersection information
@@ -547,105 +547,255 @@ class Triangle(Shape):
         Parameters
         ----------
         r1 : Ray
-            The ray to use for the intersection test
+            The ray(s) to use for the intersection test
         
         Returns
         -------
-        thit : float
+        thit : float | 1-D ndarray | 2-D ndarray
             The t ray variable for its first intersection at the shape surface
-        dg : DifferentialGeometry
+        dg : DifferentialGeometry | 1-D ndarray
             The parametric parameters at the intersection point
-        is_intersection : bool
+        is_intersection : bool | 1-D ndarray | 2-D ndarray
             If there is an intersection -> True, else False
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        p0 = self.p0t
-        p1 = self.p1t
-        p2 = self.p2t
-        e1 = p1 - p0
-        e2 = p2 - p0
-        s1 = gv.cross(ray.d, e2)
-        divisor = gv.dot(s1, e1)
+        if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
+        is_r_arr = isinstance(r.o.x, np.ndarray)
+        is_p_arr = isinstance(self.p0.x, np.ndarray)
 
-        if (isinstance(p0.x, np.ndarray)):
+        if (is_p_arr and is_r_arr and not diag_calc):
+            # TODO remove the loop in one of the next release
             with np.errstate(divide='ignore', invalid='ignore'):
-                size = len(p0.x)
-                is_intersection = np.full(size, True)
-                c1 = divisor == 0
+                nrays = len(r.o.x)
+                ntriangles = len(self.p0.x)
+                is_intersection_2d = np.full((ntriangles, nrays), True, dtype=bool)
+                t_2d = np.zeros((ntriangles, nrays), dtype=np.float64)
+                if ntriangles >= nrays:
+                    dg_2d = np.full(nrays, None, dtype=DifferentialGeometry)
+                    r_o_arr = r.o.to_numpy()
+                    r_d_arr = r.d.to_numpy()
+                    rmint = np.zeros(nrays, dtype=np.float64)
+                    rmaxt = np.zeros_like(rmint)
+                    rmint[:] = r.mint
+                    rmaxt[:] = r.maxt
+
+                    p0 = self.p0t
+                    p1 = self.p1t
+                    p2 = self.p2t
+                    e1 = p1 - p0
+                    e2 = p2 - p0
+
+                    # compute triangle partial derivatives
+                    uvs = np.array([[0., 0.], [1., 0.], [1., 1.]])
+
+                    # compute deltas for triangle partial derivatives
+                    du1 = uvs[0][0] - uvs[2][0]
+                    du2 = uvs[1][0] - uvs[2][0]
+                    dv1 = uvs[0][1] - uvs[2][1]
+                    dv2 = uvs[1][1] - uvs[2][1]
+                    dp1 = p0 - p2
+                    dp2 = p1 - p2
+                    determinant = du1 * dv2 - dv1 * du2
+
+                    with np.errstate(divide='ignore', invalid='ignore'):
+                        if (determinant == 0):
+                            dpdu, dpdv = gv.coordinate_system(gv.normalize(gv.cross(e2, e1)))
+                        else:
+                            invdet = 1./determinant
+                            dpdu = ( dp1*dv2   - dp2*dv1) * invdet
+                            dpdv = (dp1*(-du2) + dp2*du1) * invdet
+
+                    for ir in range (0, nrays):
+                        ray = Ray(Point(r_o_arr[ir,:]), Vector(r_d_arr[ir,:]), rmint[ir], rmaxt[ir])
+
+                        s1 = gv.cross(ray.d, e2)
+                        divisor = gv.dot(s1, e1)
+
+                        is_intersection = np.full(ntriangles, True, dtype=bool)
+                        c1 = divisor == 0
+                        invDivisor = 1./divisor
+
+                        # compute the first barycentric coordinate
+                        s = ray.o - p0
+                        b1 = gv.dot(s, s1) * invDivisor
+                        c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
+
+                        # compute the second barycentric coordinate
+                        s2 = gv.cross(s, e1)
+                        b2 = gv.dot(ray.d, s2) * invDivisor
+                        c3 = np.logical_or(b2 < 0, b1+b2 > 1)
+
+                        # compute the time at the intersection point
+                        t = gv.dot(e2, s2) * invDivisor
+                        c4 = np.logical_or(t < ray.mint, t > ray.maxt)
+
+                        c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                        is_intersection[c5] = False
+                        t[c5] = None
+                        is_intersection_2d[:,ir] = is_intersection
+                        t_2d[:,ir] = t
+
+                        # interpolate $(u,v)$ triangle parametric coordinates
+                        b0 = 1 - b1 - b2
+                        tu = b0*uvs[0][0] + b1*uvs[1][0] + b2*uvs[2][0]
+                        tv = b0*uvs[0][1] + b1*uvs[1][1] + b2*uvs[2][1]
+
+                        # fill the DifferentialGeometry and thit
+                        dg_2d[ir] = DifferentialGeometry(ray[t], dpdu, dpdv, tu, tv, ray.d, self)
+                    return t_2d, dg_2d, is_intersection_2d
+                else: # nrays > npoints
+                    dg_2d = np.full(ntriangles, None, dtype=DifferentialGeometry)
+                    ray = Ray(r)
+                    p0t_arr = self.p0t.to_numpy()
+                    p1t_arr = self.p1t.to_numpy()
+                    p2t_arr = self.p2t.to_numpy()
+
+                    # compute triangle partial derivatives
+                    uvs = np.array([[0., 0.], [1., 0.], [1., 1.]])
+
+                    # compute deltas for triangle partial derivatives
+                    du1 = uvs[0][0] - uvs[2][0]
+                    du2 = uvs[1][0] - uvs[2][0]
+                    dv1 = uvs[0][1] - uvs[2][1]
+                    dv2 = uvs[1][1] - uvs[2][1]
+                    for itri in range (0, ntriangles):
+                        p0 = Point(p0t_arr[itri,:])
+                        p1 = Point(p1t_arr[itri,:])
+                        p2 = Point(p2t_arr[itri,:])
+
+                        e1 = p1 - p0
+                        e2 = p2 - p0
+                        s1 = gv.cross(ray.d, e2)
+                        divisor = gv.dot(s1, e1)
+                        is_intersection = np.full(nrays, True, dtype=bool)
+                        c1 = divisor == 0
+                        invDivisor = 1./divisor
+
+                        # compute the first barycentric coordinate
+                        s = ray.o - p0
+                        b1 = gv.dot(s, s1) * invDivisor
+                        c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
+
+                        # compute the second barycentric coordinate
+                        s2 = gv.cross(s, e1)
+                        b2 = gv.dot(ray.d, s2) * invDivisor
+                        c3 = np.logical_or(b2 < 0, b1+b2 > 1)
+
+                        # compute the time at the intersection point
+                        t = gv.dot(e2, s2) * invDivisor
+                        c4 = np.logical_or(t < ray.mint, t > ray.maxt)
+
+                        c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                        is_intersection[c5] = False
+                        t[c5] = None
+                        is_intersection_2d[itri,:] = is_intersection
+                        t_2d[itri,:] = t
+
+                        dp1 = p0 - p2
+                        dp2 = p1 - p2
+                        determinant = du1 * dv2 - dv1 * du2
+                        with np.errstate(divide='ignore', invalid='ignore'):
+                            if (determinant == 0):
+                                dpdu, dpdv = gv.coordinate_system(gv.normalize(gv.cross(e2, e1)))
+                            else:
+                                invdet = 1./determinant
+                                dpdu = ( dp1*dv2   - dp2*dv1) * invdet
+                                dpdv = (dp1*(-du2) + dp2*du1) * invdet
+                            
+                            # interpolate $(u,v)$ triangle parametric coordinates
+                            b0 = 1 - b1 - b2
+                            tu = b0*uvs[0][0] + b1*uvs[1][0] + b2*uvs[2][0]
+                            tv = b0*uvs[0][1] + b1*uvs[1][1] + b2*uvs[2][1]
+
+                        # fill the DifferentialGeometry and thit
+                        dg_2d[itri] = DifferentialGeometry(ray[t], dpdu, dpdv, tu, tv, ray.d, self)
+                    return t_2d, dg_2d, is_intersection_2d
+        else: # Case 2-D diag, 1-D or scalar
+            ray = Ray(r)
+            p0 = self.p0t
+            p1 = self.p1t
+            p2 = self.p2t
+            e1 = p1 - p0
+            e2 = p2 - p0
+            s1 = gv.cross(ray.d, e2)
+            divisor = gv.dot(s1, e1)
+            if (is_p_arr or is_r_arr):
+                with np.errstate(divide='ignore', invalid='ignore'):
+                    size = len(p0.x)
+                    is_intersection = np.full(size, True)
+                    c1 = divisor == 0
+                    invDivisor = 1./divisor
+
+                    # compute the first barycentric coordinate
+                    s = ray.o - p0
+                    b1 = gv.dot(s, s1) * invDivisor
+                    c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
+
+                    # compute the second barycentric coordinate
+                    s2 = gv.cross(s, e1)
+                    b2 = gv.dot(ray.d, s2) * invDivisor
+                    c3 = np.logical_or(b2 < 0, b1+b2 > 1)
+
+                    # compute the time at the intersection point
+                    t = gv.dot(e2, s2) * invDivisor
+                    c4 = np.logical_or(t < ray.mint, t > ray.maxt)
+
+                    c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                    is_intersection[c5] = False
+                    t[c5] = None
+            else:
+                if (divisor == 0):
+                    return None, None, False
                 invDivisor = 1./divisor
 
                 # compute the first barycentric coordinate
                 s = ray.o - p0
                 b1 = gv.dot(s, s1) * invDivisor
-                c2 = np.logical_or(b1 < -0.00000001, b1 > 1.00000001)
+                if (b1 < -0.00000001 or  b1 > 1.00000001):
+                    return None, None, False
 
                 # compute the second barycentric coordinate
                 s2 = gv.cross(s, e1)
                 b2 = gv.dot(ray.d, s2) * invDivisor
-                c3 = np.logical_or(b2 < 0, b1+b2 > 1)
+                if (b2 < 0 or  b1+b2 > 1):
+                    return None, None, False
 
                 # compute the time at the intersection point
                 t = gv.dot(e2, s2) * invDivisor
-                c4 = np.logical_or(t < ray.mint, t > ray.maxt)
+                if (t < ray.mint or t > ray.maxt):
+                    return None, None, False
+                
+                is_intersection = True
 
-                c5 = np.logical_or.reduce((c1, c2, c3, c4))
-                is_intersection[c5] = False
-                t[c5] = None
-        else:
-            if (divisor == 0):
-                return None, None, False
-            invDivisor = 1./divisor
+            # compute triangle partial derivatives
+            uvs = np.array([[0., 0.], [1., 0.], [1., 1.]])
 
-            # compute the first barycentric coordinate
-            s = ray.o - p0
-            b1 = gv.dot(s, s1) * invDivisor
-            if (b1 < -0.00000001 or  b1 > 1.00000001):
-                return None, None, False
+            # compute deltas for triangle partial derivatives
+            du1 = uvs[0][0] - uvs[2][0]
+            du2 = uvs[1][0] - uvs[2][0]
+            dv1 = uvs[0][1] - uvs[2][1]
+            dv2 = uvs[1][1] - uvs[2][1]
+            dp1 = p0 - p2
+            dp2 = p1 - p2
+            determinant = du1 * dv2 - dv1 * du2
 
-            # compute the second barycentric coordinate
-            s2 = gv.cross(s, e1)
-            b2 = gv.dot(ray.d, s2) * invDivisor
-            if (b2 < 0 or  b1+b2 > 1):
-                return None, None, False
+            with np.errstate(divide='ignore', invalid='ignore'):
+                if (determinant == 0):
+                    dpdu, dpdv = gv.coordinate_system(gv.normalize(gv.cross(e2, e1)))
+                else:
+                    invdet = 1./determinant
+                    dpdu = ( dp1*dv2   - dp2*dv1) * invdet
+                    dpdv = (dp1*(-du2) + dp2*du1) * invdet
+                
+                # interpolate $(u,v)$ triangle parametric coordinates
+                b0 = 1 - b1 - b2
+                tu = b0*uvs[0][0] + b1*uvs[1][0] + b2*uvs[2][0]
+                tv = b0*uvs[0][1] + b1*uvs[1][1] + b2*uvs[2][1]
 
-            # compute the time at the intersection point
-            t = gv.dot(e2, s2) * invDivisor
-            if (t < ray.mint or t > ray.maxt):
-                return None, None, False
-            
-            is_intersection = True
+            # fill the DifferentialGeometry and thit
+            dg = DifferentialGeometry(ray[t], dpdu, dpdv, tu, tv, ray.d, self)
+            thit = t
 
-        # compute triangle partial derivatives
-        uvs = np.array([[0., 0.], [1., 0.], [1., 1.]])
-
-        # compute deltas for triangle partial derivatives
-        du1 = uvs[0][0] - uvs[2][0]
-        du2 = uvs[1][0] - uvs[2][0]
-        dv1 = uvs[0][1] - uvs[2][1]
-        dv2 = uvs[1][1] - uvs[2][1]
-        dp1 = p0 - p2
-        dp2 = p1 - p2
-        determinant = du1 * dv2 - dv1 * du2
-
-        with np.errstate(divide='ignore', invalid='ignore'):
-            if (determinant == 0):
-                dpdu, dpdv = gv.coordinate_system(gv.normalize(gv.cross(e2, e1)))
-            else:
-                invdet = 1./determinant
-                dpdu = ( dp1*dv2   - dp2*dv1) * invdet
-                dpdv = (dp1*(-du2) + dp2*du1) * invdet
-            
-            # interpolate $(u,v)$ triangle parametric coordinates
-            b0 = 1 - b1 - b2
-            tu = b0*uvs[0][0] + b1*uvs[1][0] + b2*uvs[2][0]
-            tv = b0*uvs[0][1] + b1*uvs[1][1] + b2*uvs[2][1]
-
-        # fill the DifferentialGeometry and thit
-        dg = DifferentialGeometry(ray[t], dpdu, dpdv, tu, tv, r1.d, self)
-        thit = t
-
-        return thit, dg, is_intersection
+            return thit, dg, is_intersection
     
     def intersect_v3(self, r1):
         """
