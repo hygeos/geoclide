@@ -110,6 +110,7 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
     is_r_arr = isinstance(r.o.x, np.ndarray)
     is_obj_arr = len(dpdu.shape) == 2
     ds = xr.Dataset(coords={'xyz':np.arange(3)})
+    not_int = np.logical_not(is_intersection)
 
     if (not isinstance(t, np.ndarray)):
         ds['is_intersection'] = xr.DataArray(is_intersection)
@@ -134,13 +135,20 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         ds['maxt'] = r.maxt
     elif (is_obj_arr and not is_r_arr): # multiple obj and 1 ray
         ds.attrs.update({'nobj': len(t)})
+        ds['is_intersection'] = xr.DataArray(is_intersection, dims=['nobj'])
         ds['thit'] = xr.DataArray(t, dims=['nobj'])
+        u[not_int] = None
+        v[not_int] = None
         ds['u'] = xr.DataArray(u, dims=['nobj'])
         ds['v'] = xr.DataArray(v, dims=['nobj'])
-        p = r[t]
+        p = r[t].to_numpy()
         ds['phit'] = xr.DataArray(p, dims=['nobj', 'xyz'])
         n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
-        ds['nhit'] = xr.DataArray(n.to_numpy(), dims=['nobj', 'xyz'])
+        n = n.to_numpy()
+        n[not_int] = None
+        ds['nhit'] = xr.DataArray(n, dims=['nobj', 'xyz'])
+        dpdu[not_int] = None
+        dpdv[not_int] = None
         ds['dpdu'] = xr.DataArray(dpdu, dims=['nobj', 'xyz'])
         ds['dpdv'] = xr.DataArray(dpdv, dims=['nobj', 'xyz'])
         ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['xyz'])
@@ -148,39 +156,58 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         ds['mint'] = r.mint
         ds['maxt'] = r.maxt 
     elif (not is_obj_arr and is_r_arr): # 1 obj and multiple rays
-        ds.attrs.update({'nrays': len(r.o.x)})
+        nrays = len(t)
+        ds.attrs.update({'nrays': nrays})
+        ds['is_intersection'] = xr.DataArray(is_intersection, dims=['nrays'])
         ds['thit'] = xr.DataArray(t, dims=['nrays'])
+        u[not_int] = None
+        v[not_int] = None
         ds['u'] = xr.DataArray(u, dims=['nrays'])
         ds['v'] = xr.DataArray(v, dims=['nrays'])
-        p = r[t]
+        p = r[t].to_numpy()
         ds['phit'] = xr.DataArray(p, dims=['nrays', 'xyz'])
         n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
-        ds['nhit'] = xr.DataArray(n.to_numpy(), dims=['nrays', 'xyz'])
-        ds['dpdu'] = xr.DataArray(dpdu, dims=['xyz'])
-        ds['dpdv'] = xr.DataArray(dpdv, dims=['xyz'])
+        n = n.to_numpy()
+        n[not_int] = None
+        ds['nhit'] = xr.DataArray(n, dims=['nrays', 'xyz'])
+        dpdu = np.full((nrays, 3), dpdu, dtype=np.float64)
+        dpdv = np.full((nrays, 3), dpdv, dtype=np.float64)
+        dpdu[not_int] = None
+        dpdv[not_int] = None
+        ds['dpdu'] = xr.DataArray(dpdu, dims=['nrays', 'xyz'])
+        ds['dpdv'] = xr.DataArray(dpdv, dims=['nrays', 'xyz'])
         ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['nrays', 'xyz'])
         ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['nrays', 'xyz'])
-        mint = np.zeros(ds.nrays, dtype=np.float64)
+        mint = np.zeros(nrays, dtype=np.float64)
         maxt = np.zeros_like(mint)
         mint[:] = r.mint
         maxt[:] = r.maxt
         ds['mint'] = mint
         ds['maxt'] = maxt
     elif (diag_calc): # multiple shape and rays but calc only the diagonal
-        size = len(t)
-        ds.attrs.update({'nobj': size, 'nrays': size, 'ndiag':size})
+        ndiag = len(t)
+        ds.attrs.update({'nobj': ndiag, 'nrays': ndiag, 'ndiag':ndiag})
+        ds['is_intersection'] = xr.DataArray(is_intersection, dims=['ndiag'])
         ds['thit'] = xr.DataArray(t, dims=['ndiag'])
+        u[not_int] = None
+        v[not_int] = None
         ds['u'] = xr.DataArray(u, dims=['ndiag'])
         ds['v'] = xr.DataArray(v, dims=['ndiag'])
-        p = r[t]
+        p = r[t].to_numpy()
         ds['phit'] = xr.DataArray(p, dims=['ndiag', 'xyz'])
         n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
-        ds['nhit'] = xr.DataArray(n.to_numpy(), dims=['ndiag', 'xyz'])
-        ds['dpdu'] = xr.DataArray(dpdu, dims=['nobj', 'xyz'])
-        ds['dpdv'] = xr.DataArray(dpdv, dims=['nobj', 'xyz'])
+        n = n.to_numpy()
+        n[not_int] = None
+        ds['nhit'] = xr.DataArray(n, dims=['ndiag', 'xyz'])
+        dpdu = np.full((ndiag, 3), dpdu, dtype=np.float64)
+        dpdv = np.full((ndiag, 3), dpdv, dtype=np.float64)
+        dpdu[not_int] = None
+        dpdv[not_int] = None
+        ds['dpdu'] = xr.DataArray(dpdu, dims=['ndiag', 'xyz'])
+        ds['dpdv'] = xr.DataArray(dpdv, dims=['ndiag', 'xyz'])
         ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['nrays', 'xyz'])
         ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['nrays', 'xyz'])
-        mint = np.zeros(ds.diag, dtype=np.float64)
+        mint = np.zeros(ndiag, dtype=np.float64)
         maxt = np.zeros_like(mint)
         mint[:] = r.mint
         maxt[:] = r.maxt
@@ -191,7 +218,6 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         nobj = t.shape[0]
         ds.attrs.update({'nobj': nobj, 'nrays': nrays})
         ds['is_intersection'] = xr.DataArray(is_intersection, dims=['nobj', 'nrays'] )
-        not_int = np.logical_not(is_intersection)
         ds['thit'] = xr.DataArray(t, dims=['nobj', 'nrays'])
         u[not_int] = None
         v[not_int] = None
