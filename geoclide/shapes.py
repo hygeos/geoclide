@@ -71,154 +71,142 @@ class DifferentialGeometry(object):
             raise ValueError('Problem with parameter(s)')
 
 
-def get_intersect_dataset(t, is_intersection, dpdu, dpdv, u, v, r, shape, diag_calc):
+def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, v=None,
+                          dpdu=None, dpdv=None, diag_calc=False):
     """
+    Create dataset containing the intersection test information
+
+    Parameters
+    ----------
+    shape_name : str
+        The shape class name
+    r : Ray
+        The ray(s) used for the intersection test
+    t : float | 1-D ndarray | 2-D ndarray, optional
+        The t ray variable for its first intersection at the shape surface
+    is_intersection : bool | 1-D ndarray | 2-D ndarray, optional
+        If there is an intersection -> True, else False
+    u : float | 1-D ndarray | 2-D ndarray, optional
+        The u coordinate of the parametric representation
+    v : float | 1-D ndarray | 2-D ndarray, optional
+        The u coordinate of the parametric representation
+    dpdu : 1-D ndarray | 2-D ndarray, optional
+        The surface partial derivative of phit with respect to u
+    dpdv : 1-D ndarray | 2-D ndarray, optional
+        The surface partial derivative of phit with respect to v
+    diag_cal : bool, optional
+            This indicates whether a diagonal calculation has been performed
+
+    Returns
+    -------
+    out : xr.Dataset
+        Look-up table with the intersection information
+        
     """
+    if not isinstance(r, Ray): raise ValueError('The r parameter must be a Ray')
+    if dpdu is None: dpdu = np.array([np.nan, np.nan, np.nan])
+    if dpdv is None: dpdv = np.array([np.nan, np.nan, np.nan])
 
     is_r_arr = isinstance(r.o.x, np.ndarray)
     is_obj_arr = len(dpdu.shape) == 2
     ds = xr.Dataset(coords={'xyz':np.arange(3)})
 
     if (not isinstance(t, np.ndarray)):
+        ds['is_intersection'] = xr.DataArray(is_intersection)
         ds['thit'] = t
-        ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
         ds['u'] = u
-        ds['u'].attrs = {'description':'The u coordinate of the parametric representation'}
         ds['v'] = v
-        ds['v'].attrs = {'description':'The v coordinate of the parametric representation'}
-        p = r[t]
+        if t is None: p = np.array([np.nan, np.nan, np.nan])
+        else:
+            p = r[t]
+            p = p.to_numpy()
         ds['phit'] = xr.DataArray(p, dims='xyz')
-        ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
-        n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
-        ds['nhit'] = xr.DataArray(n.to_numpy(), dims='xyz')
-        ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
+        if t is None: n = np.array([np.nan, np.nan, np.nan])
+        else:
+            n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
+            n = n.to_numpy()
+        ds['nhit'] = xr.DataArray(n, dims='xyz')
         ds['dpdu'] = xr.DataArray(dpdu, dims='xyz')
-        ds['dpdu'].attrs = {'type': 'Vector', 'description':'The surface partial derivative of phit with respect to u'}
         ds['dpdv'] = xr.DataArray(dpdv, dims='xyz')
-        ds['dpdv'].attrs = {'type': 'Vector', 'description':'The surface partial derivative of phit with respect to v'}
         ds['o'] = xr.DataArray(r.o.to_numpy(), dims='xyz')
-        ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
         ds['d'] = xr.DataArray(r.d.to_numpy(), dims='xyz')
-        ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
         ds['mint'] = r.mint
-        ds['mint'].attrs = {'description':'the mint attribut of the ray'}
         ds['maxt'] = r.maxt
-        ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
     elif (is_obj_arr and not is_r_arr): # multiple obj and 1 ray
         ds.attrs.update({'nobj': len(t)})
         ds['thit'] = xr.DataArray(t, dims=['nobj'])
-        ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
         ds['u'] = xr.DataArray(u, dims=['nobj'])
-        ds['u'].attrs = {'description':'The u coordinate of the parametric representation'}
         ds['v'] = xr.DataArray(v, dims=['nobj'])
-        ds['v'].attrs = {'description':'The v coordinate of the parametric representation'}
         p = r[t]
         ds['phit'] = xr.DataArray(p, dims=['nobj', 'xyz'])
-        ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
         n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
         ds['nhit'] = xr.DataArray(n.to_numpy(), dims=['nobj', 'xyz'])
-        ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
         ds['dpdu'] = xr.DataArray(dpdu, dims=['nobj', 'xyz'])
-        ds['dpdu'].attrs = {'type': 'Vector', 'description':'The surface partial derivative of phit with respect to u'}
         ds['dpdv'] = xr.DataArray(dpdv, dims=['nobj', 'xyz'])
-        ds['dpdv'].attrs = {'type': 'Vector', 'description':'The surface partial derivative of phit with respect to v'}
         ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['xyz'])
-        ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
         ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['xyz'])
-        ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
         ds['mint'] = r.mint
-        ds['mint'].attrs = {'description':'the mint attribut of the ray'}
-        ds['maxt'] = r.maxt
-        ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}  
+        ds['maxt'] = r.maxt 
     elif (not is_obj_arr and is_r_arr): # 1 obj and multiple rays
         ds.attrs.update({'nrays': len(r.o.x)})
         ds['thit'] = xr.DataArray(t, dims=['nrays'])
-        ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
         ds['u'] = xr.DataArray(u, dims=['nrays'])
-        ds['u'].attrs = {'description':'The u coordinate of the parametric representation'}
         ds['v'] = xr.DataArray(v, dims=['nrays'])
-        ds['v'].attrs = {'description':'The v coordinate of the parametric representation'}
         p = r[t]
         ds['phit'] = xr.DataArray(p, dims=['nrays', 'xyz'])
-        ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
         n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
         ds['nhit'] = xr.DataArray(n.to_numpy(), dims=['nrays', 'xyz'])
-        ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
         ds['dpdu'] = xr.DataArray(dpdu, dims=['xyz'])
-        ds['dpdu'].attrs = {'type': 'Vector', 'description':'The surface partial derivative of phit with respect to u'}
         ds['dpdv'] = xr.DataArray(dpdv, dims=['xyz'])
-        ds['dpdv'].attrs = {'type': 'Vector', 'description':'The surface partial derivative of phit with respect to v'}
         ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['nrays', 'xyz'])
-        ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
         ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['nrays', 'xyz'])
-        ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
         mint = np.zeros(ds.nrays, dtype=np.float64)
         maxt = np.zeros_like(mint)
         mint[:] = r.mint
         maxt[:] = r.maxt
         ds['mint'] = mint
-        ds['mint'].attrs = {'description':'the mint attribut of the ray'}
         ds['maxt'] = maxt
-        ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
     elif (diag_calc): # multiple shape and rays but calc only the diagonal
         size = len(t)
         ds.attrs.update({'nobj': size, 'nrays': size, 'ndiag':size})
         ds['thit'] = xr.DataArray(t, dims=['ndiag'])
-        ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
         ds['u'] = xr.DataArray(u, dims=['ndiag'])
-        ds['u'].attrs = {'description':'The u coordinate of the parametric representation'}
         ds['v'] = xr.DataArray(v, dims=['ndiag'])
-        ds['v'].attrs = {'description':'The v coordinate of the parametric representation'}
         p = r[t]
         ds['phit'] = xr.DataArray(p, dims=['ndiag', 'xyz'])
-        ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
         n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
         ds['nhit'] = xr.DataArray(n.to_numpy(), dims=['ndiag', 'xyz'])
-        ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
         ds['dpdu'] = xr.DataArray(dpdu, dims=['nobj', 'xyz'])
-        ds['dpdu'].attrs = {'type': 'Vector', 'description':'The surface partial derivative of phit with respect to u'}
         ds['dpdv'] = xr.DataArray(dpdv, dims=['nobj', 'xyz'])
-        ds['dpdv'].attrs = {'type': 'Vector', 'description':'The surface partial derivative of phit with respect to v'}
         ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['nrays', 'xyz'])
-        ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
         ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['nrays', 'xyz'])
-        ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
         mint = np.zeros(ds.diag, dtype=np.float64)
         maxt = np.zeros_like(mint)
         mint[:] = r.mint
         maxt[:] = r.maxt
         ds['mint'] = mint
-        ds['mint'].attrs = {'description':'the mint attribut of the ray'}
         ds['maxt'] = maxt
-        ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
     else: # multiple shape and rays, 2-D output
         nrays = t.shape[1]
         nobj = t.shape[0]
         ds.attrs.update({'nobj': nobj, 'nrays': nrays})
         ds['is_intersection'] = xr.DataArray(is_intersection, dims=['nobj', 'nrays'] )
-        ds['is_intersection'].attrs = {'description':'tells if there is an intersection between the ray and the shape'}
         not_int = np.logical_not(is_intersection)
         ds['thit'] = xr.DataArray(t, dims=['nobj', 'nrays'])
-        ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
         u[not_int] = None
         v[not_int] = None
         ds['u'] = xr.DataArray(u, dims=['nobj', 'nrays'])
-        ds['u'].attrs = {'description':'The u coordinate of the parametric representation'}
         ds['v'] = xr.DataArray(v, dims=['nobj', 'nrays'])
-        ds['v'].attrs = {'description':'The v coordinate of the parametric representation'}
 
         mint = np.zeros(nrays, dtype=np.float64)
         maxt = np.zeros_like(mint)
         mint[:] = r.mint
         maxt[:] = r.maxt
         ds['mint'] = mint
-        ds['mint'].attrs = {'description':'the mint attribut of the ray'}
         ds['maxt'] = maxt
-        ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
         ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['nrays', 'xyz'])
-        ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
         ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['nrays', 'xyz'])
-        ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
+        
 
         n = np.zeros((nobj, nrays,3), dtype=np.float64)
         p = np.zeros_like(n)
@@ -240,19 +228,27 @@ def get_intersect_dataset(t, is_intersection, dpdu, dpdv, u, v, r, shape, diag_c
         
         # n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
         ds['phit'] = xr.DataArray(p, dims=['nobj', 'nrays', 'xyz'])
-        ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
         ds['nhit'] = xr.DataArray(n, dims=['nobj', 'nrays', 'xyz'])
-        ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
+        
         dpdu_2d = np.repeat(dpdu[:,np.newaxis,:], nrays, axis=1)
         dpdv_2d = np.repeat(dpdv[:,np.newaxis,:], nrays, axis=1)
         dpdu_2d[not_int,:] = None
         dpdv_2d[not_int,:] = None
         ds['dpdu'] = xr.DataArray(dpdu_2d, dims=['nobj', 'nrays', 'xyz'])
-        ds['dpdu'].attrs = {'type': 'Vector', 'description':'The surface partial derivative of phit with respect to u'}
         ds['dpdv'] = xr.DataArray(dpdv_2d, dims=['nobj', 'nrays', 'xyz'])
-        ds['dpdv'].attrs = {'type': 'Vector', 'description':'The surface partial derivative of phit with respect to v'}
-        
 
-    ds.attrs = {'shape': shape.__class__.__name__}
+    ds['is_intersection'].attrs = {'description':'this variable tells if there is an intersection between the ray and the shape'}
+    ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
+    ds['u'].attrs = {'description':'the u coordinate of the parametric representation'}
+    ds['v'].attrs = {'description':'the v coordinate of the parametric representation'}
+    ds['mint'].attrs = {'description':'the mint attribut of the ray'}
+    ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
+    ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
+    ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
+    ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
+    ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
+    ds['dpdu'].attrs = {'type': 'Vector', 'description':'the surface partial derivative of phit with respect to u'}
+    ds['dpdv'].attrs = {'type': 'Vector', 'description':'the surface partial derivative of phit with respect to v'}
+    ds.attrs = {'shape': shape_name}
     return ds
 
