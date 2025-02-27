@@ -6,6 +6,8 @@ from geoclide.vecope import normalize, cross, face_forward
 import numpy as np
 from geoclide.transform import Transform
 import xarray as xr
+from datetime import datetime
+from geoclide.constante import VERSION
 
 
 class Shape(object):
@@ -276,5 +278,7 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
     ds['dpdu'].attrs = {'type': 'Vector', 'description':'the surface partial derivative of phit with respect to u'}
     ds['dpdv'].attrs = {'type': 'Vector', 'description':'the surface partial derivative of phit with respect to v'}
     ds.attrs = {'shape': shape_name}
+    date = datetime.now().strftime("%Y-%m-%d")  
+    ds.attrs.update({'date':date, 'version': VERSION})
     return ds
 
