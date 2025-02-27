@@ -90,7 +90,7 @@ def calc_intersection(shape, r1, **kwargs):
     elif(issubclass(shape.__class__, Shape)):
         method = kwargs.get('method', None)
         if method == 'v2':
-             return get_intersect_dataset(*shape.intersect(r1, **kwargs))
+            return shape.intersect(r1, **kwargs)
         else:
             thit, dg, is_intersection = shape.intersect(r1, **kwargs)
         if is_intersection:

@@ -631,7 +631,7 @@ class BBox(object):
         ----------
         r : Ray
             The ray(s) to use for the intersection test
-        diag_calc : bool
+        diag_calc : bool, optional
             Perform diagonal calculations in case BBox and Ray have ndarray point components, 
             meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
             r(i) and bbox(i). The same size for the BBox and the Ray is required.

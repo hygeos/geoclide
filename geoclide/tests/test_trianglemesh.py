@@ -20,7 +20,7 @@ def test_triangle_intersection():
 
     ray = gc.Ray(o=gc.Point(0., 0., 1.), d=gc.normalize(gc.Vector(0.999,0.999,-1.)))
 
-    ds_v2 = get_intersect_dataset(*tri.intersect_v2(ray))
+    ds_v2 = tri.intersect_v2(ray)
     thitv3, dgv3, is_intv3 = tri.intersect_v3(ray)
 
     assert (ds_v2['is_intersection'].item()), 'Problem with v2 intersection test'
@@ -42,7 +42,7 @@ def test_triangle_intersection():
     # Bellow the ray cannot reach the triangle
     ray = gc.Ray(o=gc.Point(0., 0., 1.), d=gc.normalize(gc.Vector(0.999,0.999,-1.)), maxt=1.7)
 
-    ds_v2 = get_intersect_dataset(*tri.intersect_v2(ray))
+    ds_v2 = tri.intersect_v2(ray)
     thitv3, dgv3, is_intv3 = tri.intersect_v3(ray)
     
     assert (ds_v2['is_intersection'].item() is False), 'Problem with v2 intersection test'
@@ -59,7 +59,7 @@ def test_triangle_transform():
 
     ray = gc.Ray(o=gc.Point(0., 0., 4.8), d=gc.normalize(gc.Vector(1.,0.,0.)))
 
-    ds_v2 = get_intersect_dataset(*tri.intersect(ray, method='v2'))
+    ds_v2 = tri.intersect(ray, method='v2')
     thitv3, dgv3, is_intv3 = tri.intersect(ray, method='v3')
 
     assert (ds_v2['is_intersection'].item()), 'Problem with v2 intersection test'
@@ -203,8 +203,8 @@ def test_trianglemesh_to_dataset():
 def test_trianglemesh_fast_tests():
     msh = gc.Spheroid(radius_xy=1., radius_z=3).to_trianglemesh(reso_theta=45, reso_phi=90)
     r0 = gc.Ray(gc.Point(5., -0.2, 2.5), gc.Vector(-1., 0., 0.))
-    ds_v2 = get_intersect_dataset(*msh.intersect(r0, 'v2', fast_test=False))
-    ds_v2f = get_intersect_dataset(*msh.intersect(r0, 'v2', fast_test=True))
+    ds_v2 = msh.intersect(r0, 'v2', fast_test=False)
+    ds_v2f = msh.intersect(r0, 'v2', fast_test=True)
     t_v3f, dg_v3f, is_int_v3f = msh.intersect(r0, 'v3', fast_test=True)
     assert (ds_v2['is_intersection'].item() == ds_v2f['is_intersection'].item())
     assert (ds_v2['is_intersection'].item() == is_int_v3f)
@@ -254,8 +254,7 @@ def test_triangle_2d_arr1():
     p2 = gc.Point(msh.vertices[msh.faces[:,2],:])
     triangles = gc.Triangle(p0, p1, p2)
     r_set = gc.Ray(o_set, d_set)
-    res = triangles.intersect_v2(r_set, diag_calc=False)
-    ds = get_intersect_dataset(*res)
+    ds = triangles.intersect_v2(r_set, diag_calc=False)
 
     is_int_2d = np.full((nobj, nrays), True, dtype=bool)
     t_2d = np.zeros((nobj, nrays), dtype=np.float64)
@@ -275,7 +274,7 @@ def test_triangle_2d_arr1():
         p2 = gc.Point(msh.vertices[msh.faces[itri,2],:])
         triangle = gc.Triangle(p0, p1, p2)
         for ir in range (0, nrays):
-            res_sca = triangle.intersect_v2(list_rays[ir])
+            res_sca = triangle.intersect_v2(list_rays[ir], ds_output=False)
             if res_sca[2] is not None:
                 ds_sca = get_intersect_dataset(*res_sca)
                 is_int_2d[itri,ir] = ds_sca['is_intersection'].values
@@ -325,8 +324,7 @@ def test_triangle_2d_arr2():
     p2 = gc.Point(msh.vertices[msh.faces[:,2],:])
     triangles = gc.Triangle(p0, p1, p2)
     r_set = gc.Ray(o_set, d_set)
-    res = triangles.intersect_v2(r_set, diag_calc=False)
-    ds = get_intersect_dataset(*res)
+    ds = triangles.intersect_v2(r_set, diag_calc=False)
 
     is_int_2d = np.full((nobj, nrays), True, dtype=bool)
     t_2d = np.zeros((nobj, nrays), dtype=np.float64)
@@ -346,7 +344,7 @@ def test_triangle_2d_arr2():
         p2 = gc.Point(msh.vertices[msh.faces[itri,2],:])
         triangle = gc.Triangle(p0, p1, p2)
         for ir in range (0, nrays):
-            res_sca = triangle.intersect_v2(list_rays[ir])
+            res_sca = triangle.intersect_v2(list_rays[ir], ds_output=False)
             if res_sca[2] is not None:
                 ds_sca = get_intersect_dataset(*res_sca)
                 is_int_2d[itri,ir] = ds_sca['is_intersection'].values
@@ -387,8 +385,7 @@ def test_triangle_1d_arr1():
     p1 = gc.Point(msh.vertices[msh.faces[:,1],:])
     p2 = gc.Point(msh.vertices[msh.faces[:,2],:])
     triangles = gc.Triangle(p0, p1, p2)
-    res = triangles.intersect_v2(r0, diag_calc=False)
-    ds = get_intersect_dataset(*res)
+    ds = triangles.intersect_v2(r0, diag_calc=False)
 
     is_int_1d = np.full((msh.ntriangles), True, dtype=bool)
     t_1d = np.zeros((msh.ntriangles), dtype=np.float64)
@@ -404,7 +401,7 @@ def test_triangle_1d_arr1():
         p1 = gc.Point(msh.vertices[msh.faces[itri,1],:])
         p2 = gc.Point(msh.vertices[msh.faces[itri,2],:])
         triangle = gc.Triangle(p0, p1, p2)
-        res_sca = triangle.intersect_v2(r0)
+        res_sca = triangle.intersect_v2(r0, ds_output=False)
         if res_sca[2] is not None:
             ds_sca = get_intersect_dataset(*res_sca)
             is_int_1d[itri] = ds_sca['is_intersection'].values
@@ -453,8 +450,7 @@ def test_triangle_1d_arr2():
     p2 = gc.Point(np.array([0.21850801, 0.67249851, 0.70710678]))
     triangle = gc.Triangle(p0, p1, p2)
 
-    res = triangle.intersect_v2(r_set, diag_calc=False)
-    ds = get_intersect_dataset(*res)
+    ds = triangle.intersect_v2(r_set, diag_calc=False)
 
     is_int_1d = np.full((nrays), True, dtype=bool)
     t_1d = np.zeros((nrays), dtype=np.float64)
@@ -469,7 +465,7 @@ def test_triangle_1d_arr2():
         list_rays.append(gc.Ray(gc.Point(o_set_arr[ir,:]), gc.Vector(d_set_arr[ir,:])))
 
     for ir in range (0, nrays):
-        res_sca = triangle.intersect_v2(list_rays[ir])
+        res_sca = triangle.intersect_v2(list_rays[ir], ds_output=False)
         if (res_sca[2] is not None):
             ds_sca = get_intersect_dataset(*res_sca)
             is_int_1d[ir] = ds_sca['is_intersection'].values
@@ -518,8 +514,8 @@ def test_triangle_1d_arr3():
     p1 = gc.Point(msh.vertices[msh.faces[:,1],:])
     p2 = gc.Point(msh.vertices[msh.faces[:,2],:])
     triangles = gc.Triangle(p0, p1, p2)
-    res = triangles.intersect_v2(r_set, diag_calc=True)
-    ds = get_intersect_dataset(*res)
+    ds = triangles.intersect_v2(r_set, diag_calc=True)
+
 
     ndiag = nrays
     is_int_1d = np.full((ndiag), True, dtype=bool)
@@ -539,7 +535,7 @@ def test_triangle_1d_arr3():
         p1 = gc.Point(msh.vertices[msh.faces[idiag,1],:])
         p2 = gc.Point(msh.vertices[msh.faces[idiag,2],:])
         triangle = gc.Triangle(p0, p1, p2)
-        res_sca = triangle.intersect_v2(list_rays[idiag])
+        res_sca = triangle.intersect_v2(list_rays[idiag], ds_output=False)
         if (res_sca[2] is not None):
             ds_sca = get_intersect_dataset(*res_sca)
             is_int_1d[idiag] = ds_sca['is_intersection'].values
