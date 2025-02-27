@@ -4,7 +4,7 @@
 from geoclide.basic import Ray, BBox
 from geoclide.quadrics import Sphere, Spheroid, Disk
 from geoclide.trianglemesh import Triangle, TriangleMesh
-from geoclide.shapes import Shape
+from geoclide.shapes import Shape, get_intersect_dataset
 import xarray as xr
 import numpy as np
 from datetime import datetime
@@ -88,7 +88,11 @@ def calc_intersection(shape, r1, **kwargs):
             phit = None
             nhit = None
     elif(issubclass(shape.__class__, Shape)):
-        thit, dg, is_intersection = shape.intersect(r1, **kwargs)
+        method = kwargs.get('method', None)
+        if method == 'v2':
+             return get_intersect_dataset(*shape.intersect(r1, **kwargs))
+        else:
+            thit, dg, is_intersection = shape.intersect(r1, **kwargs)
         if is_intersection:
             phit = dg.p
             nhit = dg.n
