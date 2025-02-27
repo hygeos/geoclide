@@ -21,32 +21,32 @@ def test_triangle_intersection():
     ray = gc.Ray(o=gc.Point(0., 0., 1.), d=gc.normalize(gc.Vector(0.999,0.999,-1.)))
 
     ds_v2 = tri.intersect_v2(ray)
-    thitv3, dgv3, is_intv3 = tri.intersect_v3(ray)
+    ds_v3 = tri.intersect_v3(ray)
 
     assert (ds_v2['is_intersection'].item()), 'Problem with v2 intersection test'
-    assert (is_intv3), 'Problem with v3 intersection test'
+    assert (ds_v3['is_intersection'].item()), 'Problem with v3 intersection test'
     assert (np.isclose(1.73089629960896, ds_v2['thit'].item(), 0., 1e-14)), 'Problem with v2 intersection test'
-    assert (np.isclose(1.73089629960896, thitv3, 0., 1e-14)), 'Problem with v3 intersection test'
+    assert (np.isclose(1.73089629960896, ds_v3['thit'].item(), 0., 1e-14)), 'Problem with v3 intersection test'
     assert (gc.Normal(ds_v2['nhit'].values) == gc.Normal(0., 0., 1.)), 'Problem with v2 intersection test'
-    assert (dgv3.n == gc.Normal(0., 0., 1.)), 'Problem with v3 intersection test'
+    assert (gc.Normal(ds_v3['nhit'].values) == gc.Normal(0., 0., 1.)), 'Problem with v3 intersection test'
 
     p3 = gc.Point(0.999, 0.999, 0.)
 
     assert (np.isclose(ds_v2['phit'].values[0], p3.x, 0., 1e-15)), 'Problem with v2 triangle intersection test'
     assert (np.isclose(ds_v2['phit'].values[1], p3.y, 0., 1e-15)), 'Problem with v2 triangle intersection test'
     assert (np.isclose(ds_v2['phit'].values[2], p3.z, 0., 1e-15)), 'Problem with v2 triangle intersection test'
-    assert (np.isclose(dgv3.p.x, p3.x, 0., 1e-15)), 'Problem with v3 triangle intersection test'
-    assert (np.isclose(dgv3.p.y, p3.y, 0., 1e-15)), 'Problem with v3 triangle intersection test'
-    assert (np.isclose(dgv3.p.z, p3.z, 0., 1e-15)), 'Problem with v3 triangle intersection test'
+    assert (np.isclose(ds_v3['phit'].values[0], p3.x, 0., 1e-15)), 'Problem with v3 triangle intersection test'
+    assert (np.isclose(ds_v3['phit'].values[1], p3.y, 0., 1e-15)), 'Problem with v3 triangle intersection test'
+    assert (np.isclose(ds_v3['phit'].values[2], p3.z, 0., 1e-15)), 'Problem with v3 triangle intersection test'
 
     # Bellow the ray cannot reach the triangle
     ray = gc.Ray(o=gc.Point(0., 0., 1.), d=gc.normalize(gc.Vector(0.999,0.999,-1.)), maxt=1.7)
 
     ds_v2 = tri.intersect_v2(ray)
-    thitv3, dgv3, is_intv3 = tri.intersect_v3(ray)
+    ds_v3 = tri.intersect_v3(ray)
     
     assert (ds_v2['is_intersection'].item() is False), 'Problem with v2 intersection test'
-    assert (is_intv3 is False), 'Problem with v3 intersection test'
+    assert (ds_v3['is_intersection'].item() is False), 'Problem with v3 intersection test'
 
 def test_triangle_transform():
     p0 = gc.Point(-0.5, 0.5, 0.)
@@ -60,21 +60,21 @@ def test_triangle_transform():
     ray = gc.Ray(o=gc.Point(0., 0., 4.8), d=gc.normalize(gc.Vector(1.,0.,0.)))
 
     ds_v2 = tri.intersect(ray, method='v2')
-    thitv3, dgv3, is_intv3 = tri.intersect(ray, method='v3')
+    ds_v3 = tri.intersect(ray, method='v3')
 
     assert (ds_v2['is_intersection'].item()), 'Problem with v2 intersection test'
-    assert (is_intv3), 'Problem with v3 intersection test'
+    assert (ds_v3['is_intersection'].item()), 'Problem with v3 intersection test'
     assert (np.isclose(10.2, ds_v2['thit'].item(), 0., 1e-14)), 'Problem with v2 intersection test'
-    assert (np.isclose(10.2, thitv3, 0., 1e-14)), 'Problem with v3 intersection test'
+    assert (np.isclose(10.2, ds_v3['thit'].item(), 0., 1e-14)), 'Problem with v3 intersection test'
     assert (np.isclose(-math.sqrt(2.)/2., ds_v2['nhit'].values[0], 0., 1e-13)), \
         'Problem with v2 intersection test'
     assert (ds_v2['nhit'].values[1] == 0.), 'Problem with v2 intersection test'
     assert (np.isclose(-math.sqrt(2.)/2., ds_v2['nhit'].values[2], 0., 1e-13)), \
         'Problem with v2 intersection test'
-    assert (np.isclose(-math.sqrt(2.)/2., dgv3.n.x, 0., 1e-13)), \
+    assert (np.isclose(-math.sqrt(2.)/2., ds_v3['nhit'].values[0], 0., 1e-13)), \
         'Problem with v3 intersection test'
-    assert (dgv3.n.y == 0.), 'Problem with v3 intersection test'
-    assert (np.isclose(-math.sqrt(2.)/2., dgv3.n.z, 0., 1e-13)), \
+    assert (ds_v3['nhit'].values[1] == 0.), 'Problem with v3 intersection test'
+    assert (np.isclose(-math.sqrt(2.)/2., ds_v3['nhit'].values[2], 0., 1e-13)), \
         'Problem with v3 intersection test'
 
     p3 = gc.Point(10.2, 0., 4.8)
@@ -82,9 +82,9 @@ def test_triangle_transform():
     assert (np.isclose(ds_v2['phit'].values[0], p3.x, 0., 1e-15)), 'Problem with v2 triangle intersection test'
     assert (np.isclose(ds_v2['phit'].values[1], p3.y, 0., 1e-15)), 'Problem with v2 triangle intersection test'
     assert (np.isclose(ds_v2['phit'].values[2], p3.z, 0., 1e-15)), 'Problem with v2 triangle intersection test'
-    assert (np.isclose(dgv3.p.x, p3.x, 0., 1e-15)), 'Problem with v3 triangle intersection test'
-    assert (np.isclose(dgv3.p.y, p3.y, 0., 1e-15)), 'Problem with v3 triangle intersection test'
-    assert (np.isclose(dgv3.p.z, p3.z, 0., 1e-15)), 'Problem with v3 triangle intersection test'
+    assert (np.isclose(ds_v3['phit'].values[0], p3.x, 0., 1e-15)), 'Problem with v3 triangle intersection test'
+    assert (np.isclose(ds_v3['phit'].values[1], p3.y, 0., 1e-15)), 'Problem with v3 triangle intersection test'
+    assert (np.isclose(ds_v3['phit'].values[2], p3.z, 0., 1e-15)), 'Problem with v3 triangle intersection test'
 
     assert (tri.is_intersection(ray, method='v2')), 'Problem with v2 is_intersection test'
     assert (tri.is_intersection(ray, method='v3')), 'Problem with v3 is_intersection test'
@@ -94,7 +94,7 @@ def test_triangle_transform():
     assert (is_intv2_)
     assert (is_intv3_)
     assert (ds_v2['thit'].item() == thitv2_)
-    assert (thitv3 == thitv3_)
+    assert (ds_v3['thit'].item()  == thitv3_)
 
 def test_triangle_mesh():
     # list of vertices
@@ -205,33 +205,33 @@ def test_trianglemesh_fast_tests():
     r0 = gc.Ray(gc.Point(5., -0.2, 2.5), gc.Vector(-1., 0., 0.))
     ds_v2 = msh.intersect(r0, 'v2', fast_test=False)
     ds_v2f = msh.intersect(r0, 'v2', fast_test=True)
-    t_v3f, dg_v3f, is_int_v3f = msh.intersect(r0, 'v3', fast_test=True)
+    ds_v3f = msh.intersect(r0, 'v3', fast_test=True)
     assert (ds_v2['is_intersection'].item() == ds_v2f['is_intersection'].item())
-    assert (ds_v2['is_intersection'].item() == is_int_v3f)
+    assert (ds_v2['is_intersection'].item() == ds_v3f['is_intersection'].item())
     assert (np.isclose(ds_v2['thit'].item(), ds_v2f['thit'].item(), 0., 1e-15))
-    assert (np.isclose(ds_v2['thit'].item(), t_v3f, 0., 1e-15))
+    assert (np.isclose(ds_v2['thit'].item(), ds_v3f['thit'].item(), 0., 1e-15))
     assert (np.isclose(ds_v2['phit'].values[0], ds_v2f['phit'].values[0], 0., 1e-15))
     assert (np.isclose(ds_v2['phit'].values[1], ds_v2f['phit'].values[1], 0., 1e-15))
     assert (np.isclose(ds_v2['phit'].values[2], ds_v2f['phit'].values[2], 0., 1e-15))
-    assert (np.isclose(ds_v2['phit'].values[0], dg_v3f.p.x, 0., 1e-15))
-    assert (np.isclose(ds_v2['phit'].values[1], dg_v3f.p.y, 0., 1e-15))
-    assert (np.isclose(ds_v2['phit'].values[2], dg_v3f.p.z, 0., 1e-15))
+    assert (np.isclose(ds_v2['phit'].values[0], ds_v3f['phit'].values[0], 0., 1e-15))
+    assert (np.isclose(ds_v2['phit'].values[1], ds_v3f['phit'].values[1], 0., 1e-15))
+    assert (np.isclose(ds_v2['phit'].values[2], ds_v3f['phit'].values[2], 0., 1e-15))
     assert (np.isclose(ds_v2['dpdu'].values[0], ds_v2f['dpdu'].values[0], 0., 1e-15))
     assert (np.isclose(ds_v2['dpdu'].values[1], ds_v2f['dpdu'].values[1], 0., 1e-15))
     assert (np.isclose(ds_v2['dpdu'].values[2], ds_v2f['dpdu'].values[2], 0., 1e-15))
-    assert (np.isclose(ds_v2['dpdu'].values[0], dg_v3f.dpdu.x, 0., 1e-15))
-    assert (np.isclose(ds_v2['dpdu'].values[1], dg_v3f.dpdu.y, 0., 1e-15))
-    assert (np.isclose(ds_v2['dpdu'].values[2], dg_v3f.dpdu.z, 0., 1e-15))
+    assert (np.isclose(ds_v2['dpdu'].values[0], ds_v3f['dpdu'].values[0], 0., 1e-15))
+    assert (np.isclose(ds_v2['dpdu'].values[1], ds_v3f['dpdu'].values[1], 0., 1e-15))
+    assert (np.isclose(ds_v2['dpdu'].values[2], ds_v3f['dpdu'].values[2], 0., 1e-15))
     assert (np.isclose(ds_v2['dpdv'].values[0], ds_v2f['dpdv'].values[0], 0., 1e-15))
     assert (np.isclose(ds_v2['dpdv'].values[1], ds_v2f['dpdv'].values[1], 0., 1e-15))
     assert (np.isclose(ds_v2['dpdv'].values[2], ds_v2f['dpdv'].values[2], 0., 1e-15))
-    assert (np.isclose(ds_v2['dpdv'].values[0], dg_v3f.dpdv.x, 0., 1e-15))
-    assert (np.isclose(ds_v2['dpdv'].values[1], dg_v3f.dpdv.y, 0., 1e-15))
-    assert (np.isclose(ds_v2['dpdv'].values[2], dg_v3f.dpdv.z, 0., 1e-15))
+    assert (np.isclose(ds_v2['dpdv'].values[0], ds_v3f['dpdv'].values[0], 0., 1e-15))
+    assert (np.isclose(ds_v2['dpdv'].values[1], ds_v3f['dpdv'].values[1], 0., 1e-15))
+    assert (np.isclose(ds_v2['dpdv'].values[2], ds_v3f['dpdv'].values[2], 0., 1e-15))
     assert (np.isclose(ds_v2['u'].item(), ds_v2f['u'].item(), 0., 1e-15))
-    assert (np.isclose(ds_v2['u'].item(), dg_v3f.u, 0., 1e-15))
-    assert (np.isclose(ds_v2['v'].item(), ds_v2['v'].item(), 0., 1e-15))
-    assert (np.isclose(ds_v2['v'].item(), dg_v3f.v, 0., 1e-15))
+    assert (np.isclose(ds_v2['u'].item(), ds_v3f['u'].item(), 0., 1e-15))
+    assert (np.isclose(ds_v2['v'].item(), ds_v2f['v'].item(), 0., 1e-15))
+    assert (np.isclose(ds_v2['v'].item(), ds_v3f['v'].item(), 0., 1e-15))
 
 
 def test_triangle_2d_arr1():

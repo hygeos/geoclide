@@ -88,8 +88,7 @@ def calc_intersection(shape, r1, **kwargs):
             phit = None
             nhit = None
     elif(issubclass(shape.__class__, Shape)):
-        method = kwargs.get('method', None)
-        if method == 'v2':
+        if isinstance(shape, Triangle) or isinstance(shape, TriangleMesh):
             return shape.intersect(r1, **kwargs)
         else:
             thit, dg, is_intersection = shape.intersect(r1, **kwargs)
