@@ -88,16 +88,7 @@ def calc_intersection(shape, r1, **kwargs):
             phit = None
             nhit = None
     elif(issubclass(shape.__class__, Shape)):
-        if isinstance(shape, Triangle) or isinstance(shape, TriangleMesh):
-            return shape.intersect(r1, **kwargs)
-        else:
-            thit, dg, is_intersection = shape.intersect(r1, **kwargs)
-        if is_intersection:
-            phit = dg.p
-            nhit = dg.n
-        else:
-            phit = None
-            nhit = None
+        return shape.intersect(r1, **kwargs)
     else:
         raise ValueError('The only supported shape are: BBox, Sphere, Spheroid, Disk, ' +
                          'Triangle and TriangleMesh')

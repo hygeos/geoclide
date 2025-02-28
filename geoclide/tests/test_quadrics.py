@@ -28,7 +28,7 @@ def test_sphere():
 
     assert (np.isclose(p[0], 472.61058011386376, 0., 1e-15))
     assert (np.isclose(p[1], -472.61058011386365, 0., 1e-15))
-    assert (np.isclose(p[2], 668.3722921180424, 0., 1e-15))
+    assert (np.isclose(p[2], 668.3722921180423, 0., 1e-15))
     assert (ds_sp['is_intersection'] == sphere_sat_alti.is_intersection(ray))
 
 

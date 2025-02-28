@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from geoclide.shapes import Shape, DifferentialGeometry
+from geoclide.shapes import Shape, DifferentialGeometry, get_intersect_dataset
 from geoclide.mathope import clamp, quadratic
 from geoclide.vecope import distance
 from geoclide.basic import Ray, Vector, Point
@@ -162,14 +162,16 @@ class Sphere(Shape):
         _, is_intersection = self.is_intersection_t(r1)
         return is_intersection
 
-    def intersect(self, r1):
+    def intersect(self, r, ds_output=True):
         """
         Test if a ray intersects the sphere / partial sphere
 
         Parameters
         ----------
-        r1 : Ray
+        r : Ray
             The ray to use for the intersection test
+        ds_output : Bool, optional
+            If True the output is a dataset, else -> a tuple with intersection information variables
 
         Returns
         -------
@@ -198,10 +200,11 @@ class Sphere(Shape):
         >>> sph2.intersect(r) # here no intersection since the sphere part above z=0.5 is removed
         (None, None, False)
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        ray.o = self.wTo[r1.o]
-        ray.d = self.wTo[r1.d]
+        if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
+        sh_name = self.__class__.__name__
+        ray = Ray(r)
+        ray.o = self.wTo[r.o]
+        ray.d = self.wTo[r.d]
 
         # Compute quadratic sphere coefficients
         a = ray.d.x*ray.d.x + ray.d.y*ray.d.y + ray.d.z*ray.d.z
@@ -211,15 +214,21 @@ class Sphere(Shape):
 
         # Solve quadratic equation
         exist, t0, t1 = quadratic(a, b, c)
-        if (not exist): return None, None, False
+        if (not exist):
+            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+            else : return sh_name, r, None, False, None, None, None, None, False
         
         # Compute intersection distance along ray
-        if (t0 > ray.maxt or t1 < ray.mint): return None, None, False
+        if (t0 > ray.maxt or t1 < ray.mint):
+            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+            else : return sh_name, r, None, False, None, None, None, None, False
         thit = t0
 
         if (t0 < ray.mint):
             thit = t1
-            if (thit > ray.maxt): return None, None, False
+            if (thit > ray.maxt):
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
 
         # Compute sphere hit position and $\phi$
         phit = ray[thit]
@@ -233,8 +242,9 @@ class Sphere(Shape):
         if ((self.zmin > -self.radius and phit.z < self.zmin) or
             (self.zmax <  self.radius and phit.z > self.zmax) or
             (phi > phi_max_rad) ):
-            if (thit == t1): return None, None, False
-            if (t1 > ray.maxt): return None, None, False
+            if (thit == t1 or t1 > ray.maxt):
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
             thit = t1
             # Compute sphere hit position and $\phi$
             phit = ray[thit]
@@ -244,7 +254,8 @@ class Sphere(Shape):
             if ((self.zmin > -self.radius and phit.z < self.zmin) or
                 (self.zmax <  self.radius and phit.z > self.zmax) or
                 (phi > phi_max_rad) ):
-                return None, None, False
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
 
         # Find parametric representation of sphere hit
         u = phi / phi_max_rad
@@ -260,10 +271,12 @@ class Sphere(Shape):
         dpdv = (self.theta_max-self.theta_min) * Vector(phit.z*cosphi, phit.z*sinphi, -self.radius*math.sin(theta)) 
 
         # Initialize _DifferentialGeometry_ from parametric information
-        dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
-                                  u, v, r1.d, self)
-
-        return thit, dg, True
+        # dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
+        #                           u, v, r.d, self)
+        out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+        if ds_output : return get_intersect_dataset(*out)
+        else : return out
+        # return thit, dg, True
 
     def area(self):
         """
@@ -439,14 +452,16 @@ class Spheroid(Shape):
         _, is_intersection = self.is_intersection_t(r1)
         return is_intersection
 
-    def intersect(self, r1):
+    def intersect(self, r, ds_output=True):
         """
         Test if a ray intersects the spheroid
 
         Parameters
         ----------
-        r1 : Ray
+        r : Ray
             The ray to use for the intersection test
+        ds_output : Bool, optional
+            If True the output is a dataset, else -> a tuple with intersection information variables
 
         Returns
         -------
@@ -477,10 +492,11 @@ class Spheroid(Shape):
         <geoclide.shapes.DifferentialGeometry at 0x7f9d1e0c5450>,
         True)
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        ray.o = self.wTo[r1.o]
-        ray.d = self.wTo[r1.d]
+        if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
+        sh_name = self.__class__.__name__
+        ray = Ray(r)
+        ray.o = self.wTo[r.o]
+        ray.d = self.wTo[r.d]
 
         # Compute quadratic sphere coefficients
         inv_alpha2 = 1./self.alpha2
@@ -492,15 +508,21 @@ class Spheroid(Shape):
 
         # Solve quadratic equation
         exist, t0, t1 = quadratic(a, b, c)
-        if (not exist): return None, None, False
+        if (not exist):
+            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+            else : return sh_name, r, None, False, None, None, None, None, False
         
         # Compute intersection distance along ray
-        if (t0 > ray.maxt or t1 < ray.mint): return None, None, False
+        if (t0 > ray.maxt or t1 < ray.mint):
+            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+            else : return sh_name, r, None, False, None, None, None, None, False
         thit = t0
 
         if (t0 < ray.mint):
             thit = t1
-            if (thit > ray.maxt): return None, None, False
+            if (thit > ray.maxt):
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
 
         # Compute sphere hit position and $\phi$
         phit = ray[thit]
@@ -523,10 +545,13 @@ class Spheroid(Shape):
         dpdv = Vector(fac*cosphi, fac*sinphi, math.pi*self.gamma*math.sin(theta))
 
         # Initialize _DifferentialGeometry_ from parametric information
-        dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
-                                  u, v, r1.d, self)
+        # dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
+        #                           u, v, r.d, self)
+        out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+        if ds_output : return get_intersect_dataset(*out)
+        else : return out
 
-        return thit, dg, True
+        # return thit, dg, True
     
     def area(self):
         """
@@ -719,14 +744,16 @@ class Disk(Shape):
         _, is_intersection = self.is_intersection_t(r1)
         return is_intersection
 
-    def intersect(self, r1):
+    def intersect(self, r, ds_output=True):
         """
         Test if a ray intersects the disk
 
         Parameters
         ----------
-        r1 : Ray
+        r : Ray
             The ray to use for the intersection test
+        ds_output : Bool, optional
+            If True the output is a dataset, else -> a tuple with intersection information variables
 
         Returns
         -------
@@ -751,33 +778,44 @@ class Disk(Shape):
         >>> annulus.intersect(r3) # the ray passes outside, no intersection
         (None, None, False)
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        ray.o = self.wTo[r1.o]
-        ray.d = self.wTo[r1.d]
+        if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
+        sh_name = self.__class__.__name__
+        ray = Ray(r)
+        ray.o = self.wTo[r.o]
+        ray.d = self.wTo[r.d]
 
         # no intersection in the case the ray is parallel to the disk's plane
-        if (ray.d.z == 0): return None, None, False
+        if (ray.d.z == 0):
+            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+            else : return sh_name, r, None, False, None, None, None, None, False
         thit = (self.z_height - ray.o.z) / ray.d.z
-        if (thit <= 0 or thit >= ray.maxt): return None, None, False
+        if (thit <= 0 or thit >= ray.maxt):
+            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+            else : return sh_name, r, None, False, None, None, None, None, False
 
         # get the intersection point, and distance between disk center and the intersection
         phit = ray[thit]
         hit_radius2 = phit.x*phit.x + phit.y*phit.y
 
         # if the hit point is outside the disk then no intersection
-        if (hit_radius2 > self.radius*self.radius): return None, None, False
+        if (hit_radius2 > self.radius*self.radius):
+            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+            else : return sh_name, r, None, False, None, None, None, None, False
 
         # annulus case
         # check that the hit point is not in the annulus hole
-        if (hit_radius2 < self.inner_radius*self.inner_radius): return None, None, False
+        if (hit_radius2 < self.inner_radius*self.inner_radius):
+            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+            else : return sh_name, r, None, False, None, None, None, None, False
         
         # partial disk/annulus case
         # check phi value to see if the hit point is inside the partial disk/annulus
         phi = math.atan2(phit.y, phit.x)
         phi_max_rad = math.radians(self.phi_max)
         if (phi < 0.): phi += TWO_PI
-        if (phi > phi_max_rad): return None, None, False
+        if (phi > phi_max_rad):
+            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+            else : return sh_name, r, None, False, None, None, None, None, False
 
         # get the parameteric representation
         u = phi / phi_max_rad
@@ -787,10 +825,14 @@ class Disk(Shape):
         dpdv = Vector(phit.x, phit.y, 0.) * ( (self.inner_radius-self.radius)/hit_radius )
 
         # Initialize _DifferentialGeometry_ from parametric information
-        dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
-                                  u, v, r1.d, self)
+        # dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
+        #                           u, v, r.d, self)
+
+        out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+        if ds_output : return get_intersect_dataset(*out)
+        else : return out
         
-        return thit, dg, True
+        # return thit, dg, True
     
     def area(self):
         """
