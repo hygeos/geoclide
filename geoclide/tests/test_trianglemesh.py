@@ -256,6 +256,13 @@ def test_triangle_2d_arr1():
     ds_v2 = triangles.intersect_v2(r_set, diag_calc=False)
     ds_v3 = triangles.intersect_v3(r_set, diag_calc=False)
 
+    t_v2, is_int_v2 = triangles.is_intersection_v2_t(r_set, diag_calc=False)
+    t_v3, is_int_v3 = triangles.is_intersection_v3_t(r_set, diag_calc=False)
+    assert (np.array_equal(ds_v2['is_intersection'].values, is_int_v2, equal_nan=True))
+    assert (np.array_equal(ds_v3['is_intersection'].values, is_int_v3, equal_nan=True))
+    assert (np.array_equal(ds_v2['thit'].values, t_v2, equal_nan=True))
+    assert (np.array_equal(ds_v3['thit'].values, t_v3, equal_nan=True))
+
     is_int_2d = np.full((nobj, nrays), True, dtype=bool)
     t_2d = np.zeros((nobj, nrays), dtype=np.float64)
     p_2d = np.zeros((nobj, nrays,3), dtype=np.float64)
@@ -379,8 +386,16 @@ def test_triangle_2d_arr2():
     triangles = gc.Triangle(p0, p1, p2)
     r_set = gc.Ray(o_set, d_set)
     ds_v2 = triangles.intersect_v2(r_set, diag_calc=False)
+
     # In v3 -> more robust test! even 1e-17 instead of 0. can lead to a failed test
     ds_v3 = triangles.intersect_v3(r_set, diag_calc=False)
+
+    t_v2, is_int_v2 = triangles.is_intersection_v2_t(r_set, diag_calc=False)
+    t_v3, is_int_v3 = triangles.is_intersection_v3_t(r_set, diag_calc=False)
+    assert (np.array_equal(ds_v2['is_intersection'].values, is_int_v2, equal_nan=True))
+    assert (np.array_equal(ds_v3['is_intersection'].values, is_int_v3, equal_nan=True))
+    assert (np.array_equal(ds_v2['thit'].values, t_v2, equal_nan=True))
+    assert (np.array_equal(ds_v3['thit'].values, t_v3, equal_nan=True))
 
     is_int_2d = np.full((nobj, nrays), True, dtype=bool)
     t_2d = np.zeros((nobj, nrays), dtype=np.float64)
@@ -490,6 +505,13 @@ def test_triangle_1d_arr1():
     ds_v2 = triangles.intersect_v2(r0, diag_calc=False)
     ds_v3 = triangles.intersect_v3(r0, diag_calc=False)
 
+    t_v2, is_int_v2 = triangles.is_intersection_v2_t(r0, diag_calc=False)
+    t_v3, is_int_v3 = triangles.is_intersection_v3_t(r0, diag_calc=False)
+    assert (np.array_equal(ds_v2['is_intersection'].values, is_int_v2, equal_nan=True))
+    assert (np.array_equal(ds_v3['is_intersection'].values, is_int_v3, equal_nan=True))
+    assert (np.array_equal(ds_v2['thit'].values, t_v2, equal_nan=True))
+    assert (np.array_equal(ds_v3['thit'].values, t_v3, equal_nan=True))
+
     is_int_1d = np.full((msh.ntriangles), True, dtype=bool)
     t_1d = np.zeros((msh.ntriangles), dtype=np.float64)
     p_1d = np.zeros((msh.ntriangles,3), dtype=np.float64)
@@ -589,6 +611,13 @@ def test_triangle_1d_arr2():
 
     ds_v2 = triangle.intersect_v2(r_set, diag_calc=False)
     ds_v3 = triangle.intersect_v3(r_set, diag_calc=False)
+
+    t_v2, is_int_v2 = triangle.is_intersection_v2_t(r_set, diag_calc=False)
+    t_v3, is_int_v3 = triangle.is_intersection_v3_t(r_set, diag_calc=False)
+    assert (np.array_equal(ds_v2['is_intersection'].values, is_int_v2, equal_nan=True))
+    assert (np.array_equal(ds_v3['is_intersection'].values, is_int_v3, equal_nan=True))
+    assert (np.array_equal(ds_v2['thit'].values, t_v2, equal_nan=True))
+    assert (np.array_equal(ds_v3['thit'].values, t_v3, equal_nan=True))
 
     is_int_1d = np.full((nrays), True, dtype=bool)
     t_1d = np.zeros((nrays), dtype=np.float64)
@@ -696,6 +725,13 @@ def test_triangle_1d_arr3():
     triangles = gc.Triangle(p0, p1, p2)
     ds_v2 = triangles.intersect_v2(r_set, diag_calc=True)
     ds_v3 = triangles.intersect_v3(r_set, diag_calc=True)
+
+    t_v2, is_int_v2 = triangles.is_intersection_v2_t(r_set, diag_calc=True)
+    t_v3, is_int_v3 = triangles.is_intersection_v3_t(r_set, diag_calc=True)
+    assert (np.array_equal(ds_v2['is_intersection'].values, is_int_v2, equal_nan=True))
+    assert (np.array_equal(ds_v3['is_intersection'].values, is_int_v3, equal_nan=True))
+    assert (np.array_equal(ds_v2['thit'].values, t_v2, equal_nan=True))
+    assert (np.array_equal(ds_v3['thit'].values, t_v3, equal_nan=True))
 
     ndiag = nrays
     is_int_1d = np.full((ndiag), True, dtype=bool)
