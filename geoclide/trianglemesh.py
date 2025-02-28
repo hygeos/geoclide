@@ -192,7 +192,7 @@ class Triangle(Shape):
                         is_intersection_2d[:,ir] = is_intersection
                         t_2d[:,ir] = t
                     return t_2d, is_intersection_2d
-                else: # nrays > npoints
+                else: # nrays > ntriangles
                     ray = Ray(r)
                     p0t_arr = self.p0t.to_numpy()
                     p1t_arr = self.p1t.to_numpy()
@@ -611,13 +611,12 @@ class Triangle(Shape):
                     dp2 = p1 - p2
                     determinant = du1 * dv2 - dv1 * du2
 
-                    with np.errstate(divide='ignore', invalid='ignore'):
-                        if (determinant == 0):
-                            dpdu, dpdv = gv.coordinate_system(gv.normalize(gv.cross(e2, e1)))
-                        else:
-                            invdet = 1./determinant
-                            dpdu = ( dp1*dv2   - dp2*dv1) * invdet
-                            dpdv = (dp1*(-du2) + dp2*du1) * invdet
+                    if (determinant == 0):
+                        dpdu, dpdv = gv.coordinate_system(gv.normalize(gv.cross(e2, e1)))
+                    else:
+                        invdet = 1./determinant
+                        dpdu = ( dp1*dv2   - dp2*dv1) * invdet
+                        dpdv = (dp1*(-du2) + dp2*du1) * invdet
 
                     for ir in range (0, nrays):
                         ray = Ray(Point(r_o_arr[ir,:]), Vector(r_d_arr[ir,:]), rmint[ir], rmaxt[ir])
@@ -848,52 +847,402 @@ class Triangle(Shape):
             geoclide/shapes.py)
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
+        is_r_arr = isinstance(r.o.x, np.ndarray)
+        is_p_arr = isinstance(self.p0.x, np.ndarray)
         sh_name = self.__class__.__name__
-        ray = Ray(r)
-        p0 = self.p0t
-        p1 = self.p1t
-        p2 = self.p2t
 
-        # Get triangle vertices and translate them in based on ray origin
-        p0t = p0 - ray.o
-        p1t = p1 - ray.o
-        p2t = p2 - ray.o
-
-        kz = gv.vargmax(gv.vabs(ray.d))
-        kx = kz + 1
-        if(kx == 3): kx = 0
-        ky = kx + 1
-        if(ky == 3): ky = 0
-
-        d = gv.permute(ray.d, kx, ky, kz)
-        p0t = gv.permute(p0t, kx, ky, kz)
-        p1t = gv.permute(p1t, kx, ky, kz)
-        p2t = gv.permute(p2t, kx, ky, kz)
-        
-        sx = -d.x/d.z
-        sy = -d.y/d.z
-        sz = 1./d.z
-        p0t.x += sx*p0t.z
-        p0t.y += sy*p0t.z
-        p1t.x += sx*p1t.z
-        p1t.y += sy*p1t.z
-        p2t.x += sx*p2t.z
-        p2t.y += sy*p2t.z
-        
-        # Compute edge function coefficients
-        e0 = (p1t.x * p2t.y) - (p1t.y * p2t.x)
-        e1 = (p2t.x * p0t.y) - (p2t.y * p0t.x)
-        e2 = (p0t.x * p1t.y) - (p0t.y * p1t.x)
-
-        if isinstance(p0t.x, np.ndarray):
+        if (is_p_arr and is_r_arr and not diag_calc):
+            # TODO remove the loop in one of the next release
             with np.errstate(divide='ignore', invalid='ignore'):
-                is_intersection = np.full(len(p0.x), True)
+                nrays = len(r.o.x)
+                ntriangles = len(self.p0.x)
+                is_intersection_2d = np.full((ntriangles, nrays), True, dtype=bool)
+                t_2d = np.zeros((ntriangles, nrays), dtype=np.float64)
+                u_2d = np.zeros_like(t_2d)
+                v_2d = np.zeros_like(t_2d)
+
+                if ntriangles >= nrays:
+                    r_o_arr = r.o.to_numpy()
+                    r_d_arr = r.d.to_numpy()
+                    rmint = np.zeros(nrays, dtype=np.float64)
+                    rmaxt = np.zeros_like(rmint)
+                    rmint[:] = r.mint
+                    rmaxt[:] = r.maxt
+
+                    p0 = self.p0t
+                    p1 = self.p1t
+                    p2 = self.p2t
+
+                    # Compute triangle partial derivatives
+                    # Below the z components is not needed since we are in 2D with u in x and v un y
+                    dpdu = Vector()
+                    dpdv = Vector()
+                    uv0 = Point(0., 0., 0.)
+                    uv1 = Point(1., 0., 0.)
+                    uv2 = Point(1., 1., 0.)
+                    duv02 = uv0 - uv2
+                    duv12 = uv1 - uv2
+
+                    dp02 = p0 - p2
+                    dp12 = p1 - p2
+                    determinant = duv02.x*duv12.y - duv02.y*duv12.x
+                    degenerate = bool(abs(determinant) < 1e-8)
+
+                    if (not degenerate):
+                        invdet = 1./ determinant
+                        dpdu = (duv12.y*dp02 - duv02.y*dp12)*invdet
+                        dpdv = (-duv12.x*dp02 + duv02.x*dp12)*invdet
+                    
+                    ng = gv.cross(p2-p0, p1-p0)
+                    c5_bis_1 = np.logical_or(degenerate, gv.cross(dpdu, dpdv).length_squared() == 0)
+                    c5_bis_2 = ng.length_squared() == 0
+                    c5 = np.logical_and(c5_bis_1, c5_bis_2)
+
+                    dpdu_bis, dpdv_bis = gv.coordinate_system(gv.normalize(ng))
+                    c7 = np.logical_and(c5_bis_1, np.logical_not(c5_bis_2))
+                    if np.any(c7):
+                        dpdu[c7] = dpdu_bis[c7]
+                        dpdv[c7] = dpdv_bis[c7]
+
+                    for ir in range (0, nrays):
+                        ray = Ray(Point(r_o_arr[ir,:]), Vector(r_d_arr[ir,:]), rmint[ir], rmaxt[ir])
+                        # Get triangle vertices and translate them in based on ray origin
+                        p0t = p0 - ray.o
+                        p1t = p1 - ray.o
+                        p2t = p2 - ray.o
+                        is_intersection = np.full(ntriangles, True, dtype=bool)
+
+                        kz = gv.vargmax(gv.vabs(ray.d))
+                        kx = kz + 1
+                        if(kx == 3): kx = 0
+                        ky = kx + 1
+                        if(ky == 3): ky = 0
+
+                        d = gv.permute(ray.d, kx, ky, kz)
+                        p0t = gv.permute(p0t, kx, ky, kz)
+                        p1t = gv.permute(p1t, kx, ky, kz)
+                        p2t = gv.permute(p2t, kx, ky, kz)
+
+                        sx = -d.x/d.z
+                        sy = -d.y/d.z
+                        sz = 1./d.z
+                        p0t.x += sx*p0t.z
+                        p0t.y += sy*p0t.z
+                        p1t.x += sx*p1t.z
+                        p1t.y += sy*p1t.z
+                        p2t.x += sx*p2t.z
+                        p2t.y += sy*p2t.z
+
+                        # Compute edge function coefficients
+                        e0 = (p1t.x * p2t.y) - (p1t.y * p2t.x)
+                        e1 = (p2t.x * p0t.y) - (p2t.y * p0t.x)
+                        e2 = (p0t.x * p1t.y) - (p0t.y * p1t.x)
+
+                        # Perform triangle edge and determinant tests
+                        c1 = np.logical_and(np.logical_or.reduce((e0<0, e1<0, e2<0)),
+                                            np.logical_or.reduce((e0>0, e1>0, e2>0)))
+                        
+                        det = e0 + e1 + e2
+                        c2 = det == 0
+
+                        p0t.z *=  sz
+                        p1t.z *=  sz
+                        p2t.z *=  sz
+
+                        tScaled = e0*p0t.z + e1*p1t.z + e2*p2t.z
+
+                        c3_bis_1 = np.logical_and(det < 0, np.logical_or(tScaled >= 0, tScaled < r.maxt*det))
+                        c3_bis_2 = np.logical_and(det > 0, np.logical_or(tScaled <= 0, tScaled > r.maxt*det))
+                        c3 = np.logical_or(c3_bis_1, c3_bis_2)
+
+                        # Compute barycentric coordinates and t value for triangle intersection
+                        invDet = 1./det
+                        b0 = e0 * invDet
+                        b1 = e1 * invDet
+                        b2 = e2 * invDet
+                        t = tScaled * invDet
+                        
+                        # Ensure that computed triangle t is conservatively greater than zero
+                        maxZt = np.max(np.abs(np.array([p0t.z, p1t.z, p2t.z])), axis=0)
+                        deltaZ = GAMMA3_F64 * maxZt
+                        maxXt = np.max(np.abs(np.array([p0t.x, p1t.x, p2t.x])), axis=0)
+                        maxYt = np.max(np.abs(np.array([p0t.y, p1t.y, p2t.y])), axis=0)
+                        deltaX = GAMMA5_F64 * (maxXt + maxZt)
+                        deltaY = GAMMA5_F64 * (maxYt + maxZt)
+                        deltaE = 2 * (GAMMA2_F64 * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
+                        maxE = np.max(np.abs(np.array([e0, e1, e2])), axis=0)
+                        deltaT = 3 * (GAMMA3_F64 * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
+                        c4 = t <= deltaT
+                        
+                        c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
+                        is_intersection[c6] = False
+                        t[c6] = None
+                        is_intersection_2d[:,ir] = is_intersection
+                        t_2d[:,ir] = t
+
+                        # phit = b0*p0+b1*p1+b2*p2
+                        uvhit =b0*uv0 + b1*uv1 + b2*uv2
+                        u_2d[:,ir] = uvhit.x
+                        v_2d[:,ir] = uvhit.y
+
+                    out = sh_name, r, t_2d, is_intersection_2d, u_2d, v_2d, dpdu.to_numpy(), dpdv.to_numpy(), diag_calc
+                    if ds_output : return get_intersect_dataset(*out)
+                    else : return out
+                else: # nrays > ntriangles
+                    p0t_arr = self.p0t.to_numpy()
+                    p1t_arr = self.p1t.to_numpy()
+                    p2t_arr = self.p2t.to_numpy()
+
+                    dpdu = Vector()
+                    dpdv = Vector()
+                    uv0 = Point(0., 0., 0.)
+                    uv1 = Point(1., 0., 0.)
+                    uv2 = Point(1., 1., 0.)
+                    duv02 = uv0 - uv2
+                    duv12 = uv1 - uv2
+                    determinant = duv02.x*duv12.y - duv02.y*duv12.x
+                    degenerate = bool(abs(determinant) < 1e-8)
+                    dpdu = np.zeros((ntriangles, 3), dtype=np.float64)
+                    dpdv = np.zeros((ntriangles, 3), dtype=np.float64)
+
+                    kz = gv.vargmax(gv.vabs(r.d))
+                    kx = kz + 1
+                    kx[kx == 3] = 0
+                    ky = kx + 1
+                    ky[ky == 3] = 0
+                    d = gv.permute(r.d, kx, ky, kz)
+                    sx = -d.x/d.z
+                    sy = -d.y/d.z
+                    sz = 1./d.z
+                    
+                    for itri in range (0, ntriangles):
+                        p0 = Point(p0t_arr[itri,:])
+                        p1 = Point(p1t_arr[itri,:])
+                        p2 = Point(p2t_arr[itri,:])
+                        is_intersection = np.full(nrays, True, dtype=bool)
+
+                        # Get triangle vertices and translate them in based on ray origin
+                        p0t = p0 - r.o
+                        p1t = p1 - r.o
+                        p2t = p2 - r.o
+
+                        p0t = gv.permute(p0t, kx, ky, kz)
+                        p1t = gv.permute(p1t, kx, ky, kz)
+                        p2t = gv.permute(p2t, kx, ky, kz)
+
+                        p0t.x += sx*p0t.z
+                        p0t.y += sy*p0t.z
+                        p1t.x += sx*p1t.z
+                        p1t.y += sy*p1t.z
+                        p2t.x += sx*p2t.z
+                        p2t.y += sy*p2t.z
+
+                        # Compute edge function coefficients
+                        e0 = (p1t.x * p2t.y) - (p1t.y * p2t.x)
+                        e1 = (p2t.x * p0t.y) - (p2t.y * p0t.x)
+                        e2 = (p0t.x * p1t.y) - (p0t.y * p1t.x)
+
+                        c1 = np.logical_and(np.logical_or.reduce((e0<0, e1<0, e2<0)),
+                                            np.logical_or.reduce((e0>0, e1>0, e2>0)))
+
+                        det = e0 + e1 + e2
+                        c2 = det == 0
+
+                        # Compute scaled hit distance to triangle and test against ray $t$ range
+                        p0t.z *=  sz
+                        p1t.z *=  sz
+                        p2t.z *=  sz
+
+                        tScaled = e0*p0t.z + e1*p1t.z + e2*p2t.z
+
+                        c3_bis_1 = np.logical_and(det < 0, np.logical_or(tScaled >= 0, tScaled < r.maxt*det))
+                        c3_bis_2 = np.logical_and(det > 0, np.logical_or(tScaled <= 0, tScaled > r.maxt*det))
+                        c3 = np.logical_or(c3_bis_1, c3_bis_2)
+
+                        # Compute barycentric coordinates and t value for triangle intersection
+                        invDet = 1./det
+                        b0 = e0 * invDet
+                        b1 = e1 * invDet
+                        b2 = e2 * invDet
+                        t = tScaled * invDet
+                        
+                        # Ensure that computed triangle t is conservatively greater than zero
+                        maxZt = np.max(np.abs(np.array([p0t.z, p1t.z, p2t.z])), axis=0)
+                        deltaZ = GAMMA3_F64 * maxZt
+                        maxXt = np.max(np.abs(np.array([p0t.x, p1t.x, p2t.x])), axis=0)
+                        maxYt = np.max(np.abs(np.array([p0t.y, p1t.y, p2t.y])), axis=0)
+                        deltaX = GAMMA5_F64 * (maxXt + maxZt)
+                        deltaY = GAMMA5_F64 * (maxYt + maxZt)
+                        deltaE = 2 * (GAMMA2_F64 * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
+                        maxE = np.max(np.abs(np.array([e0, e1, e2])), axis=0)
+                        deltaT = 3 * (GAMMA3_F64 * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
+                        c4 = t <= deltaT
+
+                        # Compute triangle partial derivatives
+                        # Below the z components is not needed since we are in 2D with u in x and v un y
+                        dp02 = p0 - p2
+                        dp12 = p1 - p2
+
+                        if (not degenerate):
+                            invdet = 1./ determinant
+                            dpdu_bis = (duv12.y*dp02 - duv02.y*dp12)*invdet
+                            dpdv_bis = (-duv12.x*dp02 + duv02.x*dp12)*invdet
+
+                        # if ( degenerate or gv.cross(dpdu, dpdv).length_squared() == 0):
+                        #     ng = gv.cross(p2-p0, p1-p0)
+                        #     if ( ng.length_squared() == 0 ):
+                        #         return None, None, False
+                        #     dpdu, dpdv = gv.coordinate_system(gv.normalize(ng))
+                            
+                        ng = gv.cross(p2-p0, p1-p0)
+                        c5_bis_1 = degenerate or gv.cross(dpdu_bis, dpdv_bis).length_squared() == 0
+                        c5_bis_2 = ng.length_squared() == 0
+                        c5 = c5_bis_1 and c5_bis_2
+                        c5_arr = np.full(nrays, c5, dtype=bool)
+                        
+                        c6 = np.logical_or.reduce((c1, c2, c3, c4, c5_arr))
+                        is_intersection[c6] = False
+                        t[c6] = None
+                        is_intersection_2d[itri,:] = is_intersection
+                        t_2d[itri,:] = t
+                            
+                        c7 = np.logical_and(c5_bis_1, np.logical_not(c5_bis_2))
+                        if (c7): dpdu_bis, dpdv_bis = gv.coordinate_system(gv.normalize(ng))
+                        dpdu[itri,:] = dpdu_bis.to_numpy()
+                        dpdv[itri,:] = dpdv_bis.to_numpy()
+
+                        # phit = b0*p0+b1*p1+b2*p2
+                        uvhit =b0*uv0 + b1*uv1 + b2*uv2
+                        u_2d[itri,:] = uvhit.x
+                        v_2d[itri,:] = uvhit.y
+
+                    out = sh_name, r, t_2d, is_intersection_2d, u_2d, v_2d, dpdu, dpdv, diag_calc
+                    if ds_output : return get_intersect_dataset(*out)
+                    else : return out
+        else: # Case 2-D diag, 1-D or scalar
+            p0 = self.p0t
+            p1 = self.p1t
+            p2 = self.p2t
+
+            # Get triangle vertices and translate them in based on ray origin
+            p0t = p0 - r.o
+            p1t = p1 - r.o
+            p2t = p2 - r.o
+
+            kz = gv.vargmax(gv.vabs(r.d))
+            kx = kz + 1
+            if(kx == 3): kx = 0
+            ky = kx + 1
+            if(ky == 3): ky = 0
+
+            d = gv.permute(r.d, kx, ky, kz)
+            p0t = gv.permute(p0t, kx, ky, kz)
+            p1t = gv.permute(p1t, kx, ky, kz)
+            p2t = gv.permute(p2t, kx, ky, kz)
+            
+            sx = -d.x/d.z
+            sy = -d.y/d.z
+            sz = 1./d.z
+            p0t.x += sx*p0t.z
+            p0t.y += sy*p0t.z
+            p1t.x += sx*p1t.z
+            p1t.y += sy*p1t.z
+            p2t.x += sx*p2t.z
+            p2t.y += sy*p2t.z
+            
+            # Compute edge function coefficients
+            e0 = (p1t.x * p2t.y) - (p1t.y * p2t.x)
+            e1 = (p2t.x * p0t.y) - (p2t.y * p0t.x)
+            e2 = (p0t.x * p1t.y) - (p0t.y * p1t.x)
+
+            if isinstance(p0t.x, np.ndarray):
+                with np.errstate(divide='ignore', invalid='ignore'):
+                    is_intersection = np.full(len(p0.x), True)
+                    # Perform triangle edge and determinant tests
+                    c1 = np.logical_and(np.logical_or.reduce((e0<0, e1<0, e2<0)),
+                                        np.logical_or.reduce((e0>0, e1>0, e2>0)))
+                    
+                    det = e0 + e1 + e2
+                    c2 = det == 0
+
+                    # Compute scaled hit distance to triangle and test against ray $t$ range
+                    p0t.z *=  sz
+                    p1t.z *=  sz
+                    p2t.z *=  sz
+
+                    tScaled = e0*p0t.z + e1*p1t.z + e2*p2t.z
+
+                    c3_bis_1 = np.logical_and(det < 0, np.logical_or(tScaled >= 0, tScaled < r.maxt*det))
+                    c3_bis_2 = np.logical_and(det > 0, np.logical_or(tScaled <= 0, tScaled > r.maxt*det))
+                    c3 = np.logical_or(c3_bis_1, c3_bis_2)
+
+                    # Compute barycentric coordinates and t value for triangle intersection
+                    invDet = 1./det
+                    b0 = e0 * invDet
+                    b1 = e1 * invDet
+                    b2 = e2 * invDet
+                    t = tScaled * invDet
+                    
+                    # Ensure that computed triangle t is conservatively greater than zero
+                    maxZt = np.max(np.abs(np.array([p0t.z, p1t.z, p2t.z])))
+                    deltaZ = GAMMA3_F64 * maxZt
+                    maxXt = np.max(np.abs(np.array([p0t.x, p1t.x, p2t.x])))
+                    maxYt = np.max(np.abs(np.array([p0t.y, p1t.y, p2t.y])))
+                    deltaX = GAMMA5_F64 * (maxXt + maxZt)
+                    deltaY = GAMMA5_F64 * (maxYt + maxZt)
+                    deltaE = 2 * (GAMMA2_F64 * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
+                    maxE = np.max(np.abs(np.array([e0, e1, e2])))
+                    deltaT = 3 * (GAMMA3_F64 * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
+                    c4 = t <= deltaT
+
+                    # Compute triangle partial derivatives
+                    # Below the z components is not needed since we are in 2D with u in x and v un y
+                    dpdu = Vector()
+                    dpdv = Vector()
+                    uv0 = Point(0., 0., 0.)
+                    uv1 = Point(1., 0., 0.)
+                    uv2 = Point(1., 1., 0.)
+                    duv02 = uv0 - uv2
+                    duv12 = uv1 - uv2
+                    dp02 = p0 - p2
+                    dp12 = p1 - p2
+                    determinant = duv02.x*duv12.y - duv02.y*duv12.x
+                    degenerate = bool(abs(determinant) < 1e-8)
+
+                    if (not degenerate):
+                        invdet = 1./ determinant
+                        dpdu = (duv12.y*dp02 - duv02.y*dp12)*invdet
+                        dpdv = (-duv12.x*dp02 + duv02.x*dp12)*invdet
+
+                    ng = gv.cross(p2-p0, p1-p0)
+                    c5_bis_1 = np.logical_or(degenerate, gv.cross(dpdu, dpdv).length_squared() == 0)
+                    c5_bis_2 = ng.length_squared() == 0
+                    c5 = np.logical_and(c5_bis_1, c5_bis_2)
+                    
+                    c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
+                    is_intersection[c6] = False
+                    t[c6] = None
+                        
+                    dpdu_bis, dpdv_bis = gv.coordinate_system(gv.normalize(ng))
+                    c7 = np.logical_and(c5_bis_1, np.logical_not(c5_bis_2))
+                    if np.any(c7):
+                        dpdu[c7] = dpdu_bis[c7]
+                        dpdv[c7] = dpdv_bis[c7]
+
+                    # phit = b0*p0+b1*p1+b2*p2
+                    uvhit =b0*uv0 + b1*uv1 + b2*uv2
+                    out = sh_name, r, t, is_intersection, uvhit.x, uvhit.y, dpdu.to_numpy(), dpdv.to_numpy(), diag_calc
+                    if ds_output : return get_intersect_dataset(*out)
+                    else : return out
+            else:
                 # Perform triangle edge and determinant tests
-                c1 = np.logical_and(np.logical_or.reduce((e0<0, e1<0, e2<0)),
-                                    np.logical_or.reduce((e0>0, e1>0, e2>0)))
-                
+                if ((e0 < 0 or e1 < 0 or e2 < 0) and (e0 > 0 or e1 > 0 or e2 > 0)):
+                    if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                    else : return sh_name, r, None, False, None, None, None, None, False
                 det = e0 + e1 + e2
-                c2 = det == 0
+                if (det == 0):
+                    if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                    else : return sh_name, r, None, False, None, None, None, None, False
 
                 # Compute scaled hit distance to triangle and test against ray $t$ range
                 p0t.z *=  sz
@@ -902,9 +1251,10 @@ class Triangle(Shape):
 
                 tScaled = e0*p0t.z + e1*p1t.z + e2*p2t.z
 
-                c3_bis_1 = np.logical_and(det < 0, np.logical_or(tScaled >= 0, tScaled < ray.maxt*det))
-                c3_bis_2 = np.logical_and(det > 0, np.logical_or(tScaled <= 0, tScaled > ray.maxt*det))
-                c3 = np.logical_or(c3_bis_1, c3_bis_2)
+                if ( (det < 0 and (tScaled >= 0 or tScaled < r.maxt*det)) or
+                    (det > 0 and (tScaled <= 0 or tScaled > r.maxt*det)) ):
+                    if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                    else : return sh_name, r, None, False, None, None, None, None, False
 
                 # Compute barycentric coordinates and t value for triangle intersection
                 invDet = 1./det
@@ -919,11 +1269,13 @@ class Triangle(Shape):
                 maxXt = np.max(np.abs(np.array([p0t.x, p1t.x, p2t.x])))
                 maxYt = np.max(np.abs(np.array([p0t.y, p1t.y, p2t.y])))
                 deltaX = GAMMA5_F64 * (maxXt + maxZt)
-                deltaY = GAMMA5_F64 * (maxYt + maxZt)
+                deltaY = GAMMA5_F64 * (maxYt + maxZt) 
                 deltaE = 2 * (GAMMA2_F64 * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
                 maxE = np.max(np.abs(np.array([e0, e1, e2])))
                 deltaT = 3 * (GAMMA3_F64 * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
-                c4 = t <= deltaT
+                if (t <= deltaT):
+                    if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                    else : return sh_name, r, None, False, None, None, None, None, False
 
                 # Compute triangle partial derivatives
                 # Below the z components is not needed since we are in 2D with u in x and v un y
@@ -944,100 +1296,18 @@ class Triangle(Shape):
                     dpdu = (duv12.y*dp02 - duv02.y*dp12)*invdet
                     dpdv = (-duv12.x*dp02 + duv02.x*dp12)*invdet
 
-                ng = gv.cross(p2-p0, p1-p0)
-                c5_bis_1 = np.logical_or(degenerate, gv.cross(dpdu, dpdv).length_squared() == 0)
-                c5_bis_2 = ng.length_squared() == 0
-                c5 = np.logical_and(c5_bis_1, c5_bis_2)
-                
-                c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
-                is_intersection[c6] = False
-                t[c6] = None
-                    
-                dpdu_bis, dpdv_bis = gv.coordinate_system(gv.normalize(ng))
-                c7 = np.logical_and(c5_bis_1, np.logical_not(c5_bis_2))
-                if np.any(c7):
-                    dpdu[c7] = dpdu_bis[c7]
-                    dpdv[c7] = dpdv_bis[c7]
+                if ( degenerate or gv.cross(dpdu, dpdv).length_squared() == 0):
+                    ng = gv.cross(p2-p0, p1-p0)
+                    if ( ng.length_squared() == 0 ):
+                        if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                        else : return sh_name, r, None, False, None, None, None, None, False
+                    dpdu, dpdv = gv.coordinate_system(gv.normalize(ng))
 
-                # phit = b0*p0+b1*p1+b2*p2
+                #phit = b0*p0+b1*p1+b2*p2
                 uvhit =b0*uv0 + b1*uv1 + b2*uv2
-                out = sh_name, r, t, is_intersection, uvhit.x, uvhit.y, dpdu.to_numpy(), dpdv.to_numpy(), diag_calc
+                out = sh_name, r, t, True, uvhit.x, uvhit.y, dpdu.to_numpy(), dpdv.to_numpy(), diag_calc
                 if ds_output : return get_intersect_dataset(*out)
                 else : return out
-        else:
-            # Perform triangle edge and determinant tests
-            if ((e0 < 0 or e1 < 0 or e2 < 0) and (e0 > 0 or e1 > 0 or e2 > 0)):
-                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-                else : return sh_name, r, None, False, None, None, None, None, False
-            det = e0 + e1 + e2
-            if (det == 0):
-                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-                else : return sh_name, r, None, False, None, None, None, None, False
-
-            # Compute scaled hit distance to triangle and test against ray $t$ range
-            p0t.z *=  sz
-            p1t.z *=  sz
-            p2t.z *=  sz
-
-            tScaled = e0*p0t.z + e1*p1t.z + e2*p2t.z
-
-            if ( (det < 0 and (tScaled >= 0 or tScaled < ray.maxt*det)) or
-                (det > 0 and (tScaled <= 0 or tScaled > ray.maxt*det)) ):
-                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-                else : return sh_name, r, None, False, None, None, None, None, False
-
-            # Compute barycentric coordinates and t value for triangle intersection
-            invDet = 1./det
-            b0 = e0 * invDet
-            b1 = e1 * invDet
-            b2 = e2 * invDet
-            t = tScaled * invDet
-            
-            # Ensure that computed triangle t is conservatively greater than zero
-            maxZt = np.max(np.abs(np.array([p0t.z, p1t.z, p2t.z])))
-            deltaZ = GAMMA3_F64 * maxZt
-            maxXt = np.max(np.abs(np.array([p0t.x, p1t.x, p2t.x])))
-            maxYt = np.max(np.abs(np.array([p0t.y, p1t.y, p2t.y])))
-            deltaX = GAMMA5_F64 * (maxXt + maxZt)
-            deltaY = GAMMA5_F64 * (maxYt + maxZt) 
-            deltaE = 2 * (GAMMA2_F64 * maxXt * maxYt + deltaY * maxXt + deltaX * maxYt)
-            maxE = np.max(np.abs(np.array([e0, e1, e2])))
-            deltaT = 3 * (GAMMA3_F64 * maxE * maxZt + deltaE * maxZt + deltaZ * maxE) * abs(invDet)
-            if (t <= deltaT):
-                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-                else : return sh_name, r, None, False, None, None, None, None, False
-
-            # Compute triangle partial derivatives
-            # Below the z components is not needed since we are in 2D with u in x and v un y
-            dpdu = Vector()
-            dpdv = Vector()
-            uv0 = Point(0., 0., 0.)
-            uv1 = Point(1., 0., 0.)
-            uv2 = Point(1., 1., 0.)
-            duv02 = uv0 - uv2
-            duv12 = uv1 - uv2
-            dp02 = p0 - p2
-            dp12 = p1 - p2
-            determinant = duv02.x*duv12.y - duv02.y*duv12.x
-            degenerate = bool(abs(determinant) < 1e-8)
-
-            if (not degenerate):
-                invdet = 1./ determinant
-                dpdu = (duv12.y*dp02 - duv02.y*dp12)*invdet
-                dpdv = (-duv12.x*dp02 + duv02.x*dp12)*invdet
-
-            if ( degenerate or gv.cross(dpdu, dpdv).length_squared() == 0):
-                ng = gv.cross(p2-p0, p1-p0)
-                if ( ng.length_squared() == 0 ):
-                    if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-                    else : return sh_name, r, None, False, None, None, None, None, False
-                dpdu, dpdv = gv.coordinate_system(gv.normalize(ng))
-
-            #phit = b0*p0+b1*p1+b2*p2
-            uvhit =b0*uv0 + b1*uv1 + b2*uv2
-            out = sh_name, r, t, True, uvhit.x, uvhit.y, dpdu.to_numpy(), dpdv.to_numpy(), diag_calc
-            if ds_output : return get_intersect_dataset(*out)
-            else : return out
 
     def area(self):
         """

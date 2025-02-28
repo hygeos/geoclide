@@ -254,7 +254,8 @@ def test_triangle_2d_arr1():
     p2 = gc.Point(msh.vertices[msh.faces[:,2],:])
     triangles = gc.Triangle(p0, p1, p2)
     r_set = gc.Ray(o_set, d_set)
-    ds = triangles.intersect_v2(r_set, diag_calc=False)
+    ds_v2 = triangles.intersect_v2(r_set, diag_calc=False)
+    ds_v3 = triangles.intersect_v3(r_set, diag_calc=False)
 
     is_int_2d = np.full((nobj, nrays), True, dtype=bool)
     t_2d = np.zeros((nobj, nrays), dtype=np.float64)
@@ -295,14 +296,68 @@ def test_triangle_2d_arr1():
                 u_2d[itri,ir] = None
                 v_2d[itri,ir] = None
 
-    assert (np.array_equal(ds['thit'].values, t_2d, equal_nan=True))
-    assert (np.array_equal(ds['phit'].values, p_2d, equal_nan=True))
-    assert (np.array_equal(ds['nhit'].values, n_2d, equal_nan=True))
-    assert (np.array_equal(ds['u'].values, u_2d, equal_nan=True))
-    assert (np.array_equal(ds['v'].values, v_2d, equal_nan=True))
-    assert (np.array_equal(ds['dpdu'].values, dpdu_2d, equal_nan=True))
-    assert (np.array_equal(ds['dpdv'].values, dpdv_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['thit'].values, t_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['phit'].values, p_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['nhit'].values, n_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['u'].values, u_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['v'].values, v_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['dpdu'].values, dpdu_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['dpdv'].values, dpdv_2d, equal_nan=True))
 
+    assert (np.allclose(ds_v3['thit'].values, t_2d, 0., 1e-15, equal_nan=True))
+    assert (np.allclose(ds_v3['phit'].values, p_2d, 0., 1e-15, equal_nan=True))
+    assert (np.allclose(ds_v3['nhit'].values, n_2d, 0., 1e-15, equal_nan=True))
+    assert (np.allclose(ds_v3['u'].values, u_2d, 0., 1e-15, equal_nan=True))
+    assert (np.allclose(ds_v3['v'].values, v_2d, 0., 1e-15, equal_nan=True))
+    assert (np.allclose(ds_v3['dpdu'].values, dpdu_2d, 0., 1e-15, equal_nan=True))
+    assert (np.allclose(ds_v3['dpdv'].values, dpdv_2d, 0., 1e-15, equal_nan=True))
+
+    is_int_2d = np.full((nobj, nrays), True, dtype=bool)
+    t_2d = np.zeros((nobj, nrays), dtype=np.float64)
+    p_2d = np.zeros((nobj, nrays,3), dtype=np.float64)
+    n_2d = np.zeros_like(p_2d)
+    dpdu_2d = np.zeros_like(p_2d)
+    dpdv_2d = np.zeros_like(p_2d)
+    u_2d = np.zeros_like(t_2d)
+    v_2d = np.zeros_like(t_2d)
+    list_rays = []
+    for ir in range (0, nrays):
+        list_rays.append(gc.Ray(gc.Point(o_set_arr[ir,:]), gc.Vector(d_set_arr[ir,:])))
+
+    for itri in range(0, nobj):
+        p0 = gc.Point(msh.vertices[msh.faces[itri,0],:])
+        p1 = gc.Point(msh.vertices[msh.faces[itri,1],:])
+        p2 = gc.Point(msh.vertices[msh.faces[itri,2],:])
+        triangle = gc.Triangle(p0, p1, p2)
+        for ir in range (0, nrays):
+            res_sca = triangle.intersect_v3(list_rays[ir], ds_output=False)
+            if res_sca[2] is not None:
+                ds_sca = get_intersect_dataset(*res_sca)
+                is_int_2d[itri,ir] = ds_sca['is_intersection'].values
+                t_2d[itri,ir] = ds_sca['thit'].values
+                p_2d[itri,ir,:] = ds_sca['phit'].values
+                n_2d[itri,ir,:] = ds_sca['nhit'].values
+                dpdu_2d[itri,ir,:] = ds_sca['dpdu'].values
+                dpdv_2d[itri,ir,:] = ds_sca['dpdv'].values
+                u_2d[itri,ir] = ds_sca['u'].values
+                v_2d[itri,ir] = ds_sca['v'].values
+            else:
+                is_int_2d[itri,ir] = res_sca[3]
+                t_2d[itri,ir] = res_sca[2]
+                p_2d[itri,ir,:] = None
+                n_2d[itri,ir,:] = None
+                dpdu_2d[itri,ir,:] = None
+                dpdv_2d[itri,ir,:] = None
+                u_2d[itri,ir] = None
+                v_2d[itri,ir] = None
+
+    assert (np.array_equal(ds_v3['thit'].values, t_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['phit'].values, p_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['nhit'].values, n_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['u'].values, u_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['v'].values, v_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['dpdu'].values, dpdu_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['dpdv'].values, dpdv_2d, equal_nan=True))
 
 def test_triangle_2d_arr2():
     msh = gc.Sphere(1.).to_trianglemesh(reso_theta=4, reso_phi=4)
@@ -324,7 +379,9 @@ def test_triangle_2d_arr2():
     p2 = gc.Point(msh.vertices[msh.faces[:,2],:])
     triangles = gc.Triangle(p0, p1, p2)
     r_set = gc.Ray(o_set, d_set)
-    ds = triangles.intersect_v2(r_set, diag_calc=False)
+    ds_v2 = triangles.intersect_v2(r_set, diag_calc=False)
+    # In v3 -> more robust test! even 1e-17 instead of 0. can lead to a failed test
+    ds_v3 = triangles.intersect_v3(r_set, diag_calc=False)
 
     is_int_2d = np.full((nobj, nrays), True, dtype=bool)
     t_2d = np.zeros((nobj, nrays), dtype=np.float64)
@@ -365,14 +422,60 @@ def test_triangle_2d_arr2():
                 u_2d[itri,ir] = None
                 v_2d[itri,ir] = None
 
+    assert (np.array_equal(ds_v2['thit'].values, t_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['phit'].values, p_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['nhit'].values, n_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['u'].values, u_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['v'].values, v_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['dpdu'].values, dpdu_2d, equal_nan=True))
+    assert (np.array_equal(ds_v2['dpdv'].values, dpdv_2d, equal_nan=True))
 
-    assert (np.array_equal(ds['thit'].values, t_2d, equal_nan=True))
-    assert (np.array_equal(ds['phit'].values, p_2d, equal_nan=True))
-    assert (np.array_equal(ds['nhit'].values, n_2d, equal_nan=True))
-    assert (np.array_equal(ds['u'].values, u_2d, equal_nan=True))
-    assert (np.array_equal(ds['v'].values, v_2d, equal_nan=True))
-    assert (np.array_equal(ds['dpdu'].values, dpdu_2d, equal_nan=True))
-    assert (np.array_equal(ds['dpdv'].values, dpdv_2d, equal_nan=True))
+    is_int_2d = np.full((nobj, nrays), True, dtype=bool)
+    t_2d = np.zeros((nobj, nrays), dtype=np.float64)
+    p_2d = np.zeros((nobj, nrays,3), dtype=np.float64)
+    n_2d = np.zeros_like(p_2d)
+    dpdu_2d = np.zeros_like(p_2d)
+    dpdv_2d = np.zeros_like(p_2d)
+    u_2d = np.zeros_like(t_2d)
+    v_2d = np.zeros_like(t_2d)
+    list_rays = []
+    for ir in range (0, nrays):
+        list_rays.append(gc.Ray(gc.Point(o_set_arr[ir,:]), gc.Vector(d_set_arr[ir,:])))
+
+    for itri in range(0, nobj):
+        p0 = gc.Point(msh.vertices[msh.faces[itri,0],:])
+        p1 = gc.Point(msh.vertices[msh.faces[itri,1],:])
+        p2 = gc.Point(msh.vertices[msh.faces[itri,2],:])
+        triangle = gc.Triangle(p0, p1, p2)
+        for ir in range (0, nrays):
+            res_sca = triangle.intersect_v3(list_rays[ir], ds_output=False)
+            if res_sca[2] is not None:
+                ds_sca = get_intersect_dataset(*res_sca)
+                is_int_2d[itri,ir] = ds_sca['is_intersection'].values
+                t_2d[itri,ir] = ds_sca['thit'].values
+                p_2d[itri,ir,:] = ds_sca['phit'].values
+                n_2d[itri,ir,:] = ds_sca['nhit'].values
+                dpdu_2d[itri,ir,:] = ds_sca['dpdu'].values
+                dpdv_2d[itri,ir,:] = ds_sca['dpdv'].values
+                u_2d[itri,ir] = ds_sca['u'].values
+                v_2d[itri,ir] = ds_sca['v'].values
+            else:
+                is_int_2d[itri,ir] = False
+                t_2d[itri,ir] = None
+                p_2d[itri,ir,:] = None
+                n_2d[itri,ir,:] = None
+                dpdu_2d[itri,ir,:] = None
+                dpdv_2d[itri,ir,:] = None
+                u_2d[itri,ir] = None
+                v_2d[itri,ir] = None
+
+    assert (np.array_equal(ds_v3['thit'].values, t_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['phit'].values, p_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['nhit'].values, n_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['u'].values, u_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['v'].values, v_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['dpdu'].values, dpdu_2d, equal_nan=True))
+    assert (np.array_equal(ds_v3['dpdv'].values, dpdv_2d, equal_nan=True))
 
 
 def test_triangle_1d_arr1():
