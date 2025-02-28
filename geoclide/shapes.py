@@ -114,6 +114,24 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
     ds = xr.Dataset(coords={'xyz':np.arange(3)})
     not_int = np.logical_not(is_intersection)
 
+
+    
+    if is_r_arr:
+        nrays = len(r.o.x)
+        ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['nrays', 'xyz'])
+        ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['nrays', 'xyz'])
+        mint = np.zeros(nrays, dtype=np.float64)
+        maxt = np.zeros_like(mint)
+        mint[:] = r.mint
+        maxt[:] = r.maxt
+        ds['mint'] = mint
+        ds['maxt'] = maxt
+    else:
+        ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['xyz'])
+        ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['xyz'])
+        ds['mint'] = r.mint
+        ds['maxt'] = r.maxt
+
     if (not isinstance(t, np.ndarray)):
         ds['is_intersection'] = xr.DataArray(is_intersection)
         ds['thit'] = t
@@ -131,10 +149,6 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         ds['nhit'] = xr.DataArray(n, dims='xyz')
         ds['dpdu'] = xr.DataArray(dpdu, dims='xyz')
         ds['dpdv'] = xr.DataArray(dpdv, dims='xyz')
-        ds['o'] = xr.DataArray(r.o.to_numpy(), dims='xyz')
-        ds['d'] = xr.DataArray(r.d.to_numpy(), dims='xyz')
-        ds['mint'] = r.mint
-        ds['maxt'] = r.maxt
     elif (is_obj_arr and not is_r_arr): # multiple obj and 1 ray
         ds.attrs.update({'nobj': len(t)})
         ds['is_intersection'] = xr.DataArray(is_intersection, dims=['nobj'])
@@ -153,12 +167,7 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         dpdv[not_int] = None
         ds['dpdu'] = xr.DataArray(dpdu, dims=['nobj', 'xyz'])
         ds['dpdv'] = xr.DataArray(dpdv, dims=['nobj', 'xyz'])
-        ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['xyz'])
-        ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['xyz'])
-        ds['mint'] = r.mint
-        ds['maxt'] = r.maxt 
     elif (not is_obj_arr and is_r_arr): # 1 obj and multiple rays
-        nrays = len(t)
         ds.attrs.update({'nrays': nrays})
         ds['is_intersection'] = xr.DataArray(is_intersection, dims=['nrays'])
         ds['thit'] = xr.DataArray(t, dims=['nrays'])
@@ -178,14 +187,6 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         dpdv[not_int] = None
         ds['dpdu'] = xr.DataArray(dpdu, dims=['nrays', 'xyz'])
         ds['dpdv'] = xr.DataArray(dpdv, dims=['nrays', 'xyz'])
-        ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['nrays', 'xyz'])
-        ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['nrays', 'xyz'])
-        mint = np.zeros(nrays, dtype=np.float64)
-        maxt = np.zeros_like(mint)
-        mint[:] = r.mint
-        maxt[:] = r.maxt
-        ds['mint'] = mint
-        ds['maxt'] = maxt
     elif (diag_calc): # multiple shape and rays but calc only the diagonal
         ndiag = len(t)
         ds.attrs.update({'nobj': ndiag, 'nrays': ndiag, 'ndiag':ndiag})
@@ -207,16 +208,7 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         dpdv[not_int] = None
         ds['dpdu'] = xr.DataArray(dpdu, dims=['ndiag', 'xyz'])
         ds['dpdv'] = xr.DataArray(dpdv, dims=['ndiag', 'xyz'])
-        ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['nrays', 'xyz'])
-        ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['nrays', 'xyz'])
-        mint = np.zeros(ndiag, dtype=np.float64)
-        maxt = np.zeros_like(mint)
-        mint[:] = r.mint
-        maxt[:] = r.maxt
-        ds['mint'] = mint
-        ds['maxt'] = maxt
     else: # multiple shape and rays, 2-D output
-        nrays = t.shape[1]
         nobj = t.shape[0]
         ds.attrs.update({'nobj': nobj, 'nrays': nrays})
         ds['is_intersection'] = xr.DataArray(is_intersection, dims=['nobj', 'nrays'] )
@@ -225,16 +217,6 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         v[not_int] = None
         ds['u'] = xr.DataArray(u, dims=['nobj', 'nrays'])
         ds['v'] = xr.DataArray(v, dims=['nobj', 'nrays'])
-
-        mint = np.zeros(nrays, dtype=np.float64)
-        maxt = np.zeros_like(mint)
-        mint[:] = r.mint
-        maxt[:] = r.maxt
-        ds['mint'] = mint
-        ds['maxt'] = maxt
-        ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['nrays', 'xyz'])
-        ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['nrays', 'xyz'])
-        
 
         n = np.zeros((nobj, nrays,3), dtype=np.float64)
         p = np.zeros_like(n)
@@ -265,14 +247,14 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         ds['dpdu'] = xr.DataArray(dpdu_2d, dims=['nobj', 'nrays', 'xyz'])
         ds['dpdv'] = xr.DataArray(dpdv_2d, dims=['nobj', 'nrays', 'xyz'])
 
+    ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
+    ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
+    ds['mint'].attrs = {'description':'the mint attribut of the ray'}
+    ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
     ds['is_intersection'].attrs = {'description':'this variable tells if there is an intersection between the ray and the shape'}
     ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
     ds['u'].attrs = {'description':'the u coordinate of the parametric representation'}
     ds['v'].attrs = {'description':'the v coordinate of the parametric representation'}
-    ds['mint'].attrs = {'description':'the mint attribut of the ray'}
-    ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
-    ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
-    ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
     ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
     ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
     ds['dpdu'].attrs = {'type': 'Vector', 'description':'the surface partial derivative of phit with respect to u'}
