@@ -4,13 +4,13 @@
 from geoclide.basic import Ray, BBox
 from geoclide.quadrics import Sphere, Spheroid, Disk
 from geoclide.trianglemesh import Triangle, TriangleMesh
-from geoclide.shapes import Shape, get_intersect_dataset
+from geoclide.shapes import Shape
 import xarray as xr
 import numpy as np
 from datetime import datetime
 from geoclide.constante import VERSION
 
-def calc_intersection(shape, r1, **kwargs):
+def calc_intersection(shape, r, **kwargs):
     """
     Performs intersection test between a shape and a ray and returns dataset
 
@@ -18,10 +18,11 @@ def calc_intersection(shape, r1, **kwargs):
     ----------
     shape : BBox | Sphere | Spheroid | Disk | Triangle | TriangleMesh
         The shape used for the intersection
-    r1 : Ray
-        The ray used for the iuntersection
+    r : Ray
+        The ray(s) used for the iuntersection
     **kwargs
-        The keyword arguments are passed on to intersect method
+        The keyword arguments are passed on to intersect method. The ds_output parameter 
+        is forced here to always be True.
 
     Returns
     ------
@@ -36,75 +37,81 @@ def calc_intersection(shape, r1, **kwargs):
     >>> ray = gc.Ray(o=gc.Point(-2., 0., 0.8), d=gc.Vector(1.,0.,0.))
     >>> ds_sphere = gc.calc_intersection(sphere, ray)
     >>> ds_sphere
-    <xarray.Dataset>
+    <xarray.Dataset> Size: 753B
     Dimensions:          (xyz: 3, dim_0: 4, dim_1: 4)
     Coordinates:
-    * xyz              (xyz) int64 0 1 2
+    * xyz              (xyz) int64 24B 0 1 2
     Dimensions without coordinates: dim_0, dim_1
-    Data variables: (12/17)
-        is_intersection  bool True
-        o                (xyz) float64 -2.0 0.0 0.8
-        d                (xyz) float64 1.0 0.0 0.0
-        mint             int64 0
-        maxt             float64 inf
-        shape            <U6 'Sphere'
+    Data variables: (12/20)
+        o                (xyz) float64 24B -2.0 0.0 0.8
+        d                (xyz) float64 24B 1.0 0.0 0.0
+        mint             int64 8B 0
+        maxt             float64 8B inf
+        is_intersection  bool 1B True
+        thit             float64 8B 1.4
         ...               ...
-        oTw_mInv         (dim_0, dim_1) float64 1.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 1.0
-        wTo_m            (dim_0, dim_1) float64 1.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 1.0
-        wTo_mInv         (dim_0, dim_1) float64 1.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 1.0
-        thit             float64 1.4
-        phit             (xyz) float64 -0.6 0.0 0.8
-        nhit             (xyz) float64 -0.6 0.0 0.8
+        z_max            float64 8B 1.0
+        phi_max          float64 8B 360.0
+        wTo_m            (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
+        wTo_mInv         (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
+        oTw_m            (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
+        oTw_mInv         (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
+    Attributes:
+        shape:    Sphere
+        date:     2025-02-28
+        version:  2.0.0
     >>> ds_box = gc.calc_intersection(bbox, ray)
     >>> ds_bbox
-    <xarray.Dataset>
+    <xarray.Dataset> Size: 169B
     Dimensions:          (xyz: 3)
     Coordinates:
-    * xyz              (xyz) int64 0 1 2
+    * xyz              (xyz) int64 24B 0 1 2
     Data variables:
-        is_intersection  bool True
-        o                (xyz) float64 -2.0 0.0 0.8
-        d                (xyz) float64 1.0 0.0 0.0
-        mint             int64 0
-        maxt             float64 inf
-        shape            <U4 'BBox'
-        pmin             (xyz) float64 0.0 0.0 0.0
-        pmax             (xyz) float64 1.0 1.0 1.0
-        thit             float64 2.0
-        phit             (xyz) float64 0.0 0.0 0.8
+        is_intersection  bool 1B True
+        o                (xyz) float64 24B -2.0 0.0 0.8
+        d                (xyz) float64 24B 1.0 0.0 0.0
+        mint             int64 8B 0
+        maxt             float64 8B inf
+        pmin             (xyz) float64 24B 0.0 0.0 0.0
+        pmax             (xyz) float64 24B 1.0 1.0 1.0
+        thit             float64 8B 2.0
+        phit             (xyz) float64 24B 0.0 0.0 0.8
+    Attributes:
+        shape:    BBox
+        date:     2025-02-28
+        version:  2.0.0
     """
-    if (not isinstance(r1, Ray)):
+    if (not isinstance(r, Ray)):
         raise ValueError('The parameter r1 must a Ray')
 
     if (isinstance(shape, BBox)):
-        t0, t1, is_intersection = shape.intersect(r1)
+        t0, t1, is_intersection = shape.intersect(r)
         if is_intersection:
             if t0 > 0: thit = t0
             else: thit = t1
-            phit = r1[thit]
+            phit = r[thit]
             nhit = None # TODO compute the real normal
         else:
             thit = None
             phit = None
             nhit = None
+        ds = xr.Dataset(coords={'xyz':np.arange(3)})
+        ds['is_intersection'] = is_intersection
+        ds['is_intersection'].attrs = {'description':'tells if there is an intersection between the ray and the shape'}
+
+        ds['o'] = xr.DataArray(r.o.to_numpy(), dims='xyz')
+        ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
+        ds['d'] = xr.DataArray(r.d.to_numpy(), dims='xyz')
+        ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
+        ds['mint'] = r.mint
+        ds['mint'].attrs = {'description':'the mint attribut of the ray'}
+        ds['maxt'] = r.maxt
+        ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
     elif(issubclass(shape.__class__, Shape)):
-        return shape.intersect(r1, **kwargs)
+        ds = shape.intersect(r, **kwargs)
     else:
         raise ValueError('The only supported shape are: BBox, Sphere, Spheroid, Disk, ' +
                          'Triangle and TriangleMesh')
-    
-    ds = xr.Dataset(coords={'xyz':np.arange(3)})
-    ds['is_intersection'] = is_intersection
-    ds['is_intersection'].attrs = {'description':'tells if there is an intersection between the ray and the shape'}
-
-    ds['o'] = xr.DataArray(r1.o.to_numpy(), dims='xyz')
-    ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
-    ds['d'] = xr.DataArray(r1.d.to_numpy(), dims='xyz')
-    ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
-    ds['mint'] = r1.mint
-    ds['mint'].attrs = {'description':'the mint attribut of the ray'}
-    ds['maxt'] = r1.maxt
-    ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
 
     if (isinstance(shape, BBox)):
         ds.attrs = {'shape': 'BBox'}
@@ -112,8 +119,19 @@ def calc_intersection(shape, r1, **kwargs):
         ds['pmin'].attrs = {'type': 'Point', 'description':'the x, y and z components of the pmin BBox attribut'}
         ds['pmax'] = xr.DataArray(shape.pmax.to_numpy(), dims='xyz')
         ds['pmax'].attrs = {'type': 'Point', 'description':'the x, y and z components of the pmax BBox attribut'}
+        if (thit is not None):
+            ds['thit'] = thit
+            ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
+        if (phit is not None):
+            ds['phit'] = xr.DataArray(phit.to_numpy(), dims='xyz')
+            ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
+        if (nhit is not None):
+            ds['nhit'] = xr.DataArray(nhit.to_numpy(), dims='xyz')
+            ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
+
+        date = datetime.now().strftime("%Y-%m-%d")  
+        ds.attrs.update({'date':date, 'version': VERSION})
     if (isinstance(shape, Sphere)):
-        ds.attrs = {'shape':  'Sphere'}
         ds['radius'] = shape.radius
         ds['radius'].attrs = {'description':'the sphere radius attribut'}
         ds['z_min'] = shape.zmin
@@ -123,13 +141,11 @@ def calc_intersection(shape, r1, **kwargs):
         ds['phi_max'] = shape.phi_max
         ds['phi_max'].attrs = {'unit':'Degree', 'description':'the sphere phi_max attribut'}
     if (isinstance(shape, Spheroid)):
-        ds.attrs = {'shape':  'Spheroid'}
         ds['radius_xy'] = shape.alpha
         ds['radius_xy'].attrs = {'description':'the equatorial radius of the spheroid (alpha attribut)'}
         ds['radius_z'] = shape.gamma
         ds['radius_z'].attrs = {'description':'the distance between the spheroid center and pole (gamma attribut)'}
     if (isinstance(shape, Disk)):
-        ds.attrs = {'shape':  'Disk'}
         ds['radius'] = shape.radius
         ds['radius'].attrs = {'description':'the radius of the disk'}
         ds['inner_radius'] = shape.inner_radius
@@ -139,7 +155,6 @@ def calc_intersection(shape, r1, **kwargs):
         ds['z_height'] = shape.z_height
         ds['z_height'].attrs = {'description':'the disk z_height attribut'}
     if (isinstance(shape, Triangle)):
-        ds.attrs = {'shape': 'Triangle'}
         ds['p0'] = xr.DataArray(shape.p0.to_numpy(), dims='xyz')
         ds['p0'].attrs = {'description': 'the triangle p0 attribut'}
         ds['p1'] = xr.DataArray(shape.p1.to_numpy(), dims='xyz')
@@ -147,13 +162,11 @@ def calc_intersection(shape, r1, **kwargs):
         ds['p2'] = xr.DataArray(shape.p2.to_numpy(), dims='xyz')
         ds['p2'].attrs = {'description': 'the triangle p2 attribut'}
     if (isinstance(shape, TriangleMesh)):
-        ds.attrs = {'shape': 'TriangleMesh'}
         ds['vertices'] = xr.DataArray(shape.vertices, dims=['nvertices', 'xyz'])
         ds['vertices'].attrs = {'description': 'The vertices xyz coordinates.'}
         ds['faces'] = xr.DataArray(shape.faces, dims=['ntriangles', 'p0p1p2'])
         ds['faces'].attrs = {'description': 'For each triangle, the index of vertices point p0, p1 and p2 (from variable v).'}
-        ds.attrs.update({'ntriangles': shape.ntriangles,
-                         'nvertices' : shape.nvertices})
+        ds.attrs.update({'ntriangles': shape.ntriangles, 'nvertices' : shape.nvertices})
     if (not isinstance(shape, BBox)):
         ds['wTo_m'] = xr.DataArray(shape.wTo.m)
         ds['wTo_m'].attrs = {'description':'the transformation matrix of the ' + str(ds.attrs['shape']).lower() + ' wTo attribut'}
@@ -163,20 +176,5 @@ def calc_intersection(shape, r1, **kwargs):
         ds['oTw_m'].attrs = {'description':'the transformation matrix of the ' + str(ds.attrs['shape']).lower() + ' oTw attribut'}
         ds['oTw_mInv'] = xr.DataArray(shape.oTw.mInv)
         ds['oTw_mInv'].attrs = {'description':'the inverse transformation matrix of the ' + str(ds.attrs['shape']).lower() +' oTw attribut'}
-
-
-    if (thit is not None):
-        ds['thit'] = thit
-        ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
-    if (phit is not None):
-        ds['phit'] = xr.DataArray(phit.to_numpy(), dims='xyz')
-        ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
-    if (nhit is not None):
-        ds['nhit'] = xr.DataArray(nhit.to_numpy(), dims='xyz')
-        ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
-
-    date = datetime.now().strftime("%Y-%m-%d")  
-    ds.attrs.update({'date':date,
-                     'version': VERSION})
 
     return ds

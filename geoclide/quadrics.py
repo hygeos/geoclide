@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from geoclide.shapes import Shape, DifferentialGeometry, get_intersect_dataset
+from geoclide.shapes import Shape, get_intersect_dataset
 from geoclide.mathope import clamp, quadratic
 from geoclide.vecope import distance
 from geoclide.basic import Ray, Vector, Point
@@ -175,12 +175,10 @@ class Sphere(Shape):
 
         Returns
         -------
-        thit : float
-            The t ray variable for its first intersection at the shape surface
-        dg : DifferentialGeometry
-            The parametric parameters at the intersection point
-        is_intersection : bool
-            If there is an intersection -> True, else False
+        out : xr.Dataset | tuple
+            Look-up table with the intersection information if ds_output is True, 
+            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
+            geoclide/shapes.py)
 
         Examples
         --------
@@ -189,16 +187,54 @@ class Sphere(Shape):
         >>> sph2 = gc.Sphere(radius=1., z_max=0.5) # partial sphere where portion above z=0.5 is removed
         >>> r = gc.Ray(o=gc.Point(-2., 0., 0.8), d=gc.Vector(1.,0.,0.))
         >>> sph1.intersect(r)
-        (19.399999999999988,
-        <geoclide.shapes.DifferentialGeometry at 0x7f589349cf40>,
-        True)
-        >>> thit, dg, is_int = sph1.intersect(r)
-        >>> dg.p # the intersection point
-        Point(-0.6000000000000121, 0.0, 0.8)
-        >>> dg.n # The surface normal at the intersection point
-        Normal(-0.6, 0.0, 0.8000000000000002)
+        <xarray.Dataset> Size: 209B
+        Dimensions:          (xyz: 3)
+        Coordinates:
+        * xyz              (xyz) int64 24B 0 1 2
+        Data variables:
+            o                (xyz) float64 24B -2.0 0.0 0.8
+            d                (xyz) float64 24B 1.0 0.0 0.0
+            mint             int64 8B 0
+            maxt             float64 8B inf
+            is_intersection  bool 1B True
+            thit             float64 8B 1.4
+            u                float64 8B 0.5
+            v                float64 8B 0.7952
+            phit             (xyz) float64 24B -0.6 0.0 0.8
+            nhit             (xyz) float64 24B -0.6 0.0 0.8
+            dpdu             (xyz) float64 24B 0.0 -3.77 0.0
+            dpdv             (xyz) float64 24B 2.513 0.0 1.885
+        Attributes:
+            shape:    Sphere
+            date:     2025-02-28
+            version:  2.0.0
+        >>> ds = sph1.intersect(r)
+        >>> ds['phit'].values # the intersection point
+        array([-0.6,  0. ,  0.8])
+        >>> ds['nhit'].values # The surface normal at the intersection point
+        array([-0.6,  0. ,  0.8])
         >>> sph2.intersect(r) # here no intersection since the sphere part above z=0.5 is removed
-        (None, None, False)
+        <xarray.Dataset> Size: 209B
+        Dimensions:          (xyz: 3)
+        Coordinates:
+        * xyz              (xyz) int64 24B 0 1 2
+        Data variables:
+            o                (xyz) float64 24B -2.0 0.0 0.8
+            d                (xyz) float64 24B 1.0 0.0 0.0
+            mint             int64 8B 0
+            maxt             float64 8B inf
+            is_intersection  bool 1B False
+            thit             object 8B None
+            u                object 8B None
+            v                object 8B None
+            phit             (xyz) float64 24B nan nan nan
+            nhit             (xyz) float64 24B nan nan nan
+            dpdu             (xyz) float64 24B nan nan nan
+            dpdv             (xyz) float64 24B nan nan nan
+        Attributes:
+            shape:    Sphere
+            date:     2025-02-28
+            version:  2.0.0
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         sh_name = self.__class__.__name__
@@ -270,13 +306,9 @@ class Sphere(Shape):
         dpdu = Vector(-phi_max_rad * phit.y, phi_max_rad * phit.x, 0)
         dpdv = (self.theta_max-self.theta_min) * Vector(phit.z*cosphi, phit.z*sinphi, -self.radius*math.sin(theta)) 
 
-        # Initialize _DifferentialGeometry_ from parametric information
-        # dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
-        #                           u, v, r.d, self)
         out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
         if ds_output : return get_intersect_dataset(*out)
         else : return out
-        # return thit, dg, True
 
     def area(self):
         """
@@ -465,12 +497,10 @@ class Spheroid(Shape):
 
         Returns
         -------
-        thit : float
-            The t ray variable for its first intersection at the shape surface
-        dg : DifferentialGeometry
-            The parametric parameters at the intersection point
-        is_intersection : bool
-            If there is an intersection -> True, else False
+        out : xr.Dataset | tuple
+            Look-up table with the intersection information if ds_output is True, 
+            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
+            geoclide/shapes.py)
 
         Examples
         --------
@@ -480,17 +510,49 @@ class Spheroid(Shape):
         >>> r1 = gc.Ray(o=gc.Point(2.5, 0., 10.), d=(gc.Vector(0., 0., -1.)))
         >>> r2 = gc.Ray(o=gc.Point(10., 0., 2.5), d=(gc.Vector(-1., 0., 0.)))
         >>> oblate.intersect(r1)
-        (9.170843802411135,
-        <geoclide.shapes.DifferentialGeometry at 0x7f9d1e0c5810>,
-        True)
-        >>> oblate.intersect(r2)
-        (None, None, False)
-        >>> prolate.intersect(r1)
-        (None, None, False)
+        <xarray.Dataset> Size: 209B
+        Dimensions:          (xyz: 3)
+        Coordinates:
+        * xyz              (xyz) int64 24B 0 1 2
+        Data variables:
+            o                (xyz) float64 24B 2.5 0.0 10.0
+            d                (xyz) float64 24B 0.0 0.0 -1.0
+            mint             int64 8B 0
+            maxt             float64 8B inf
+            is_intersection  bool 1B True
+            thit             float64 8B 9.171
+            u                float64 8B 0.0
+            v                float64 8B 0.6864
+            phit             (xyz) float64 24B 2.5 0.0 0.8292
+            nhit             (xyz) float64 24B 0.6019 -0.0 0.7985
+            dpdu             (xyz) float64 24B 0.0 15.71 0.0
+            dpdv             (xyz) float64 24B -5.21 0.0 3.927
+        Attributes:
+            shape:    Spheroid
+            date:     2025-02-28
+            version:  2.0.0
         >>> prolate.intersect(r2)
-        (9.170843802411135,
-        <geoclide.shapes.DifferentialGeometry at 0x7f9d1e0c5450>,
-        True)
+        <xarray.Dataset> Size: 209B
+        Dimensions:          (xyz: 3)
+        Coordinates:
+        * xyz              (xyz) int64 24B 0 1 2
+        Data variables:
+            o                (xyz) float64 24B 10.0 0.0 2.5
+            d                (xyz) float64 24B -1.0 0.0 0.0
+            mint             int64 8B 0
+            maxt             float64 8B inf
+            is_intersection  bool 1B True
+            thit             float64 8B 9.171
+            u                float64 8B 0.0
+            v                float64 8B 0.8136
+            phit             (xyz) float64 24B 0.8292 0.0 2.5
+            nhit             (xyz) float64 24B 0.7985 -0.0 0.6019
+            dpdu             (xyz) float64 24B 0.0 5.21 0.0
+            dpdv             (xyz) float64 24B -3.927 0.0 5.21
+        Attributes:
+            shape:    Spheroid
+            date:     2025-02-28
+            version:  2.0.0
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         sh_name = self.__class__.__name__
@@ -544,14 +606,9 @@ class Spheroid(Shape):
         dpdu = Vector(-TWO_PI*phit.y, TWO_PI*phit.x, 0.)
         dpdv = Vector(fac*cosphi, fac*sinphi, math.pi*self.gamma*math.sin(theta))
 
-        # Initialize _DifferentialGeometry_ from parametric information
-        # dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
-        #                           u, v, r.d, self)
         out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
         if ds_output : return get_intersect_dataset(*out)
         else : return out
-
-        # return thit, dg, True
     
     def area(self):
         """
@@ -757,26 +814,38 @@ class Disk(Shape):
 
         Returns
         -------
-        thit : float
-            The t ray variable for its first intersection at the shape surface
-        dg : DifferentialGeometry
-            The parametric parameters at the intersection point
-        is_intersection : bool
-            If there is an intersection -> True, else False
+        out : xr.Dataset | tuple
+            Look-up table with the intersection information if ds_output is True, 
+            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
+            geoclide/shapes.py)
 
         Examples
         --------
         >>> import geoclide as gc
         >>> r1 = gc.Ray(gc.Point(1.2,0.,10.), gc.Vector(0.,0.,-1.))
-        >>> r2 = gc.Ray(gc.Point(0.2,0.,10.), gc.Vector(0.,0.,-1.))
-        >>> r3 = gc.Ray(gc.Point(1.6,0.,10.), gc.Vector(0.,0.,-1.))
         >>> annulus = gc.Disk(radius=1.5, inner_radius=0.8)
         >>> annulus.intersect(r1) # hit point is between the inner radius and radius
-        >>> (10.0, <geoclide.shapes.DifferentialGeometry at 0x7f988d9cfce0>, True)
-        >>> annulus.intersect(r2) # the ray passes through the annulus hole, no intersection
-        (None, None, False)
-        >>> annulus.intersect(r3) # the ray passes outside, no intersection
-        (None, None, False)
+        <xarray.Dataset> Size: 209B
+        Dimensions:          (xyz: 3)
+        Coordinates:
+        * xyz              (xyz) int64 24B 0 1 2
+        Data variables:
+            o                (xyz) float64 24B 1.2 0.0 10.0
+            d                (xyz) float64 24B 0.0 0.0 -1.0
+            mint             int64 8B 0
+            maxt             float64 8B inf
+            is_intersection  bool 1B True
+            thit             float64 8B 10.0
+            u                float64 8B 0.0
+            v                float64 8B 0.4286
+            phit             (xyz) float64 24B 1.2 0.0 0.0
+            nhit             (xyz) float64 24B 0.0 0.0 1.0
+            dpdu             (xyz) float64 24B 0.0 7.54 0.0
+            dpdv             (xyz) float64 24B -0.7 -0.0 -0.0
+        Attributes:
+            shape:    Disk
+            date:     2025-02-28
+            version:  2.0.0
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         sh_name = self.__class__.__name__
@@ -824,15 +893,9 @@ class Disk(Shape):
         dpdu = Vector(-phi_max_rad*phit.y, phi_max_rad*phit.x, 0.)
         dpdv = Vector(phit.x, phit.y, 0.) * ( (self.inner_radius-self.radius)/hit_radius )
 
-        # Initialize _DifferentialGeometry_ from parametric information
-        # dg = DifferentialGeometry(self.oTw[phit], self.oTw[dpdu], self.oTw[dpdv],
-        #                           u, v, r.d, self)
-
         out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
         if ds_output : return get_intersect_dataset(*out)
         else : return out
-        
-        # return thit, dg, True
     
     def area(self):
         """
