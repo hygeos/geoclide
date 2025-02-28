@@ -1131,9 +1131,14 @@ class Triangle(Shape):
 
             kz = gv.vargmax(gv.vabs(r.d))
             kx = kz + 1
-            if(kx == 3): kx = 0
-            ky = kx + 1
-            if(ky == 3): ky = 0
+            if is_r_arr:
+                kx[kx == 3] = 0
+                ky = kx + 1
+                ky[ky == 3] = 0
+            else:
+                if(kx == 3): kx = 0
+                ky = kx + 1
+                if(ky == 3): ky = 0
 
             d = gv.permute(r.d, kx, ky, kz)
             p0t = gv.permute(p0t, kx, ky, kz)
@@ -1155,9 +1160,12 @@ class Triangle(Shape):
             e1 = (p2t.x * p0t.y) - (p2t.y * p0t.x)
             e2 = (p0t.x * p1t.y) - (p0t.y * p1t.x)
 
-            if isinstance(p0t.x, np.ndarray):
+            if is_p_arr or is_r_arr:
                 with np.errstate(divide='ignore', invalid='ignore'):
-                    is_intersection = np.full(len(p0.x), True)
+
+                    if is_p_arr: size = len(p0.x)
+                    if is_r_arr: size = len(r.o.x)
+                    is_intersection = np.full(size, True, dtype=bool)
                     # Perform triangle edge and determinant tests
                     c1 = np.logical_and(np.logical_or.reduce((e0<0, e1<0, e2<0)),
                                         np.logical_or.reduce((e0>0, e1>0, e2>0)))
@@ -1218,6 +1226,7 @@ class Triangle(Shape):
                     c5_bis_1 = np.logical_or(degenerate, gv.cross(dpdu, dpdv).length_squared() == 0)
                     c5_bis_2 = ng.length_squared() == 0
                     c5 = np.logical_and(c5_bis_1, c5_bis_2)
+                    if not isinstance(c5, np.ndarray): c5 = np.full(size, c5, dtype=bool)
                     
                     c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
                     is_intersection[c6] = False
