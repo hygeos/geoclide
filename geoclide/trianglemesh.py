@@ -71,14 +71,14 @@ class Triangle(Shape):
         if (p1t is not None): self.p1t = p1t
         if (p2t is not None): self.p2t = p2t
 
-    def is_intersection(self, r1, method='v3'):
+    def is_intersection(self, r, method='v3'):
         """
         Test if a Ray intersect with the triangle
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 intersection test method) or 'v3' (pbrt v3)
 
@@ -88,20 +88,20 @@ class Triangle(Shape):
             If there is an intersection -> True, else False
         """
         if method == 'v3':
-            return self.is_intersection_v3(r1)
+            return self.is_intersection_v3(r)
         elif method == 'v2':
-            return self.is_intersection_v2(r1)
+            return self.is_intersection_v2(r)
         else:
             raise ValueError("Only 'v2' and 'v3' are valid values for method parameter")
     
-    def is_intersection_t(self, r1, method='v3'):
+    def is_intersection_t(self, r, method='v3'):
         """
         Test if a Ray intersect with the triangle
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 intersection test method) or 'v3' (pbrt v3)
 
@@ -113,9 +113,9 @@ class Triangle(Shape):
             If there is an intersection -> True, else False
         """
         if method == 'v3':
-            return self.is_intersection_v3_t(r1)
+            return self.is_intersection_v3_t(r)
         elif method == 'v2':
-            return self.is_intersection_v2_t(r1)
+            return self.is_intersection_v2_t(r)
         else:
             raise ValueError("Only 'v2' and 'v3' are valid values for method parameter")   
 
@@ -125,8 +125,12 @@ class Triangle(Shape):
 
         Parameters
         ----------
-        r1 : Ray
+        r : Ray
             The ray(s) to use for the intersection test
+        diag_calc : bool, optional
+            Perform diagonal calculations in case Triangle and Ray have ndarray point components, 
+            meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
+            r(i) and triangle(i). The same size for the Triangle and the Ray is required.
         
         Returns
         -------
@@ -294,31 +298,31 @@ class Triangle(Shape):
 
         return t, is_intersection
     
-    def is_intersection_v2(self, r1):
+    def is_intersection_v2(self, r):
         """
         Test if a Ray intersect with the triangle using mainly pbrt v2 method
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
         
         Returns
         -------
         out : bool
             If there is an intersection -> True, else False
         """
-        _, is_intersection = self.is_intersection_v2_t(r1)
+        _, is_intersection = self.is_intersection_v2_t(r)
         return is_intersection
     
-    def is_intersection_v3_t(self, r1):
+    def is_intersection_v3_t(self, r):
         """
         Test if a Ray intersect with the triangle using mainly pbrt v3 method
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
         
         Returns
         -------
@@ -327,8 +331,8 @@ class Triangle(Shape):
         is_intersection : bool
             If there is an intersection -> True, else False
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
+        if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
+        ray = Ray(r)
         p0 = self.p0t
         p1 = self.p1t
         p2 = self.p2t
@@ -490,21 +494,21 @@ class Triangle(Shape):
             return t, True
 
 
-    def is_intersection_v3(self, r1):
+    def is_intersection_v3(self, r):
         """
         Test if a Ray intersect with the triangle using mainly pbrt v3 method
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
         
         Returns
         -------
         out : bool
             If there is an intersection -> True, else False
         """
-        _, is_intersection = self.is_intersection_v3_t(r1)
+        _, is_intersection = self.is_intersection_v3_t(r)
         return is_intersection
 
     def intersect(self, r, method='v3', diag_calc=False, ds_output=True):
@@ -526,12 +530,10 @@ class Triangle(Shape):
         
         Returns
         -------
-        thit : float
-            The t ray variable for its first intersection at the shape surface
-        dg : DifferentialGeometry
-            The parametric parameters at the intersection point
-        is_intersection : bool
-            If there is an intersection -> True, else False
+        out : xr.Dataset | tuple
+            Look-up table with the intersection information if ds_output is True, 
+            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
+            geoclide/shapes.py)
 
         Notes
         -----
@@ -584,7 +586,6 @@ class Triangle(Shape):
                 v_2d = np.zeros_like(t_2d)
 
                 if ntriangles >= nrays:
-                    # dg_2d = np.full(nrays, None, dtype=DifferentialGeometry)
                     r_o_arr = r.o.to_numpy()
                     r_d_arr = r.d.to_numpy()
                     rmint = np.zeros(nrays, dtype=np.float64)
@@ -660,7 +661,6 @@ class Triangle(Shape):
                     if ds_output : return get_intersect_dataset(*out)
                     else : return out 
                 else: # nrays > npoints
-                    # dg_2d = np.full(ntriangles, None, dtype=DifferentialGeometry)
                     ray = Ray(r)
                     p0t_arr = self.p0t.to_numpy()
                     p1t_arr = self.p1t.to_numpy()
@@ -833,15 +833,19 @@ class Triangle(Shape):
         ----------
         r : Ray
             The ray to use for the intersection test
+        diag_calc : bool, optional
+            Perform diagonal calculations in case Triangle and Ray have ndarray point components, 
+            meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
+            r(i) and triangle(i). The same size for the Triangle and the Ray is required.
+        ds_output : Bool, optional
+            If True the output is a dataset, else -> a tuple with intersection information variables
         
         Returns
         -------
-        thit : float
-            The t ray variable for its first intersection at the shape surface
-        dg : DifferentialGeometry
-            The parametric parameters at the intersection point
-        is_intersection : bool
-            If there is an intersection -> True, else False
+        out : xr.Dataset | tuple
+            Look-up table with the intersection information if ds_output is True, 
+            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
+            geoclide/shapes.py)
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         sh_name = self.__class__.__name__
@@ -957,11 +961,9 @@ class Triangle(Shape):
 
                 # phit = b0*p0+b1*p1+b2*p2
                 uvhit =b0*uv0 + b1*uv1 + b2*uv2
-                # dg = DifferentialGeometry(phit, dpdu, dpdv, uvhit.x, uvhit.y, r1.d, self)
                 out = sh_name, r, t, is_intersection, uvhit.x, uvhit.y, dpdu.to_numpy(), dpdv.to_numpy(), diag_calc
                 if ds_output : return get_intersect_dataset(*out)
                 else : return out
-                # return thit, dg, is_intersection
         else:
             # Perform triangle edge and determinant tests
             if ((e0 < 0 or e1 < 0 or e2 < 0) and (e0 > 0 or e1 > 0 or e2 > 0)):
@@ -1033,11 +1035,9 @@ class Triangle(Shape):
 
             #phit = b0*p0+b1*p1+b2*p2
             uvhit =b0*uv0 + b1*uv1 + b2*uv2
-            # dg = DifferentialGeometry(phit, dpdu, dpdv, uvhit.x, uvhit.y, r.d, self)
             out = sh_name, r, t, True, uvhit.x, uvhit.y, dpdu.to_numpy(), dpdv.to_numpy(), diag_calc
             if ds_output : return get_intersect_dataset(*out)
             else : return out
-            # return thit, dg, True
 
     def area(self):
         """
@@ -1083,14 +1083,14 @@ class TriangleMesh(Shape):
         self.faces = faces
         self.ntriangles = faces.shape[0]
 
-    def intersect(self, r1, method='v3', fast_test=False, ds_output=True):
+    def intersect(self, r, method='v3', fast_test=False, ds_output=True):
         """
         Test if a Ray intersect with the triangle mesh and return intersection information
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
         fast_test : bool
@@ -1101,22 +1101,20 @@ class TriangleMesh(Shape):
         
         Returns
         -------
-        thit : float
-            The t ray variable for its first intersection at the shape surface
-        dg : DifferentialGeometry
-            The parametric parameters at the intersection point
-        is_intersection : bool
-            If there is an intersection -> True, else False
+        out : xr.Dataset | tuple
+            Look-up table with the intersection information if ds_output is True, 
+            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
+            geoclide/shapes.py)
         """
         if not fast_test:
-            res = self.__class__.__name__, r1, None, False, None, None, None, None, False
+            res = self.__class__.__name__, r, None, False, None, None, None, None, False
             thit = float("inf")
             for itri in range(0, self.ntriangles):
                 p0 = Point(self.vertices[self.faces[itri,0],:])
                 p1 = Point(self.vertices[self.faces[itri,1],:])
                 p2 = Point(self.vertices[self.faces[itri,2],:])
                 triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
-                res_bis = triangle.intersect(r1, method=method, ds_output=False)
+                res_bis = triangle.intersect(r, method=method, ds_output=False)
                 thit_bis = res_bis[2]
                 is_intersection = res_bis[3]
                 if is_intersection and thit > thit_bis:
@@ -1124,60 +1122,30 @@ class TriangleMesh(Shape):
                     res = self.__class__.__name__, *res_bis[1:]
             if ds_output : return get_intersect_dataset(*res)
             else : return res
-            # dg = None
-            # thit = float("inf")
-            # for itri in range(0, self.ntriangles):
-            #     p0 = Point(self.vertices[self.faces[itri,0],:])
-            #     p1 = Point(self.vertices[self.faces[itri,1],:])
-            #     p2 = Point(self.vertices[self.faces[itri,2],:])
-            #     triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
-            #     thit_bis, dg_bis, is_intersection_bis = triangle.intersect(r1, method=method)
-            #     if is_intersection_bis:
-            #         if thit > thit_bis:
-            #             thit = thit_bis
-            #             dg = dg_bis
-            # if dg is None: return None, None, False
-                
-            # return thit, dg, True
         else:
             p0 = Point(self.vertices[self.faces[:,0],:])
             p1 = Point(self.vertices[self.faces[:,1],:])
             p2 = Point(self.vertices[self.faces[:,2],:])
             triangles = Triangle(p0, p1, p2, self.oTw, self.wTo)
             # if method == 'v2':
-            res = self.__class__.__name__, r1, None, False, None, None, None, None, False
-            res_bis = triangles.intersect(r1, method=method, ds_output=False)
+            res = self.__class__.__name__, r, None, False, None, None, None, None, False
+            res_bis = triangles.intersect(r, method=method, ds_output=False)
             if np.any(res_bis[3]):
                 near_id = np.nanargmin(res_bis[2])
-                res = self.__class__.__name__, r1, res_bis[2][near_id], \
+                res = self.__class__.__name__, r, res_bis[2][near_id], \
                     res_bis[3][near_id], res_bis[4][near_id], res_bis[5][near_id], \
                     res_bis[6][near_id], res_bis[7][near_id], False
             if ds_output : return get_intersect_dataset(*res)
             else : return res
-            
-            # thit_bis, dg_bis, is_intersection_bis = triangles.intersect(r1, method=method)
-
-            # if np.any(is_intersection_bis):
-            #     near_id = np.nanargmin(thit_bis)
-            #     thit = thit_bis[near_id]
-            #     dg = DifferentialGeometry(Point(dg_bis.p.to_numpy()[near_id]),
-            #                             Vector(dg_bis.dpdu.to_numpy()[near_id]),
-            #                             Vector(dg_bis.dpdv.to_numpy()[near_id]),
-            #                             dg_bis.u[near_id], dg_bis.v[near_id],
-            #                             dg_bis.ray_dir, dg_bis.shape)
-                
-            #     return thit, dg, True
-            # else:
-            #     return None, None, False
     
-    def is_intersection(self, r1, method='v3', fast_test=False):
+    def is_intersection(self, r, method='v3', fast_test=False):
         """
         Test if a Ray intersect with the triangle mesh
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
         fast_test : bool
@@ -1195,7 +1163,7 @@ class TriangleMesh(Shape):
                 p1 = Point(self.vertices[self.faces[itri,1],:])
                 p2 = Point(self.vertices[self.faces[itri,2],:])
                 triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
-                if (triangle.is_intersection(r1, method=method)):
+                if (triangle.is_intersection(r, method=method)):
                     return True
             return False
         else:
@@ -1203,19 +1171,19 @@ class TriangleMesh(Shape):
             p1 = Point(self.vertices[self.faces[:,1],:])
             p2 = Point(self.vertices[self.faces[:,2],:])
             triangles = Triangle(p0, p1, p2, self.oTw, self.wTo)
-            if np.any(triangles.is_intersection(r1, method=method)):
+            if np.any(triangles.is_intersection(r, method=method)):
                 return True
             else:
                 return False
     
-    def is_intersection_t(self, r1, method='v3', fast_test=False):
+    def is_intersection_t(self, r, method='v3', fast_test=False):
         """
         Test if a Ray intersect with the triangle mesh
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
         fast_test : bool
@@ -1242,7 +1210,7 @@ class TriangleMesh(Shape):
                 p1 = Point(self.vertices[self.faces[itri,1],:])
                 p2 = Point(self.vertices[self.faces[itri,2],:])
                 triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
-                thit_bis, is_intersection_bis = triangle.is_intersection_t(r1, method=method)
+                thit_bis, is_intersection_bis = triangle.is_intersection_t(r, method=method)
                 if is_intersection_bis:
                     if thit > thit_bis:
                         thit = thit_bis
@@ -1253,7 +1221,7 @@ class TriangleMesh(Shape):
             p1 = Point(self.vertices[self.faces[:,1],:])
             p2 = Point(self.vertices[self.faces[:,2],:])
             triangles = Triangle(p0, p1, p2, self.oTw, self.wTo)
-            thit_bis, is_intersection_bis = triangles.is_intersection_t(r1, method=method)
+            thit_bis, is_intersection_bis = triangles.is_intersection_t(r, method=method)
             if np.any(is_intersection_bis):
                 near_id = np.nanargmin(thit_bis)
                 return thit_bis[near_id], True
