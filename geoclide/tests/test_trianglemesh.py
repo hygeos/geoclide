@@ -199,12 +199,12 @@ def test_trianglemesh_to_dataset():
     assert (np.all(msh1.faces == msh2['faces'].values[0,:,:]))
 
 
-def test_trianglemesh_fast_tests():
+def test_trianglemesh_numpy():
     msh = gc.Spheroid(radius_xy=1., radius_z=3).to_trianglemesh(reso_theta=45, reso_phi=90)
     r0 = gc.Ray(gc.Point(5., -0.2, 2.5), gc.Vector(-1., 0., 0.))
-    ds_v2 = msh.intersect(r0, 'v2', fast_test=False)
-    ds_v2f = msh.intersect(r0, 'v2', fast_test=True)
-    ds_v3f = msh.intersect(r0, 'v3', fast_test=True)
+    ds_v2 = msh.intersect(r0, 'v2', use_loop=True)
+    ds_v2f = msh.intersect(r0, 'v2', use_loop=False)
+    ds_v3f = msh.intersect(r0, 'v3') # by default use_loop=False
     assert (ds_v2['is_intersection'].item() == ds_v2f['is_intersection'].item())
     assert (ds_v2['is_intersection'].item() == ds_v3f['is_intersection'].item())
     assert (np.isclose(ds_v2['thit'].item(), ds_v2f['thit'].item(), 0., 1e-15))
@@ -365,6 +365,16 @@ def test_triangle_2d_arr1():
     assert (np.array_equal(ds_v3['dpdu'].values, dpdu_2d, equal_nan=True))
     assert (np.array_equal(ds_v3['dpdv'].values, dpdv_2d, equal_nan=True))
 
+    msh_ds = msh.intersect(r_set, use_loop=True)
+    msh_dsn = msh.intersect(r_set, use_loop=False)
+    assert (np.array_equal(msh_ds['thit'].values, msh_dsn['thit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['phit'].values, msh_dsn['phit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['nhit'].values, msh_dsn['nhit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['u'].values, msh_dsn['u'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['v'].values, msh_dsn['v'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['dpdu'].values, msh_dsn['dpdu'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['dpdv'].values, msh_dsn['dpdv'].values, equal_nan=True))
+
 def test_triangle_2d_arr2():
     msh = gc.Sphere(1.).to_trianglemesh(reso_theta=4, reso_phi=4)
     x_, y_, z_ = np.meshgrid(np.linspace(-0.4, 0.4, 5, np.float64),
@@ -491,6 +501,16 @@ def test_triangle_2d_arr2():
     assert (np.array_equal(ds_v3['dpdu'].values, dpdu_2d, equal_nan=True))
     assert (np.array_equal(ds_v3['dpdv'].values, dpdv_2d, equal_nan=True))
 
+    msh_ds = msh.intersect(r_set, use_loop=True)
+    msh_dsn = msh.intersect(r_set, use_loop=False)
+    assert (np.array_equal(msh_ds['thit'].values, msh_dsn['thit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['phit'].values, msh_dsn['phit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['nhit'].values, msh_dsn['nhit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['u'].values, msh_dsn['u'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['v'].values, msh_dsn['v'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['dpdu'].values, msh_dsn['dpdu'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['dpdv'].values, msh_dsn['dpdv'].values, equal_nan=True))
+
 
 def test_triangle_1d_arr1():
     msh = gc.Sphere(1.).to_trianglemesh(reso_theta=5, reso_phi=5)
@@ -588,6 +608,16 @@ def test_triangle_1d_arr1():
     assert (np.array_equal(ds_v3['v'].values, v_1d, equal_nan=True))
     assert (np.array_equal(ds_v3['dpdu'].values, dpdu_1d, equal_nan=True))
     assert (np.array_equal(ds_v3['dpdv'].values, dpdv_1d, equal_nan=True))
+
+    msh_ds = msh.intersect(r0, use_loop=True)
+    msh_dsn = msh.intersect(r0, use_loop=False)
+    assert (np.array_equal(msh_ds['thit'].values, msh_dsn['thit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['phit'].values, msh_dsn['phit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['nhit'].values, msh_dsn['nhit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['u'].values, msh_dsn['u'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['v'].values, msh_dsn['v'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['dpdu'].values, msh_dsn['dpdu'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['dpdv'].values, msh_dsn['dpdv'].values, equal_nan=True))
 
 def test_triangle_1d_arr2():
 
@@ -702,6 +732,25 @@ def test_triangle_1d_arr2():
     assert (np.array_equal(ds_v3['v'].values, v_1d, equal_nan=True))
     assert (np.array_equal(ds_v3['dpdu'].values, dpdu_1d, equal_nan=True))
     assert (np.array_equal(ds_v3['dpdv'].values, dpdv_1d, equal_nan=True))
+
+    vertices = np.array([[0.        , 0.        , 1         ],
+                         [0.70710678, 0.        , 0.70710678],
+                         [0.21850801, 0.67249851, 0.70710678]])
+    faces = np.array([[0, 1, 2]])
+    msh = gc.TriangleMesh(vertices=vertices, faces=faces)
+    msh_ds = msh.intersect(r_set, use_loop=True)
+    msh_dsn = msh.intersect(r_set, use_loop=False)
+    assert (np.array_equal(msh_ds['thit'].values, msh_dsn['thit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['phit'].values, msh_dsn['phit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['nhit'].values, msh_dsn['nhit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['u'].values, msh_dsn['u'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['v'].values, msh_dsn['v'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['dpdu'].values, msh_dsn['dpdu'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['dpdv'].values, msh_dsn['dpdv'].values, equal_nan=True))
+    # Particular case where we should get the same values bellow (because only 1 triangle)
+    assert (np.array_equal(ds_v3['is_intersection'].values,
+                           msh_ds['is_intersection'].values, equal_nan=True))
+    assert (np.array_equal(ds_v3['thit'].values, msh_ds['thit'].values, equal_nan=True))
 
 
 def test_triangle_1d_arr3():
@@ -826,3 +875,17 @@ def test_triangle_1d_arr3():
     assert (np.array_equal(ds_v3['v'].values, v_1d, equal_nan=True))
     assert (np.array_equal(ds_v3['dpdu'].values, dpdu_1d, equal_nan=True))
     assert (np.array_equal(ds_v3['dpdv'].values, dpdv_1d, equal_nan=True))
+
+    msh_ds = msh.intersect(r_set, diag_calc=True, use_loop=True)
+    msh_dsn = msh.intersect(r_set, diag_calc=True, use_loop=False)
+    assert (np.array_equal(msh_ds['thit'].values, msh_dsn['thit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['phit'].values, msh_dsn['phit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['nhit'].values, msh_dsn['nhit'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['u'].values, msh_dsn['u'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['v'].values, msh_dsn['v'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['dpdu'].values, msh_dsn['dpdu'].values, equal_nan=True))
+    assert (np.array_equal(msh_ds['dpdv'].values, msh_dsn['dpdv'].values, equal_nan=True))
+    # Particular case where we should get the same values bellow (because diag calc)
+    assert (np.array_equal(ds_v3['is_intersection'].values,
+                           msh_ds['is_intersection'].values, equal_nan=True))
+    assert (np.array_equal(ds_v3['thit'].values, msh_ds['thit'].values, equal_nan=True))

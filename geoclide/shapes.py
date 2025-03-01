@@ -73,13 +73,13 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         maxt = np.zeros_like(mint)
         mint[:] = r.mint
         maxt[:] = r.maxt
-        ds['mint'] = mint
-        ds['maxt'] = maxt
+        ds['mint'] = xr.DataArray(mint, dims=['nrays'])
+        ds['maxt'] = xr.DataArray(maxt, dims=['nrays'])
     else:
         ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['xyz'])
         ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['xyz'])
-        ds['mint'] = r.mint
-        ds['maxt'] = r.maxt
+        ds['mint'] = xr.DataArray(r.mint)
+        ds['maxt'] = xr.DataArray(r.maxt)
 
     if (not isinstance(t, np.ndarray)):
         ds['is_intersection'] = xr.DataArray(is_intersection)
@@ -136,27 +136,31 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         dpdv[not_int] = None
         ds['dpdu'] = xr.DataArray(dpdu, dims=['nrays', 'xyz'])
         ds['dpdv'] = xr.DataArray(dpdv, dims=['nrays', 'xyz'])
-    elif (diag_calc): # multiple shape and rays but calc only the diagonal
+    elif (diag_calc or shape_name == 'TriangleMesh'): # multiple shape and rays but calc only the diagonal
         ndiag = len(t)
-        ds.attrs.update({'nobj': ndiag, 'nrays': ndiag, 'ndiag':ndiag})
-        ds['is_intersection'] = xr.DataArray(is_intersection, dims=['ndiag'])
-        ds['thit'] = xr.DataArray(t, dims=['ndiag'])
+        if shape_name == 'TriangleMesh' and not diag_calc:
+            dim_name = 'nrays'
+            ds.attrs.update({'nrays': ndiag})
+        else:
+            dim_name = 'ndiag'
+            ds.attrs.update({'nobj': ndiag, 'nrays': ndiag, 'ndiag':ndiag})
+        ds['is_intersection'] = xr.DataArray(is_intersection, dims=[dim_name])
+        ds['thit'] = xr.DataArray(t, dims=[dim_name])
         u[not_int] = None
         v[not_int] = None
-        ds['u'] = xr.DataArray(u, dims=['ndiag'])
-        ds['v'] = xr.DataArray(v, dims=['ndiag'])
+        ds['u'] = xr.DataArray(u, dims=[dim_name])
+        ds['v'] = xr.DataArray(v, dims=[dim_name])
         p = r[t].to_numpy()
-        ds['phit'] = xr.DataArray(p, dims=['ndiag', 'xyz'])
+        ds['phit'] = xr.DataArray(p, dims=[dim_name, 'xyz'])
+        
         n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
         n = n.to_numpy()
         n[not_int] = None
-        ds['nhit'] = xr.DataArray(n, dims=['ndiag', 'xyz'])
-        dpdu = np.full((ndiag, 3), dpdu, dtype=np.float64)
-        dpdv = np.full((ndiag, 3), dpdv, dtype=np.float64)
+        ds['nhit'] = xr.DataArray(n, dims=[dim_name, 'xyz'])
         dpdu[not_int] = None
         dpdv[not_int] = None
-        ds['dpdu'] = xr.DataArray(dpdu, dims=['ndiag', 'xyz'])
-        ds['dpdv'] = xr.DataArray(dpdv, dims=['ndiag', 'xyz'])
+        ds['dpdu'] = xr.DataArray(dpdu, dims=[dim_name, 'xyz'])
+        ds['dpdv'] = xr.DataArray(dpdv, dims=[dim_name, 'xyz'])
     else: # multiple shape and rays, 2-D output
         nobj = t.shape[0]
         ds.attrs.update({'nobj': nobj, 'nrays': nrays})
