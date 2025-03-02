@@ -4,6 +4,7 @@
 import numpy as np
 import geoclide as gc
 import pytest
+from geoclide.shapes import get_intersect_dataset
 
 Q1 = [gc.Disk(radius=3., inner_radius=1.2),
       gc.Sphere(radius=3.),
@@ -155,7 +156,7 @@ def test_quadric_1d_arr(quadric):
     for ir in range (0, nrays):
         res_sca = quadric.intersect(list_rays[ir], ds_output=False)
         if (res_sca[2] is not None):
-            ds_sca = gc.get_intersect_dataset(*res_sca)
+            ds_sca = get_intersect_dataset(*res_sca)
             is_int_1d[ir] = ds_sca['is_intersection'].values
             t_1d[ir] = ds_sca['thit'].values
             p_1d[ir,:] = ds_sca['phit'].values

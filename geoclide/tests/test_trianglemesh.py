@@ -4,6 +4,7 @@
 import numpy as np
 import math
 import geoclide as gc
+from geoclide.shapes import get_intersect_dataset
 import os
 
 ROOTPATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
@@ -283,7 +284,7 @@ def test_triangle_2d_arr1():
         for ir in range (0, nrays):
             res_sca = triangle.intersect_v2(list_rays[ir], ds_output=False)
             if res_sca[2] is not None:
-                ds_sca = gc.get_intersect_dataset(*res_sca)
+                ds_sca = get_intersect_dataset(*res_sca)
                 is_int_2d[itri,ir] = ds_sca['is_intersection'].values
                 t_2d[itri,ir] = ds_sca['thit'].values
                 p_2d[itri,ir,:] = ds_sca['phit'].values
@@ -338,7 +339,7 @@ def test_triangle_2d_arr1():
         for ir in range (0, nrays):
             res_sca = triangle.intersect_v3(list_rays[ir], ds_output=False)
             if res_sca[2] is not None:
-                ds_sca = gc.get_intersect_dataset(*res_sca)
+                ds_sca = get_intersect_dataset(*res_sca)
                 is_int_2d[itri,ir] = ds_sca['is_intersection'].values
                 t_2d[itri,ir] = ds_sca['thit'].values
                 p_2d[itri,ir,:] = ds_sca['phit'].values
@@ -427,7 +428,7 @@ def test_triangle_2d_arr2():
         for ir in range (0, nrays):
             res_sca = triangle.intersect_v2(list_rays[ir], ds_output=False)
             if res_sca[2] is not None:
-                ds_sca = gc.get_intersect_dataset(*res_sca)
+                ds_sca = get_intersect_dataset(*res_sca)
                 is_int_2d[itri,ir] = ds_sca['is_intersection'].values
                 t_2d[itri,ir] = ds_sca['thit'].values
                 p_2d[itri,ir,:] = ds_sca['phit'].values
@@ -474,7 +475,7 @@ def test_triangle_2d_arr2():
         for ir in range (0, nrays):
             res_sca = triangle.intersect_v3(list_rays[ir], ds_output=False)
             if res_sca[2] is not None:
-                ds_sca = gc.get_intersect_dataset(*res_sca)
+                ds_sca = get_intersect_dataset(*res_sca)
                 is_int_2d[itri,ir] = ds_sca['is_intersection'].values
                 t_2d[itri,ir] = ds_sca['thit'].values
                 p_2d[itri,ir,:] = ds_sca['phit'].values
@@ -548,7 +549,7 @@ def test_triangle_1d_arr1():
         triangle = gc.Triangle(p0, p1, p2)
         res_sca = triangle.intersect_v2(r0, ds_output=False)
         if res_sca[2] is not None:
-            ds_sca = gc.get_intersect_dataset(*res_sca)
+            ds_sca = get_intersect_dataset(*res_sca)
             is_int_1d[itri] = ds_sca['is_intersection'].values
             t_1d[itri] = ds_sca['thit'].values
             p_1d[itri,:] = ds_sca['phit'].values
@@ -582,7 +583,7 @@ def test_triangle_1d_arr1():
         triangle = gc.Triangle(p0, p1, p2)
         res_sca = triangle.intersect_v3(r0, ds_output=False)
         if res_sca[2] is not None:
-            ds_sca = gc.get_intersect_dataset(*res_sca)
+            ds_sca = get_intersect_dataset(*res_sca)
             is_int_1d[itri] = ds_sca['is_intersection'].values
             t_1d[itri] = ds_sca['thit'].values
             p_1d[itri,:] = ds_sca['phit'].values
@@ -664,7 +665,7 @@ def test_triangle_1d_arr2():
     for ir in range (0, nrays):
         res_sca = triangle.intersect_v2(list_rays[ir], ds_output=False)
         if (res_sca[2] is not None):
-            ds_sca = gc.get_intersect_dataset(*res_sca)
+            ds_sca = get_intersect_dataset(*res_sca)
             is_int_1d[ir] = ds_sca['is_intersection'].values
             t_1d[ir] = ds_sca['thit'].values
             p_1d[ir,:] = ds_sca['phit'].values
@@ -706,7 +707,7 @@ def test_triangle_1d_arr2():
     for ir in range (0, nrays):
         res_sca = triangle.intersect_v3(list_rays[ir], ds_output=False)
         if (res_sca[2] is not None):
-            ds_sca = gc.get_intersect_dataset(*res_sca)
+            ds_sca = get_intersect_dataset(*res_sca)
             is_int_1d[ir] = ds_sca['is_intersection'].values
             t_1d[ir] = ds_sca['thit'].values
             p_1d[ir,:] = ds_sca['phit'].values
@@ -802,7 +803,7 @@ def test_triangle_1d_arr3():
         triangle = gc.Triangle(p0, p1, p2)
         res_sca = triangle.intersect_v2(list_rays[idiag], ds_output=False)
         if (res_sca[2] is not None):
-            ds_sca = gc.get_intersect_dataset(*res_sca)
+            ds_sca = get_intersect_dataset(*res_sca)
             is_int_1d[idiag] = ds_sca['is_intersection'].values
             t_1d[idiag] = ds_sca['thit'].values
             p_1d[idiag,:] = ds_sca['phit'].values
@@ -849,7 +850,7 @@ def test_triangle_1d_arr3():
         triangle = gc.Triangle(p0, p1, p2)
         res_sca = triangle.intersect_v3(list_rays[idiag], ds_output=False)
         if (res_sca[2] is not None):
-            ds_sca = gc.get_intersect_dataset(*res_sca)
+            ds_sca = get_intersect_dataset(*res_sca)
             is_int_1d[idiag] = ds_sca['is_intersection'].values
             t_1d[idiag] = ds_sca['thit'].values
             p_1d[idiag,:] = ds_sca['phit'].values

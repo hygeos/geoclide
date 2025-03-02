@@ -10,4 +10,3 @@ from geoclide.trianglemesh import Triangle, TriangleMesh, create_sphere_triangle
     read_trianglemesh, create_disk_trianglemesh
 from geoclide.constante import VERSION, GAMMA2_F32, GAMMA2_F64, GAMMA3_F32, GAMMA3_F64, GAMMA5_F32, GAMMA5_F64, TWO_PI
 from geoclide.advancedvecope import ang2vec, vec2ang
-from geoclide.shapes import get_intersect_dataset

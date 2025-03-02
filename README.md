@@ -88,31 +88,36 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
 <details>
   <summary>Click here</summary>
 
+  Create a point and a Vector
   ```python
   >>> import geoclide as gc
   >>> import numpy as np
-  >>> # Some basics
+  >>> 
   >>> p1 = gc.Point(0., 0., 0.) # create a point
   >>> v1 = gc.normalize(gc.Vector(0.5, 0.5, 0.1)) # create a vector and normalize it
-  >>> v1
-  Vector(0.4082482904638631, 0.4082482904638631, 0.8164965809277261)
-  >>> # With a point and a vector we can create a ray
+  >>> p1, v1
+  (Point(0.0, 0.0, 0.0), Vector(0.7001400420140049, 0.7001400420140049, 0.140028008402801))
+  >>> v1.length()
+  1.0
+  ```
+
+  With a point and a vector we can create a ray
+  ```python
   >>> r1 = gc.Ray(o=p1, d=v1)
   >>> r1
-  r(t) = (0.0, 0.0, 0.0) + t*(0.4082482904638631, 0.4082482904638631, 0.8164965809277261) with t ∈ [0,inf[
-  >>> # Let's create a triangle mesh with 2 triangles
-  >>> # We have 4 vertices
-  >>> p0 = np.array([-5, -5, 0.])
-  >>> p1 = np.array([5, -5, 0.])
-  >>> p2 = np.array([-5, 5, 0.])
-  >>> p3 = np.array([5, 5, 0.])
-  >>> vertices = np.array([p0, p1, p2, p3])
-  >>> # Get the vertices indices of each triangle
-  >>> vid_t0 = np.array([0, 1, 2]) # the vertices indices of triangle 0
-  >>> vid_t1 = np.array([2, 3, 1]) # the vertices indices of triangle 1
-  >>> faces = np.array([vid_t0, vid_t1])
-  >>> # Here if we create the triangle mesh, it would be a square of dimension 10*10
-  >>> # centered at origin (0.,0.,0.) and parallel to the xy plane
+  (0.0, 0.0, 0.0) + t*(0.7001400420140049, 0.7001400420140049, 0.140028008402801) with t ∈ [0,inf[
+  ```
+
+  Create a simple triangle mesh composed of 2 triangles
+  ```python
+  >>> v0 = np.array([-5, -5, 0.])
+  >>> v1 = np.array([5, -5, 0.])
+  >>> v2 = np.array([-5, 5, 0.])
+  >>> v3 = np.array([5, 5, 0.])
+  >>> vertices = np.array([v0, v1, v2, v3])
+  >>> f0 = np.array([0, 1, 2]) # the vertices indices of triangle 0 / face 0
+  >>> f1 = np.array([2, 3, 1]) # the vertices indices of triangle 1 / face 1
+  >>> faces = np.array([f0, f1])
   >>> # We can create a transformation to translate and rotate it
   >>> translate = gc.get_translate_tf(gc.Vector(2.5, 0., 0.)) # translation of 2.5 in x axis
   >>> rotate = gc.get_rotateY_tf(-90.) # rotation of -90 degrees around the y axis
@@ -120,36 +125,35 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   >>> tri_mesh = gc.TriangleMesh(vertices, faces, oTw=oTw) # create the triangle mesh
   >>> ds = gc.calc_intersection(tri_mesh, r1) # see if the ray r1 intersect the triangle mesh
   >>> ds
-  <xarray.Dataset> Size: 801B
+  <xarray.Dataset> Size: 865B
   Dimensions:          (xyz: 3, nvertices: 4, ntriangles: 2, p0p1p2: 3, dim_0: 4,
                         dim_1: 4)
   Coordinates:
     * xyz              (xyz) int64 24B 0 1 2
   Dimensions without coordinates: nvertices, ntriangles, p0p1p2, dim_0, dim_1
-  Data variables: (12/14)
-      is_intersection  bool 1B True
+  Data variables: (12/18)
       o                (xyz) float64 24B 0.0 0.0 0.0
       d                (xyz) float64 24B 0.7001 0.7001 0.14
       mint             int64 8B 0
       maxt             float64 8B inf
-      vertices         (nvertices, xyz) float64 96B -5.0 -5.0 0.0 ... 5.0 5.0 0.0
+      is_intersection  bool 1B True
+      thit             float64 8B 3.571
       ...               ...
+      vertices         (nvertices, xyz) float64 96B -5.0 -5.0 0.0 ... 5.0 5.0 0.0
+      faces            (ntriangles, p0p1p2) int64 48B 0 1 2 2 3 1
+      wTo_m            (dim_0, dim_1) float64 128B 6.123e-17 0.0 1.0 ... 0.0 1.0
       wTo_mInv         (dim_0, dim_1) float64 128B 6.123e-17 0.0 -1.0 ... 0.0 1.0
       oTw_m            (dim_0, dim_1) float64 128B 6.123e-17 0.0 -1.0 ... 0.0 1.0
       oTw_mInv         (dim_0, dim_1) float64 128B 6.123e-17 0.0 1.0 ... 0.0 1.0
-      thit             float64 8B 3.571
-      phit             (xyz) float64 24B 2.5 2.5 0.5
-      nhit             (xyz) float64 24B -1.0 -0.0 8.882e-17
   Attributes:
       shape:       TriangleMesh
+      date:        2025-03-02
+      version:     2.0.0
       ntriangles:  2
       nvertices:   4
-      date:        2025-02-17
-      version:     1.2.2
   ```
 
-  Here there is intersection, see more detail on intersection point phit:
-
+  We can access the details of each variable. Bellow an example with the variable 'phit'.
   ```python
   >>> ds['phit']
   <xarray.DataArray 'phit' (xyz: 3)> Size: 24B
@@ -159,14 +163,6 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   Attributes:
       type:         Point
       description:  the x, y and z components of the intersection point
-  ```
-
-  We can convert it into a point object:
-
-  ```python
-  >>> phit = gc.Point(ds['phit'].values)
-  >>> phit
-  Point(2.5, 2.5, 0.5)
   ```
 </details>
 
