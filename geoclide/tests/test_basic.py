@@ -211,7 +211,7 @@ def test_bbox():
     r_int_2 = gc.Ray(gc.Point(0.5, 0.5, 0.5), gc.Vector(1.,0.,1.))
     r_int_3 = gc.Ray(gc.Point(0.5, 0.5, 2.), gc.Vector(0.,0.,1.))
     # case where the ray origin is outside and where the ray intersect 2 times the BBox
-    t0, t1, is_int = b_int.intersect(r_int_1)
+    t0, t1, is_int = b_int.intersect(r_int_1, ds_output=False)
     p_int_t0 = r_int_1[t0]
     p_int_t1 = r_int_1[t1]
     assert (is_int)
@@ -222,20 +222,20 @@ def test_bbox():
     assert (np.isclose(p_int_t1.y, 0.5, 0., 1e-14))
     assert (np.isclose(p_int_t1.z, 0.5, 0., 1e-14))
     # case where the ray origin is inside and where the ray intersect 1 times the BBox
-    t0, t1, is_int = b_int.intersect(r_int_2)
+    t0, t1, is_int = b_int.intersect(r_int_2, ds_output=False)
     p_int_t1 = r_int_2[t1]
     assert (is_int)
     assert (np.isclose(p_int_t1.x, 1., 0., 1e-14))
     assert (np.isclose(p_int_t1.y, 0.5, 0., 1e-14))
     assert (np.isclose(p_int_t1.z, 1.0, 0., 1e-14))
     # case where the ray origin is outsie and where the ray does not intersect with the BBox
-    t0, t1, is_int = b_int.intersect(r_int_3)
+    t0, t1, is_int = b_int.intersect(r_int_3, ds_output=False)
     assert (not is_int)
 
     b_int2 = gc.BBox(p1=gc.Point(-500., -500., 0.), p2=gc.Point(500., 500., 700.))
     r_int4 = gc.Ray(o=gc.Point(0., 0., 0.), d=gc.normalize(gc.Vector(0.5, -0.5, 1.)))
 
-    t0, t1, is_int = b_int2.intersect(r_int4)
+    t0, t1, is_int = b_int2.intersect(r_int4, ds_output=False)
     assert (is_int)
     assert (t0 == 0.)
     assert (np.isclose(857.3214099741128, t1, 0., 1e-14))
@@ -322,9 +322,9 @@ def test_bbox_ray_array():
     assert (is_int1 == is_int_set[2])
     assert (is_int2 == is_int_set[3])
 
-    t0_1, t1_1, is_int1 = b1.intersect(r1)
-    t0_2, t1_2, is_int2 = b1.intersect(r2)
-    t0_set, t1_set, is_int_set = b1.intersect(r_set)
+    t0_1, t1_1, is_int1 = b1.intersect(r1, ds_output=False)
+    t0_2, t1_2, is_int2 = b1.intersect(r2, ds_output=False)
+    t0_set, t1_set, is_int_set = b1.intersect(r_set, ds_output=False)
     assert (t0_1 == t0_set[0])
     assert (t1_1 == t1_set[0])
     assert (t0_2 == t0_set[1])
@@ -369,14 +369,14 @@ def test_bbox_ray_array():
     pmin = gc.Point(pmin_arr)
     pmax = gc.Point(pmax_arr)
     b_set = gc.BBox(pmin, pmax)
-    t0, t1, is_int1 = b_set.intersect(r0)
+    t0, t1, is_int1 = b_set.intersect(r0, ds_output=False)
     nboxes = pmin_arr.shape[0]
     t0_ = np.zeros(nboxes, dtype=np.float64)
     t1_ = np.zeros_like(t0)
     is_int_ = np.full(nboxes, False, dtype=bool)
     for ib in range (0, nboxes):
         bi = gc.BBox(gc.Point(pmin_arr[ib,:]), gc.Point(pmax_arr[ib,:]))
-        t0_[ib], t1_[ib], is_int_[ib] = bi.intersect(r0)
+        t0_[ib], t1_[ib], is_int_[ib] = bi.intersect(r0, ds_output=False)
     assert (np.all(t0 == t0_))
     assert (np.all(t1 == t1_))
     assert (np.all(is_int1 == is_int_))
