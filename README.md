@@ -207,6 +207,10 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   print ("Satellite position (pp case) :", ds_pp['phit'].values)
   print ("Satellite position (sp case) ", ds_sp['phit'].values)
   ```
+  ```bash
+  Satellite position (pp case) : [ 494.97474683 -494.97474683  700.        ]
+  Satellite position (sp case)  [ 472.61058011 -472.61058011  668.37229212]
+  ```
 </details>
 
 
@@ -276,56 +280,51 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
 
   Here we create 1000000 bounding boxes and 1 ray
   ```python
-  >>> import numpy as np
-  >>> import geoclide as gc
-  >>> from time import process_time
-  >>> nx = 100
-  >>> ny = 100
-  >>> nz = 100
-  >>> x = np.linspace(0., nx-1, nx, np.float64)
-  >>> y = np.linspace(0., ny-1, ny, np.float64)
-  >>> z = np.linspace(0., nz-1, nz, np.float64)
-  >>> x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
-  >>> pmin_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
-  >>> x = np.linspace(1., nx, nx, np.float64)
-  >>> y = np.linspace(1., ny, ny, np.float64)
-  >>> z = np.linspace(1., nz, nz, np.float64)
-  >>> x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
-  >>> pmax_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
-  >>> r0 = gc.Ray(gc.Point(-2., 0., 0.25), gc.normalize(gc.Vector(1, 0., 0.5)))
-  ```
-  
-  Test intersection tests using a loop:
-  ```python
-  >>> start = process_time()
-  ... nboxes = pmin_arr.shape[0]
-  ... t0_ = np.zeros(nboxes, dtype=np.float64)
-  ... t1_ = np.zeros_like(t0_)
-  ... is_int_ = np.full(nboxes, False, dtype=bool)
-  ... 
-  ... for ib in range (0, nboxes):
-  ...     bi = gc.BBox(gc.Point(pmin_arr[ib,:]), gc.Point(pmax_arr[ib,:]))
-  ...     t0_[ib], t1_[ib], is_int_[ib] = bi.intersect(r0)
-  ... end = process_time()
-  ... 
-  >>> end - start # elapsed time in seconds
-  6.878407069000001
-  ```
+  import numpy as np
+  import geoclide as gc
+  from time import process_time
+  nx = 100
+  ny = 100
+  nz = 100
+  x = np.linspace(0., nx-1, nx, np.float64)
+  y = np.linspace(0., ny-1, ny, np.float64)
+  z = np.linspace(0., nz-1, nz, np.float64)
+  x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
+  pmin_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
+  x = np.linspace(1., nx, nx, np.float64)
+  y = np.linspace(1., ny, ny, np.float64)
+  z = np.linspace(1., nz, nz, np.float64)
+  x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
+  pmax_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
+  r0 = gc.Ray(gc.Point(-2., 0., 0.25), gc.normalize(gc.Vector(1, 0., 0.5)))
 
-  Test intersection tests using ndarray calculations 
-  ```python
-  >>> start = process_time()
-  ... pmin = gc.Point(pmin_arr)
-  ... pmax = gc.Point(pmax_arr)
-  ... b_set = gc.BBox(pmin, pmax)
-  ... t0, t1, is_int1 = b_set.intersect(r0)
-  ... end = process_time()
-  ...
-  >>> end - start # elapsed time in seconds
-  0.06373456800000099
+  # Test intersection tests using a loop
+  start = process_time()
+  nboxes = pmin_arr.shape[0]
+  t0_ = np.zeros(nboxes, dtype=np.float64)
+  t1_ = np.zeros_like(t0_)
+  is_int_ = np.full(nboxes, False, dtype=bool)
+  for ib in range (0, nboxes):
+      bi = gc.BBox(gc.Point(pmin_arr[ib,:]), gc.Point(pmax_arr[ib,:]))
+      t0_[ib], t1_[ib], is_int_[ib] = bi.intersect(r0, ds_output=False)
+  end = process_time()
+  print("elapsed time (s) using loop: ", end - start)
+
+  #Test intersection tests using ndarray calculations
+  start = process_time()
+  pmin = gc.Point(pmin_arr)
+  pmax = gc.Point(pmax_arr)
+  b_set = gc.BBox(pmin, pmax)
+  t0, t1, is_int1 = b_set.intersect(r0, ds_output=False)
+  end = process_time()
+  print("elapsed time (s) using numpy: ", end - start)
+  ```
+  ``` bash
+  elapsed time (s) using loop:  7.527952158
+  elapsed time (s) using numpy:  0.06523970699999992
   ```
   
-  In this example, we are approximately 100 times faster by using ndarray calculations.
+  In this example, we are approximately 115 times faster by using numpy ndarray calculations.
   </details>
 
   #### Bounding BBox - Ray intersection test (multiples bboxes and multiple rays)
@@ -334,110 +333,93 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
 
   We create 10000 bounding boxes and 10000 rays
   ```python
-  >>> import numpy as np
-  >>> import geoclide as gc
-  >>> from time import process_time
-  >>> nx = 100
-  >>> ny = 100
-  >>> nz = 1
-  >>> x = np.linspace(0., nx-1, nx, np.float64)
-  >>> y = np.linspace(0., ny-1, ny, np.float64)
-  >>> z = np.linspace(0., nz-1, nz, np.float64)
-  >>> x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
-  >>> pmin_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
-  >>> x = np.linspace(1., nx, nx, np.float64)
-  >>> y = np.linspace(1., ny, ny, np.float64)
-  >>> z = np.linspace(1., nz, nz, np.float64)
-  >>> x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
-  >>> pmax_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
-  >>> nboxes = pmin_arr.shape[0]
-  >>> x_, y_, z_ = np.meshgrid(np.linspace(0.5, nx-0.5, nx, np.float64),
-  ...                          np.linspace(0.5, ny-0.5, nx, np.float64),
-  ...                          nz+1, indexing='ij')
-  ...
-  >>> o_set_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
-  >>> nrays = o_set_arr.shape[0]
-  >>> d_set_arr = np.zeros_like(o_set_arr)
-  >>> d_set_arr[:,0] = 0.
-  >>> d_set_arr[:,1] = 0.
-  >>> d_set_arr[:,2] = -1.
-  >>> o_set = gc.Point(o_set_arr)
-  >>> d_set = gc.Vector(d_set_arr)
+  import numpy as np
+  import geoclide as gc
+  from time import process_time
+  nx = 100
+  ny = 100
+  nz = 1
+  x = np.linspace(0., nx-1, nx, np.float64)
+  y = np.linspace(0., ny-1, ny, np.float64)
+  z = np.linspace(0., nz-1, nz, np.float64)
+  x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
+  pmin_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
+  x = np.linspace(1., nx, nx, np.float64)
+  y = np.linspace(1., ny, ny, np.float64)
+  z = np.linspace(1., nz, nz, np.float64)
+  x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
+  pmax_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
+  nboxes = pmin_arr.shape[0]
+  x_, y_, z_ = np.meshgrid(np.linspace(0.5, nx-0.5, nx, np.float64),
+                          np.linspace(0.5, ny-0.5, ny, np.float64),
+                          nz+1, indexing='ij')
+
+  o_set_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
+  nrays = o_set_arr.shape[0]
+  d_set_arr = np.zeros_like(o_set_arr)
+  d_set_arr[:,0] = 0.
+  d_set_arr[:,1] = 0.
+  d_set_arr[:,2] = -1.
+  o_set = gc.Point(o_set_arr)
+  d_set = gc.Vector(d_set_arr)
+
+  # === Case 1: for each ray, perform intersection test with all the bounding boxes
+  # The tests using loops
+  start = process_time()
+  t0_ = np.zeros((nboxes, nrays), dtype=np.float64)
+  t1_ = np.zeros_like(t0_)
+  is_int_ = np.full((nboxes,nrays), False, dtype=bool)
+  list_rays = []
+  for ir in range(0, nrays):
+    list_rays.append(gc.Ray(gc.Point(o_set_arr[ir,:]),
+                            gc.normalize(gc.Vector(d_set_arr[ir,:]))))
+  for ib in range (0, nboxes):
+    bi = gc.BBox(gc.Point(pmin_arr[ib,:]), gc.Point(pmax_arr[ib,:]))
+    for ir in range(0, nrays):
+        t0_[ib,ir], t1_[ib,ir], is_int_[ib,ir] = bi.intersect(list_rays[ir], ds_output=False)
+  end = process_time()
+  print("case 1 - elapsed time (s) using loops:", end-start)
+
+  # The tests using numpy calculations
+  start = process_time()
+  r_set = gc.Ray(o_set, d_set)
+  pmin = gc.Point(pmin_arr)
+  pmax = gc.Point(pmax_arr)
+  b_set = gc.BBox(pmin, pmax)
+  t0, t1, is_int1 = b_set.intersect(r_set, ds_output=False)
+  end = process_time()
+  time_fast = end-start
+  print("case 1 - elapsed time (s) using numpy:", end-start)
+
+  # === Case 2: perform intersection test only between ray(i) and bbox(i) i.e. diagonal calculations
+  # The tests using lo
+  start = process_time()
+  t0_ = np.zeros((nboxes), dtype=np.float64)
+  t1_ = np.zeros_like(t0_)
+  is_int_ = np.full((nboxes), False, dtype=bool)
+  list_rays = []
+  for ib in range(0, nboxes):
+      bi = gc.BBox(gc.Point(pmin_arr[ib,:]), gc.Point(pmax_arr[ib,:]))
+      ri = gc.Ray(gc.Point(o_set_arr[ib,:]), gc.Vector(d_set_arr[ib,:]))
+      t0_[ib], t1_[ib], is_int_[ib] = bi.intersect(ri, ds_output=False)
+  end = process_time()
+  print("case 2 - elapsed time (s) using loops:", end-start)
+
+  # The tests using numpy calculations
+  start = process_time()
+  r_set = gc.Ray(o_set, d_set)
+  pmin = gc.Point(pmin_arr)
+  pmax = gc.Point(pmax_arr)
+  b_set = gc.BBox(pmin, pmax)
+  t0, t1, is_int1 = b_set.intersect(r_set, diag_calc=True, ds_output=False)
+  end = process_time()
+  print("case 2 - elapsed time (s) using numpy:", end-start)
   ```
-
-  ##### 1) If we want, for each ray, to perform intersection test with all the bounding boxes
-
-  The tests using loops:
-   ```python
-  >>> start = process_time()
-  ... t0_ = np.zeros((nboxes, nrays), dtype=np.float64)
-  ... t1_ = np.zeros_like(t0_)
-  ... is_int_ = np.full((nboxes,nrays), False, dtype=bool)
-  ... 
-  ... list_rays = []
-  ... for ir in range(0, nrays):
-  ...     list_rays.append(gc.Ray(gc.Point(o_set_arr[ir,:]),
-  ...                             gc.normalize(gc.Vector(d_set_arr[ir,:]))))
-  ... 
-  ... for ib in range (0, nboxes):
-  ...     bi = gc.BBox(gc.Point(pmin_arr[ib,:]), gc.Point(pmax_arr[ib,:]))
-  ...     for ir in range(0, nrays):
-  ...         t0_[ib,ir], t1_[ib,ir], is_int_[ib,ir] = bi.intersect(list_rays[ir])
-  ... end = process_time()
-  ...
-  >>> end-start
-  198.309175913
-  ```
-
-  The tests using numpy calculations:
-  Here the tests using loop:
-  ```python
-  >>> start = process_time()
-  ... r_set = gc.Ray(o_set, d_set)
-  ... pmin = gc.Point(pmin_arr)
-  ... pmax = gc.Point(pmax_arr)
-  ... b_set = gc.BBox(pmin, pmax)
-  ... t0, t1, is_int1 = b_set.intersect(r_set)
-  ... end = process_time()
-  ... time_fast = end-start
-  ...
-  >>> end-start
-  3.289091017000004
-  ```
-
-
-  ##### 2) If we want to perform intersection test between 1 bbox and 1 ray
-
-  The tests using loops:
-  ```python
-  >>> start = process_time()
-  ... t0_ = np.zeros((nboxes), dtype=np.float64)
-  ... t1_ = np.zeros_like(t0_)
-  ... is_int_ = np.full((nboxes), False, dtype=bool)
-  ... 
-  ... list_rays = []
-  ... for ib in range(0, nboxes):
-  ...     bi = gc.BBox(gc.Point(pmin_arr[ib,:]), gc.Point(pmax_arr[ib,:]))
-  ...     ri = gc.Ray(gc.Point(o_set_arr[ib,:]), gc.Vector(d_set_arr[ib,:]))
-  ...     t0_[ib], t1_[ib], is_int_[ib] = bi.intersect(ri)
-  ... end = process_time()
-  ...
-  >>> end-start
-  0.11680529199998091
-  ```
-
-  The tests using numpy calculations:
-  ```python
-  >>> start = process_time()
-  ... r_set = gc.Ray(o_set, d_set)
-  ... pmin = gc.Point(pmin_arr)
-  ... pmax = gc.Point(pmax_arr)
-  ... b_set = gc.BBox(pmin, pmax)
-  ... t0, t1, is_int1 = b_set.intersect(r_set, diag_calc=True)
-  ... end = process_time()
-  ... time_fast = end-start
-  ...
-  0.043592625999991697
+  ``` bash
+  case 1 - elapsed time (s) using loop: 201.16944833099998
+  case 1 - elapsed time (s) using numpy: 3.383698623000015
+  case 2 - elapsed time (s) using loop: 0.10501369499999669
+  case 2 - elapsed time (s) using numpy: 0.04252339900000379
   ```
 </details>
 
