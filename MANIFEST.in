@@ -1,1 +1,2 @@
 include geoclide/tests/data/*.nc
+include geoclide/img/*.png
