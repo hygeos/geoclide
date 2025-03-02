@@ -775,14 +775,33 @@ class Triangle(Shape):
             meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
             r(i) and triangle(i). The same size for the Triangle and the Ray is required.
         ds_output : Bool, optional
-            If True the output is a dataset, else -> a tuple with intersection information variables
+            If True the output is a dataset, else return a tuple with intersection information variables
         
         Returns
         -------
         out : xr.Dataset | tuple
             Look-up table with the intersection information if ds_output is True, 
-            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
-            geoclide/shapes.py)
+            else return a tuple (ready to be an input for the function get_intersect_dataset in 
+            geoclide/shapes.py). Form of the tuple\:
+            
+            * shape_name : str
+                -> The shape class name
+            * r : Ray
+                -> The ray(s) used for the intersection test
+            * t : None | float | 1-D ndarray | 2-D ndarray
+                -> The t ray variable for its first intersection at the shape surface
+            * is_intersection : None | bool | 1-D ndarray | 2-D ndarray
+                -> If there is an intersection return True, else False
+            * u : None | float | 1-D ndarray | 2-D ndarray
+                -> The u coordinate of the parametric representation
+            * v : None | float | 1-D ndarray | 2-D ndarray
+                -> The u coordinate of the parametric representation
+            * dpdu : None | 1-D ndarray | 2-D ndarray
+                -> The surface partial derivative of phit with respect to u
+            * dpdv : None | 1-D ndarray | 2-D ndarray
+                -> The surface partial derivative of phit with respect to v
+            * diag_cal : bool
+                -> This indicates whether a diagonal calculation has been performed
 
         Notes
         -----
@@ -810,14 +829,33 @@ class Triangle(Shape):
             meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
             r(i) and triangle(i). The same size for the Triangle and the Ray is required.
         ds_output : Bool, optional
-            If True the output is a dataset, else -> a tuple with intersection information variables
+            If True the output is a dataset, else return a tuple with intersection information variables
         
         Returns
         -------
         out : xr.Dataset | tuple
             Look-up table with the intersection information if ds_output is True, 
-            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
-            geoclide/shapes.py)
+            else return a tuple (ready to be an input for the function get_intersect_dataset in 
+            geoclide/shapes.py). Form of the tuple\:
+            
+            * shape_name : str
+                -> The shape class name
+            * r : Ray
+                -> The ray(s) used for the intersection test
+            * t : None | float | 1-D ndarray | 2-D ndarray
+                -> The t ray variable for its first intersection at the shape surface
+            * is_intersection : None | bool | 1-D ndarray | 2-D ndarray
+                -> If there is an intersection return True, else False
+            * u : None | float | 1-D ndarray | 2-D ndarray
+                -> The u coordinate of the parametric representation
+            * v : None | float | 1-D ndarray | 2-D ndarray
+                -> The u coordinate of the parametric representation
+            * dpdu : None | 1-D ndarray | 2-D ndarray
+                -> The surface partial derivative of phit with respect to u
+            * dpdv : None | 1-D ndarray | 2-D ndarray
+                -> The surface partial derivative of phit with respect to v
+            * diag_cal : bool
+                -> This indicates whether a diagonal calculation has been performed
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         is_r_arr = isinstance(r.o.x, np.ndarray)
@@ -1087,14 +1125,33 @@ class Triangle(Shape):
             meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
             r(i) and triangle(i). The same size for the Triangle and the Ray is required.
         ds_output : Bool, optional
-            If True the output is a dataset, else -> a tuple with intersection information variables
+            If True the output is a dataset, else return a tuple with intersection information variables
         
         Returns
         -------
         out : xr.Dataset | tuple
             Look-up table with the intersection information if ds_output is True, 
-            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
-            geoclide/shapes.py)
+            else return a tuple (ready to be an input for the function get_intersect_dataset in 
+            geoclide/shapes.py). Form of the tuple\:
+            
+            * shape_name : str
+                -> The shape class name
+            * r : Ray
+                -> The ray(s) used for the intersection test
+            * t : None | float | 1-D ndarray | 2-D ndarray
+                -> The t ray variable for its first intersection at the shape surface
+            * is_intersection : None | bool | 1-D ndarray | 2-D ndarray
+                -> If there is an intersection return True, else False
+            * u : None | float | 1-D ndarray | 2-D ndarray
+                -> The u coordinate of the parametric representation
+            * v : None | float | 1-D ndarray | 2-D ndarray
+                -> The u coordinate of the parametric representation
+            * dpdu : None | 1-D ndarray | 2-D ndarray
+                -> The surface partial derivative of phit with respect to u
+            * dpdv : None | 1-D ndarray | 2-D ndarray
+                -> The surface partial derivative of phit with respect to v
+            * diag_cal : bool
+                -> This indicates whether a diagonal calculation has been performed
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         is_r_arr = isinstance(r.o.x, np.ndarray)
@@ -1620,14 +1677,33 @@ class TriangleMesh(Shape):
             If True -> scalar calculations over a loop (instead of using numpy). It can useful for 
             debugging or speedup calculations in case of few rays and/or few triangles
         ds_output : Bool, optional
-            If True the output is a dataset, else -> a tuple with intersection information variables
+            If True the output is a dataset, else return a tuple with intersection information variables
         
         Returns
         -------
         out : xr.Dataset | tuple
             Look-up table with the intersection information if ds_output is True, 
-            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
-            geoclide/shapes.py)
+            else return a tuple (ready to be an input for the function get_intersect_dataset in 
+            geoclide/shapes.py). Form of the tuple\:
+            
+            * shape_name : str
+                -> The shape class name
+            * r : Ray
+                -> The ray(s) used for the intersection test
+            * t : None | float | 1-D ndarray
+                -> The t ray variable for its first intersection at the shape surface
+            * is_intersection : None | bool | 1-D ndarray
+                -> If there is an intersection return True, else False
+            * u : None | float | 1-D ndarray
+                -> The u coordinate of the parametric representation
+            * v : None | float | 1-D ndarray
+                -> The u coordinate of the parametric representation
+            * dpdu : None | 1-D ndarray | 2-D ndarray
+                -> The surface partial derivative of phit with respect to u
+            * dpdv : None | 1-D ndarray | 2-D ndarray
+                -> The surface partial derivative of phit with respect to v
+            * diag_cal : bool
+                -> This indicates whether a diagonal calculation has been performed
         """
         if isinstance(r.o.x, np.ndarray) : nrays = len(r.o.x)
         else : nrays = 1
