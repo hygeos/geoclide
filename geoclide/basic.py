@@ -644,7 +644,7 @@ class BBox(object):
         -------
         out : xr.Dataset | tuple
             Look-up table with the intersection information if ds_output is True, 
-            else return a tuple. Form of the tuple\:
+            else return a tuple. Form of the tuple:
 
             * t0 : None | float | 1-D ndarray | 2-D ndarray
                 -> The t ray variable of the first intersection. In case of only 1 intersection 
