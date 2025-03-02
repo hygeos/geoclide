@@ -58,14 +58,14 @@ class Sphere(Shape):
         self.theta_max = math.acos(clamp(self.zmax/self.radius, -1, 1))
         self.phi_max = phi_max
 
-    def is_intersection_t(self, r1):
+    def is_intersection_t(self, r):
         """
         Test if a ray intersects the sphere / partial sphere
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
 
         Returns
         -------
@@ -85,63 +85,126 @@ class Sphere(Shape):
         >>> sph2.is_intersection(r) # here no intersection since the sphere part above z=0.5 is removed
         False
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        ray.o = self.wTo[r1.o]
-        ray.d = self.wTo[r1.d]
+        if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
+        is_r_arr = isinstance(r.o.x, np.ndarray)
+        if is_r_arr: nrays = len(r.o.x)
+        ray = Ray(r)
+        ray.o = self.wTo[r.o]
+        ray.d = self.wTo[r.d]
 
-        # Compute quadratic sphere coefficients
-        a = ray.d.x*ray.d.x + ray.d.y*ray.d.y + ray.d.z*ray.d.z
-        b = 2 * (ray.d.x*ray.o.x + ray.d.y*ray.o.y + ray.d.z*ray.o.z)
-        c = ray.o.x*ray.o.x + ray.o.y*ray.o.y + ray.o.z*ray.o.z - \
-            self.radius*self.radius
+        if is_r_arr:
+            is_intersection = np.full(nrays, True, dtype=bool)
 
-        # Solve quadratic equation
-        exist, t0, t1 = quadratic(a, b, c)
-        if (not exist): return None, False
-        
-        # Compute intersection distance along ray
-        if (t0 > ray.maxt or t1 < ray.mint): return None, False
-        thit = t0
+            # Compute quadratic sphere coefficients
+            a = ray.d.x*ray.d.x + ray.d.y*ray.d.y + ray.d.z*ray.d.z
+            b = 2 * (ray.d.x*ray.o.x + ray.d.y*ray.o.y + ray.d.z*ray.o.z)
+            c = ray.o.x*ray.o.x + ray.o.y*ray.o.y + ray.o.z*ray.o.z - \
+                self.radius*self.radius
 
-        if (t0 < ray.mint):
-            thit = t1
-            if (thit > ray.maxt): return None, False
+            # Solve quadratic equation
+            exist, t0, t1 = quadratic(a, b, c)
+            c1 = np.logical_not(exist)
+            
+            # Compute intersection distance along ray
+            c2 = np.logical_or(t0 > ray.maxt, t1 < ray.mint)
+            thit = t0
 
-        # Compute sphere hit position and $\phi$
-        phit = ray[thit]
-        if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
-        phi = math.atan2(phit.y, phit.x)
-        if (phi < 0): phi += TWO_PI
+            c3_bis_1 = t0 < ray.mint
+            thit[c3_bis_1] = t1[c3_bis_1]
+            c3_bis_2 = thit > ray.maxt
+            c3 = np.logical_and(c3_bis_1, c3_bis_2)
 
-        # Test sphere intersection against clipping parameters
-        phi_max_rad = math.radians(self.phi_max)
-        if ((self.zmin > -self.radius and phit.z < self.zmin) or
-            (self.zmax <  self.radius and phit.z > self.zmax) or
-            (phi > phi_max_rad) ):
-            if (thit == t1): return None, False
-            if (t1 > ray.maxt): return None ,False
-            thit = t1
+            # Compute sphere hit position and $\phi$
+            phit = ray[thit]
+            phit *= self.radius / distance(phit, Point(0., 0., 0.))
+            phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = 1e-5 * self.radius
+            phi = np.atan2(phit.y, phit.x)
+            phi[phi < 0] += TWO_PI
+
+            # Test sphere intersection against clipping parameters
+            phi_max_rad = math.radians(self.phi_max)
+            c4_bis_1 = np.logical_and(self.zmin > -self.radius, phit.z < self.zmin)
+            c4_bis_2 = np.logical_and(self.zmax <  self.radius, phit.z > self.zmax)
+            c4_bis_3 = phi > phi_max_rad
+            c4 = np.logical_or.reduce((c4_bis_1, c4_bis_2, c4_bis_3))
+            c5 = np.logical_and(c4, np.logical_or(thit == t1, t1 > ray.maxt))
+
+            if np.any(c4):
+                thit[c4] = t1[c4]
+                # Compute sphere hit position and $\phi$
+                phit_bis = ray[thit]
+                phit.x[c4] = phit_bis.x[c4]
+                phit.y[c4] = phit_bis.y[c4]
+                phit.z[c4] = phit_bis.z[c4]
+                c4_p1 = np.logical_and.reduce((c4, phit.x == 0, phit.y == 0))
+                phit.x[c4_p1] = 1e-5 * self.radius
+                phi[c4] = np.atan2(phit.y[c4], phit.x[c4])
+                c4_p2 = np.logical_and(c4, phi < 0)
+                phi[c4_p2] += TWO_PI
+            
+            c6_bis_1 = np.logical_and(self.zmin > -self.radius, phit.z < self.zmin)
+            c6_bis_2 = np.logical_and(self.zmax <  self.radius, phit.z > self.zmax)
+            c6_bis_3 = phi > phi_max_rad
+            c6 = np.logical_and(c4, np.logical_or.reduce((c6_bis_1, c6_bis_2, c6_bis_3)))
+
+            c7 = np.logical_or.reduce((c1, c2, c3, c5, c6))
+            is_intersection[c7] = False
+            thit[c7] = None
+
+            return thit, is_intersection
+        else:
+            # Compute quadratic sphere coefficients
+            a = ray.d.x*ray.d.x + ray.d.y*ray.d.y + ray.d.z*ray.d.z
+            b = 2 * (ray.d.x*ray.o.x + ray.d.y*ray.o.y + ray.d.z*ray.o.z)
+            c = ray.o.x*ray.o.x + ray.o.y*ray.o.y + ray.o.z*ray.o.z - \
+                self.radius*self.radius
+
+            # Solve quadratic equation
+            exist, t0, t1 = quadratic(a, b, c)
+            if (not exist): return None, False
+            
+            # Compute intersection distance along ray
+            if (t0 > ray.maxt or t1 < ray.mint): return None, False
+            thit = t0
+
+            if (t0 < ray.mint):
+                thit = t1
+                if (thit > ray.maxt): return None, False
+
             # Compute sphere hit position and $\phi$
             phit = ray[thit]
             if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
             phi = math.atan2(phit.y, phit.x)
             if (phi < 0): phi += TWO_PI
+
+            # Test sphere intersection against clipping parameters
+            phi_max_rad = math.radians(self.phi_max)
             if ((self.zmin > -self.radius and phit.z < self.zmin) or
                 (self.zmax <  self.radius and phit.z > self.zmax) or
                 (phi > phi_max_rad) ):
-                return None, False
+                if (thit == t1): return None, False
+                if (t1 > ray.maxt): return None ,False
+                thit = t1
+                # Compute sphere hit position and $\phi$
+                phit = ray[thit]
+                if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
+                phi = math.atan2(phit.y, phit.x)
+                if (phi < 0): phi += TWO_PI
+                if ((self.zmin > -self.radius and phit.z < self.zmin) or
+                    (self.zmax <  self.radius and phit.z > self.zmax) or
+                    (phi > phi_max_rad) ):
+                    return None, False
 
-        return thit, True
+            return thit, True
     
-    def is_intersection(self, r1):
+    def is_intersection(self, r):
         """
         Test if a ray intersects the sphere / partial sphere
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
 
         Returns
         -------
@@ -159,7 +222,7 @@ class Sphere(Shape):
         >>> sph2.is_intersection(r) # here no intersection since the sphere part above z=0.5 is removed
         False
         """
-        _, is_intersection = self.is_intersection_t(r1)
+        _, is_intersection = self.is_intersection_t(r)
         return is_intersection
 
     def intersect(self, r, ds_output=True):
@@ -169,7 +232,7 @@ class Sphere(Shape):
         Parameters
         ----------
         r : Ray
-            The ray to use for the intersection test
+            The ray(s) to use for the intersection test
         ds_output : Bool, optional
             If True the output is a dataset, else -> a tuple with intersection information variables
 
@@ -238,77 +301,156 @@ class Sphere(Shape):
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         sh_name = self.__class__.__name__
+        is_r_arr = isinstance(r.o.x, np.ndarray)
+        if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
         ray.o = self.wTo[r.o]
         ray.d = self.wTo[r.d]
 
-        # Compute quadratic sphere coefficients
-        a = ray.d.x*ray.d.x + ray.d.y*ray.d.y + ray.d.z*ray.d.z
-        b = 2 * (ray.d.x*ray.o.x + ray.d.y*ray.o.y + ray.d.z*ray.o.z)
-        c = ray.o.x*ray.o.x + ray.o.y*ray.o.y + ray.o.z*ray.o.z - \
-            self.radius*self.radius
+        if is_r_arr:
+            is_intersection = np.full(nrays, True, dtype=bool)
 
-        # Solve quadratic equation
-        exist, t0, t1 = quadratic(a, b, c)
-        if (not exist):
-            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-            else : return sh_name, r, None, False, None, None, None, None, False
-        
-        # Compute intersection distance along ray
-        if (t0 > ray.maxt or t1 < ray.mint):
-            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-            else : return sh_name, r, None, False, None, None, None, None, False
-        thit = t0
+            # Compute quadratic sphere coefficients
+            a = ray.d.x*ray.d.x + ray.d.y*ray.d.y + ray.d.z*ray.d.z
+            b = 2 * (ray.d.x*ray.o.x + ray.d.y*ray.o.y + ray.d.z*ray.o.z)
+            c = ray.o.x*ray.o.x + ray.o.y*ray.o.y + ray.o.z*ray.o.z - \
+                self.radius*self.radius
 
-        if (t0 < ray.mint):
-            thit = t1
-            if (thit > ray.maxt):
-                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-                else : return sh_name, r, None, False, None, None, None, None, False
+            # Solve quadratic equation
+            exist, t0, t1 = quadratic(a, b, c)
+            c1 = np.logical_not(exist)
+            
+            # Compute intersection distance along ray
+            c2 = np.logical_or(t0 > ray.maxt, t1 < ray.mint)
+            thit = t0
 
-        # Compute sphere hit position and $\phi$
-        phit = ray[thit]
-        phit *= self.radius / distance(phit, Point(0., 0., 0.))
-        if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
-        phi = math.atan2(phit.y, phit.x)
-        if (phi < 0): phi += TWO_PI
+            c3_bis_1 = t0 < ray.mint
+            thit[c3_bis_1] = t1[c3_bis_1]
+            c3_bis_2 = thit > ray.maxt
+            c3 = np.logical_and(c3_bis_1, c3_bis_2)
 
-        # Test sphere intersection against clipping parameters
-        phi_max_rad = math.radians(self.phi_max)
-        if ((self.zmin > -self.radius and phit.z < self.zmin) or
-            (self.zmax <  self.radius and phit.z > self.zmax) or
-            (phi > phi_max_rad) ):
-            if (thit == t1 or t1 > ray.maxt):
-                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-                else : return sh_name, r, None, False, None, None, None, None, False
-            thit = t1
             # Compute sphere hit position and $\phi$
             phit = ray[thit]
+            phit *= self.radius / distance(phit, Point(0., 0., 0.))
+            phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = 1e-5 * self.radius
+            phi = np.atan2(phit.y, phit.x)
+            phi[phi < 0] += TWO_PI
+
+            # Test sphere intersection against clipping parameters
+            phi_max_rad = math.radians(self.phi_max)
+            c4_bis_1 = np.logical_and(self.zmin > -self.radius, phit.z < self.zmin)
+            c4_bis_2 = np.logical_and(self.zmax <  self.radius, phit.z > self.zmax)
+            c4_bis_3 = phi > phi_max_rad
+            c4 = np.logical_or.reduce((c4_bis_1, c4_bis_2, c4_bis_3))
+            c5 = np.logical_and(c4, np.logical_or(thit == t1, t1 > ray.maxt))
+
+            if np.any(c4):
+                thit[c4] = t1[c4]
+                # Compute sphere hit position and $\phi$
+                phit_bis = ray[thit]
+                phit.x[c4] = phit_bis.x[c4]
+                phit.y[c4] = phit_bis.y[c4]
+                phit.z[c4] = phit_bis.z[c4]
+                c4_p1 = np.logical_and.reduce((c4, phit.x == 0, phit.y == 0))
+                phit.x[c4_p1] = 1e-5 * self.radius
+                phi[c4] = np.atan2(phit.y[c4], phit.x[c4])
+                c4_p2 = np.logical_and(c4, phi < 0)
+                phi[c4_p2] += TWO_PI
+            
+            c6_bis_1 = np.logical_and(self.zmin > -self.radius, phit.z < self.zmin)
+            c6_bis_2 = np.logical_and(self.zmax <  self.radius, phit.z > self.zmax)
+            c6_bis_3 = phi > phi_max_rad
+            c6 = np.logical_and(c4, np.logical_or.reduce((c6_bis_1, c6_bis_2, c6_bis_3)))
+
+            # Find parametric representation of sphere hit
+            u = phi / phi_max_rad
+            theta = np.acos(np.clip(phit.z / self.radius, -1, 1))
+            v = (theta - self.theta_min) / (self.theta_max - self.theta_min)
+
+            # Compute sphere $\dpdu$ and $\dpdv$
+            zradius = np.sqrt(phit.x*phit.x + phit.y*phit.y)
+            invzradius = 1 / zradius
+            cosphi = phit.x * invzradius
+            sinphi = phit.y * invzradius
+            zeros = np.zeros(nrays, dtype=np.float64)
+            dpdu = Vector(-phi_max_rad * phit.y, phi_max_rad * phit.x, zeros)
+            dpdv = (self.theta_max-self.theta_min) * Vector(phit.z*cosphi, phit.z*sinphi, -self.radius*np.sin(theta))
+
+            c7 = np.logical_or.reduce((c1, c2, c3, c5, c6))
+            is_intersection[c7] = False
+            thit[c7] = None
+
+            out = sh_name, r, thit, is_intersection, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+            if ds_output : return get_intersect_dataset(*out)
+            else : return out
+        else:
+            # Compute quadratic sphere coefficients
+            a = ray.d.x*ray.d.x + ray.d.y*ray.d.y + ray.d.z*ray.d.z
+            b = 2 * (ray.d.x*ray.o.x + ray.d.y*ray.o.y + ray.d.z*ray.o.z)
+            c = ray.o.x*ray.o.x + ray.o.y*ray.o.y + ray.o.z*ray.o.z - \
+                self.radius*self.radius
+
+            # Solve quadratic equation
+            exist, t0, t1 = quadratic(a, b, c)
+            if (not exist):
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
+            
+            # Compute intersection distance along ray
+            if (t0 > ray.maxt or t1 < ray.mint):
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
+            thit = t0
+
+            if (t0 < ray.mint):
+                thit = t1
+                if (thit > ray.maxt):
+                    if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                    else : return sh_name, r, None, False, None, None, None, None, False
+
+            # Compute sphere hit position and $\phi$
+            phit = ray[thit]
+            phit *= self.radius / distance(phit, Point(0., 0., 0.))
             if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
             phi = math.atan2(phit.y, phit.x)
             if (phi < 0): phi += TWO_PI
+
+            # Test sphere intersection against clipping parameters
+            phi_max_rad = math.radians(self.phi_max)
             if ((self.zmin > -self.radius and phit.z < self.zmin) or
                 (self.zmax <  self.radius and phit.z > self.zmax) or
                 (phi > phi_max_rad) ):
-                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-                else : return sh_name, r, None, False, None, None, None, None, False
+                if (thit == t1 or t1 > ray.maxt):
+                    if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                    else : return sh_name, r, None, False, None, None, None, None, False
+                thit = t1
+                # Compute sphere hit position and $\phi$
+                phit = ray[thit]
+                if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
+                phi = math.atan2(phit.y, phit.x)
+                if (phi < 0): phi += TWO_PI
+                if ((self.zmin > -self.radius and phit.z < self.zmin) or
+                    (self.zmax <  self.radius and phit.z > self.zmax) or
+                    (phi > phi_max_rad) ):
+                    if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                    else : return sh_name, r, None, False, None, None, None, None, False
 
-        # Find parametric representation of sphere hit
-        u = phi / phi_max_rad
-        theta = math.acos(clamp(phit.z / self.radius, -1, 1))
-        v = (theta - self.theta_min) / (self.theta_max - self.theta_min)
+            # Find parametric representation of sphere hit
+            u = phi / phi_max_rad
+            theta = math.acos(clamp(phit.z / self.radius, -1, 1))
+            v = (theta - self.theta_min) / (self.theta_max - self.theta_min)
 
-        # Compute sphere $\dpdu$ and $\dpdv$
-        zradius = math.sqrt(phit.x*phit.x + phit.y*phit.y)
-        invzradius = 1 / zradius
-        cosphi = phit.x * invzradius
-        sinphi = phit.y * invzradius
-        dpdu = Vector(-phi_max_rad * phit.y, phi_max_rad * phit.x, 0)
-        dpdv = (self.theta_max-self.theta_min) * Vector(phit.z*cosphi, phit.z*sinphi, -self.radius*math.sin(theta)) 
+            # Compute sphere $\dpdu$ and $\dpdv$
+            zradius = math.sqrt(phit.x*phit.x + phit.y*phit.y)
+            invzradius = 1 / zradius
+            cosphi = phit.x * invzradius
+            sinphi = phit.y * invzradius
+            dpdu = Vector(-phi_max_rad * phit.y, phi_max_rad * phit.x, 0)
+            dpdv = (self.theta_max-self.theta_min) * Vector(phit.z*cosphi, phit.z*sinphi, -self.radius*math.sin(theta)) 
 
-        out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
-        if ds_output : return get_intersect_dataset(*out)
-        else : return out
+            out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+            if ds_output : return get_intersect_dataset(*out)
+            else : return out
 
     def area(self):
         """
@@ -355,7 +497,6 @@ class Sphere(Shape):
         """
         return self.to_trianglemesh().plot(**kwargs)
 
-        
 
 class Spheroid(Shape):
     '''
@@ -392,14 +533,14 @@ class Spheroid(Shape):
         self.alpha2 = radius_xy*radius_xy
         self.gamma2 = radius_z*radius_z
 
-    def is_intersection_t(self, r1):
+    def is_intersection_t(self, r):
         """
         Test if a ray intersects the spheroid
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
 
         Returns
         -------
@@ -424,41 +565,73 @@ class Spheroid(Shape):
         >>> prolate.is_intersection_t(r2)
         (9.170843802411135, True)
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        ray.o = self.wTo[r1.o]
-        ray.d = self.wTo[r1.d]
+        if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
+        is_r_arr = isinstance(r.o.x, np.ndarray)
+        if is_r_arr: nrays = len(r.o.x)
+        ray = Ray(r)
+        ray.o = self.wTo[r.o]
+        ray.d = self.wTo[r.d]
 
-        # Compute quadratic sphere coefficients
-        inv_alpha2 = 1./self.alpha2
-        inv_beta2 = inv_alpha2 # ellipsoid special case where alpha=beta
-        inv_gamma2 = 1./self.gamma2
-        a = ray.d.x*ray.d.x*inv_alpha2 + ray.d.y*ray.d.y*inv_beta2 + ray.d.z*ray.d.z*inv_gamma2
-        b = 2 * (ray.d.x*ray.o.x*inv_alpha2 + ray.d.y*ray.o.y*inv_beta2 + ray.d.z*ray.o.z*inv_gamma2)
-        c = ray.o.x*ray.o.x*inv_alpha2 + ray.o.y*ray.o.y*inv_beta2 + ray.o.z*ray.o.z*inv_gamma2 - 1
+        if is_r_arr:
+            is_intersection = np.full(nrays, True, dtype=bool)
 
-        # Solve quadratic equation
-        exist, t0, t1 = quadratic(a, b, c)
-        if (not exist): return None, False
-        
-        # Compute intersection distance along ray
-        if (t0 > ray.maxt or t1 < ray.mint): return None, False
-        thit = t0
+            # Compute quadratic sphere coefficients
+            inv_alpha2 = 1./self.alpha2
+            inv_beta2 = inv_alpha2 # ellipsoid special case where alpha=beta
+            inv_gamma2 = 1./self.gamma2
+            a = ray.d.x*ray.d.x*inv_alpha2 + ray.d.y*ray.d.y*inv_beta2 + ray.d.z*ray.d.z*inv_gamma2
+            b = 2 * (ray.d.x*ray.o.x*inv_alpha2 + ray.d.y*ray.o.y*inv_beta2 + ray.d.z*ray.o.z*inv_gamma2)
+            c = ray.o.x*ray.o.x*inv_alpha2 + ray.o.y*ray.o.y*inv_beta2 + ray.o.z*ray.o.z*inv_gamma2 - 1
 
-        if (t0 < ray.mint):
-            thit = t1
-            if (thit > ray.maxt): return None, False
+            # Solve quadratic equation
+            exist, t0, t1 = quadratic(a, b, c)
+            c1 = np.logical_not(exist)
+            
+            # Compute intersection distance along ray
+            c2 = np.logical_or(t0 > ray.maxt, t1 < ray.mint)
+            thit = t0
 
-        return thit, True
+            c3_bis_1 = t0 < ray.mint
+            thit[c3_bis_1] = t1[c3_bis_1]
+            c3_bis_2 = thit > ray.maxt
+            c3 = np.logical_and(c3_bis_1, c3_bis_2)
+
+            c4 = np.logical_or.reduce((c1, c2, c3))
+            is_intersection[c4] = False
+            thit[c4] = None
+
+            return thit, is_intersection
+        else:
+            # Compute quadratic sphere coefficients
+            inv_alpha2 = 1./self.alpha2
+            inv_beta2 = inv_alpha2 # ellipsoid special case where alpha=beta
+            inv_gamma2 = 1./self.gamma2
+            a = ray.d.x*ray.d.x*inv_alpha2 + ray.d.y*ray.d.y*inv_beta2 + ray.d.z*ray.d.z*inv_gamma2
+            b = 2 * (ray.d.x*ray.o.x*inv_alpha2 + ray.d.y*ray.o.y*inv_beta2 + ray.d.z*ray.o.z*inv_gamma2)
+            c = ray.o.x*ray.o.x*inv_alpha2 + ray.o.y*ray.o.y*inv_beta2 + ray.o.z*ray.o.z*inv_gamma2 - 1
+
+            # Solve quadratic equation
+            exist, t0, t1 = quadratic(a, b, c)
+            if (not exist): return None, False
+            
+            # Compute intersection distance along ray
+            if (t0 > ray.maxt or t1 < ray.mint): return None, False
+            thit = t0
+
+            if (t0 < ray.mint):
+                thit = t1
+                if (thit > ray.maxt): return None, False
+
+            return thit, True
     
-    def is_intersection(self, r1):
+    def is_intersection(self, r):
         """
         Test if a ray intersects the spheroid
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
 
         Returns
         -------
@@ -481,7 +654,7 @@ class Spheroid(Shape):
         >>> prolate.is_intersection(r2)
         True
         """
-        _, is_intersection = self.is_intersection_t(r1)
+        _, is_intersection = self.is_intersection_t(r)
         return is_intersection
 
     def intersect(self, r, ds_output=True):
@@ -556,59 +729,114 @@ class Spheroid(Shape):
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         sh_name = self.__class__.__name__
+        is_r_arr = isinstance(r.o.x, np.ndarray)
+        if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
         ray.o = self.wTo[r.o]
         ray.d = self.wTo[r.d]
 
-        # Compute quadratic sphere coefficients
-        inv_alpha2 = 1./self.alpha2
-        inv_beta2 = inv_alpha2 # ellipsoid special case where alpha=beta
-        inv_gamma2 = 1./self.gamma2
-        a = ray.d.x*ray.d.x*inv_alpha2 + ray.d.y*ray.d.y*inv_beta2 + ray.d.z*ray.d.z*inv_gamma2
-        b = 2 * (ray.d.x*ray.o.x*inv_alpha2 + ray.d.y*ray.o.y*inv_beta2 + ray.d.z*ray.o.z*inv_gamma2)
-        c = ray.o.x*ray.o.x*inv_alpha2 + ray.o.y*ray.o.y*inv_beta2 + ray.o.z*ray.o.z*inv_gamma2 - 1 
+        if is_r_arr:
+            is_intersection = np.full(nrays, True, dtype=bool)
 
-        # Solve quadratic equation
-        exist, t0, t1 = quadratic(a, b, c)
-        if (not exist):
-            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-            else : return sh_name, r, None, False, None, None, None, None, False
-        
-        # Compute intersection distance along ray
-        if (t0 > ray.maxt or t1 < ray.mint):
-            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-            else : return sh_name, r, None, False, None, None, None, None, False
-        thit = t0
+            # Compute quadratic sphere coefficients
+            inv_alpha2 = 1./self.alpha2
+            inv_beta2 = inv_alpha2 # ellipsoid special case where alpha=beta
+            inv_gamma2 = 1./self.gamma2
+            a = ray.d.x*ray.d.x*inv_alpha2 + ray.d.y*ray.d.y*inv_beta2 + ray.d.z*ray.d.z*inv_gamma2
+            b = 2 * (ray.d.x*ray.o.x*inv_alpha2 + ray.d.y*ray.o.y*inv_beta2 + ray.d.z*ray.o.z*inv_gamma2)
+            c = ray.o.x*ray.o.x*inv_alpha2 + ray.o.y*ray.o.y*inv_beta2 + ray.o.z*ray.o.z*inv_gamma2 - 1
 
-        if (t0 < ray.mint):
-            thit = t1
-            if (thit > ray.maxt):
+            # Solve quadratic equation
+            exist, t0, t1 = quadratic(a, b, c)
+            c1 = np.logical_not(exist)
+            
+            # Compute intersection distance along ray
+            c2 = np.logical_or(t0 > ray.maxt, t1 < ray.mint)
+            thit = t0
+
+            c3_bis_1 = t0 < ray.mint
+            thit[c3_bis_1] = t1[c3_bis_1]
+            c3_bis_2 = thit > ray.maxt
+            c3 = np.logical_and(c3_bis_1, c3_bis_2)
+
+            # Compute sphere hit position and $\phi$
+            phit = ray[thit]
+            phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = 1e-5 * self.alpha
+            phi = np.atan2(phit.y, phit.x)
+            phi[phi < 0] += TWO_PI
+
+            # Find parametric representation of sphere hit
+            u = phi / TWO_PI
+            theta = np.acos(np.clip(phit.z / self.gamma, -1, 1))
+            v = 1 - (theta / math.pi)
+
+            # Compute sphere $\dpdu$ and $\dpdv$
+            zradius = np.sqrt(phit.x*phit.x + phit.y*phit.y)
+            invzradius = 1 / zradius
+            cosphi = phit.x * invzradius
+            sinphi = phit.y * invzradius
+            fac = -math.pi*(self.alpha/self.gamma)*phit.z
+            zeros = np.zeros(nrays, dtype=np.float64)
+            dpdu = Vector(-TWO_PI*phit.y, TWO_PI*phit.x, zeros)
+            dpdv = Vector(fac*cosphi, fac*sinphi, math.pi*self.gamma*np.sin(theta))
+
+            c4 = np.logical_or.reduce((c1, c2, c3))
+            is_intersection[c4] = False
+            thit[c4] = None
+
+            out = sh_name, r, thit, is_intersection, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+            if ds_output : return get_intersect_dataset(*out)
+            else : return out
+        else:
+            # Compute quadratic sphere coefficients
+            inv_alpha2 = 1./self.alpha2
+            inv_beta2 = inv_alpha2 # ellipsoid special case where alpha=beta
+            inv_gamma2 = 1./self.gamma2
+            a = ray.d.x*ray.d.x*inv_alpha2 + ray.d.y*ray.d.y*inv_beta2 + ray.d.z*ray.d.z*inv_gamma2
+            b = 2 * (ray.d.x*ray.o.x*inv_alpha2 + ray.d.y*ray.o.y*inv_beta2 + ray.d.z*ray.o.z*inv_gamma2)
+            c = ray.o.x*ray.o.x*inv_alpha2 + ray.o.y*ray.o.y*inv_beta2 + ray.o.z*ray.o.z*inv_gamma2 - 1 
+
+            # Solve quadratic equation
+            exist, t0, t1 = quadratic(a, b, c)
+            if (not exist):
                 if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
                 else : return sh_name, r, None, False, None, None, None, None, False
+            
+            # Compute intersection distance along ray
+            if (t0 > ray.maxt or t1 < ray.mint):
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
+            thit = t0
 
-        # Compute sphere hit position and $\phi$
-        phit = ray[thit]
-        if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.alpha
-        phi = math.atan2(phit.y, phit.x) # because alpha=beta
-        if (phi < 0): phi += TWO_PI
+            if (t0 < ray.mint):
+                thit = t1
+                if (thit > ray.maxt):
+                    if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                    else : return sh_name, r, None, False, None, None, None, None, False
 
-        # Find parametric representation of sphere hit
-        u = phi / TWO_PI
-        theta = math.acos(clamp(phit.z / self.gamma, -1, 1))
-        v = 1 - (theta / math.pi)
+            # Compute sphere hit position and $\phi$
+            phit = ray[thit]
+            if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.alpha
+            phi = math.atan2(phit.y, phit.x) # because alpha=beta
+            if (phi < 0): phi += TWO_PI
 
-        # Compute sphere dpdu and dpdv
-        zradius = math.sqrt(phit.x*phit.x + phit.y*phit.y)
-        invzradius = 1 / zradius
-        cosphi = phit.x * invzradius
-        sinphi = phit.y * invzradius
-        fac = -math.pi*(self.alpha/self.gamma)*phit.z
-        dpdu = Vector(-TWO_PI*phit.y, TWO_PI*phit.x, 0.)
-        dpdv = Vector(fac*cosphi, fac*sinphi, math.pi*self.gamma*math.sin(theta))
+            # Find parametric representation of sphere hit
+            u = phi / TWO_PI
+            theta = math.acos(clamp(phit.z / self.gamma, -1, 1))
+            v = 1 - (theta / math.pi)
 
-        out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
-        if ds_output : return get_intersect_dataset(*out)
-        else : return out
+            # Compute sphere dpdu and dpdv
+            zradius = math.sqrt(phit.x*phit.x + phit.y*phit.y)
+            invzradius = 1 / zradius
+            cosphi = phit.x * invzradius
+            sinphi = phit.y * invzradius
+            fac = -math.pi*(self.alpha/self.gamma)*phit.z
+            dpdu = Vector(-TWO_PI*phit.y, TWO_PI*phit.x, 0.)
+            dpdv = Vector(fac*cosphi, fac*sinphi, math.pi*self.gamma*math.sin(theta))
+
+            out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+            if ds_output : return get_intersect_dataset(*out)
+            else : return out
     
     def area(self):
         """
@@ -709,14 +937,14 @@ class Disk(Shape):
         self.phi_max = phi_max
         self.z_height = z_height
 
-    def is_intersection_t(self, r1):
+    def is_intersection_t(self, r):
         """
         Test if a ray intersects the disk
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
 
         Returns
         -------
@@ -739,45 +967,79 @@ class Disk(Shape):
         >>> annulus.is_intersection_t(r3) # the ray passes outside, no intersection
         (None, False)
         """
-        if not isinstance(r1, Ray): raise ValueError('The given parameter must be a Ray')
-        ray = Ray(r1)
-        ray.o = self.wTo[r1.o]
-        ray.d = self.wTo[r1.d]
+        if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
+        is_r_arr = isinstance(r.o.x, np.ndarray)
+        if is_r_arr: nrays = len(r.o.x)
+        ray = Ray(r)
+        ray.o = self.wTo[r.o]
+        ray.d = self.wTo[r.d]
 
-        # no intersection in the case the ray is parallel to the disk's plane
-        if (ray.d.z == 0): return None, False
-        thit = (self.z_height - ray.o.z) / ray.d.z
-        if (thit <= 0 or thit >= ray.maxt): return None, False
+        if is_r_arr:
+            is_intersection = np.full(nrays, True, dtype=bool)
 
-        # get the intersection point, and distance between disk center and the intersection
-        phit = ray[thit]
-        hit_radius2 = phit.x*phit.x + phit.y*phit.y
+            # no intersection in the case the ray is parallel to the disk's plane
+            c1 = ray.d.z == 0
+            thit = (self.z_height - ray.o.z) / ray.d.z
+            c2 = np.logical_or(thit <= 0, thit >= ray.maxt)
 
-        # if the hit point is outside the disk then no intersection
-        if (hit_radius2 > self.radius*self.radius): return None, False
+            # get the intersection point, and distance between disk center and the intersection
+            phit = ray[thit]
+            hit_radius2 = phit.x*phit.x + phit.y*phit.y
 
-        # annulus case
-        # check that the hit point is not in the annulus hole
-        if (self.inner_radius > 0.):
-            if (hit_radius2 < self.inner_radius*self.inner_radius): return None, False
+            # if the hit point is outside the disk then no intersection
+            c3 = hit_radius2 > self.radius*self.radius
         
-        # partial disk/annulus case
-        # check phi value to see if the hit point is inside the partial disk/annulus
-        if (self.phi_max < 360.):
-            phi = math.atan2(phit.y, phit.x)
-            if (phi < 0.): phi += TWO_PI
-            if (phi > math.radians(self.phi_max)): return None, False
-        
-        return thit, True
+            # annulus case
+            # check that the hit point is not in the annulus hole
+            c4 = hit_radius2 < self.inner_radius*self.inner_radius
+
+            # partial disk/annulus case
+            # check phi value to see if the hit point is inside the partial disk/annulus
+            phi = np.atan2(phit.y, phit.x)
+            phi_max_rad = math.radians(self.phi_max)
+            phi[phi < 0.] += TWO_PI
+            c5 = phi > phi_max_rad
+
+            c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
+            is_intersection[c6] = False
+            thit[c6] = None
+
+            return thit, is_intersection
+        else:
+            # no intersection in the case the ray is parallel to the disk's plane
+            if (ray.d.z == 0): return None, False
+            thit = (self.z_height - ray.o.z) / ray.d.z
+            if (thit <= 0 or thit >= ray.maxt): return None, False
+
+            # get the intersection point, and distance between disk center and the intersection
+            phit = ray[thit]
+            hit_radius2 = phit.x*phit.x + phit.y*phit.y
+
+            # if the hit point is outside the disk then no intersection
+            if (hit_radius2 > self.radius*self.radius): return None, False
+
+            # annulus case
+            # check that the hit point is not in the annulus hole
+            if (self.inner_radius > 0.):
+                if (hit_radius2 < self.inner_radius*self.inner_radius): return None, False
+            
+            # partial disk/annulus case
+            # check phi value to see if the hit point is inside the partial disk/annulus
+            if (self.phi_max < 360.):
+                phi = math.atan2(phit.y, phit.x)
+                if (phi < 0.): phi += TWO_PI
+                if (phi > math.radians(self.phi_max)): return None, False
+            
+            return thit, True
     
-    def is_intersection(self, r1):
+    def is_intersection(self, r):
         """
         Test if a ray intersects the disk
 
         Parameters
         ----------
-        r1 : Ray
-            The ray to use for the intersection test
+        r : Ray
+            The ray(s) to use for the intersection test
 
         Returns
         -------
@@ -798,7 +1060,7 @@ class Disk(Shape):
         >>> annulus.is_intersection(r3) # the ray passes outside, no intersection
         False
         """
-        _, is_intersection = self.is_intersection_t(r1)
+        _, is_intersection = self.is_intersection_t(r)
         return is_intersection
 
     def intersect(self, r, ds_output=True):

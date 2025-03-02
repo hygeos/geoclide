@@ -44,20 +44,20 @@ def quadratic(a, b, c):
 
     Parameters
     ----------
-    a : float
+    a : float | 1-D ndarray
         The first coefficient of the quadratic polynomial
-    b : float
+    b : float | 1-D ndarray
         The second coefficient of the quadratic polynomial
-    c : float
+    c : float | 1-D ndarray
         The third coefficient of the quadratic polynomial
 
-    Results
+    Returns
     -------
-    b : bool
-        If the quadratic can be solved -> True, else False
-    x0 : float | None
+    b : bool | 1-D ndarray
+        If the quadratic can be solved return True, else False
+    x0 : float | None | 1-D ndarray
         The first solution
-    x1 : float | None 
+    x1 : float | None | 1-D ndarray
         The second solution
 
     Notes
@@ -73,28 +73,58 @@ def quadratic(a, b, c):
     >>> gc.quadratic(a, b, c)
     (True, 0.0, 2.5)
     """
-    if (not np.isscalar(a) or not np.isscalar(b) or not np.isscalar(c)):
-        raise ValueError('The parameters must be all scalars')
-    
-    #  Find quadratic discriminant
-    discrim = (b * b) - (4 * a * c)
+    if isinstance(a, np.ndarray):        
+        #  Find quadratic discriminant
+        discrim = (b * b) - (4 * a * c)
+        is_solution = np.full(discrim.shape, True, dtype=bool)
 
-    if (discrim < 0): return False, None, None
+        c1 = discrim < 0
+        rootDiscrim = np.sqrt(discrim)
 
-    rootDiscrim = math.sqrt(discrim)
+        # Compute quadratic xi values
+        q = np.zeros_like(discrim)
 
-    # Compute quadratic xi values
-    if (b < 0): q = -0.5 * (b - rootDiscrim)
-    else: q = -0.5 * (b + rootDiscrim)
+        c2 = b < 0
+        not_c2 = np.logical_not(c2)
+        q[c2] = -0.5 * (b[c2] - rootDiscrim[c2])
+        q[not_c2] = -0.5 * (b[not_c2] + rootDiscrim[not_c2])
 
-    if (a != 0): x0 = q / a
-    else: x0 = c / q
+        x0 = np.zeros_like(discrim)
+        c3 = a!=0
+        not_c3 = np.logical_not(c3)
+        x0[c3] =  q[c3] / a[c3]
+        x0[not_c3] = c[not_c3] / q[not_c3]
 
-    x1 = c / q
+        x1 = c / q
 
-    if (x0 > x1): x0, x1 = x1, x0
+        c4 = x0 > x1
+        x0[c4], x1[c4] = x1[c4], x0[c4]
 
-    return True, x0, x1
+        is_solution[c1] = False
+        x0[c1] = None
+        x1[c1] = None
+
+        return is_solution, x0, x1
+    else:
+        #  Find quadratic discriminant
+        discrim = (b * b) - (4 * a * c)
+
+        if (discrim < 0): return False, None, None
+
+        rootDiscrim = math.sqrt(discrim)
+
+        # Compute quadratic xi values
+        if (b < 0): q = -0.5 * (b - rootDiscrim)
+        else: q = -0.5 * (b + rootDiscrim)
+
+        if (a != 0): x0 = q / a
+        else: x0 = c / q
+
+        x1 = c / q
+
+        if (x0 > x1): x0, x1 = x1, x0
+
+        return True, x0, x1
 
 
 def gamma_f32(n):
