@@ -1035,7 +1035,7 @@ def get_bbox_intersect_dataset(bbox, r, t0=None, t1=None, is_intersection=False,
             dim_name = 'nobj'
             size = len(bbox.p0.x)
         ds.attrs.update({dim_name: size})
-        phit = r[thit]
+        phit = r[thit].to_numpy()
         ds['is_intersection'] = xr.DataArray(is_intersection, dims=[dim_name])
         ds['thit'] = xr.DataArray(thit, dims=[dim_name])
         ds['phit'] = xr.DataArray(phit, dims=[dim_name, 'xyz'])
@@ -1043,7 +1043,7 @@ def get_bbox_intersect_dataset(bbox, r, t0=None, t1=None, is_intersection=False,
         if (t0 is None) : thit = None
         elif (t0 > 0) : thit = t0
         else : thit = t1
-        phit = r[thit]
+        phit = r[thit].to_numpy()
         ds['is_intersection'] = xr.DataArray(is_intersection)
         ds['thit'] = xr.DataArray(thit)
         ds['phit'] = xr.DataArray(phit, dims=['xyz'])
