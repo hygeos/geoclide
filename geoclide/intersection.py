@@ -84,53 +84,18 @@ def calc_intersection(shape, r, **kwargs):
     if (not isinstance(r, Ray)):
         raise ValueError('The parameter r1 must a Ray')
 
-    if (isinstance(shape, BBox)):
-        t0, t1, is_intersection = shape.intersect(r)
-        if is_intersection:
-            if t0 > 0: thit = t0
-            else: thit = t1
-            phit = r[thit]
-            nhit = None # TODO compute the real normal
-        else:
-            thit = None
-            phit = None
-            nhit = None
-        ds = xr.Dataset(coords={'xyz':np.arange(3)})
-        ds['is_intersection'] = is_intersection
-        ds['is_intersection'].attrs = {'description':'tells if there is an intersection between the ray and the shape'}
-
-        ds['o'] = xr.DataArray(r.o.to_numpy(), dims='xyz')
-        ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
-        ds['d'] = xr.DataArray(r.d.to_numpy(), dims='xyz')
-        ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
-        ds['mint'] = r.mint
-        ds['mint'].attrs = {'description':'the mint attribut of the ray'}
-        ds['maxt'] = r.maxt
-        ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
-    elif(issubclass(shape.__class__, Shape)):
-        ds = shape.intersect(r, **kwargs)
+    if 'ds_output' in kwargs: kwargs.pop('ds_output', False)
+    if (isinstance(shape, BBox)) or issubclass(shape.__class__, Shape):
+        ds = shape.intersect(r, ds_output=True, **kwargs)
     else:
         raise ValueError('The only supported shape are: BBox, Sphere, Spheroid, Disk, ' +
                          'Triangle and TriangleMesh')
 
     if (isinstance(shape, BBox)):
-        ds.attrs = {'shape': 'BBox'}
         ds['pmin'] = xr.DataArray(shape.pmin.to_numpy(), dims='xyz')
         ds['pmin'].attrs = {'type': 'Point', 'description':'the x, y and z components of the pmin BBox attribut'}
         ds['pmax'] = xr.DataArray(shape.pmax.to_numpy(), dims='xyz')
         ds['pmax'].attrs = {'type': 'Point', 'description':'the x, y and z components of the pmax BBox attribut'}
-        if (thit is not None):
-            ds['thit'] = thit
-            ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
-        if (phit is not None):
-            ds['phit'] = xr.DataArray(phit.to_numpy(), dims='xyz')
-            ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
-        if (nhit is not None):
-            ds['nhit'] = xr.DataArray(nhit.to_numpy(), dims='xyz')
-            ds['nhit'].attrs = {'type': 'Normal', 'description':'the x, y and z components of the normal at the intersection point'}
-
-        date = datetime.now().strftime("%Y-%m-%d")  
-        ds.attrs.update({'date':date, 'version': VERSION})
     if (isinstance(shape, Sphere)):
         ds['radius'] = shape.radius
         ds['radius'].attrs = {'description':'the sphere radius attribut'}
