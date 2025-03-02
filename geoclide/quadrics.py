@@ -849,53 +849,98 @@ class Disk(Shape):
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         sh_name = self.__class__.__name__
+        is_r_arr = isinstance(r.o.x, np.ndarray)
+        if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
         ray.o = self.wTo[r.o]
         ray.d = self.wTo[r.d]
 
-        # no intersection in the case the ray is parallel to the disk's plane
-        if (ray.d.z == 0):
-            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-            else : return sh_name, r, None, False, None, None, None, None, False
-        thit = (self.z_height - ray.o.z) / ray.d.z
-        if (thit <= 0 or thit >= ray.maxt):
-            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-            else : return sh_name, r, None, False, None, None, None, None, False
+        if is_r_arr:
+            is_intersection = np.full(nrays, True, dtype=bool)
 
-        # get the intersection point, and distance between disk center and the intersection
-        phit = ray[thit]
-        hit_radius2 = phit.x*phit.x + phit.y*phit.y
+            # no intersection in the case the ray is parallel to the disk's plane
+            c1 = ray.d.z == 0
+            thit = (self.z_height - ray.o.z) / ray.d.z
+            c2 = np.logical_or(thit <= 0, thit >= ray.maxt)
 
-        # if the hit point is outside the disk then no intersection
-        if (hit_radius2 > self.radius*self.radius):
-            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-            else : return sh_name, r, None, False, None, None, None, None, False
+            # get the intersection point, and distance between disk center and the intersection
+            phit = ray[thit]
+            hit_radius2 = phit.x*phit.x + phit.y*phit.y
 
-        # annulus case
-        # check that the hit point is not in the annulus hole
-        if (hit_radius2 < self.inner_radius*self.inner_radius):
-            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-            else : return sh_name, r, None, False, None, None, None, None, False
+            # if the hit point is outside the disk then no intersection
+            c3 = hit_radius2 > self.radius*self.radius
         
-        # partial disk/annulus case
-        # check phi value to see if the hit point is inside the partial disk/annulus
-        phi = math.atan2(phit.y, phit.x)
-        phi_max_rad = math.radians(self.phi_max)
-        if (phi < 0.): phi += TWO_PI
-        if (phi > phi_max_rad):
-            if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
-            else : return sh_name, r, None, False, None, None, None, None, False
+            # annulus case
+            # check that the hit point is not in the annulus hole
+            c4 = hit_radius2 < self.inner_radius*self.inner_radius
 
-        # get the parameteric representation
-        u = phi / phi_max_rad
-        hit_radius = math.sqrt(hit_radius2)
-        v = (self.radius-hit_radius) / (self.radius-self.inner_radius)
-        dpdu = Vector(-phi_max_rad*phit.y, phi_max_rad*phit.x, 0.)
-        dpdv = Vector(phit.x, phit.y, 0.) * ( (self.inner_radius-self.radius)/hit_radius )
+            # partial disk/annulus case
+            # check phi value to see if the hit point is inside the partial disk/annulus
+            phi = np.atan2(phit.y, phit.x)
+            phi_max_rad = math.radians(self.phi_max)
+            phi[phi < 0.] += TWO_PI
+            c5 = phi > phi_max_rad
 
-        out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
-        if ds_output : return get_intersect_dataset(*out)
-        else : return out
+            # get the parameteric representation
+            u = phi / phi_max_rad
+            hit_radius = np.sqrt(hit_radius2)
+            v = (self.radius-hit_radius) / (self.radius-self.inner_radius)
+            zeros = np.zeros(nrays, dtype=np.float64)
+            dpdu = Vector(-phi_max_rad*phit.y, phi_max_rad*phit.x, zeros)
+            dpdv = Vector(phit.x, phit.y, zeros) * ( (self.inner_radius-self.radius)/hit_radius )
+
+            c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
+            is_intersection[c6] = False
+            thit[c6] = None
+
+            out = sh_name, r, thit, is_intersection, u, v, self.oTw[dpdu].to_numpy(), \
+                self.oTw[dpdv].to_numpy(), False
+            if ds_output : return get_intersect_dataset(*out)
+            else : return out
+        else:
+            # no intersection in the case the ray is parallel to the disk's plane
+            if (ray.d.z == 0):
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
+            thit = (self.z_height - ray.o.z) / ray.d.z
+            if (thit <= 0 or thit >= ray.maxt):
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
+
+            # get the intersection point, and distance between disk center and the intersection
+            phit = ray[thit]
+            hit_radius2 = phit.x*phit.x + phit.y*phit.y
+
+            # if the hit point is outside the disk then no intersection
+            if (hit_radius2 > self.radius*self.radius):
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
+
+            # annulus case
+            # check that the hit point is not in the annulus hole
+            if (hit_radius2 < self.inner_radius*self.inner_radius):
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
+            
+            # partial disk/annulus case
+            # check phi value to see if the hit point is inside the partial disk/annulus
+            phi = math.atan2(phit.y, phit.x)
+            phi_max_rad = math.radians(self.phi_max)
+            if (phi < 0.): phi += TWO_PI
+            if (phi > phi_max_rad):
+                if ds_output : return get_intersect_dataset(sh_name, r, None, False, None, None, None, None, False)
+                else : return sh_name, r, None, False, None, None, None, None, False
+
+            # get the parameteric representation
+            u = phi / phi_max_rad
+            hit_radius = math.sqrt(hit_radius2)
+            v = (self.radius-hit_radius) / (self.radius-self.inner_radius)
+            dpdu = Vector(-phi_max_rad*phit.y, phi_max_rad*phit.x, 0.)
+            dpdv = Vector(phit.x, phit.y, 0.) * ( (self.inner_radius-self.radius)/hit_radius )
+
+            out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+            if ds_output : return get_intersect_dataset(*out)
+            else : return out
     
     def area(self):
         """

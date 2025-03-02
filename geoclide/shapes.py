@@ -61,7 +61,11 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
     if dpdv is None: dpdv = np.array([np.nan, np.nan, np.nan])
 
     is_r_arr = isinstance(r.o.x, np.ndarray)
-    is_obj_arr = len(dpdu.shape) == 2
+    if isinstance(t, np.ndarray):
+        is_obj_arr = (len(t.shape) == 2) or (len(t.shape) == 1 and not is_r_arr)
+    else:
+        is_obj_arr = False
+
     ds = xr.Dataset(coords={'xyz':np.arange(3)})
     not_int = np.logical_not(is_intersection)
     
