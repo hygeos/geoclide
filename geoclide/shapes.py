@@ -27,6 +27,9 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
     """
     Create dataset containing the intersection test information
 
+    - The intersect method return (when parameter ds_output = False) of all quadrics, 
+      Triangle and TriangleMesh classes gives directly the inputs of this function
+
     Parameters
     ----------
     shape_name : str
@@ -52,7 +55,6 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
     -------
     out : xr.Dataset
         Look-up table with the intersection information
-        
     """
     if not isinstance(r, Ray): raise ValueError('The r parameter must be a Ray')
     if dpdu is None: dpdu = np.array([np.nan, np.nan, np.nan])
@@ -62,8 +64,6 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
     is_obj_arr = len(dpdu.shape) == 2
     ds = xr.Dataset(coords={'xyz':np.arange(3)})
     not_int = np.logical_not(is_intersection)
-
-
     
     if is_r_arr:
         nrays = len(r.o.x)
@@ -217,3 +217,109 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
     ds.attrs.update({'date':date, 'version': VERSION})
     return ds
 
+
+def get_bbox_intersect_dataset(bbox, r, t0=None, t1=None, is_intersection=False, diag_calc=False):
+    """
+    Create dataset containing the intersection test information
+
+    - The intersect method return of BBox class gives the t0, t1 and is_intersection 
+      inputs of this function
+
+    Parameters
+    ----------
+    bbox : BBox
+        The bounding box(es) used for the intersection test
+    r : Ray
+        The ray(s) used for the intersection test
+    t0 : float | 1-D ndarray | 2-D ndarray
+        The t ray variable for the first intersection
+    t1 : float | 1-D ndarray | 2-D ndarray
+        The t ray variable for the second intersection
+    is_intersection : bool | 1-D ndarray | 2-D ndarray, optional
+        If there is an intersection -> True, else False
+    diag_cal : bool, optional
+            This indicates whether a diagonal calculation has been performed
+
+    Returns
+    -------
+    out : xr.Dataset
+        Look-up table with the intersection information
+    """
+    is_r_arr = isinstance(r.o.x, np.ndarray)
+    is_bbox_arr = isinstance(bbox.pmin.x, np.ndarray)
+
+    ds = xr.Dataset(coords={'xyz':np.arange(3)})
+
+    if is_r_arr:
+        nrays = len(r.o.x)
+        ro = r.o.to_numpy()
+        rd = r.d.to_numpy()
+        ds['o'] = xr.DataArray(ro, dims=['nrays', 'xyz'])
+        ds['d'] = xr.DataArray(rd, dims=['nrays', 'xyz'])
+        mint = np.zeros(nrays, dtype=np.float64)
+        maxt = np.zeros_like(mint)
+        mint[:] = r.mint
+        maxt[:] = r.maxt
+        ds['mint'] = xr.DataArray(mint, dims=['nrays'])
+        ds['maxt'] = xr.DataArray(maxt, dims=['nrays'])
+    else:
+        ds['o'] = xr.DataArray(r.o.to_numpy(), dims=['xyz'])
+        ds['d'] = xr.DataArray(r.d.to_numpy(), dims=['xyz'])
+        ds['mint'] = xr.DataArray(r.mint)
+        ds['maxt'] = xr.DataArray(r.maxt)
+
+    if is_r_arr or is_bbox_arr:
+        c1 = t0 > 0
+        not_c1 = np.logical_not(c1)
+        thit = np.full((t0.shape), np.nan, dtype=np.float64)
+        c2 = np.logical_and(is_intersection, c1)
+        c3 = np.logical_and(is_intersection, not_c1)
+        if np.any(c2): thit[c2] = t0[c2]
+        if np.any(c3): thit[c3] = t1[c3]
+
+    if is_r_arr and is_bbox_arr and not diag_calc:
+        nobj = len(bbox.p0.x)
+        ds.attrs.update({'nobj': nobj, 'nrays': nrays})
+        ds['is_intersection'] = xr.DataArray(is_intersection, dims=['nobj', 'nrays'])
+        ds['thit'] = xr.DataArray(thit, dims=['nobj', 'nrays'])
+        phit = np.zeros((nobj, nrays, 3), dtype=np.float64)
+        for ir in range (0, nrays):
+            ri = Ray(Point(ro[ir,:]), Vector(rd[ir,:]), mint[ir], maxt[ir])
+            phit[:,ir,:] = ri[thit[:,ir]].to_numpy()
+        ds['phit'] = xr.DataArray(phit, dims=['nobj', 'nrays', 'xyz'])
+    elif is_r_arr or is_bbox_arr:
+        if diag_calc :
+            dim_name = 'ndiag'
+            size = nrays
+            ds.attrs.update({'nobj': size, 'nrays': size})
+        elif is_r_arr:
+            dim_name = 'nrays'
+            size = nrays
+        else:
+            dim_name = 'nobj'
+            size = len(bbox.p0.x)
+        ds.attrs.update({dim_name: size})
+        phit = r[thit]
+        ds['is_intersection'] = xr.DataArray(is_intersection, dims=[dim_name])
+        ds['thit'] = xr.DataArray(thit, dims=[dim_name])
+        ds['phit'] = xr.DataArray(phit, dims=[dim_name, 'xyz'])
+    else:
+        if (t0 is None) : thit = None
+        elif (t0 > 0) : thit = t0
+        else : thit = t1
+        phit = r[thit]
+        ds['is_intersection'] = xr.DataArray(is_intersection)
+        ds['thit'] = xr.DataArray(thit)
+        ds['phit'] = xr.DataArray(phit, dims=['xyz'])
+        
+    ds['o'].attrs = {'type': 'Point', 'description':'the x, y and z components of the ray point'}
+    ds['d'].attrs = {'type': 'Vector', 'description':'the x, y and z components of the ray vector'}
+    ds['mint'].attrs = {'description':'the mint attribut of the ray'}
+    ds['maxt'].attrs = {'description':'the maxt attribut of the ray'}
+    ds['is_intersection'].attrs = {'description':'this variable tells if there is an intersection between the ray and the shape'}
+    ds['thit'].attrs = {'description':'the t ray factor for the intersection point calculation'}
+    ds['phit'].attrs = {'type': 'Point', 'description':'the x, y and z components of the intersection point'}
+    ds.attrs = {'shape': bbox.__class__.__name__}
+    date = datetime.now().strftime("%Y-%m-%d")  
+    ds.attrs.update({'date':date, 'version': VERSION})
+    return ds
