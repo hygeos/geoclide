@@ -5,6 +5,20 @@
            #                         #
            ###########################
 
+v2.0.1
+------
+Release date: 03-03-2025
+
+* Correction of a bug occuring while using a version of numpy < 2.0.0
+  - np.atan2 and np.acos replaced by np.arctan2 and np.arccos
+
+* README image links updated
+
+* Correct file format and add test files in MANIFEST file
+
+* Ignore certain unwanted warnings
+
+
 v2.0.0
 ------
 Release date: 02-03-2025
@@ -17,27 +31,27 @@ for example changes of certain method outputs.
     - Point, Vector and Normal classes can now have 1-D ndarray x, y, z components
     - Functions in vecope.py have been adapted to allow Point, Vector and Normal
       with 1-D ndarray x, y, z components
-    - Readaptation of the Ray and BBox classes with the new Point, Vector and Normal 
+    - Readaptation of the Ray and BBox classes with the new Point, Vector and Normal
       classes
     - BBox intersect method allow 1-D, 2-D and 2-D diagonal calculations
     - Readaptation of the quadric classes enabling intersection tests with a class
       Ray containing several rays
-    - Readaptation of Triangle and TriangleMesh classes. Allow 1-D, 2-D and 2-D 
+    - Readaptation of Triangle and TriangleMesh classes. Allow 1-D, 2-D and 2-D
       diagonal calculations
     - ...
 
 * The 3D objects intersect output is now an xarray Dataset
 
-* Several new functionnalities
+* Several new functionalities
     - New method 'to_triangle_mesh' to convert a quadric to a TriangleMesh object
     - New method 'to_plot' for TriangleMesh, and also for all quadrics
     - New TriangleMesh method 'write' to save the triangle mesh in nectcdf4 and also in
-      several other formats as stl, ply, ...
+    - several other formats as stl, ply, ...
     - The 'read_trianglemesh' function allows to read triangle mesh files (gcnc, stl, ply,
       etc.) and return a TriangleMesh object
     - ...
 
-* A lot of tests have been added, more docucumentations, cleaning, ... 
+* A lot of tests have been added, more documentations, cleaning, ...
 
 
 v1.2.2
