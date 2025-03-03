@@ -1,5 +1,5 @@
 <p align="center">
-<img src="geoclide/img/geoclide_logo.png" width="300">
+<img src="https://raw.githubusercontent.com/hygeos/geoclide/refs/heads/main/geoclide/img/geoclide_logo.png" width="300">
 </p>
 
 ------------------------------------------------
@@ -229,9 +229,9 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   ```
 
   <p align="center">
-  <img src="geoclide/img/disk.png" width="250">
-  <img src="geoclide/img/annulus.png" width="250">
-  <img src="geoclide/img/partial_annulus.png" width="250">
+  <img src="https://raw.githubusercontent.com/hygeos/geoclide/refs/heads/main/geoclide/img/disk.png" width="250">
+  <img src="https://raw.githubusercontent.com/hygeos/geoclide/refs/heads/main/geoclide/img/annulus.png" width="250">
+  <img src="https://raw.githubusercontent.com/hygeos/geoclide/refs/heads/main/geoclide/img/partial_annulus.png" width="250">
   </p>
 
 
@@ -247,9 +247,9 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   >>> partial_sphere2.plot(color='blue', edgecolor='k')
   ```
   <p align="center">
-  <img src="geoclide/img/sphere.png" width="250">
-  <img src="geoclide/img/sphere_partial1.png" width="250">
-  <img src="geoclide/img/sphere_partial2.png" width="250">
+  <img src="https://raw.githubusercontent.com/hygeos/geoclide/refs/heads/main/geoclide/img/sphere.png" width="250">
+  <img src="https://raw.githubusercontent.com/hygeos/geoclide/refs/heads/main/geoclide/img/sphere_partial1.png" width="250">
+  <img src="https://raw.githubusercontent.com/hygeos/geoclide/refs/heads/main/geoclide/img/sphere_partial2.png" width="250">
   </p>
 
 
@@ -263,8 +263,8 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   >>> oblate.plot(color='cyan', edgecolor='k')
   ```
   <p align="center">
-  <img src="geoclide/img/prolate.png" width="250">
-  <img src="geoclide/img/oblate.png" width="250">
+  <img src="https://raw.githubusercontent.com/hygeos/geoclide/refs/heads/main/geoclide/img/prolate.png" width="250">
+  <img src="https://raw.githubusercontent.com/hygeos/geoclide/refs/heads/main/geoclide/img/oblate.png" width="250">
   </p>
 </details>
 
