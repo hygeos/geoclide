@@ -118,7 +118,7 @@ class Sphere(Shape):
             phit = ray[thit]
             phit *= self.radius / distance(phit, Point(0., 0., 0.))
             phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = 1e-5 * self.radius
-            phi = np.atan2(phit.y, phit.x)
+            phi = np.arctan2(phit.y, phit.x)
             phi[phi < 0] += TWO_PI
 
             # Test sphere intersection against clipping parameters
@@ -138,7 +138,7 @@ class Sphere(Shape):
                 phit.z[c4] = phit_bis.z[c4]
                 c4_p1 = np.logical_and.reduce((c4, phit.x == 0, phit.y == 0))
                 phit.x[c4_p1] = 1e-5 * self.radius
-                phi[c4] = np.atan2(phit.y[c4], phit.x[c4])
+                phi[c4] = np.arctan2(phit.y[c4], phit.x[c4])
                 c4_p2 = np.logical_and(c4, phi < 0)
                 phi[c4_p2] += TWO_PI
             
@@ -333,7 +333,7 @@ class Sphere(Shape):
             phit = ray[thit]
             phit *= self.radius / distance(phit, Point(0., 0., 0.))
             phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = 1e-5 * self.radius
-            phi = np.atan2(phit.y, phit.x)
+            phi = np.arctan2(phit.y, phit.x)
             phi[phi < 0] += TWO_PI
 
             # Test sphere intersection against clipping parameters
@@ -353,7 +353,7 @@ class Sphere(Shape):
                 phit.z[c4] = phit_bis.z[c4]
                 c4_p1 = np.logical_and.reduce((c4, phit.x == 0, phit.y == 0))
                 phit.x[c4_p1] = 1e-5 * self.radius
-                phi[c4] = np.atan2(phit.y[c4], phit.x[c4])
+                phi[c4] = np.arctan2(phit.y[c4], phit.x[c4])
                 c4_p2 = np.logical_and(c4, phi < 0)
                 phi[c4_p2] += TWO_PI
             
@@ -364,7 +364,7 @@ class Sphere(Shape):
 
             # Find parametric representation of sphere hit
             u = phi / phi_max_rad
-            theta = np.acos(np.clip(phit.z / self.radius, -1, 1))
+            theta = np.arccos(np.clip(phit.z / self.radius, -1, 1))
             v = (theta - self.theta_min) / (self.theta_max - self.theta_min)
 
             # Compute sphere $\dpdu$ and $\dpdv$
@@ -762,12 +762,12 @@ class Spheroid(Shape):
             # Compute sphere hit position and $\phi$
             phit = ray[thit]
             phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = 1e-5 * self.alpha
-            phi = np.atan2(phit.y, phit.x)
+            phi = np.arctan2(phit.y, phit.x)
             phi[phi < 0] += TWO_PI
 
             # Find parametric representation of sphere hit
             u = phi / TWO_PI
-            theta = np.acos(np.clip(phit.z / self.gamma, -1, 1))
+            theta = np.arccos(np.clip(phit.z / self.gamma, -1, 1))
             v = 1 - (theta / math.pi)
 
             # Compute sphere $\dpdu$ and $\dpdv$
@@ -995,7 +995,7 @@ class Disk(Shape):
 
             # partial disk/annulus case
             # check phi value to see if the hit point is inside the partial disk/annulus
-            phi = np.atan2(phit.y, phit.x)
+            phi = np.arctan2(phit.y, phit.x)
             phi_max_rad = math.radians(self.phi_max)
             phi[phi < 0.] += TWO_PI
             c5 = phi > phi_max_rad
@@ -1138,7 +1138,7 @@ class Disk(Shape):
 
             # partial disk/annulus case
             # check phi value to see if the hit point is inside the partial disk/annulus
-            phi = np.atan2(phit.y, phit.x)
+            phi = np.arctan2(phit.y, phit.x)
             phi_max_rad = math.radians(self.phi_max)
             phi[phi < 0.] += TWO_PI
             c5 = phi > phi_max_rad
