@@ -1807,20 +1807,21 @@ class TriangleMesh(Shape):
 
             is_intersection = res_bis[3]
             if np.any(res_bis[3]):
-                thit = res_bis[2]
+                thit = res_bis[2].copy()
+                thit[np.isnan(thit)] = math.inf
                 if nrays > 1 and len(thit.shape) == 2 and thit.shape[0] > 1:
                     id0 = np.nanargmin(thit, axis=0)
                     id1 = np.arange(nrays)
-                    res = self.__class__.__name__, r, thit[id0,id1], \
+                    res = self.__class__.__name__, r, res_bis[2][id0,id1], \
                         is_intersection[id0,id1], res_bis[4][id0,id1], res_bis[5][id0,id1], \
                         res_bis[6][id0,:], res_bis[7][id0,:], diag_calc
                 elif(nrays > 1 and thit.shape[0] == 1):
-                     res = self.__class__.__name__, r, thit[0,:], \
+                     res = self.__class__.__name__, r, res_bis[2][0,:], \
                         is_intersection[0,:], res_bis[4][0,:], res_bis[5][0,:], \
                         res_bis[6][0,:], res_bis[7][0,:], diag_calc
                 elif (nrays == 1 and isinstance(thit, np.ndarray)):
                     id0 = np.nanargmin(thit)
-                    res = self.__class__.__name__, r, thit[id0], \
+                    res = self.__class__.__name__, r, res_bis[2][id0], \
                         is_intersection[id0], res_bis[4][id0], res_bis[5][id0], \
                         res_bis[6][id0], res_bis[7][id0], diag_calc
                 else:
