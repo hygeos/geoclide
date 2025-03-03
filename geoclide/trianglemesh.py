@@ -1976,19 +1976,22 @@ class TriangleMesh(Shape):
         >>> msh.plot(color='green', edgecolor='k')
         image
         """
+        if self.oTw.is_identity(): vertices = self.vertices
+        else: vertices = self.oTw[Point(self.vertices)].to_numpy()
+
         if ((source is None and self.ntriangles < 5000) or source == 'matplotlib'):
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             if 'color' in kwargs: color = kwargs.pop('color', False)
             else: color = 'blue'
-            ax.plot_trisurf(self.vertices[:,0], self.vertices[:,1], self.vertices[:,2],
+            ax.plot_trisurf(vertices[:,0], vertices[:,1], vertices[:,2],
                             triangles = self.faces, color=color, **kwargs)
             ax.set_aspect('equal', adjustable='box')
             plt.tight_layout()
             if savefig_name is not None: plt.savefig(savefig_name)
             plt.show()
         elif ((source is None and self.ntriangles >= 5000) or source == 'trimesh'):
-            msh = trimesh.Trimesh(self.vertices, self.faces)
+            msh = trimesh.Trimesh(vertices, self.faces)
             return msh.show(**kwargs)
         else:
             raise ValueError("Unknown source. Please choose between: 'matplotlib' or 'trimesh'")
