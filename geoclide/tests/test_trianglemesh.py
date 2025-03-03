@@ -376,6 +376,37 @@ def test_triangle_2d_arr1():
     assert (np.array_equal(msh_ds['dpdu'].values, msh_dsn['dpdu'].values, equal_nan=True))
     assert (np.array_equal(msh_ds['dpdv'].values, msh_dsn['dpdv'].values, equal_nan=True))
 
+    dimx=2
+    dimy=2
+    msh = gc.Sphere(4, oTw=gc.get_translate_tf(gc.Vector(0., 3.5, 10.))).to_trianglemesh(9,18)
+    nx = 11
+    ny = 11
+    n_samples = nx*ny
+    p_set_arr = np.zeros((n_samples,3), dtype=np.float64)
+    hdim_x = dimx*0.5
+    hdim_y = dimy*0.5
+    deltax = (dimx/nx) * 0.5
+    deltay = (dimy/ny) * 0.5
+    x_, y_, z_ = np.meshgrid(np.linspace(-hdim_x+deltax, hdim_x-deltax, nx, np.float64),
+                            np.linspace(-hdim_y+deltay, hdim_y-deltay, ny, np.float64),
+                            0., indexing='ij')
+    p_set_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
+    p_set = gc.Point(p_set_arr)
+    d_set_arr = np.zeros_like(p_set_arr)
+    d_set_arr[:,2] = 1.
+    d_set = gc.Vector(d_set_arr)
+    r_set = gc.Ray(p_set, d_set)
+    ds = msh.intersect(r_set, use_loop=False)
+    dsl = msh.intersect(r_set, use_loop=True)
+    print(np.array_equal(ds['thit'].values, dsl['thit'].values, equal_nan=True))
+    print(np.array_equal(ds['phit'].values, dsl['phit'].values, equal_nan=True))
+    print(np.array_equal(ds['nhit'].values, dsl['nhit'].values, equal_nan=True))
+    print(np.array_equal(ds['u'].values, dsl['u'].values, equal_nan=True))
+    print(np.array_equal(ds['v'].values, dsl['v'].values, equal_nan=True))
+    print(np.array_equal(ds['dpdu'].values, dsl['dpdu'].values, equal_nan=True))
+    print(np.array_equal(ds['dpdv'].values, dsl['dpdv'].values, equal_nan=True))
+
+
 def test_triangle_2d_arr2():
     msh = gc.Sphere(1.).to_trianglemesh(reso_theta=4, reso_phi=4)
     x_, y_, z_ = np.meshgrid(np.linspace(-0.4, 0.4, 5, np.float64),
