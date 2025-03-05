@@ -376,6 +376,13 @@ def test_triangle_2d_arr1():
     assert (np.array_equal(msh_ds['dpdu'].values, msh_dsn['dpdu'].values, equal_nan=True))
     assert (np.array_equal(msh_ds['dpdv'].values, msh_dsn['dpdv'].values, equal_nan=True))
 
+    thit, is_int = msh.is_intersection_t(r_set, use_loop=True)
+    assert (np.array_equal(msh_ds['is_intersection'].values, is_int, equal_nan=True))
+    assert (np.array_equal(msh_ds['thit'].values, thit, equal_nan=True))
+
+    is_int = msh.is_intersection(r_set, use_loop=True)
+    assert (np.array_equal(msh_ds['is_intersection'].values, is_int, equal_nan=True))
+
     dimx=2
     dimy=2
     msh = gc.Sphere(4, oTw=gc.get_translate_tf(gc.Vector(0., 3.5, 10.))).to_trianglemesh(9,18)
@@ -398,13 +405,20 @@ def test_triangle_2d_arr1():
     r_set = gc.Ray(p_set, d_set)
     ds = msh.intersect(r_set, use_loop=False)
     dsl = msh.intersect(r_set, use_loop=True)
-    print(np.array_equal(ds['thit'].values, dsl['thit'].values, equal_nan=True))
-    print(np.array_equal(ds['phit'].values, dsl['phit'].values, equal_nan=True))
-    print(np.array_equal(ds['nhit'].values, dsl['nhit'].values, equal_nan=True))
-    print(np.array_equal(ds['u'].values, dsl['u'].values, equal_nan=True))
-    print(np.array_equal(ds['v'].values, dsl['v'].values, equal_nan=True))
-    print(np.array_equal(ds['dpdu'].values, dsl['dpdu'].values, equal_nan=True))
-    print(np.array_equal(ds['dpdv'].values, dsl['dpdv'].values, equal_nan=True))
+    assert (np.array_equal(ds['thit'].values, dsl['thit'].values, equal_nan=True))
+    assert (np.array_equal(ds['phit'].values, dsl['phit'].values, equal_nan=True))
+    assert (np.array_equal(ds['nhit'].values, dsl['nhit'].values, equal_nan=True))
+    assert (np.array_equal(ds['u'].values, dsl['u'].values, equal_nan=True))
+    assert (np.array_equal(ds['v'].values, dsl['v'].values, equal_nan=True))
+    assert (np.array_equal(ds['dpdu'].values, dsl['dpdu'].values, equal_nan=True))
+    assert (np.array_equal(ds['dpdv'].values, dsl['dpdv'].values, equal_nan=True))
+
+    thit, is_int = msh.is_intersection_t(r_set, use_loop=True)
+    assert (np.array_equal(ds['is_intersection'].values, is_int, equal_nan=True))
+    assert (np.array_equal(ds['thit'].values, thit, equal_nan=True))
+
+    is_int = msh.is_intersection(r_set, use_loop=True)
+    assert (np.array_equal(ds['is_intersection'].values, is_int, equal_nan=True))
 
 
 def test_triangle_2d_arr2():
@@ -543,6 +557,13 @@ def test_triangle_2d_arr2():
     assert (np.array_equal(msh_ds['dpdu'].values, msh_dsn['dpdu'].values, equal_nan=True))
     assert (np.array_equal(msh_ds['dpdv'].values, msh_dsn['dpdv'].values, equal_nan=True))
 
+    thit, is_int = msh.is_intersection_t(r_set, use_loop=True)
+    assert (np.array_equal(msh_ds['is_intersection'].values, is_int, equal_nan=True))
+    assert (np.array_equal(msh_ds['thit'].values, thit, equal_nan=True))
+
+    is_int = msh.is_intersection(r_set, use_loop=True)
+    assert (np.array_equal(msh_ds['is_intersection'].values, is_int, equal_nan=True))
+
 
 def test_triangle_1d_arr1():
     msh = gc.Sphere(1.).to_trianglemesh(reso_theta=5, reso_phi=5)
@@ -650,6 +671,13 @@ def test_triangle_1d_arr1():
     assert (np.array_equal(msh_ds['v'].values, msh_dsn['v'].values, equal_nan=True))
     assert (np.array_equal(msh_ds['dpdu'].values, msh_dsn['dpdu'].values, equal_nan=True))
     assert (np.array_equal(msh_ds['dpdv'].values, msh_dsn['dpdv'].values, equal_nan=True))
+
+    thit, is_int = msh.is_intersection_t(r0, use_loop=True)
+    assert (np.array_equal(msh_ds['is_intersection'].values, is_int, equal_nan=True))
+    assert (np.array_equal(msh_ds['thit'].values, thit, equal_nan=True))
+
+    is_int = msh.is_intersection(r0, use_loop=True)
+    assert (np.array_equal(msh_ds['is_intersection'].values, is_int, equal_nan=True))
 
 def test_triangle_1d_arr2():
 
@@ -783,6 +811,13 @@ def test_triangle_1d_arr2():
     assert (np.array_equal(ds_v3['is_intersection'].values,
                            msh_ds['is_intersection'].values, equal_nan=True))
     assert (np.array_equal(ds_v3['thit'].values, msh_ds['thit'].values, equal_nan=True))
+
+    thit, is_int = msh.is_intersection_t(r_set, use_loop=True)
+    assert (np.array_equal(msh_ds['is_intersection'].values, is_int, equal_nan=True))
+    assert (np.array_equal(msh_ds['thit'].values, thit, equal_nan=True))
+
+    is_int = msh.is_intersection(r_set, use_loop=True)
+    assert (np.array_equal(msh_ds['is_intersection'].values, is_int, equal_nan=True))
 
 
 def test_triangle_1d_arr3():
@@ -921,3 +956,10 @@ def test_triangle_1d_arr3():
     assert (np.array_equal(ds_v3['is_intersection'].values,
                            msh_ds['is_intersection'].values, equal_nan=True))
     assert (np.array_equal(ds_v3['thit'].values, msh_ds['thit'].values, equal_nan=True))
+
+    thit, is_int = msh.is_intersection_t(r_set, diag_calc=True, use_loop=True)
+    assert (np.array_equal(msh_ds['is_intersection'].values, is_int, equal_nan=True))
+    assert (np.array_equal(msh_ds['thit'].values, thit, equal_nan=True))
+
+    is_int = msh.is_intersection(r_set, diag_calc=True, use_loop=True)
+    assert (np.array_equal(msh_ds['is_intersection'].values, is_int, equal_nan=True))
