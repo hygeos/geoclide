@@ -1923,7 +1923,7 @@ class TriangleMesh(Shape):
                     is_int = np.any(is_intersection, axis=0)
                 elif(nrays > 1 and res_shape[0] == 1):
                     is_int = is_intersection[0,:]
-                elif (nrays == 1 and isinstance(thit, np.ndarray)):
+                elif (nrays == 1 and isinstance(is_intersection, np.ndarray)):
                     is_int = True
                 else:
                     is_int = is_intersection
