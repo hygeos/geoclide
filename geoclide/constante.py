@@ -4,7 +4,7 @@
 from geoclide.mathope import gamma_f32, gamma_f64
 import math
 
-VERSION = '2.0.1'
+VERSION = '2.0.2'
 
 GAMMA2_F32 = gamma_f32(2)
 GAMMA3_F32 = gamma_f32(3)

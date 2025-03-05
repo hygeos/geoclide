@@ -5,6 +5,19 @@
            #                         #
            ###########################
 
+v2.0.2
+------
+Release date: 05-03-2025
+
+* Several corrections in TriangleMesh intersect, is_intersection_t and 
+  is_intersection methods
+
+* Transformations were not taken into account when using the plot method, 
+  now it's corrected
+
+* Addition of more tests
+
+
 v2.0.1
 ------
 Release date: 03-03-2025
