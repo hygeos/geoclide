@@ -435,20 +435,66 @@ class Ray(object):
             return (self.o + self.d*t)
         
     def __str__(self):
-        if self.maxt == float("inf"):
+        if not isinstance(self.o.x, np.ndarray):
             return f'({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
                 f' with t ∈ [{self.mint},{self.maxt}['
         else:
-            return f'({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
-                f' with t ∈ [{self.mint},{self.maxt}]'
+            nrays = len(self.o.x)
+            mint = np.zeros(nrays, dtype=np.float64)
+            maxt = np.zeros_like(mint)
+            mint[:] = self.mint
+            maxt[:] = self.maxt
+            output = ""
+            if nrays <= 100 : 
+                for ir in range (0, nrays):
+                    output += f'({self.o.x[ir]}, {self.o.y[ir]}, {self.o.z[ir]}) + ' + \
+                        f't{str(ir)}*({self.d.x[ir]}, {self.d.y[ir]}, {self.d.z[ir]})' + \
+                        f' with t{str(ir)} ∈ [{mint[ir]},{maxt[ir]}['
+                    if ir < nrays-1: output+= '\n'
+            else:
+                for ir in range (0, 97):
+                    output += f'({self.o.x[ir]}, {self.o.y[ir]}, {self.o.z[ir]}) + ' + \
+                        f't{str(ir)}*({self.d.x[ir]}, {self.d.y[ir]}, {self.d.z[ir]})' + \
+                        f' with t{str(ir)} ∈ [{mint[ir]},{maxt[ir]}['
+                    output+= '\n'
+                output += '       ...\n'
+                for ir in range (nrays-3, nrays):
+                    output += f'({self.o.x[ir]}, {self.o.y[ir]}, {self.o.z[ir]}) + ' + \
+                        f't{str(ir)}*({self.d.x[ir]}, {self.d.y[ir]}, {self.d.z[ir]})' + \
+                        f' with t{str(ir)} ∈ [{mint[ir]},{maxt[ir]}['
+                    if ir < nrays-1: output+= '\n'
+            return output
         
     def __repr__(self):
-        if self.maxt == float("inf"):
+        if not isinstance(self.o.x, np.ndarray):
             return f'r(t) = ({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
-                f' with t ∈ [{self.mint},{self.maxt}['
+                    f' with t ∈ [{self.mint},{self.maxt}['
         else:
-            return f'r(t) = ({self.o.x}, {self.o.y}, {self.o.z}) + t*({self.d.x}, {self.d.y}, {self.d.z})' + \
-                f' with t ∈ [{self.mint},{self.maxt}]'
+            nrays = len(self.o.x)
+            mint = np.zeros(nrays, dtype=np.float64)
+            maxt = np.zeros_like(mint)
+            mint[:] = self.mint
+            maxt[:] = self.maxt
+            output = ""
+            if nrays <= 100 : 
+                for ir in range (0, nrays):
+                    output += f'r(t{str(ir)}) = ({self.o.x[ir]}, {self.o.y[ir]}, {self.o.z[ir]}) + ' + \
+                        f't{str(ir)}*({self.d.x[ir]}, {self.d.y[ir]}, {self.d.z[ir]})' + \
+                        f' with t{str(ir)} ∈ [{mint[ir]},{maxt[ir]}['
+                    if ir < nrays-1: output+= '\n'
+            else:
+                for ir in range (0, 97):
+                    output += f'r(t{str(ir)}) = ({self.o.x[ir]}, {self.o.y[ir]}, {self.o.z[ir]}) + ' + \
+                        f't{str(ir)}*({self.d.x[ir]}, {self.d.y[ir]}, {self.d.z[ir]})' + \
+                        f' with t{str(ir)} ∈ [{mint[ir]},{maxt[ir]}['
+                    output+= '\n'
+                output += '       ...\n'
+                for ir in range (nrays-3, nrays):
+                    output += f'r(t{str(ir)}) = ({self.o.x[ir]}, {self.o.y[ir]}, {self.o.z[ir]}) + ' + \
+                        f't{str(ir)}*({self.d.x[ir]}, {self.d.y[ir]}, {self.d.z[ir]})' + \
+                        f' with t{str(ir)} ∈ [{mint[ir]},{maxt[ir]}['
+                    if ir < nrays-1: output+= '\n'
+            return output
 
 
 class BBox(object):
@@ -1092,7 +1138,7 @@ def print_basic(basic, name=""):
         space[values<0] = ""
         fmt = basic.fmt
         output = ""
-        if ncomponents < 100 :
+        if ncomponents <= 100 :
             for i in range (0, ncomponents):
                 if i == 0:
                     output += f'{name}([[{space[i,0]}{basic.x[i]:{fmt}}, {space[i,1]}{basic.y[i]:{fmt}}, {space[i,2]}{basic.z[i]:{fmt}}],\n'
