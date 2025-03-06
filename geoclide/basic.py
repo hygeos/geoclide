@@ -65,6 +65,7 @@ class Vector(object):
             self.z = z.astype(np.float64)
         else:
             raise ValueError("Wrong parameter value(s)")
+        self.fmt = '.8f'
 
     def __eq__(self, v2):
         if isinstance(v2, Vector):
@@ -114,10 +115,11 @@ class Vector(object):
             IndexError(f"Index {ind} is out of range") 
 
     def __str__(self):
-        return '(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
+        print_basic(self)
     
     def __repr__(self):
-        return 'Vector(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
+        print_basic(self, self.__class__.__name__)
+
     
     def length_squared(self):
         return self.x*self.x + self.y*self.y + self.z*self.z
@@ -188,6 +190,7 @@ class Point(object):
             self.z = z.astype(np.float64)
         else:
             raise ValueError("Wrong parameter value(s)")
+        self.fmt = '.8f'
 
     def __eq__(self, p2):
         if isinstance(p2, Point):
@@ -240,10 +243,10 @@ class Point(object):
             IndexError(f"Index {ind} is out of range")
 
     def __str__(self):
-        return '(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
+        return print_basic(self)
     
     def __repr__(self):
-        return 'Point(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
+        return print_basic(self, self.__class__.__name__)
 
     def to_numpy(self):
         if isinstance(self.x, np.ndarray) : return np.array([self.x, self.y, self.z], dtype=np.float64).T
@@ -307,6 +310,7 @@ class Normal(object):
             self.z = z.astype(np.float64)
         else:
             raise ValueError("Wrong parameter value(s)")
+        self.fmt = '.8f'
 
     def __eq__(self, n2):
         if isinstance(n2, Normal):
@@ -356,10 +360,10 @@ class Normal(object):
             IndexError(f"Index {ind} is out of range")
 
     def __str__(self):
-        return '(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
+        print_basic(self)
     
     def __repr__(self):
-        return 'Normal(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
+        print_basic(self, self.__class__.__name__)
     
     def length_squared(self):
         return self.x*self.x + self.y*self.y + self.z*self.z
@@ -1059,3 +1063,53 @@ def get_bbox_intersect_dataset(bbox, r, t0=None, t1=None, is_intersection=False,
     date = datetime.now().strftime("%Y-%m-%d")  
     ds.attrs.update({'date':date, 'version': VERSION})
     return ds
+
+
+def print_basic(basic, name=""):
+    """
+    Parameters
+    ----------
+    basic : Vector | Point | Normal
+        The basic object
+    name : str, optional
+        The str name to show at the start
+
+    Returns
+    -------
+    out : str
+        The return for the method __repr__ or __str___
+    """
+    if not isinstance(basic.x, np.ndarray):
+        return name + '(' + str(basic.x) + ', ' + str(basic.y) + ', ' + str(basic.z) + ')'
+    else:
+        size_name = len(name)
+        if (size_name >0) : first_space = f"{'':{size_name+2}}"
+        else : first_space = "  "
+        ncomponents = len(basic.x)
+        values = basic.to_numpy()
+        space = np.empty_like(values, dtype=str)
+        space[values>=0] = " "
+        space[values<0] = ""
+        fmt = basic.fmt
+        output = ""
+        if ncomponents < 100 :
+            for i in range (0, ncomponents):
+                if i == 0:
+                    output += f'{name}([[{space[i,0]}{basic.x[i]:{fmt}}, {space[i,1]}{basic.y[i]:{fmt}}, {space[i,2]}{basic.z[i]:{fmt}}],\n'
+                elif i == ncomponents-1:
+                    output += f'{first_space}[{space[i,0]}{basic.x[i]:{fmt}}, {space[i,1]}{basic.y[i]:{fmt}}, {space[i,2]}{basic.z[i]:{fmt}}]])'
+                else:
+                    output += f'{first_space}[{space[i,0]}{basic.x[i]:{fmt}}, {space[i,1]}{basic.y[i]:{fmt}}, {space[i,2]}{basic.z[i]:{fmt}}],\n'
+        else:
+            for i in range (0, 97):
+                if i == 0:
+                    output += f'{name}([[{space[i,0]}{basic.x[i]:{fmt}}, {space[i,1]}{basic.y[i]:{fmt}}, {space[i,2]}{basic.z[i]:{fmt}}],\n'
+                else:
+                    output += f'{first_space}[{space[i,0]}{basic.x[i]:{fmt}}, {space[i,1]}{basic.y[i]:{fmt}}, {space[i,2]}{basic.z[i]:{fmt}}],\n'
+            output += '       ...\n'
+            for i in range (ncomponents-3, ncomponents):
+                if i == ncomponents-1:
+                    output += f'{first_space}[{space[i,0]}{basic.x[i]:{fmt}}, {space[i,1]}{basic.y[i]:{fmt}}, {space[i,2]}{basic.z[i]:{fmt}}]])'
+                else:
+                    output += f'{first_space}[{space[i,0]}{basic.x[i]:{fmt}}, {space[i,1]}{basic.y[i]:{fmt}}, {space[i,2]}{basic.z[i]:{fmt}}],\n'
+        return output
