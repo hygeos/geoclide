@@ -56,7 +56,7 @@ class Transform(object):
             if ( (len(mInv.shape) == 2 and mInv.shape != (4,4)) or
                  (len(mInv.shape) == 3 and mInv.shape[1] != 4 and mInv.shape[2] != 4)):
                 raise ValueError("The mInv parameter must be an np.array of shape (4,4) or (nT,4,4)")
-            self.m = inv(m)
+            self.m = inv(mInv)
             self.mInv = mInv
         elif (isinstance(m, np.ndarray) and isinstance(mInv, np.ndarray)):
             if ( (len(m.shape) == 2 and m.shape != (4,4)) or
