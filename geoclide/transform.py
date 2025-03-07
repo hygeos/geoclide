@@ -6,6 +6,7 @@ from geoclide.vecope import normalize
 import numpy as np
 from numpy.linalg import inv
 import math
+import warnings
 
 
 class Transform(object):
@@ -76,7 +77,7 @@ class Transform(object):
         
         return Transform(np.dot(self.m, t.m), np.dot(t.mInv, self.mInv))
     
-    def __getitem__(self, c):
+    def __call__(self, c):
         """"
         Apply the transformations
 
@@ -120,15 +121,15 @@ class Transform(object):
             return Normal(xn, yn, zn)
         elif isinstance(c, Ray):
             R = Ray(c.o, c.d)
-            R.o = self[R.o]
-            R.d = self[R.d]
+            R.o = self(R.o)
+            R.d = self(R.d)
             return R
         elif isinstance(c, BBox):
             b = BBox()
-            p0 = self[c.p0]
-            v0 = self[c.p1-c.p0]
-            v1 = self[c.p3-c.p0]
-            v2 = self[c.p4-c.p0]
+            p0 = self(c.p0)
+            v0 = self(c.p1-c.p0)
+            v1 = self(c.p3-c.p0)
+            v2 = self(c.p4-c.p0)
             b = b.union(p0)
             b = b.union(p0+v0)
             b = b.union(p0+(v0+v1))
@@ -140,6 +141,35 @@ class Transform(object):
             return b
         else:
             raise ValueError('Unknown type for transformations')
+    
+    def __getitem__(self, c):
+        """"
+        Apply the transformations
+
+        Parameters
+        ----------
+        c : Vector | Point | Normal | Ray | BBox
+            The Vector/Point/Normal/Ray/BBox to which the transformation is applied
+        
+        Results
+        -------
+        out : Vector | Point | Normal | Ray | BBox
+            The Vector/Point/Normal/Ray/BBox after the transformation
+
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> t = gc.get_translate_tf(gc.Vector(5., 5., 5.))
+        >>> p = gc.Point(0., 0., 0.)
+        >>> t[p]
+        Point(5.0, 5.0, 5.0)
+        """
+        warnings.simplefilter('always', DeprecationWarning)
+        warn_message = "\nApplying the transformation through square brackets is deprecated\n" + \
+            "as of version 2.1.0 and will be no more possible in the future.\n" + \
+            "Please use parenthesis instead."
+        warnings.warn(warn_message, DeprecationWarning)
+        return self(c)
 
     def __str__(self):
         print("m=\n", self.m, "\nmInv=\n", self.mInv)

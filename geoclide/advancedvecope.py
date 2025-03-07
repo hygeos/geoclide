@@ -57,8 +57,8 @@ def ang2vec(theta, phi, vec_view='zenith'):
     else:
         raise ValueError("The value of vec_view parameter must be: 'zenith' or 'nadir")
     
-    v = get_rotateY_tf(theta)[v]
-    v = get_rotateZ_tf(phi)[v]
+    v = get_rotateY_tf(theta)(v)
+    v = get_rotateZ_tf(phi)(v)
     v = normalize(v)
     
     return v
@@ -155,7 +155,7 @@ def vec2ang(v, vec_view='zenith'):
         theta = math.degrees(roty_rad)
         phi = math.degrees(rotz_rad)
         rotzy = get_rotateZ_tf(phi)*get_rotateY_tf(theta)
-        v_ini_rotated = normalize(rotzy[v_ini])
+        v_ini_rotated = normalize(rotzy(v_ini))
 
         if (np.all(np.isclose(v.to_numpy()-v_ini_rotated.to_numpy(), 0., 0., 1e-14))):
             break

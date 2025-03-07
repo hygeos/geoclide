@@ -22,8 +22,8 @@ def test_sphere():
     phi = -vaa
 
     dir_to_sat = gc.Vector(0., 0., 1.)
-    dir_to_sat = gc.get_rotateY_tf(theta)[dir_to_sat]
-    dir_to_sat = gc.get_rotateZ_tf(phi)[dir_to_sat]
+    dir_to_sat = gc.get_rotateY_tf(theta)(dir_to_sat)
+    dir_to_sat = gc.get_rotateZ_tf(phi)(dir_to_sat)
     ray = gc.Ray(o=origin, d=dir_to_sat)
 
     earth_radius = 6378. 

@@ -89,8 +89,8 @@ class Sphere(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo[r.o]
-        ray.d = self.wTo[r.d]
+        ray.o = self.wTo(r.o)
+        ray.d = self.wTo(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -305,8 +305,8 @@ class Sphere(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo[r.o]
-        ray.d = self.wTo[r.d]
+        ray.o = self.wTo(r.o)
+        ray.d = self.wTo(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -382,7 +382,7 @@ class Sphere(Shape):
                 is_intersection[c7] = False
                 thit[c7] = None
 
-                out = sh_name, r, thit, is_intersection, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+                out = sh_name, r, thit, is_intersection, u, v, self.oTw(dpdu).to_numpy(), self.oTw(dpdv).to_numpy(), False
                 if ds_output : return get_intersect_dataset(*out)
                 else : return out
         else:
@@ -450,7 +450,7 @@ class Sphere(Shape):
             dpdu = Vector(-phi_max_rad * phit.y, phi_max_rad * phit.x, 0)
             dpdv = (self.theta_max-self.theta_min) * Vector(phit.z*cosphi, phit.z*sinphi, -self.radius*math.sin(theta)) 
 
-            out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+            out = sh_name, r, thit, True, u, v, self.oTw(dpdu).to_numpy(), self.oTw(dpdv).to_numpy(), False
             if ds_output : return get_intersect_dataset(*out)
             else : return out
 
@@ -571,8 +571,8 @@ class Spheroid(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo[r.o]
-        ray.d = self.wTo[r.d]
+        ray.o = self.wTo(r.o)
+        ray.d = self.wTo(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -735,8 +735,8 @@ class Spheroid(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo[r.o]
-        ray.d = self.wTo[r.d]
+        ray.o = self.wTo(r.o)
+        ray.d = self.wTo(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -788,7 +788,7 @@ class Spheroid(Shape):
                 is_intersection[c4] = False
                 thit[c4] = None
 
-                out = sh_name, r, thit, is_intersection, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+                out = sh_name, r, thit, is_intersection, u, v, self.oTw(dpdu).to_numpy(), self.oTw(dpdv).to_numpy(), False
                 if ds_output : return get_intersect_dataset(*out)
                 else : return out
         else:
@@ -838,7 +838,7 @@ class Spheroid(Shape):
             dpdu = Vector(-TWO_PI*phit.y, TWO_PI*phit.x, 0.)
             dpdv = Vector(fac*cosphi, fac*sinphi, math.pi*self.gamma*math.sin(theta))
 
-            out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+            out = sh_name, r, thit, True, u, v, self.oTw(dpdu).to_numpy(), self.oTw(dpdv).to_numpy(), False
             if ds_output : return get_intersect_dataset(*out)
             else : return out
     
@@ -878,7 +878,7 @@ class Spheroid(Shape):
         msh = create_sphere_trianglemesh(radius=1, reso_theta=reso_theta, reso_phi=reso_phi)
         vertices_t = np.zeros((msh.nvertices,3))
         for iver in range (0, msh.nvertices):
-            vertices_t[iver,:] = rescale_xyz[Point(msh.vertices[iver,:])].to_numpy()
+            vertices_t[iver,:] = rescale_xyz(Point(msh.vertices[iver,:])).to_numpy()
         return TriangleMesh(vertices_t, msh.faces, oTw=self.oTw, wTo=self.wTo)
     
     def plot(self, **kwargs):
@@ -975,8 +975,8 @@ class Disk(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo[r.o]
-        ray.d = self.wTo[r.d]
+        ray.o = self.wTo(r.o)
+        ray.d = self.wTo(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -1119,8 +1119,8 @@ class Disk(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo[r.o]
-        ray.d = self.wTo[r.d]
+        ray.o = self.wTo(r.o)
+        ray.d = self.wTo(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -1161,8 +1161,8 @@ class Disk(Shape):
                 is_intersection[c6] = False
                 thit[c6] = None
 
-                out = sh_name, r, thit, is_intersection, u, v, self.oTw[dpdu].to_numpy(), \
-                    self.oTw[dpdv].to_numpy(), False
+                out = sh_name, r, thit, is_intersection, u, v, self.oTw(dpdu).to_numpy(), \
+                    self.oTw(dpdv).to_numpy(), False
                 if ds_output : return get_intersect_dataset(*out)
                 else : return out
         else:
@@ -1206,7 +1206,7 @@ class Disk(Shape):
             dpdu = Vector(-phi_max_rad*phit.y, phi_max_rad*phit.x, 0.)
             dpdv = Vector(phit.x, phit.y, 0.) * ( (self.inner_radius-self.radius)/hit_radius )
 
-            out = sh_name, r, thit, True, u, v, self.oTw[dpdu].to_numpy(), self.oTw[dpdv].to_numpy(), False
+            out = sh_name, r, thit, True, u, v, self.oTw(dpdu).to_numpy(), self.oTw(dpdv).to_numpy(), False
             if ds_output : return get_intersect_dataset(*out)
             else : return out
     

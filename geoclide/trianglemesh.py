@@ -53,9 +53,9 @@ class Triangle(Shape):
                (wTo is None or isinstance(wTo, Transform)) ):
             if (oTw is None): oTw = wTo.inverse() # if oTw is None then wTo should be Transform
             if (wTo is None): wTo = oTw.inverse() # if wTo is None then oTw should be Transform
-            if (p0t is None): self.p0t = oTw[p0]
-            if (p1t is None): self.p1t = oTw[p1]
-            if (p2t is None): self.p2t = oTw[p2]
+            if (p0t is None): self.p0t = oTw(p0)
+            if (p1t is None): self.p1t = oTw(p1)
+            if (p2t is None): self.p2t = oTw(p2)
 
         if (not isinstance(p0, Point) or not isinstance(p1, Point) or not isinstance(p2, Point)):
             raise ValueError('The parameters p0, p1 and p2 must be all Point')
@@ -2084,7 +2084,7 @@ class TriangleMesh(Shape):
         
         vertices_t = np.zeros((self.nvertices,3))
         for iver in range (0, self.nvertices):
-            vertices_t[iver,:] = t[Point(self.vertices[iver,:])].to_numpy()
+            vertices_t[iver,:] = t(Point(self.vertices[iver,:])).to_numpy()
         self.vertices = vertices_t
     
     def plot(self, source=None, savefig_name=None, **kwargs):
@@ -2113,7 +2113,7 @@ class TriangleMesh(Shape):
         image
         """
         if self.oTw.is_identity(): vertices = self.vertices
-        else: vertices = self.oTw[Point(self.vertices)].to_numpy()
+        else: vertices = self.oTw(Point(self.vertices)).to_numpy()
 
         if ((source is None and self.ntriangles < 5000) or source == 'matplotlib'):
             fig = plt.figure()
