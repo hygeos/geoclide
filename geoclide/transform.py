@@ -15,10 +15,10 @@ class Transform(object):
 
     Parameters
     ----------
-    m : Transform | 2-D ndarray, optional
-        The transformation matrix
-    mInv : Transform | 2-D ndarray, optional
-        The inverse transformation matrix
+    m : Transform | 2-D ndarray | 3-D ndarray, optional
+        The matrix of the transformation(s)
+    mInv : Transform | 2-D ndarray | 3-D ndarray, optional
+        The matrix of the inverse transformation(s)
 
     Exemples
     --------
@@ -47,18 +47,24 @@ class Transform(object):
             self.m = np.identity(4)
             self.mInv = self.m.copy()
         elif (isinstance(m, np.ndarray) and mInv is None):
-            if (m.shape != (4,4)):
-                raise ValueError("The m parameter must be an np.array of shape (4,4)")
+            if ( (len(m.shape) == 2 and m.shape != (4,4)) or
+                 (len(m.shape) == 3 and m.shape[1] != 4 and m.shape[2] != 4)):
+                raise ValueError("The m parameter must be an np.array of shape (4,4) or (nT,4,4)")
             self.m = m
             self.mInv = inv(m)
         elif (m is None and isinstance(mInv, np.ndarray)):
-            if (mInv.shape != (4,4)):
-                raise ValueError("The mInv parameter must be an np.array of shape (4,4)")
+            if ( (len(mInv.shape) == 2 and mInv.shape != (4,4)) or
+                 (len(mInv.shape) == 3 and mInv.shape[1] != 4 and mInv.shape[2] != 4)):
+                raise ValueError("The mInv parameter must be an np.array of shape (4,4) or (nT,4,4)")
             self.m = inv(m)
             self.mInv = mInv
         elif (isinstance(m, np.ndarray) and isinstance(mInv, np.ndarray)):
-            if (m.shape != (4,4) or mInv.shape != (4,4)):
-                raise ValueError("The matrix shape of m and mInv must be (4,4)")
+            if ( (len(m.shape) == 2 and m.shape != (4,4)) or
+                 (len(m.shape) == 3 and m.shape[1] != 4 and m.shape[2] != 4)):
+                raise ValueError("The m parameter must be an np.array of shape (4,4) or (nT,4,4)")
+            if ( (len(mInv.shape) == 2 and mInv.shape != (4,4)) or
+                 (len(mInv.shape) == 3 and mInv.shape[1] != 4 and mInv.shape[2] != 4)):
+                raise ValueError("The mInv parameter must be an np.array of shape (4,4) or (nT,4,4)")
             self.m = m
             self.mInv = mInv
         else:
@@ -99,48 +105,128 @@ class Transform(object):
         >>> t[p]
         Point(5.0, 5.0, 5.0)
         """
-        if isinstance(c, Vector):
-            xv = self.m[0,0]*c.x + self.m[0,1]*c.y + self.m[0,2]*c.z
-            yv = self.m[1,0]*c.x + self.m[1,1]*c.y + self.m[1,2]*c.z
-            zv = self.m[2,0]*c.x + self.m[2,1]*c.y + self.m[2,2]*c.z
-            return Vector(xv, yv, zv)
-        elif isinstance(c, Point):
-            xp = self.m[0,0]*c.x + self.m[0,1]*c.y + self.m[0,2]*c.z + self.m[0,3]
-            yp = self.m[1,0]*c.x + self.m[1,1]*c.y + self.m[1,2]*c.z + self.m[1,3]
-            zp = self.m[2,0]*c.x + self.m[2,1]*c.y + self.m[2,2]*c.z + self.m[2,3]
-            wp = self.m[3,0]*c.x + self.m[3,1]*c.y + self.m[3,2]*c.z + self.m[3,3]
-            if ((not isinstance(wp, np.ndarray) and wp == 1) or
-                (isinstance(wp, np.ndarray) and np.all(wp == 1)) ):
-                return Point(xp, yp, zp)
-            else: 
-                return Point(xp, yp, zp)/wp
-        elif isinstance(c, Normal):
-            xn = self.mInv[0,0]*c.x + self.mInv[1,0]*c.y + self.mInv[2,0]*c.z
-            yn = self.mInv[0,1]*c.x + self.mInv[1,1]*c.y + self.mInv[2,1]*c.z
-            zn = self.mInv[0,2]*c.x + self.mInv[1,2]*c.y + self.mInv[2,2]*c.z
-            return Normal(xn, yn, zn)
-        elif isinstance(c, Ray):
-            R = Ray(c.o, c.d)
-            R.o = self(R.o)
-            R.d = self(R.d)
-            return R
-        elif isinstance(c, BBox):
-            b = BBox()
-            p0 = self(c.p0)
-            v0 = self(c.p1-c.p0)
-            v1 = self(c.p3-c.p0)
-            v2 = self(c.p4-c.p0)
-            b = b.union(p0)
-            b = b.union(p0+v0)
-            b = b.union(p0+(v0+v1))
-            b = b.union(p0+v1)
-            b = b.union(p0+v2)
-            b = b.union(p0+(v0+v2))
-            b = b.union(p0+(v0+v1+v2))
-            b = b.union(p0+(v1+v2))
-            return b
+        if len(self.m.shape) == 3: # Case with several transformations in Transform
+            is_vector = isinstance(c, Vector)
+            is_point = isinstance(c, Point)
+            is_normal = isinstance(c, Normal)
+            if is_vector or is_point or is_normal:
+                nT = self.m.shape[0]
+                if is_vector or is_point: mat = np.moveaxis(self.m, 0,2)
+                else: mat = np.moveaxis(self.mInv, 0,2) # if is_normal
+                is_c_arr = isinstance(c.x, np.ndarray)
+                key_bis = np.arange(nT)
+                if is_c_arr:
+                    mat = mat[:,:,np.newaxis,:]
+                    x = c.x[:,np.newaxis]
+                    y = c.y[:,np.newaxis]
+                    z = c.z[:,np.newaxis]
+                    keys =  [(slice(None), k) for k in key_bis]
+                else:
+                    x = c.x
+                    y = c.y
+                    z = c.z
+                    keys = key_bis
+            if is_vector:
+                xv = mat[0,0]*x + mat[0,1]*y + mat[0,2]*z
+                yv = mat[1,0]*x + mat[1,1]*y + mat[1,2]*z
+                zv = mat[2,0]*x + mat[2,1]*y + mat[2,2]*z
+                vectors = np.empty(nT, dtype=Vector)
+                for iv in range (0, nT):
+                    vectors[iv] = Vector(xv[keys[iv]], yv[keys[iv]], zv[keys[iv]])
+                return vectors
+            elif is_point:
+                xp = mat[0,0]*x + mat[0,1]*y + mat[0,2]*z + mat[0,3]
+                yp = mat[1,0]*x + mat[1,1]*y + mat[1,2]*z + mat[1,3]
+                zp = mat[2,0]*x + mat[2,1]*y + mat[2,2]*z + mat[2,3]
+                wp = mat[3,0]*x + mat[3,1]*y + mat[3,2]*z + mat[3,3]
+                points = np.empty(nT, dtype=Point)
+                for ip in range (0, nT):
+                    if ((not isinstance(wp[keys[ip]], np.ndarray) and wp[keys[ip]] == 1) or
+                        (isinstance(wp[keys[ip]], np.ndarray) and np.all(wp[keys[ip]] == 1)) ):
+                        points[ip] = Point(xp[keys[ip]], yp[keys[ip]], zp[keys[ip]])
+                    else: 
+                        points[ip] = Point(xp[keys[ip]], yp[keys[ip]], zp[keys[ip]])/wp[keys[ip]]
+                return points
+            elif is_normal:
+                xn = mat[0,0]*x + mat[1,0]*y + mat[2,0]*z
+                yn = mat[0,1]*x + mat[1,1]*y + mat[2,1]*z
+                zn = mat[0,2]*x + mat[1,2]*y + mat[2,2]*z
+                normals = np.empty(nT, dtype=Vector)
+                for inorm in range (0, nT):
+                    normals[inorm] = Normal(xv[keys[inorm]], yv[keys[inorm]], zv[keys[inorm]])
+                return normals
+            elif isinstance(c, Ray):
+                origins = self(c.o)
+                directions = self(c.d)
+                nT = self.m.shape[0]
+                rays = np.empty(nT, dtype=Ray)
+                for ir in range (0, nT):
+                    rays[ir] = Ray(origins[ir], directions[ir], mint=c.mint, maxt=c.maxt)
+                return rays
+            elif isinstance(c, BBox):
+                p0 = self(c.p0)
+                v0 = self(c.p1-c.p0)
+                v1 = self(c.p3-c.p0)
+                v2 = self(c.p4-c.p0)
+                nT = self.m.shape[0]
+                bboxes = np.empty(nT, dtype=BBox)
+                for ib in range (0, nT):
+                    b = BBox()
+                    b = b.union(p0[ib])
+                    b = b.union(p0[ib]+v0[ib])
+                    b = b.union(p0[ib]+(v0[ib]+v1[ib]))
+                    b = b.union(p0[ib]+v1[ib])
+                    b = b.union(p0[ib]+v2[ib])
+                    b = b.union(p0[ib]+(v0[ib]+v2[ib]))
+                    b = b.union(p0[ib]+(v0[ib]+v1[ib]+v2[ib]))
+                    b = b.union(p0[ib]+(v1[ib]+v2[ib]))
+                    bboxes[ib] = b
+                return bboxes
+            else:
+                raise ValueError('Unknown type for transformations')
         else:
-            raise ValueError('Unknown type for transformations')
+            if isinstance(c, Vector):
+                xv = self.m[0,0]*c.x + self.m[0,1]*c.y + self.m[0,2]*c.z
+                yv = self.m[1,0]*c.x + self.m[1,1]*c.y + self.m[1,2]*c.z
+                zv = self.m[2,0]*c.x + self.m[2,1]*c.y + self.m[2,2]*c.z
+                return Vector(xv, yv, zv)
+            elif isinstance(c, Point):
+                xp = self.m[0,0]*c.x + self.m[0,1]*c.y + self.m[0,2]*c.z + self.m[0,3]
+                yp = self.m[1,0]*c.x + self.m[1,1]*c.y + self.m[1,2]*c.z + self.m[1,3]
+                zp = self.m[2,0]*c.x + self.m[2,1]*c.y + self.m[2,2]*c.z + self.m[2,3]
+                wp = self.m[3,0]*c.x + self.m[3,1]*c.y + self.m[3,2]*c.z + self.m[3,3]
+                if ((not isinstance(wp, np.ndarray) and wp == 1) or
+                    (isinstance(wp, np.ndarray) and np.all(wp == 1)) ):
+                    return Point(xp, yp, zp)
+                else: 
+                    return Point(xp, yp, zp)/wp
+            elif isinstance(c, Normal):
+                xn = self.mInv[0,0]*c.x + self.mInv[1,0]*c.y + self.mInv[2,0]*c.z
+                yn = self.mInv[0,1]*c.x + self.mInv[1,1]*c.y + self.mInv[2,1]*c.z
+                zn = self.mInv[0,2]*c.x + self.mInv[1,2]*c.y + self.mInv[2,2]*c.z
+                return Normal(xn, yn, zn)
+            elif isinstance(c, Ray):
+                R = Ray(c.o, c.d)
+                R.o = self(R.o)
+                R.d = self(R.d)
+                return R
+            elif isinstance(c, BBox):
+                b = BBox()
+                p0 = self(c.p0)
+                v0 = self(c.p1-c.p0)
+                v1 = self(c.p3-c.p0)
+                v2 = self(c.p4-c.p0)
+                b = b.union(p0)
+                b = b.union(p0+v0)
+                b = b.union(p0+(v0+v1))
+                b = b.union(p0+v1)
+                b = b.union(p0+v2)
+                b = b.union(p0+(v0+v2))
+                b = b.union(p0+(v0+v1+v2))
+                b = b.union(p0+(v1+v2))
+                return b
+            else:
+                raise ValueError('Unknown type for transformations')
     
     def __getitem__(self, c):
         """"
