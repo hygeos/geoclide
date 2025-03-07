@@ -101,11 +101,11 @@ def test_disk():
     # 2a) disk tests
     ds_disk = gc.calc_intersection(disk, r1)
     p = ds_disk['phit'].values
-    assert (np.all(np.isclose(p, r1[disk.z_height].to_numpy(), 0., 1e-15)))
+    assert (np.all(np.isclose(p, r1(disk.z_height).to_numpy(), 0., 1e-15)))
     assert (ds_disk['is_intersection'].values == disk.is_intersection(r1))
     ds_disk = gc.calc_intersection(disk, r2)
     p = ds_disk['phit'].values
-    assert (np.all(np.isclose(p, r2[disk.z_height].to_numpy(), 0., 1e-15)))
+    assert (np.all(np.isclose(p, r2(disk.z_height).to_numpy(), 0., 1e-15)))
     assert (ds_disk['is_intersection'].values == disk.is_intersection(r2))
     ds_disk = gc.calc_intersection(disk, r3)
     assert (not ds_disk['is_intersection'])
@@ -114,7 +114,7 @@ def test_disk():
     # 2b) annulus tests
     ds_annulus = gc.calc_intersection(annulus, r1)
     p = ds_annulus['phit'].values
-    assert (np.all(np.isclose(p, r1[annulus.z_height].to_numpy(), 0., 1e-15)))
+    assert (np.all(np.isclose(p, r1(annulus.z_height).to_numpy(), 0., 1e-15)))
     assert (ds_annulus['is_intersection'].values == annulus.is_intersection(r1))
     ds_annulus = gc.calc_intersection(annulus, r2)
     assert (not ds_annulus['is_intersection'])

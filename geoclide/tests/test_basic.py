@@ -104,7 +104,7 @@ def test_ray(p_arr, v_arr):
     r1 = gc.Ray(p1,v1)
     assert (r1.o == p1)
     assert (r1.d == v1)
-    assert (r1[10.] == gc.Point(p_arr + 10.*v_arr))
+    assert (r1(10.) == gc.Point(p_arr + 10.*v_arr))
     assert (r1.mint == 0)
     assert (r1.maxt == float("inf"))
     r2 = gc.Ray(p1,v1,0.5, 20.)
@@ -212,8 +212,8 @@ def test_bbox():
     r_int_3 = gc.Ray(gc.Point(0.5, 0.5, 2.), gc.Vector(0.,0.,1.))
     # case where the ray origin is outside and where the ray intersect 2 times the BBox
     t0, t1, is_int = b_int.intersect(r_int_1, ds_output=False)
-    p_int_t0 = r_int_1[t0]
-    p_int_t1 = r_int_1[t1]
+    p_int_t0 = r_int_1(t0)
+    p_int_t1 = r_int_1(t1)
     assert (is_int)
     assert (np.isclose(p_int_t0.x, 0., 0., 1e-14))
     assert (np.isclose(p_int_t0.y, 0.5, 0., 1e-14))
@@ -223,7 +223,7 @@ def test_bbox():
     assert (np.isclose(p_int_t1.z, 0.5, 0., 1e-14))
     # case where the ray origin is inside and where the ray intersect 1 times the BBox
     t0, t1, is_int = b_int.intersect(r_int_2, ds_output=False)
-    p_int_t1 = r_int_2[t1]
+    p_int_t1 = r_int_2(t1)
     assert (is_int)
     assert (np.isclose(p_int_t1.x, 1., 0., 1e-14))
     assert (np.isclose(p_int_t1.y, 0.5, 0., 1e-14))

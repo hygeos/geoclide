@@ -92,7 +92,7 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         ds['v'] = v
         if t is None: p = np.array([np.nan, np.nan, np.nan])
         else:
-            p = r[t]
+            p = r(t)
             p = p.to_numpy()
         ds['phit'] = xr.DataArray(p, dims='xyz')
         if t is None: n = np.array([np.nan, np.nan, np.nan])
@@ -110,7 +110,7 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         v[not_int] = None
         ds['u'] = xr.DataArray(u, dims=['nobj'])
         ds['v'] = xr.DataArray(v, dims=['nobj'])
-        p = r[t].to_numpy()
+        p = r(t).to_numpy()
         ds['phit'] = xr.DataArray(p, dims=['nobj', 'xyz'])
         n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
         n = n.to_numpy()
@@ -128,7 +128,7 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         v[not_int] = None
         ds['u'] = xr.DataArray(u, dims=['nrays'])
         ds['v'] = xr.DataArray(v, dims=['nrays'])
-        p = r[t].to_numpy()
+        p = r(t).to_numpy()
         ds['phit'] = xr.DataArray(p, dims=['nrays', 'xyz'])
         n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
         n = n.to_numpy()
@@ -154,7 +154,7 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
         v[not_int] = None
         ds['u'] = xr.DataArray(u, dims=[dim_name])
         ds['v'] = xr.DataArray(v, dims=[dim_name])
-        p = r[t].to_numpy()
+        p = r(t).to_numpy()
         ds['phit'] = xr.DataArray(p, dims=[dim_name, 'xyz'])
         
         n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)
@@ -185,12 +185,12 @@ def get_intersect_dataset(shape_name, r, t=None, is_intersection=False, u=None, 
             for ir in range (0, nrays):
                 ri = Ray(Point(ro[ir,:]), Vector(rd[ir,:]), mint[ir], maxt[ir])
                 n[:,ir,:] = face_forward(n_bis, -ri.d).to_numpy()
-                p[:,ir,:] = ri[t[:,ir]].to_numpy()
+                p[:,ir,:] = ri(t[:,ir]).to_numpy()
         else:
             for iobj in range (0, nobj):
                 n_bis = Normal(normalize(cross(Vector(dpdu[iobj,:]), Vector(dpdv[iobj,:]))))
                 n[iobj,:,:] = face_forward(n_bis, -r.d).to_numpy()
-                p[iobj,:,:] = r[t[iobj,:]].to_numpy()
+                p[iobj,:,:] = r(t[iobj,:]).to_numpy()
         n[not_int,:] = None
         
         # n = face_forward(Normal(normalize(cross(Vector(dpdu), Vector(dpdv)))), -r.d)

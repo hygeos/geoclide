@@ -116,7 +116,7 @@ class Sphere(Shape):
                 c3 = np.logical_and(c3_bis_1, c3_bis_2)
 
                 # Compute sphere hit position and $\phi$
-                phit = ray[thit]
+                phit = ray(thit)
                 phit *= self.radius / distance(phit, Point(0., 0., 0.))
                 phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = 1e-5 * self.radius
                 phi = np.arctan2(phit.y, phit.x)
@@ -173,7 +173,7 @@ class Sphere(Shape):
                 if (thit > ray.maxt): return None, False
 
             # Compute sphere hit position and $\phi$
-            phit = ray[thit]
+            phit = ray(thit)
             if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
             phi = math.atan2(phit.y, phit.x)
             if (phi < 0): phi += TWO_PI
@@ -187,7 +187,7 @@ class Sphere(Shape):
                 if (t1 > ray.maxt): return None ,False
                 thit = t1
                 # Compute sphere hit position and $\phi$
-                phit = ray[thit]
+                phit = ray(thit)
                 if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
                 phi = math.atan2(phit.y, phit.x)
                 if (phi < 0): phi += TWO_PI
@@ -332,7 +332,7 @@ class Sphere(Shape):
                 c3 = np.logical_and(c3_bis_1, c3_bis_2)
 
                 # Compute sphere hit position and $\phi$
-                phit = ray[thit]
+                phit = ray(thit)
                 phit *= self.radius / distance(phit, Point(0., 0., 0.))
                 phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = 1e-5 * self.radius
                 phi = np.arctan2(phit.y, phit.x)
@@ -411,7 +411,7 @@ class Sphere(Shape):
                     else : return sh_name, r, None, False, None, None, None, None, False
 
             # Compute sphere hit position and $\phi$
-            phit = ray[thit]
+            phit = ray(thit)
             phit *= self.radius / distance(phit, Point(0., 0., 0.))
             if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
             phi = math.atan2(phit.y, phit.x)
@@ -427,7 +427,7 @@ class Sphere(Shape):
                     else : return sh_name, r, None, False, None, None, None, None, False
                 thit = t1
                 # Compute sphere hit position and $\phi$
-                phit = ray[thit]
+                phit = ray(thit)
                 if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.radius
                 phi = math.atan2(phit.y, phit.x)
                 if (phi < 0): phi += TWO_PI
@@ -764,7 +764,7 @@ class Spheroid(Shape):
                 c3 = np.logical_and(c3_bis_1, c3_bis_2)
 
                 # Compute sphere hit position and $\phi$
-                phit = ray[thit]
+                phit = ray(thit)
                 phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = 1e-5 * self.alpha
                 phi = np.arctan2(phit.y, phit.x)
                 phi[phi < 0] += TWO_PI
@@ -819,7 +819,7 @@ class Spheroid(Shape):
                     else : return sh_name, r, None, False, None, None, None, None, False
 
             # Compute sphere hit position and $\phi$
-            phit = ray[thit]
+            phit = ray(thit)
             if (phit.x == 0 and phit.y == 0): phit.x = 1e-5 * self.alpha
             phi = math.atan2(phit.y, phit.x) # because alpha=beta
             if (phi < 0): phi += TWO_PI
@@ -988,7 +988,7 @@ class Disk(Shape):
                 c2 = np.logical_or(thit <= 0, thit >= ray.maxt)
 
                 # get the intersection point, and distance between disk center and the intersection
-                phit = ray[thit]
+                phit = ray(thit)
                 hit_radius2 = phit.x*phit.x + phit.y*phit.y
 
                 # if the hit point is outside the disk then no intersection
@@ -1017,7 +1017,7 @@ class Disk(Shape):
             if (thit <= 0 or thit >= ray.maxt): return None, False
 
             # get the intersection point, and distance between disk center and the intersection
-            phit = ray[thit]
+            phit = ray(thit)
             hit_radius2 = phit.x*phit.x + phit.y*phit.y
 
             # if the hit point is outside the disk then no intersection
@@ -1132,7 +1132,7 @@ class Disk(Shape):
                 c2 = np.logical_or(thit <= 0, thit >= ray.maxt)
 
                 # get the intersection point, and distance between disk center and the intersection
-                phit = ray[thit]
+                phit = ray(thit)
                 hit_radius2 = phit.x*phit.x + phit.y*phit.y
 
                 # if the hit point is outside the disk then no intersection
@@ -1176,7 +1176,7 @@ class Disk(Shape):
                 else : return sh_name, r, None, False, None, None, None, None, False
 
             # get the intersection point, and distance between disk center and the intersection
-            phit = ray[thit]
+            phit = ray(thit)
             hit_radius2 = phit.x*phit.x + phit.y*phit.y
 
             # if the hit point is outside the disk then no intersection

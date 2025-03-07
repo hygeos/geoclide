@@ -254,7 +254,7 @@ class Transform(object):
         warn_message = "\nApplying the transformation through square brackets is deprecated\n" + \
             "as of version 2.1.0 and will be no more possible in the future.\n" + \
             "Please use parenthesis instead."
-        warnings.warn(warn_message, DeprecationWarning)
+        warnings.warn(warn_message, DeprecationWarning, stacklevel=1)
         return self(c)
 
     def __str__(self):

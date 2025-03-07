@@ -6,6 +6,7 @@ import numpy as np
 from geoclide.constante import GAMMA3_F64, VERSION
 import xarray as xr
 from datetime import datetime
+import warnings
 
 
 class Vector(object):
@@ -427,12 +428,19 @@ class Ray(object):
             self.mint = mint
             self.maxt = maxt
 
-    def __getitem__(self, t):
+    def __call__(self, t):
         if (  (isinstance(t, np.ndarray) and np.any(np.logical_or(t < self.mint, t > self.maxt))) or
               (not isinstance(t, np.ndarray) and (t < self.mint or t > self.maxt))  ):
             raise ValueError(f"The value {t} is out of bounds. It must be between {self.mint} and {self.maxt}")
         else:
             return (self.o + self.d*t)
+        
+    def __getitem__(self, t):
+        warnings.simplefilter('always', DeprecationWarning)
+        warn_message = "\nThe use of square brackets is deprecated as of version 2.1.0 and will be\n" + \
+            "no more possible in the future. Please use parenthesis instead."
+        warnings.warn(warn_message, DeprecationWarning, stacklevel=1)
+        return self(t)
         
     def __str__(self):
         if not isinstance(self.o.x, np.ndarray):
