@@ -270,7 +270,7 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
 
 ### Accelerate the calculations using numpy ndarray (only since geoclide 2.0.0)
 
-#### Bounding BBox - Ray intersection test (multiples bboxes and 1 ray)
+#### BBox - Ray intersection test (multiples bboxes and 1 ray)
 <details>
   <summary>Click here</summary>
 
@@ -294,7 +294,7 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   pmax_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
   r0 = gc.Ray(gc.Point(-2., 0., 0.25), gc.normalize(gc.Vector(1, 0., 0.5)))
 
-  # Test intersection tests using a loop
+  # Intersection tests using a loop
   start = process_time()
   nboxes = pmin_arr.shape[0]
   t0_ = np.zeros(nboxes, dtype=np.float64)
@@ -306,7 +306,7 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   end = process_time()
   print("elapsed time (s) using loop: ", end - start)
 
-  #Test intersection tests using ndarray calculations
+  # Intersection tests using ndarray calculations
   start = process_time()
   pmin = gc.Point(pmin_arr)
   pmax = gc.Point(pmax_arr)
@@ -323,7 +323,7 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   In this example, we are approximately 115 times faster by using numpy ndarray calculations.
   </details>
 
-  #### Bounding BBox - Ray intersection test (multiples bboxes and multiple rays)
+  #### BBox - Ray intersection test (multiples bboxes and multiple rays)
   <details>
   <summary>Click here</summary>
 
@@ -388,7 +388,7 @@ Run the command `pytest geoclide/tests/ -s -v` to check that everything is runni
   print("case 1 - elapsed time (s) using numpy:", end-start)
 
   # === Case 2: perform intersection test only between ray(i) and bbox(i) i.e. diagonal calculations
-  # The tests using lo
+  # The tests using loop
   start = process_time()
   t0_ = np.zeros((nboxes), dtype=np.float64)
   t1_ = np.zeros_like(t0_)
