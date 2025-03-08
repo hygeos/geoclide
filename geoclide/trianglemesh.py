@@ -1880,7 +1880,6 @@ class TriangleMesh(Shape):
                     triangles[itri] = Triangle(p0, p1, p2, self.oTw, self.wTo)
                 for ir in range (0, nrays):
                     ri = Ray(Point(o_set_arr[ir,:]), Vector(d_set_arr[ir,:]))
-                    thit = float("inf")
                     is_intersection = False
                     for itri in range(0, self.ntriangles):
                         if (triangles[itri].is_intersection(ri, method=method)):
@@ -1893,7 +1892,6 @@ class TriangleMesh(Shape):
                 d_set_arr = r.d.to_numpy()
                 ndiag = nrays
                 for idiag in range (0, ndiag):
-                    thit = float("inf")
                     ri = Ray(Point(o_set_arr[idiag,:]), Vector(d_set_arr[idiag,:]))
                     p0 = Point(self.vertices[self.faces[idiag,0],:])
                     p1 = Point(self.vertices[self.faces[idiag,1],:])
@@ -1902,7 +1900,6 @@ class TriangleMesh(Shape):
                     is_int_1d[idiag] = triangle.is_intersection(ri, method=method)
                 return is_int_1d
             else: # nrays == 1 and ntriangles >= 1
-                thit = float("inf")
                 is_intersection = False
                 for itri in range(0, self.ntriangles):
                     p0 = Point(self.vertices[self.faces[itri,0],:])

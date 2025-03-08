@@ -83,19 +83,24 @@ class Transform(object):
         
         return Transform(np.dot(self.m, t.m), np.dot(t.mInv, self.mInv))
     
-    def __call__(self, c):
-        """"
+    def __call__(self, c, calc_diag=False):
+        """
         Apply the transformations
 
         Parameters
         ----------
         c : Vector | Point | Normal | Ray | BBox
             The Vector/Point/Normal/Ray/BBox to which the transformation is applied
+        diag_calc : bool, optional
+            Perform diagonal calculations between c(i) and tranformation(i). The number of 
+            transformations must be equal to the number of vectors / points / ... 
         
-        Results
+        Returns
         -------
-        out : Vector | Point | Normal | Ray | BBox
-            The Vector/Point/Normal/Ray/BBox after the transformation
+        out : Vector | Point | Normal | Ray | BBox | 1-D array
+            The Vector/Point/Normal/Ray/BBox after the transformation, or in case 
+            several transformations are given return a 1-D ndarray where dtype is equal 
+            to one of the previously mentionned classes.
 
         Examples
         --------
@@ -115,13 +120,13 @@ class Transform(object):
                 else: mat = np.moveaxis(self.mInv, 0,2) # if is_normal
                 is_c_arr = isinstance(c.x, np.ndarray)
                 key_bis = np.arange(nT)
-                if is_c_arr:
+                if is_c_arr and not calc_diag:
                     mat = mat[:,:,np.newaxis,:]
                     x = c.x[:,np.newaxis]
                     y = c.y[:,np.newaxis]
                     z = c.z[:,np.newaxis]
                     keys =  [(slice(None), k) for k in key_bis]
-                else:
+                else: # if diag_calc = True or if not is_c_arr
                     x = c.x
                     y = c.y
                     z = c.z
@@ -156,18 +161,18 @@ class Transform(object):
                     normals[inorm] = Normal(xv[keys[inorm]], yv[keys[inorm]], zv[keys[inorm]])
                 return normals
             elif isinstance(c, Ray):
-                origins = self(c.o)
-                directions = self(c.d)
+                origins = self(c.o, calc_diag)
+                directions = self(c.d, calc_diag)
                 nT = self.m.shape[0]
                 rays = np.empty(nT, dtype=Ray)
                 for ir in range (0, nT):
                     rays[ir] = Ray(origins[ir], directions[ir], mint=c.mint, maxt=c.maxt)
                 return rays
             elif isinstance(c, BBox):
-                p0 = self(c.p0)
-                v0 = self(c.p1-c.p0)
-                v1 = self(c.p3-c.p0)
-                v2 = self(c.p4-c.p0)
+                p0 = self(c.p0, calc_diag)
+                v0 = self(c.p1-c.p0, calc_diag)
+                v1 = self(c.p3-c.p0, calc_diag)
+                v2 = self(c.p4-c.p0, calc_diag)
                 nT = self.m.shape[0]
                 bboxes = np.empty(nT, dtype=BBox)
                 for ib in range (0, nT):
@@ -228,19 +233,24 @@ class Transform(object):
             else:
                 raise ValueError('Unknown type for transformations')
     
-    def __getitem__(self, c):
-        """"
+    def __getitem__(self, c, diag_calc):
+        """
         Apply the transformations
 
         Parameters
         ----------
         c : Vector | Point | Normal | Ray | BBox
             The Vector/Point/Normal/Ray/BBox to which the transformation is applied
+        diag_calc : bool, optional
+            Perform diagonal calculations between c(i) and tranformation(i). The number of 
+            transformations must be equal to the number of vectors / points / ... 
         
-        Results
+        Returns
         -------
-        out : Vector | Point | Normal | Ray | BBox
-            The Vector/Point/Normal/Ray/BBox after the transformation
+        out : Vector | Point | Normal | Ray | BBox | 1-D array
+            The Vector/Point/Normal/Ray/BBox after the transformation, or in case 
+            several transformations are given return a 1-D ndarray where dtype is equal 
+            to one of the previously mentionned classes.
 
         Examples
         --------
@@ -255,7 +265,7 @@ class Transform(object):
             "as of version 2.1.0 and will be no more possible in the future.\n" + \
             "Please use parenthesis instead."
         warnings.warn(warn_message, DeprecationWarning, stacklevel=1)
-        return self(c)
+        return self(c, diag_calc)
 
     def __str__(self):
         print("m=\n", self.m, "\nmInv=\n", self.mInv)
