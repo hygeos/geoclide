@@ -39,5 +39,8 @@ dependencies = [
     "trimesh"
 ]
 
+[project.urls]
+source = "https://github.com/hygeos/geoclide"
+
 [tool.setuptools]
 packages = ["geoclide"]
