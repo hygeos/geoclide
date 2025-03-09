@@ -116,10 +116,10 @@ class Vector(object):
             IndexError(f"Index {ind} is out of range") 
 
     def __str__(self):
-        print_basic(self)
+        return print_basic(self)
     
     def __repr__(self):
-        print_basic(self, self.__class__.__name__)
+        return print_basic(self, self.__class__.__name__)
 
     
     def length_squared(self):
@@ -361,10 +361,10 @@ class Normal(object):
             IndexError(f"Index {ind} is out of range")
 
     def __str__(self):
-        print_basic(self)
+        return print_basic(self)
     
     def __repr__(self):
-        print_basic(self, self.__class__.__name__)
+        return print_basic(self, self.__class__.__name__)
     
     def length_squared(self):
         return self.x*self.x + self.y*self.y + self.z*self.z
