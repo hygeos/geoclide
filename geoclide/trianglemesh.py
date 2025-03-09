@@ -125,6 +125,8 @@ class Triangle(Shape):
 
     def is_intersection_v2_t(self, r, diag_calc=False):
         """
+        :meta private:
+
         Test if a Ray intersect with the triangle using mainly pbrt v2 method
 
         Parameters
@@ -302,6 +304,8 @@ class Triangle(Shape):
     
     def is_intersection_v2(self, r, diag_calc=False):
         """
+        :meta private:
+
         Test if a Ray intersect with the triangle using mainly pbrt v2 method
 
         Parameters
@@ -323,6 +327,8 @@ class Triangle(Shape):
     
     def is_intersection_v3_t(self, r, diag_calc=False):
         """
+        :meta private:
+
         Test if a Ray intersect with the triangle using mainly pbrt v3 method
 
         Parameters
@@ -749,6 +755,8 @@ class Triangle(Shape):
 
     def is_intersection_v3(self, r, diag_calc):
         """
+        :meta private:
+
         Test if a Ray intersect with the triangle using mainly pbrt v3 method
 
         Parameters
@@ -825,6 +833,8 @@ class Triangle(Shape):
         
     def intersect_v2(self, r, diag_calc=False, ds_output=True):
         """
+        :meta private:
+
         Test if a Ray intersect with the triangle using mainly pbrt v2 method,
         and return intersection information
         
@@ -1121,6 +1131,8 @@ class Triangle(Shape):
     
     def intersect_v3(self, r, diag_calc=False, ds_output=True):
         """
+        :meta private:
+        
         Test if a Ray intersect with the triangle using mainly pbrt v3 method,
         and return intersection information
 
@@ -2180,6 +2192,8 @@ class TriangleMesh(Shape):
 def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min=0., theta_max=180.,
                                phi_max=360., oTw=None, wTo=None):
     """
+    :meta private:
+
     Create a sphere / partial sphere triangleMesh
 
     Parameters
@@ -2377,6 +2391,8 @@ def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min
 def create_disk_trianglemesh(radius, inner_radius=0., reso=None, phi_max=360., z_height=0.,
                              oTw=None, wTo=None):
     """
+    :meta private:
+
     Create a disk / partial disk / annulus / partial annulus triangleMesh
 
     Parameters

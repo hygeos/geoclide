@@ -25,7 +25,7 @@ def calc_intersection(shape, r, **kwargs):
         is forced here to always be True.
 
     Returns
-    ------
+    -------
     out : xr.Dataset
         Look-up table with the intersection information
     

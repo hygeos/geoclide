@@ -12,6 +12,8 @@ from geoclide.constante import VERSION
 
 class Shape(object):
     '''
+    :meta private:
+    
     The parent class of the different shape classes
     '''
     indShape = 0

@@ -13,11 +13,7 @@ def ang2vec(theta, phi, vec_view='zenith'):
     """
     Convert a direction described by 2 angles into a direction described by a vector
 
-    - coordinate system convention:
-    >>>   y
-    >>>   ^   x : right; y : front; z : top
-    >>>   |
-    >>> z X -- > x
+    - direct orthogonal coordinate system where z is pointing upwards
 
     Parameters
     ----------
@@ -37,7 +33,7 @@ def ang2vec(theta, phi, vec_view='zenith'):
     -------
     v : Vector
         The direction described by a vector
-    
+
     Examples
     --------
     >>> import geoclide as gc
@@ -68,11 +64,7 @@ def vec2ang(v, vec_view='zenith'):
     """
     Convert a direction described by a vector into a direction described by 2 angles
 
-    - coordinate system convention:
-    >>>   y
-    >>>   ^   x : right; y : front; z : top
-    >>>   |
-    >>> z X -- > x
+    - direct orthogonal coordinate system where z is pointing upwards
 
     Parameters
     ----------

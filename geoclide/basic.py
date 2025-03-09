@@ -138,7 +138,7 @@ class Point(object):
     """
     Parameters
     ----------
-     x : float | 1-D ndarray | 2-D ndarray | Point | Vector | Normal, optional
+    x : float | 1-D ndarray | 2-D ndarray | Point | Vector | Normal, optional
         The x component(s) of the point (see notes)
     y : float | 1-D ndarray, optional
         The y component(s) of the point
@@ -429,6 +429,29 @@ class Ray(object):
             self.maxt = maxt
 
     def __call__(self, t):
+        """
+        Solve ray(s) equation(s)
+
+        Parameters
+        ----------
+        t : float | 1-D ndarray
+            The t rays(s) value(s), must be between mint and maxt
+        
+        Returns
+        -------
+        out : Point
+            The result(s) of the equation r(t) = o + t*d
+        
+        Examples
+        --------
+        >>> import geoclide as gc
+        >>> o = gc.Point(0., 0., 0.)
+        >>> d = gc.Vector(1., 0., 0.)
+        >>> r = gc.Ray(o, d)
+        >>> t = 10.
+        >>> r(t)
+        Point(10., 0., 0.)
+        """
         if (  (isinstance(t, np.ndarray) and np.any(np.logical_or(t < self.mint, t > self.maxt))) or
               (not isinstance(t, np.ndarray) and (t < self.mint or t > self.maxt))  ):
             raise ValueError(f"The value {t} is out of bounds. It must be between {self.mint} and {self.maxt}")
@@ -1121,6 +1144,8 @@ def get_bbox_intersect_dataset(bbox, r, t0=None, t1=None, is_intersection=False,
 
 def print_basic(basic, name=""):
     """
+    :meta private:
+
     Parameters
     ----------
     basic : Vector | Point | Normal

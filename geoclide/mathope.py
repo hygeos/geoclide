@@ -15,7 +15,8 @@ def clamp(val, val_min, val_max):
         The scalar to be clamped
     val_min : float
         The minumum value
-    val_max : The maximum value
+    val_max : float
+        The maximum value
 
     Results
     -------
@@ -129,6 +130,8 @@ def quadratic(a, b, c):
 
 def gamma_f32(n):
     """
+    :meta private:
+
     Gamma function from pbrt v3
     """
     epsi = np.finfo(np.float32).eps * 0.5
@@ -137,6 +140,8 @@ def gamma_f32(n):
 
 def gamma_f64(n):
     """
+    :meta private:
+
     Gamma function from pbrt v3 but in double precision
     """
     epsi = np.finfo(np.float64).eps * 0.5

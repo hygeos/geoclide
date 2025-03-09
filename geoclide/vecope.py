@@ -441,12 +441,13 @@ def permute(a, ix=None, iy=None, iz=None):
     Parameters
     ----------
     a : Vector | Point | Normal
+        The vector, point or normal used for permutation
     ix : int | np.ndarray | list, optional
-        The index/indices of the value(s) we want to keep as a remplacement for the x component(s).
+        The index/indices of the value(s) we want to keep as a remplacement for the x component(s)
     iy : int | np.ndarray | list, optional
-        The index/indices of the value(s) we want to keep as a remplacement for the y component(s).
+        The index/indices of the value(s) we want to keep as a remplacement for the y component(s)
     iz : int | np.ndarray | list, optional
-        The index/indices of the value(s) we want to keep as a remplacement for the z component(s).
+        The index/indices of the value(s) we want to keep as a remplacement for the z component(s)
     
     Results
     -------
