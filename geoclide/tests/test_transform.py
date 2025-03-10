@@ -156,3 +156,81 @@ def test_transform():
     assert (t2(b1).pmin == b1_bis.pmin)
     assert (t2(b1).pmax == b1_bis.pmax)
 
+
+def test_transform_1d_arr():
+    tf = np.zeros((2,4,4), dtype=np.float64)
+    tf[0,:,:] = np.identity(4)
+    tf[1,:,:] = gc.get_translate_tf(gc.Vector(1., 2., 3.)).m
+    multi_tf = gc.Transform(tf)
+    tf1 = gc.Transform(tf[0,:,:])
+    tf2 = gc.Transform(tf[1,:,:])
+    p_arr = np.array([0.,0.,0.])
+    v_arr = np.array([0.,0.,1.])
+    p1 = gc.Point(p_arr)
+    v1 = gc.Vector(v_arr)
+    r_set = gc.Ray(p1, v1)
+
+    r_set_mtf = multi_tf(r_set)
+    r_set_tf1 = tf1(r_set)
+    r_set_tf2 = tf2(r_set)
+
+    assert (r_set_mtf[0].o == r_set_tf1.o)
+    assert (r_set_mtf[1].o == r_set_tf2.o)
+
+    assert (r_set_mtf[0].d == r_set_tf1.d)
+    assert (r_set_mtf[1].d == r_set_tf2.d)
+
+
+def test_transform_2d_arr():
+    tf = np.zeros((2,4,4), dtype=np.float64)
+    tf[0,:,:] = np.identity(4)
+    tf[1,:,:] = gc.get_translate_tf(gc.Vector(1., 2., 3.)).m
+    multi_tf = gc.Transform(tf)
+    tf1 = gc.Transform(tf[0,:,:])
+    tf2 = gc.Transform(tf[1,:,:])
+    p_arr = np.array([[0.,0.,0.], [2.,2.,2.]])
+    v_arr = np.array([[0.,0.,1.], [0.,1.,0.]])
+    p_set = gc.Point(p_arr)
+    v_set = gc.Vector(v_arr)
+    r_set = gc.Ray(p_set, v_set)
+
+    r_set_mtf = multi_tf(r_set)
+    r_set_tf1 = tf1(r_set)
+    r_set_tf2 = tf2(r_set)
+
+    assert (np.all(r_set_mtf[0].o == r_set_tf1.o))
+    assert (np.all(r_set_mtf[1].o == r_set_tf2.o))
+
+    assert (np.all(r_set_mtf[0].d == r_set_tf1.d))
+    assert (np.all(r_set_mtf[1].d == r_set_tf2.d))
+
+
+def test_transform_diag():
+    tf = np.zeros((2,4,4), dtype=np.float64)
+    tf[0,:,:] = np.identity(4)
+    tf[1,:,:] = gc.get_translate_tf(gc.Vector(1., 2., 3.)).m
+    multi_tf = gc.Transform(tf)
+    tf1 = gc.Transform(tf[0,:,:])
+    tf2 = gc.Transform(tf[1,:,:])
+    p_arr = np.array([[0.,0.,0.], [2.,2.,2.]])
+    v_arr = np.array([[0.,0.,1.], [0.,1.,0.]])
+    p_set = gc.Point(p_arr)
+    v_set = gc.Vector(v_arr)
+    r_set = gc.Ray(p_set, v_set)
+
+    p1 = gc.Point(p_arr[0,:])
+    v1 = gc.Vector(v_arr[0,:])
+    r1 = gc.Ray(p1, v1)
+    p2 = gc.Point(p_arr[1,:])
+    v2 = gc.Vector(v_arr[1,:])
+    r2 = gc.Ray(p2, v2)
+
+    r_set_mtf = multi_tf(r_set, calc_diag=True)
+    r1_tf1 = tf1(r1)
+    r2_tf2 = tf2(r2)
+
+    assert (r_set_mtf[0].o == r1_tf1.o)
+    assert (r_set_mtf[1].o == r2_tf2.o)
+
+    assert (r_set_mtf[0].d == r1_tf1.d)
+    assert (r_set_mtf[1].d == r2_tf2.d)
