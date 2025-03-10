@@ -234,3 +234,85 @@ def test_transform_diag():
 
     assert (r_set_mtf[0].d == r1_tf1.d)
     assert (r_set_mtf[1].d == r2_tf2.d)
+
+
+def test_get_translate_tf_arr():
+    v_arr = np.array([[0.,0.,1.], [0.,1.,0.]])
+    v_set = gc.Vector(v_arr)
+    multi_tf = gc.get_translate_tf(v_set)
+    mtf_m = multi_tf.m
+    mtf_mInv = multi_tf.mInv
+
+    mf_m = np.zeros_like(mtf_m)
+    mf_mInv = np.zeros_like(mtf_mInv)
+    for i in range (0, 2):
+        tfi = gc.get_translate_tf(gc.Vector(v_arr[i,:]))
+        mf_m[i,:,:] = tfi.m
+        mf_mInv[i,:,:] = tfi.mInv
+    assert (np.all(mtf_m == mf_m))
+    assert (np.all(mtf_mInv == mf_mInv))
+
+
+def test_get_scale_tf_arr():
+    v_arr = np.array([[1.,2.,3.], [4.,0.5,7.]])
+    v_set = gc.Vector(v_arr)
+    multi_tf = gc.get_scale_tf(v_set)
+    mtf_m = multi_tf.m
+    mtf_mInv = multi_tf.mInv
+
+    mf_m = np.zeros_like(mtf_m)
+    mf_mInv = np.zeros_like(mtf_mInv)
+    for i in range (0, 2):
+        tfi = gc.get_scale_tf(gc.Vector(v_arr[i,:]))
+        mf_m[i,:,:] = tfi.m
+        mf_mInv[i,:,:] = tfi.mInv
+    assert (np.all(mtf_m == mf_m))
+    assert (np.all(mtf_mInv == mf_mInv))
+
+
+def test_get_rotateX_tf_arr():
+    angles = np.array([45, 78, 115])
+    multi_tf = gc.get_rotateX_tf(angles)
+    mtf_m = multi_tf.m
+    mtf_mInv = multi_tf.mInv
+
+    mf_m = np.zeros_like(mtf_m)
+    mf_mInv = np.zeros_like(mtf_m)
+    for i in range (0, 3):
+        tfi = gc.get_rotateX_tf(angles[i])
+        mf_m[i,:,:] = tfi.m
+        mf_mInv[i,:,:] = tfi.mInv
+    assert (np.allclose(mtf_m, mf_m, 0., 1e-15))
+    assert (np.allclose(mtf_mInv, mf_mInv, 0., 1e-15))
+
+
+def test_get_rotateY_tf_arr():
+    angles = np.array([45, 78, 115])
+    multi_tf = gc.get_rotateY_tf(angles)
+    mtf_m = multi_tf.m
+    mtf_mInv = multi_tf.mInv
+
+    mf_m = np.zeros_like(mtf_m)
+    mf_mInv = np.zeros_like(mtf_m)
+    for i in range (0, 3):
+        tfi = gc.get_rotateY_tf(angles[i])
+        mf_m[i,:,:] = tfi.m
+        mf_mInv[i,:,:] = tfi.mInv
+    print (np.allclose(mtf_m, mf_m, 0., 1e-15))
+    print (np.allclose(mtf_mInv, mf_mInv, 0., 1e-15))
+
+
+def test_get_rotateZ_tf_arr():
+    angles = np.array([45, 78, 115])
+    multi_tf = gc.get_rotateZ_tf(angles)
+    mtf_m = multi_tf.m
+    mtf_mInv = multi_tf.mInv
+
+    mf_m = np.zeros_like(mtf_m)
+    mf_mInv = np.zeros_like(mtf_m)
+    for i in range (0, 3):
+        tfi = gc.get_rotateZ_tf(angles[i])
+        mf_m[i,:,:] = tfi.m
+        mf_mInv[i,:,:] = tfi.mInv
+    print (np.allclose(mtf_m, mf_m, 0., 1e-15))
+    print (np.allclose(mtf_mInv, mf_mInv, 0., 1e-15))
