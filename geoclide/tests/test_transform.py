@@ -28,7 +28,7 @@ def test_get_translate_tf(v_arr):
 
 @pytest.mark.parametrize('v_arr', V2)
 def test_get_scale_tf(v_arr):
-    t = gc.get_scale_tf(v_arr[0], v_arr[1], v_arr[2])
+    t = gc.get_scale_tf(gc.Vector(v_arr))
     m = np.identity(4)
     m[0,0] = v_arr[0]
     m[1,1] = v_arr[1]

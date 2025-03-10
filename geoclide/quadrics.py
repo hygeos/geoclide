@@ -874,7 +874,7 @@ class Spheroid(Shape):
         mesh : TriangleMesh
             The spheroid converted to a triangle mesh
         """
-        rescale_xyz = get_scale_tf(self.alpha, self.alpha, self.gamma)
+        rescale_xyz = get_scale_tf(Vector(self.alpha, self.alpha, self.gamma))
         msh = create_sphere_trianglemesh(radius=1, reso_theta=reso_theta, reso_phi=reso_phi)
         vertices_t = np.zeros((msh.nvertices,3))
         for iver in range (0, msh.nvertices):
