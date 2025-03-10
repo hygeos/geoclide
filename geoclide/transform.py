@@ -451,12 +451,12 @@ def get_translate_tf(v):
     Parameters
     ----------
     v : Vector
-        The vector used for the transformation
+        The vector(s) used for the transformation
 
     Returns
     -------
     t : Transform
-        The translate transformation
+        The translate transformation(s)
 
     examples
     --------
@@ -478,15 +478,25 @@ def get_translate_tf(v):
     """
     if (not isinstance(v, Vector)):
         raise ValueError("The parameter v must be a Vector")
-    
-    m = np.identity(4)
-    m[0,3] = v.x
-    m[1,3] = v.y
-    m[2,3] = v.z
-    mInv = np.identity(4)
-    mInv[0,3] = (v.x)*-1
-    mInv[1,3] = (v.y)*-1
-    mInv[2,3] = (v.z)*-1
+    if isinstance(v.x, np.ndarray):
+        nc = len(v.x)
+        m = np.tile(np.identity(4, dtype=np.float64), (nc,1)).reshape(nc,4,4)
+        mInv = m.copy()
+        m[:,0,3] = v.x
+        m[:,1,3] = v.y
+        m[:,2,3] = v.z
+        mInv[:,0,3] = -v.x
+        mInv[:,1,3] = -v.y
+        mInv[:,2,3] = -v.z
+    else:
+        m = np.identity(4)
+        mInv = m.copy()
+        m[0,3] = v.x
+        m[1,3] = v.y
+        m[2,3] = v.z
+        mInv[0,3] = -v.x
+        mInv[1,3] = -v.y
+        mInv[2,3] = -v.z
     return Transform(m, mInv)
 
 
@@ -496,31 +506,53 @@ def get_scale_tf(x, y, z):
 
     Parameters
     ----------
-    x : float
-        The scale factor to apply (x axis)
-    y : float
-        The scale factor to apply (y axis)
-    y : float
-        The scale factor to apply (z axis)
+    x : float | 1-D ndarray
+        The scale factor(s) to apply (x axis)
+    y : float | 1-D ndarray
+        The scale factor(s) to apply (y axis)
+    y : float | 1-D ndarray
+        The scale factor(s) to apply (z axis)
 
     Returns
     -------
     t : Transform
-        The scale transformation
+        The scale transformation(s)
+
+    Notes
+    -----
+    x, y and z must be all scalars or all 1-D arrays with the same size
     """
-    if ( (not np.isscalar(x)) or
-         (not np.isscalar(y)) or
-         (not np.isscalar(z)) ):
-        raise ValueError("The parameters x, y and z must be all scalars")
+    is_x_arr = isinstance(x, np.ndarray)
+    is_y_arr = isinstance(y, np.ndarray)
+    is_z_arr = isinstance(z, np.ndarray)
     
-    m = np.identity(4)
-    m[0,0] = x
-    m[1,1] = y
-    m[2,2] = z
-    mInv = np.identity(4)
-    mInv[0,0] = 1./x
-    mInv[1,1] = 1./y
-    mInv[2,2] = 1./z
+    if (is_x_arr and is_y_arr and is_z_arr):
+        sx = len(x)
+        sy = len(y)
+        sz = len(z)
+        if (sx != sy or sx != sz):
+            raise ValueError("The parameters x, y and z must have the same size")
+        nc = sx
+        m = np.tile(np.identity(4, dtype=np.float64), (nc,1)).reshape(nc,4,4)
+        mInv = m.copy()
+        m[:,0,0] = x
+        m[:,1,1] = y
+        m[:,2,2] = z
+        mInv[:,0,0] = 1./x
+        mInv[:,1,1] = 1./y
+        mInv[:,2,2] = 1./z
+    elif(not is_x_arr and not is_y_arr and not is_z_arr):
+        m = np.identity(4)
+        mInv = m.copy()
+        m[0,0] = x
+        m[1,1] = y
+        m[2,2] = z
+        mInv[0,0] = 1./x
+        mInv[1,1] = 1./y
+        mInv[2,2] = 1./z
+    else:
+        raise ValueError("The parameters x, y and z must be all scalars " + \
+                         "or all 1-D ndarrays")
     return Transform(m, mInv)
 
 
@@ -530,24 +562,33 @@ def get_rotateX_tf(angle):
 
     Parameters
     ----------
-    angle : float
+    angle : float | 1-D ndarray
         The angle in degrees for the rotation around the x axis
 
     Returns
     -------
     t : Transform
-        The rotateX transformation
+        The rotateX transformation(s)
     """
-    if (not np.isscalar(angle)):
-        raise ValueError("The parameter angle must be a scalar")
-    
-    sin_t = math.sin(angle*(math.pi / 180.))
-    cos_t = math.cos(angle*(math.pi / 180.))
-    m = np.identity(4)
-    m[1,1] = cos_t
-    m[1,2] = -1.*sin_t
-    m[2,1] = sin_t
-    m[2,2] = cos_t
+    is_ang_arr = isinstance(np.ndarray)
+
+    if (is_ang_arr):
+        sin_t = np.sin(angle*(math.pi / 180.))
+        cos_t = np.cos(angle*(math.pi / 180.))
+        nc = len(angle)
+        m = np.tile(np.identity(4, dtype=np.float64), (nc,1)).reshape(nc,4,4)
+        m[:,1,1] = cos_t
+        m[:,1,2] = -1.*sin_t
+        m[:,2,1] = sin_t
+        m[:,2,2] = cos_t
+    else:
+        sin_t = math.sin(angle*(math.pi / 180.))
+        cos_t = math.cos(angle*(math.pi / 180.))
+        m = np.identity(4)
+        m[1,1] = cos_t
+        m[1,2] = -1.*sin_t
+        m[2,1] = sin_t
+        m[2,2] = cos_t
     return Transform(m, np.transpose(m))
 
 
@@ -557,24 +598,33 @@ def get_rotateY_tf(angle):
 
     Parameters
     ----------
-    angle : float
-        The angle in degrees for the rotation around the y axis
+    angle : float | 1-D ndarray
+        The angle(s) in degrees for the rotation around the y axis
 
     Returns
     -------
     t : Transform
-        The rotateY transformation
+        The rotateY transformation(s)
     """
-    if (not np.isscalar(angle)):
-        raise ValueError("The parameter angle must be a scalar")
-    
-    sin_t = math.sin(angle*(math.pi / 180.))
-    cos_t = math.cos(angle*(math.pi / 180.))
-    m = np.identity(4)
-    m[0,0] = cos_t
-    m[2,0] = -1.*sin_t
-    m[0,2] = sin_t
-    m[2,2] = cos_t
+    is_ang_arr = isinstance(np.ndarray)
+
+    if (is_ang_arr):
+        sin_t = np.sin(angle*(math.pi / 180.))
+        cos_t = np.cos(angle*(math.pi / 180.))
+        nc = len(angle)
+        m = np.tile(np.identity(4, dtype=np.float64), (nc,1)).reshape(nc,4,4)
+        m[:,0,0] = cos_t
+        m[:,2,0] = -1.*sin_t
+        m[:,0,2] = sin_t
+        m[:,2,2] = cos_t
+    else:
+        sin_t = math.sin(angle*(math.pi / 180.))
+        cos_t = math.cos(angle*(math.pi / 180.))
+        m = np.identity(4)
+        m[0,0] = cos_t
+        m[2,0] = -1.*sin_t
+        m[0,2] = sin_t
+        m[2,2] = cos_t
     return Transform(m, np.transpose(m))
 
 
@@ -584,24 +634,33 @@ def get_rotateZ_tf(angle):
 
     Parameters
     ----------
-    v : Vector
-        The angle in degrees for the rotation around the Z axis
+    angle : float | 1-D ndarray
+        The angle(s) in degrees for the rotation around the Z axis
 
     Returns
     -------
     t : Transform
-        The rotateZ transformation
+        The rotateZ transformation(s)
     """
-    if (not np.isscalar(angle)):
-        raise ValueError("The parameter angle must be a scalar")
-    
-    sin_t = math.sin(angle*(math.pi / 180.))
-    cos_t = math.cos(angle*(math.pi / 180.))
-    m = np.identity(4)
-    m[0,0] = cos_t
-    m[0,1] = -1.*sin_t
-    m[1,0] = sin_t
-    m[1,1] = cos_t
+    is_ang_arr = isinstance(np.ndarray)
+
+    if (is_ang_arr):
+        sin_t = np.sin(angle*(math.pi / 180.))
+        cos_t = np.cos(angle*(math.pi / 180.))
+        nc = len(angle)
+        m = np.tile(np.identity(4, dtype=np.float64), (nc,1)).reshape(nc,4,4)
+        m[:,0,0] = cos_t
+        m[:,0,1] = -sin_t
+        m[:,1,0] = sin_t
+        m[:,1,1] = cos_t
+    else:
+        sin_t = math.sin(angle*(math.pi / 180.))
+        cos_t = math.cos(angle*(math.pi / 180.))
+        m = np.identity(4)
+        m[0,0] = cos_t
+        m[0,1] = -sin_t
+        m[1,0] = sin_t
+        m[1,1] = cos_t
     return Transform(m, np.transpose(m))
 
 
