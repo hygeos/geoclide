@@ -650,44 +650,80 @@ def get_rotateZ_tf(angle):
         return Transform(m, np.transpose(m))
 
 
-def get_rotate_tf(angle, axis):
+def get_rotate_tf(angle, axis, diag_calc=False):
     """
     Get the rotate Transform around a given axis
 
     Parameters
     ----------
-    angle : float
-        The angle in degrees for the rotation
+    angle : float | 1-D ndarray
+        The angle(s) in degrees for the rotation. The angle parameter can be a 1-D array 
+        only if axis is a Vector/Normal with scalar components or if diag_calc=True
     axis : Vector | Normal
-        The rotation is performed around the Vector/Normal axis 
+        The rotation is performed around the Vector/Normal axis
+    diag_calc : bool, optional
+            Perform diagonal calculations in case angle is a 1-D ndarray and axis is a 
+            Vector/Normal with 1-D ndarray x, y, z components. Use angle(i) with axis(i) 
+            to calculate transformation(i)
 
     Returns
     -------
     t : Transform
         The rotate transformation
     """
-    if (not np.isscalar(angle)):
-        raise ValueError("The parameter angle must be a scalar")
     if ( (not isinstance(axis, Vector)) and
          (not isinstance(axis, Normal)) ):
         raise ValueError("The parameter axis must be a Vector or a Normal")
+    
+    is_ang_arr = isinstance(angle, np.ndarray)
+    is_axis_arr = isinstance(axis.x, np.ndarray)
+
+    if is_ang_arr and is_axis_arr and not diag_calc:
+        raise ValueError("1-D array for angle parameter is allowed only if axis parameter" + \
+                         " is a Vector/Normal with scalar components, or if diag_calc=True")
 
     a = Vector(normalize(axis))
-    s = math.sin(angle*(math.pi / 180.))
-    c = math.cos(angle*(math.pi / 180.))
-    m = np.identity(4)
+    if is_ang_arr or is_axis_arr:
+        nc = 1
+        if is_ang_arr:
+            nc = max(nc, len(angle))
+            s = np.sin(angle*(math.pi / 180.))
+            c = np.cos(angle*(math.pi / 180.))
+        else:
+            s = math.sin(angle*(math.pi / 180.))
+            c = math.cos(angle*(math.pi / 180.))
+        
+        if is_axis_arr: nc = max(nc, len(axis.x))
+        m = np.tile(np.identity(4, dtype=np.float64), (nc,1)).reshape(nc,4,4)
 
-    m[0,0] = a.x*a.x+(1-a.x*a.x)*c
-    m[0,1] = a.x*a.y*(1-c)-a.z*s
-    m[0,2] = a.x*a.z*(1-c)+a.y*s
+        m[:,0,0] = a.x*a.x+(1-a.x*a.x)*c
+        m[:,0,1] = a.x*a.y*(1-c)-a.z*s
+        m[:,0,2] = a.x*a.z*(1-c)+a.y*s
 
-    m[1,0] = a.x*a.y*(1-c)+a.z*s
-    m[1,1] = a.y*a.y+(1-a.y*a.y)*c
-    m[1,2] = a.y*a.z*(1-c)-a.x*s
+        m[:,1,0] = a.x*a.y*(1-c)+a.z*s
+        m[:,1,1] = a.y*a.y+(1-a.y*a.y)*c
+        m[:,1,2] = a.y*a.z*(1-c)-a.x*s
 
-    m[2,0] = a.x*a.z*(1-c)-a.y*s
-    m[2,1] = a.y*a.z*(1-c)+a.x*s
-    m[2,2] = a.z*a.z+(1-a.z*a.z)*c
-    return Transform(m, np.transpose(m))
+        m[:,2,0] = a.x*a.z*(1-c)-a.y*s
+        m[:,2,1] = a.y*a.z*(1-c)+a.x*s
+        m[:,2,2] = a.z*a.z+(1-a.z*a.z)*c
+        return Transform(m, np.transpose(m, axes=(0,2,1)))
+    else:
+        s = math.sin(angle*(math.pi / 180.))
+        c = math.cos(angle*(math.pi / 180.))
+        m = np.identity(4)
+
+        m[0,0] = a.x*a.x+(1-a.x*a.x)*c
+        m[0,1] = a.x*a.y*(1-c)-a.z*s
+        m[0,2] = a.x*a.z*(1-c)+a.y*s
+
+        m[1,0] = a.x*a.y*(1-c)+a.z*s
+        m[1,1] = a.y*a.y+(1-a.y*a.y)*c
+        m[1,2] = a.y*a.z*(1-c)-a.x*s
+
+        m[2,0] = a.x*a.z*(1-c)-a.y*s
+        m[2,1] = a.y*a.z*(1-c)+a.x*s
+        m[2,2] = a.z*a.z+(1-a.z*a.z)*c
+        return Transform(m, np.transpose(m))
 
 
