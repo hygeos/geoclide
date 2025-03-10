@@ -570,7 +570,7 @@ def get_rotateX_tf(angle):
     t : Transform
         The rotateX transformation(s)
     """
-    is_ang_arr = isinstance(np.ndarray)
+    is_ang_arr = isinstance(angle, np.ndarray)
 
     if (is_ang_arr):
         sin_t = np.sin(angle*(math.pi / 180.))
@@ -581,6 +581,7 @@ def get_rotateX_tf(angle):
         m[:,1,2] = -1.*sin_t
         m[:,2,1] = sin_t
         m[:,2,2] = cos_t
+        return Transform(m, np.transpose(m, axes=(0,2,1)))
     else:
         sin_t = math.sin(angle*(math.pi / 180.))
         cos_t = math.cos(angle*(math.pi / 180.))
@@ -589,7 +590,7 @@ def get_rotateX_tf(angle):
         m[1,2] = -1.*sin_t
         m[2,1] = sin_t
         m[2,2] = cos_t
-    return Transform(m, np.transpose(m))
+        return Transform(m, np.transpose(m))
 
 
 def get_rotateY_tf(angle):
@@ -606,7 +607,7 @@ def get_rotateY_tf(angle):
     t : Transform
         The rotateY transformation(s)
     """
-    is_ang_arr = isinstance(np.ndarray)
+    is_ang_arr = isinstance(angle, np.ndarray)
 
     if (is_ang_arr):
         sin_t = np.sin(angle*(math.pi / 180.))
@@ -617,6 +618,7 @@ def get_rotateY_tf(angle):
         m[:,2,0] = -1.*sin_t
         m[:,0,2] = sin_t
         m[:,2,2] = cos_t
+        return Transform(m, np.transpose(m, axes=(0,2,1)))
     else:
         sin_t = math.sin(angle*(math.pi / 180.))
         cos_t = math.cos(angle*(math.pi / 180.))
@@ -625,7 +627,7 @@ def get_rotateY_tf(angle):
         m[2,0] = -1.*sin_t
         m[0,2] = sin_t
         m[2,2] = cos_t
-    return Transform(m, np.transpose(m))
+        return Transform(m, np.transpose(m))
 
 
 def get_rotateZ_tf(angle):
@@ -642,7 +644,7 @@ def get_rotateZ_tf(angle):
     t : Transform
         The rotateZ transformation(s)
     """
-    is_ang_arr = isinstance(np.ndarray)
+    is_ang_arr = isinstance(angle, np.ndarray)
 
     if (is_ang_arr):
         sin_t = np.sin(angle*(math.pi / 180.))
@@ -653,6 +655,7 @@ def get_rotateZ_tf(angle):
         m[:,0,1] = -sin_t
         m[:,1,0] = sin_t
         m[:,1,1] = cos_t
+        return Transform(m, np.transpose(m, axes=(0,2,1)))
     else:
         sin_t = math.sin(angle*(math.pi / 180.))
         cos_t = math.cos(angle*(math.pi / 180.))
@@ -661,7 +664,7 @@ def get_rotateZ_tf(angle):
         m[0,1] = -sin_t
         m[1,0] = sin_t
         m[1,1] = cos_t
-    return Transform(m, np.transpose(m))
+        return Transform(m, np.transpose(m))
 
 
 def get_rotate_tf(angle, axis):
