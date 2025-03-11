@@ -40,4 +40,46 @@ def test_vec2ang(phi, theta):
     assert (np.isclose(v1.z, v3.z, 0., 1e-14))
 
 
+def test_ang2vec_diag():
+    theta = np.array([20., 30., 45.])
+    phi = np.array([0., 0., 180.])
+    v_arr_f = gc.ang2vec(theta, phi, calc_diag=True).to_numpy()
+    v_arr = np.zeros_like(v_arr_f)
+    for i in range (0, len(theta)):
+        v_arr[i,:] = gc.ang2vec(theta[i], phi[i]).to_numpy()
+    assert (np.allclose(v_arr, v_arr_f))
 
+
+def test_ang2vec_2d_arr():
+    theta = np.array([20., 30., 45.])
+    phi = np.array([0., 0., 180.])
+    v_arr_f = gc.ang2vec(theta, phi).to_numpy()
+    v_arr = np.zeros_like(v_arr_f)
+    k = 0
+    for j in range (0, len(phi)):
+        for i in range (0, len(theta)):
+            v_arr[k,:] = gc.ang2vec(theta[i], phi[j]).to_numpy()
+            k+=1
+    assert (np.allclose(v_arr, v_arr_f)) 
+
+
+def test_ang2vec_1d_arr1():
+    theta = np.array([20., 30., 45.])
+    phi = 0.
+    v_arr_f = gc.ang2vec(theta, phi).to_numpy()
+    v_arr = np.zeros_like(v_arr_f)
+    for i in range (0, len(theta)):
+        v_arr[i,:] = gc.ang2vec(theta[i], phi).to_numpy()
+
+    assert (np.allclose(v_arr, v_arr_f))
+
+
+def test_ang2vec_1d_arr2():
+    theta = 20.
+    phi = np.array([0., 67., 180.])
+    v_arr_f = gc.ang2vec(theta, phi).to_numpy()
+    v_arr = np.zeros_like(v_arr_f)
+    for j in range (0, len(phi)):
+        v_arr[j,:] = gc.ang2vec(theta, phi[j]).to_numpy()
+
+    assert (np.allclose(v_arr, v_arr_f)) 
