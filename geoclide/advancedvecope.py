@@ -8,8 +8,8 @@ from geoclide.mathope import clamp
 import numpy as np
 import math
 
-
-def ang2vec(theta, phi, vec_view='zenith'):
+# TODO add ds_output option
+def ang2vec(theta, phi, vec_view='zenith', calc_diag=False):
     """
     Convert a direction described by 2 angles into a direction described by a vector
 
@@ -17,12 +17,12 @@ def ang2vec(theta, phi, vec_view='zenith'):
 
     Parameters
     ----------
-    theta : float
-        The polar angle in degrees, starting at z+ in the zx plane and going 
+    theta : float | 1D array
+        The polar angle(s) in degrees, starting at z+ in the zx plane and going 
         in the trigonometric direction around the y axis
 
-    phi : float
-        The azimuthal angle in degrees, starting at x+ in the xy plane and going in 
+    phi : float | 1D array
+        The azimuthal angle(s) in degrees, starting at x+ in the xy plane and going in 
         the trigonométric direction around the z axis
 
     vec_view : str, optional
@@ -32,7 +32,11 @@ def ang2vec(theta, phi, vec_view='zenith'):
     Returns
     -------
     v : Vector
-        The direction described by a vector
+        The direction(s) described by a vector
+
+    Notes
+    -----
+    In case both theta and phi are 1-D ndarrays, the vectors are ordered in phi-major order
 
     Examples
     --------
@@ -53,8 +57,11 @@ def ang2vec(theta, phi, vec_view='zenith'):
     else:
         raise ValueError("The value of vec_view parameter must be: 'zenith' or 'nadir")
     
-    v = get_rotateY_tf(theta)(v)
-    v = get_rotateZ_tf(phi)(v)
+    if isinstance(theta, np.ndarray) or isinstance(phi, np.ndarray): flatten = True
+    else : flatten = False
+
+    v = get_rotateY_tf(theta)(v, flatten=flatten)
+    v = get_rotateZ_tf(phi)(v, flatten=flatten, calc_diag=calc_diag)
     v = normalize(v)
     
     return v
