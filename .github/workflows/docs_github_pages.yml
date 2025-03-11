@@ -28,6 +28,7 @@ jobs:
           python -m pip install myst-parser
           python -m pip install nbsphinx
           python -m pip install sphinxcontrib-napoleon
+          python -m pip install pandoc
 
       - name: Generate the docs
         run: |
