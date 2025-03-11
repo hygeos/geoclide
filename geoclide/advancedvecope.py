@@ -28,6 +28,8 @@ def ang2vec(theta, phi, vec_view='zenith', calc_diag=False):
     vec_view : str, optional
         Two choices (concerning intial direction at theta=phi=0): 'zenith' (i.e. pointing above) or 
         'bellow' (i.e. pointing bellow)
+    diag_calc : bool, optional
+            Perform diagonal calculations, v(i) is calculated using theta(i) and phi(i)
 
     Returns
     -------
@@ -122,7 +124,7 @@ def vec2ang(v, vec_view='zenith'):
     
     v = normalize(v) # ensure v is normalized
 
-    if isinstance(v, np.ndarray):
+    if isinstance(v.x, np.ndarray):
         nv = len(v.x)
         v_arr = v.to_numpy()
         v_ini_arr = np.zeros_like(v_arr)
