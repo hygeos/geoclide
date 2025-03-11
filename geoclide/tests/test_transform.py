@@ -370,3 +370,134 @@ def test_get_rotate_tf_diag():
         mf_mInv[i,:,:] = tfi.mInv
     assert (np.allclose(mtf_m, mf_m, 0., 1e-15))
     assert (np.allclose(mtf_mInv, mf_mInv, 0., 1e-15))
+
+
+def test_flatten_tf_1d_arr1():
+    angles = np.linspace(0., 180., 5)
+    tr_arr = np.zeros((len(angles), 3), dtype=np.float64)
+    tr_arr[:,0] = 1
+    tr_arr[:,1] = 2
+    tr_arr[:,2] = 3
+    multi_tf = gc.get_translate_tf(gc.Vector(tr_arr))*gc.get_rotateY_tf(angles)
+    v_arr = np.array([1.,2.,3.])
+    p_arr = np.array([1.,1.,1.])
+    v = gc.Vector(v_arr)
+    p = gc.Point(p_arr)
+    n = gc.Normal(v_arr)
+
+
+    v_arr_f = multi_tf(v, flatten=True).to_numpy()
+    p_arr_f = multi_tf(p, flatten=True).to_numpy()
+    n_arr_f = multi_tf(n, flatten=True).to_numpy()
+
+    v_bis = multi_tf(v)
+    p_bis = multi_tf(p)
+    n_bis = multi_tf(n)
+    nv = len(v_bis)
+    v_arr_nf = np.zeros((nv,3), dtype=np.float64)
+    p_arr_nf = np.zeros_like(v_arr_nf)
+    n_arr_nf = np.zeros_like(v_arr_nf)
+    for i in range (0, nv):
+        v_arr_nf[i,:] = v_bis[i].to_numpy()
+        p_arr_nf[i,:] = p_bis[i].to_numpy()
+        n_arr_nf[i,:] = n_bis[i].to_numpy()
+
+    assert (np.allclose(v_arr_nf, v_arr_f, 0., 1e-15))
+    assert (np.allclose(p_arr_nf, p_arr_f, 0., 1e-15))
+    assert (np.allclose(n_arr_nf, n_arr_f, 0., 1e-15))
+
+
+def test_flatten_tf_1d_arr2():
+    angle = 45.
+    tf = gc.get_translate_tf(gc.Vector(1,2,3))*gc.get_rotateY_tf(angle)
+    v_arr = np.array([[1.,2.,3.], [0.5,5.,1.]])
+    p_arr = np.array([[1.,1.,1.], [5.,1.,1.]])
+    v = gc.Vector(v_arr)
+    p = gc.Point(p_arr)
+    n = gc.Normal(v_arr)
+
+
+    v_arr_f = tf(v, flatten=True).to_numpy()
+    p_arr_f = tf(p, flatten=True).to_numpy()
+    n_arr_f = tf(n, flatten=True).to_numpy()
+
+    v_arr_nf = tf(v).to_numpy()
+    p_arr_nf = tf(p).to_numpy()
+    n_arr_nf = tf(n).to_numpy()
+
+    assert (np.allclose(v_arr_nf, v_arr_f, 0., 1e-15))
+    assert (np.allclose(p_arr_nf, p_arr_f, 0., 1e-15))
+    assert (np.allclose(n_arr_nf, n_arr_f, 0., 1e-15))
+
+
+def test_flatten_tf_2d_arr():
+    angles = np.linspace(0., 180., 5)
+    nang = len(angles)
+    tr_arr = np.zeros((nang, 3), dtype=np.float64)
+    tr_arr[:,0] = 1
+    tr_arr[:,1] = 2
+    tr_arr[:,2] = 3
+    multi_tf = gc.get_translate_tf(gc.Vector(tr_arr))*gc.get_rotateY_tf(angles)
+    v_arr = np.array([[1.,2.,3.], [0.5,5.,1.]])
+    p_arr = np.array([[1.,1.,1.], [5.,1.,1.]])
+    v = gc.Vector(v_arr)
+    p = gc.Point(p_arr)
+    n = gc.Normal(v_arr)
+
+    v_arr_f = multi_tf(v, flatten=True).to_numpy()
+    p_arr_f = multi_tf(p, flatten=True).to_numpy()
+    n_arr_f = multi_tf(n, flatten=True).to_numpy()
+
+    v_bis = multi_tf(v)
+    p_bis = multi_tf(p)
+    n_bis = multi_tf(n)
+    nv = len(v.x)
+    v_arr_nf = np.zeros((nv*nang,3), dtype=np.float64)
+    p_arr_nf = np.zeros_like(v_arr_nf)
+    n_arr_nf = np.zeros_like(v_arr_nf)
+    for i in range (0, nang):
+        ind0 = i*nv
+        ind1 = ind0+nv
+        v_arr_nf[ind0:ind1,:] = v_bis[i].to_numpy()
+        p_arr_nf[ind0:ind1,:] = p_bis[i].to_numpy()
+        n_arr_nf[ind0:ind1,:] = n_bis[i].to_numpy()
+
+    assert (np.allclose(v_arr_nf, v_arr_f, 0., 1e-15))
+    assert (np.allclose(p_arr_nf, p_arr_f, 0., 1e-15))
+    assert (np.allclose(n_arr_nf, n_arr_f, 0., 1e-15))
+
+
+def test_flatten_tf_diag():
+    angles = np.array([45.,165.])
+    nang = len(angles)
+    tr_arr = np.zeros((nang, 3), dtype=np.float64)
+    tr_arr[:,0] = 1
+    tr_arr[:,1] = 2
+    tr_arr[:,2] = 3
+    multi_tf = gc.get_translate_tf(gc.Vector(tr_arr))*gc.get_rotateY_tf(angles)
+    v_arr = np.array([[1.,2.,3.], [0.5,5.,1.]])
+    p_arr = np.array([[1.,1.,1.], [5.,1.,1.]])
+    v = gc.Vector(v_arr)
+    p = gc.Point(p_arr)
+    n = gc.Normal(v_arr)
+
+    v_arr_f = multi_tf(v, calc_diag=True, flatten=True).to_numpy()
+    p_arr_f = multi_tf(p, calc_diag=True, flatten=True).to_numpy()
+    n_arr_f = multi_tf(n, calc_diag=True, flatten=True).to_numpy()
+
+    v_bis = multi_tf(v, calc_diag=True)
+    p_bis = multi_tf(p, calc_diag=True)
+    n_bis = multi_tf(n, calc_diag=True)
+    nv = len(v.x)
+    v_arr_nf = np.zeros((nv,3), dtype=np.float64)
+    p_arr_nf = np.zeros_like(v_arr_nf)
+    n_arr_nf = np.zeros_like(v_arr_nf)
+    for i in range (0, nang):
+
+        v_arr_nf[i,:] = v_bis[i].to_numpy()
+        p_arr_nf[i,:] = p_bis[i].to_numpy()
+        n_arr_nf[i,:] = n_bis[i].to_numpy()
+
+    assert (np.allclose(v_arr_nf, v_arr_f, 0., 1e-15))
+    assert (np.allclose(p_arr_nf, p_arr_f, 0., 1e-15))
+    assert (np.allclose(n_arr_nf, n_arr_f, 0., 1e-15))
