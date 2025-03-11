@@ -120,12 +120,17 @@ class Transform(object):
                 else: mat = np.moveaxis(self.mInv, 0,2) # if is_normal
                 is_c_arr = isinstance(c.x, np.ndarray)
                 key_bis = np.arange(nT)
+                if flatten: use_flatten = False
                 if is_c_arr and not calc_diag:
                     mat = mat[:,:,np.newaxis,:]
                     x = c.x[:,np.newaxis]
                     y = c.y[:,np.newaxis]
                     z = c.z[:,np.newaxis]
-                    keys =  [(slice(None), k) for k in key_bis]
+                    if flatten :
+                        keys = (slice(None), key_bis)
+                        use_flatten = True
+                    else : 
+                        keys = [(slice(None), k) for k in key_bis]
                 else: # if diag_calc = True or if not is_c_arr
                     x = c.x
                     y = c.y
@@ -136,7 +141,10 @@ class Transform(object):
                 yv = mat[1,0]*x + mat[1,1]*y + mat[1,2]*z
                 zv = mat[2,0]*x + mat[2,1]*y + mat[2,2]*z
                 if flatten:
-                    vectors = Vector(xv[keys].flatten(), yv[keys].flatten(), zv[keys].flatten())
+                    if use_flatten :
+                        vectors = Vector(xv[keys].flatten('F'), yv[keys].flatten('F'), zv[keys].flatten('F'))
+                    else :
+                        vectors = Vector(xv[keys], yv[keys], zv[keys])
                 else:
                     vectors = np.empty(nT, dtype=Vector)
                     for iv in range (0, nT):
@@ -148,8 +156,11 @@ class Transform(object):
                 zp = mat[2,0]*x + mat[2,1]*y + mat[2,2]*z + mat[2,3]
                 wp = mat[3,0]*x + mat[3,1]*y + mat[3,2]*z + mat[3,3]
                 if flatten:
-                    points = Point(xp[keys].flatten(), yp[keys].flatten(), zp[keys].flatten())
-                    points /= wp[keys].flatten()
+                    if use_flatten:
+                        points = Point(xp[keys].flatten('F'), yp[keys].flatten('F'), zp[keys].flatten('F'))
+                        points /= wp[keys].flatten('F')
+                    else:
+                        points = Point(xp[keys], yp[keys], zp[keys])/wp[keys]
                 else:
                     points = np.empty(nT, dtype=Point)
                     for ip in range (0, nT):
@@ -164,7 +175,10 @@ class Transform(object):
                 yn = mat[0,1]*x + mat[1,1]*y + mat[2,1]*z
                 zn = mat[0,2]*x + mat[1,2]*y + mat[2,2]*z
                 if flatten:
-                    normals = Normal(xn[keys].flatten(), yn[keys].flatten(), zn[keys].flatten())
+                    if use_flatten:
+                        normals = Normal(xn[keys].flatten('F'), yn[keys].flatten('F'), zn[keys].flatten('F'))
+                    else:
+                        normals = Normal(xn[keys], yn[keys], zn[keys])
                 else:
                     normals = np.empty(nT, dtype=Vector)
                     for inorm in range (0, nT):
@@ -236,10 +250,7 @@ class Transform(object):
                 zn = self.mInv[0,2]*c.x + self.mInv[1,2]*c.y + self.mInv[2,2]*c.z
                 return Normal(xn, yn, zn)
             elif isinstance(c, Ray):
-                R = Ray(c.o, c.d)
-                R.o = self(R.o)
-                R.d = self(R.d)
-                return R
+                return Ray(self(c.o), self(c.d), mint=c.mint, maxt=c.maxt)
             elif isinstance(c, BBox):
                 b = BBox()
                 p0 = self(c.p0)
