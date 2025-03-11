@@ -25,6 +25,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.13
+
+      - name: install pandoc 
+        run: sudo apt-get update && apt-get install -y pandoc
  
       - name: Install dependencies
         run: |
@@ -36,9 +39,6 @@ jobs:
           python -m pip install ghp-import
 
       - name: Generate the docs
-        with:
-          pre-build-command: >-
-            apt-get update && apt-get install -y pandoc
         run: |
           make -C docs clean 
           make -C docs html
