@@ -81,6 +81,10 @@ class Triangle(Shape):
             The ray(s) to use for the intersection test
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 intersection test method) or 'v3' (pbrt v3)
+        diag_calc : bool, optional
+            Perform diagonal calculations in case Triangle and Ray have ndarray point components, 
+            meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
+            r(i) and triangle(i). The same size for the Triangle and the Ray is required.
 
         Returns
         -------

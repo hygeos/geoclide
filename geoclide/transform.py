@@ -81,9 +81,9 @@ class Transform(object):
         if (not isinstance(t, Transform)):
             raise ValueError('A transform can be multiplied only by another Transform')
         
-        return Transform(np.dot(self.m, t.m), np.dot(t.mInv, self.mInv))
+        return Transform(self.m@t.m, t.mInv@self.mInv)
     
-    def __call__(self, c, calc_diag=False):
+    def __call__(self, c, calc_diag=False, flatten=False):
         """
         Apply the transformations
 
@@ -135,57 +135,82 @@ class Transform(object):
                 xv = mat[0,0]*x + mat[0,1]*y + mat[0,2]*z
                 yv = mat[1,0]*x + mat[1,1]*y + mat[1,2]*z
                 zv = mat[2,0]*x + mat[2,1]*y + mat[2,2]*z
-                vectors = np.empty(nT, dtype=Vector)
-                for iv in range (0, nT):
-                    vectors[iv] = Vector(xv[keys[iv]], yv[keys[iv]], zv[keys[iv]])
+                if flatten:
+                    vectors = Vector(xv[keys].flatten(), yv[keys].flatten(), zv[keys].flatten())
+                else:
+                    vectors = np.empty(nT, dtype=Vector)
+                    for iv in range (0, nT):
+                        vectors[iv] = Vector(xv[keys[iv]], yv[keys[iv]], zv[keys[iv]])
                 return vectors
             elif is_point:
                 xp = mat[0,0]*x + mat[0,1]*y + mat[0,2]*z + mat[0,3]
                 yp = mat[1,0]*x + mat[1,1]*y + mat[1,2]*z + mat[1,3]
                 zp = mat[2,0]*x + mat[2,1]*y + mat[2,2]*z + mat[2,3]
                 wp = mat[3,0]*x + mat[3,1]*y + mat[3,2]*z + mat[3,3]
-                points = np.empty(nT, dtype=Point)
-                for ip in range (0, nT):
-                    if ((not isinstance(wp[keys[ip]], np.ndarray) and wp[keys[ip]] == 1) or
-                        (isinstance(wp[keys[ip]], np.ndarray) and np.all(wp[keys[ip]] == 1)) ):
-                        points[ip] = Point(xp[keys[ip]], yp[keys[ip]], zp[keys[ip]])
-                    else: 
-                        points[ip] = Point(xp[keys[ip]], yp[keys[ip]], zp[keys[ip]])/wp[keys[ip]]
+                if flatten:
+                    points = Point(xp[keys].flatten(), yp[keys].flatten(), zp[keys].flatten())
+                    points /= wp[keys].flatten()
+                else:
+                    points = np.empty(nT, dtype=Point)
+                    for ip in range (0, nT):
+                        if ((not isinstance(wp[keys[ip]], np.ndarray) and wp[keys[ip]] == 1) or
+                            (isinstance(wp[keys[ip]], np.ndarray) and np.all(wp[keys[ip]] == 1)) ):
+                            points[ip] = Point(xp[keys[ip]], yp[keys[ip]], zp[keys[ip]])
+                        else: 
+                            points[ip] = Point(xp[keys[ip]], yp[keys[ip]], zp[keys[ip]])/wp[keys[ip]]
                 return points
             elif is_normal:
                 xn = mat[0,0]*x + mat[1,0]*y + mat[2,0]*z
                 yn = mat[0,1]*x + mat[1,1]*y + mat[2,1]*z
                 zn = mat[0,2]*x + mat[1,2]*y + mat[2,2]*z
-                normals = np.empty(nT, dtype=Vector)
-                for inorm in range (0, nT):
-                    normals[inorm] = Normal(xv[keys[inorm]], yv[keys[inorm]], zv[keys[inorm]])
+                if flatten:
+                    normals = Normal(xn[keys].flatten(), yn[keys].flatten(), zn[keys].flatten())
+                else:
+                    normals = np.empty(nT, dtype=Vector)
+                    for inorm in range (0, nT):
+                        normals[inorm] = Normal(xn[keys[inorm]], yn[keys[inorm]], zn[keys[inorm]])
                 return normals
             elif isinstance(c, Ray):
-                origins = self(c.o, calc_diag)
-                directions = self(c.d, calc_diag)
-                nT = self.m.shape[0]
-                rays = np.empty(nT, dtype=Ray)
-                for ir in range (0, nT):
-                    rays[ir] = Ray(origins[ir], directions[ir], mint=c.mint, maxt=c.maxt)
+                origins = self(c.o, calc_diag, flatten)
+                directions = self(c.d, calc_diag, flatten)
+                if flatten:
+                    rays = Ray(origins, directions, mint=c.mint, maxt=c.maxt)
+                else:
+                    nT = self.m.shape[0]
+                    rays = np.empty(nT, dtype=Ray)
+                    for ir in range (0, nT):
+                        rays[ir] = Ray(origins[ir], directions[ir], mint=c.mint, maxt=c.maxt)
                 return rays
             elif isinstance(c, BBox):
-                p0 = self(c.p0, calc_diag)
-                v0 = self(c.p1-c.p0, calc_diag)
-                v1 = self(c.p3-c.p0, calc_diag)
-                v2 = self(c.p4-c.p0, calc_diag)
-                nT = self.m.shape[0]
-                bboxes = np.empty(nT, dtype=BBox)
-                for ib in range (0, nT):
+                p0 = self(c.p0, calc_diag, flatten)
+                v0 = self(c.p1-c.p0, calc_diag, flatten)
+                v1 = self(c.p3-c.p0, calc_diag, flatten)
+                v2 = self(c.p4-c.p0, calc_diag, flatten)
+                if flatten:
                     b = BBox()
-                    b = b.union(p0[ib])
-                    b = b.union(p0[ib]+v0[ib])
-                    b = b.union(p0[ib]+(v0[ib]+v1[ib]))
-                    b = b.union(p0[ib]+v1[ib])
-                    b = b.union(p0[ib]+v2[ib])
-                    b = b.union(p0[ib]+(v0[ib]+v2[ib]))
-                    b = b.union(p0[ib]+(v0[ib]+v1[ib]+v2[ib]))
-                    b = b.union(p0[ib]+(v1[ib]+v2[ib]))
-                    bboxes[ib] = b
+                    b = b.union(p0)
+                    b = b.union(p0+v0)
+                    b = b.union(p0+(v0+v1))
+                    b = b.union(p0+v1)
+                    b = b.union(p0+v2)
+                    b = b.union(p0+(v0+v2))
+                    b = b.union(p0+(v0+v1+v2))
+                    b = b.union(p0+(v1+v2))
+                    bboxes = b
+                else:
+                    nT = self.m.shape[0]
+                    bboxes = np.empty(nT, dtype=BBox)
+                    for ib in range (0, nT):
+                        b = BBox()
+                        b = b.union(p0[ib])
+                        b = b.union(p0[ib]+v0[ib])
+                        b = b.union(p0[ib]+(v0[ib]+v1[ib]))
+                        b = b.union(p0[ib]+v1[ib])
+                        b = b.union(p0[ib]+v2[ib])
+                        b = b.union(p0[ib]+(v0[ib]+v2[ib]))
+                        b = b.union(p0[ib]+(v0[ib]+v1[ib]+v2[ib]))
+                        b = b.union(p0[ib]+(v1[ib]+v2[ib]))
+                        bboxes[ib] = b
                 return bboxes
             else:
                 raise ValueError('Unknown type for transformations')
