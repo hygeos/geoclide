@@ -76,7 +76,7 @@ def vec2ang(v, vec_view='zenith'):
     Parameters
     ----------
     v : Vector
-        The direction described by a vector
+        The direction(s) described by a vector
 
     vec_view : str, optional
         Two choices (concerning intial direction at theta=phi=0): 'zenith' (i.e. pointing above) or 
@@ -84,12 +84,12 @@ def vec2ang(v, vec_view='zenith'):
 
     Returns
     -------
-    theta : float
-        The polar angle in degrees, starting at z+ in the zx plane and going 
+    theta : float | 1-D ndarray
+        The polar angle(s) in degrees, starting at z+ in the zx plane and going 
         in the trigonometric direction around the y axis
 
-    phi : float
-        The azimuthal angle in degrees, starting at x+ in the xy plane and going in 
+    phi : float | 1-D ndarray
+        The azimuthal angle(s) in degrees, starting at x+ in the xy plane and going in 
         the trigonométric direction around the z axis
 
     Examples
@@ -121,42 +121,90 @@ def vec2ang(v, vec_view='zenith'):
         raise ValueError("The value of vec_view parameter must be: 'zenith' or 'nadir")
     
     v = normalize(v) # ensure v is normalized
-    v_ini = Vector(0., 0., 1.)
 
-    # In case v = v_ini -> no rotations
-    if (np.all(np.isclose(v.to_numpy()-v_ini.to_numpy(), 0., 0., 1e-14))):
-        return 0., 0.
-    
-    for icase in range (1, 6):
-        if icase == 1:
-            roty_rad = math.acos(v.z)
-            if (v.x == 0 and roty_rad == 0): cosphi = 0.
-            else: cosphi = clamp(v.x/math.sin(roty_rad), -1., 1.)
-            rotz_rad = math.acos(cosphi)
-        elif(icase == 2):
-            roty_rad = math.acos(v.z)
-            if (v.x == 0 and roty_rad == 0): cosphi = 0.
-            else: cosphi = clamp(v.x/math.sin(roty_rad), -1., 1.)
-            rotz_rad = -math.acos(cosphi)
-        elif(icase == 3):
-            roty_rad = -math.acos(v.z)
-            if (v.x == 0 and roty_rad == 0): cosphi = 0.
-            else: cosphi = clamp(v.x/math.sin(roty_rad), -1., 1.)
-            rotz_rad = math.acos(cosphi)
-        elif(icase == 4):
-            roty_rad = -math.acos(v.z)
-            if (v.x == 0 and roty_rad == 0): cosphi = 0.
-            else: cosphi = clamp(v.x/math.sin(roty_rad), -1., 1.)
-            rotz_rad = -math.acos(cosphi)
-        else:
-            raise NameError('No rotation has been found!')
+    if isinstance(v, np.ndarray):
+        nv = len(v.x)
+        v_arr = v.to_numpy()
+        v_ini_arr = np.zeros_like(v_arr)
+        v_ini_arr[:,2] = 1.
+        v_ini = Vector(v_ini_arr)
+        theta = np.zeros(nv, dtype=np.float64)
+        phi = np.zeros_like(theta)
         
-        theta = math.degrees(roty_rad)
-        phi = math.degrees(rotz_rad)
-        rotzy = get_rotateZ_tf(phi)*get_rotateY_tf(theta)
-        v_ini_rotated = normalize(rotzy(v_ini))
+        c1 = np.all(np.isclose(v_arr, v_ini_arr, 0., 1e-14), axis=1)
+        c_tot = np.logical_not(c1)
+        if c_tot.sum() == 0 : return theta, phi
 
-        if (np.all(np.isclose(v.to_numpy()-v_ini_rotated.to_numpy(), 0., 0., 1e-14))):
-            break
-    
-    return theta, phi
+        for icase in range (1, 6):
+            if icase == 1:
+                roty_rad = np.arccos(v.z)
+                c_case_bis = np.logical_not(np.logical_and(v.x == 0, roty_rad == 0))
+                cosphi = np.zeros(nv, dtype=np.float64)
+                cosphi[c_case_bis] =  np.clip(v.x[c_case_bis]/np.sin(roty_rad[c_case_bis]), -1., 1.)
+                rotz_rad = np.arccos(cosphi)
+                theta_bis = np.degrees(roty_rad)
+                phi_bis = np.degrees(rotz_rad)
+            elif icase == 2:
+                rotz_rad = -np.arccos(cosphi)
+                phi_bis = np.degrees(rotz_rad)
+            elif icase == 3:
+                roty_rad = -np.arccos(v.z)
+                cosphi = np.zeros(nv, dtype=np.float64)
+                cosphi[c_case_bis] =  np.clip(v.x[c_case_bis]/np.sin(roty_rad[c_case_bis]), -1., 1.)
+                rotz_rad = np.arccos(cosphi)
+                theta_bis = np.degrees(roty_rad)
+                phi_bis = np.degrees(rotz_rad)
+            elif icase == 4:
+                rotz_rad = -np.arccos(cosphi)
+                phi_bis = np.degrees(rotz_rad)
+            else:
+                raise NameError('No rotation has been found!')
+
+            rotzy = get_rotateZ_tf(phi_bis)*get_rotateY_tf(theta_bis)
+            v_ini_rotated = normalize(rotzy(v_ini, flatten=True, calc_diag=True))
+            c_tmp = np.all(np.isclose(v_arr, v_ini_rotated.to_numpy(), 0., 1e-14), axis=1)
+            c_tmp_bis = np.logical_and(c_tot, c_tmp)
+            theta[c_tmp_bis] = theta_bis[c_tmp_bis]
+            phi[c_tmp_bis] = phi_bis[c_tmp_bis]
+            c_tot = np.logical_and(c_tot, np.logical_not(c_tmp))
+            if c_tot.sum() == 0 : return theta, phi
+    else: # if only 1 vector
+        v_ini = Vector(0., 0., 1.)
+
+        # In case v = v_ini -> no rotations
+        if (np.all(np.isclose(v.to_numpy()-v_ini.to_numpy(), 0., 0., 1e-14))):
+            return 0., 0.
+        
+        for icase in range (1, 6):
+            if icase == 1:
+                roty_rad = math.acos(v.z)
+                if (v.x == 0 and roty_rad == 0): cosphi = 0.
+                else: cosphi = clamp(v.x/math.sin(roty_rad), -1., 1.)
+                rotz_rad = math.acos(cosphi)
+            elif(icase == 2):
+                roty_rad = math.acos(v.z)
+                if (v.x == 0 and roty_rad == 0): cosphi = 0.
+                else: cosphi = clamp(v.x/math.sin(roty_rad), -1., 1.)
+                rotz_rad = -math.acos(cosphi)
+            elif(icase == 3):
+                roty_rad = -math.acos(v.z)
+                if (v.x == 0 and roty_rad == 0): cosphi = 0.
+                else: cosphi = clamp(v.x/math.sin(roty_rad), -1., 1.)
+                rotz_rad = math.acos(cosphi)
+            elif(icase == 4):
+                roty_rad = -math.acos(v.z)
+                if (v.x == 0 and roty_rad == 0): cosphi = 0.
+                else: cosphi = clamp(v.x/math.sin(roty_rad), -1., 1.)
+                rotz_rad = -math.acos(cosphi)
+            else:
+                raise NameError('No rotation has been found!')
+            
+            theta = math.degrees(roty_rad)
+            phi = math.degrees(rotz_rad)
+            rotzy = get_rotateZ_tf(phi)*get_rotateY_tf(theta)
+            v_ini_rotated = normalize(rotzy(v_ini))
+
+            if (np.all(np.isclose(v.to_numpy()-v_ini_rotated.to_numpy(), 0., 0., 1e-14))):
+                break
+        
+        return theta, phi
