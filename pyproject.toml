@@ -4,9 +4,9 @@ requires = ["setuptools>=42"]
 
 [project]
 name = "geoclide"
-version = "2.0.2"
+version = "3.0.0"
 license = {file = "LICENSE.txt"}
-description = "The python package for geometric calculations in the three-dimentional Euclidian space"
+description = "A python package for geometric calculations in the three-dimentional Euclidian space"
 authors = [
     {name = "Mustapha Moulana", email="mm@hygeos.com"}
 ]
@@ -40,7 +40,8 @@ dependencies = [
 ]
 
 [project.urls]
-source = "https://github.com/hygeos/geoclide"
+Homepage = "https://hygeos.github.io/geoclide/"
+Source = "https://github.com/hygeos/geoclide"
 
 [tool.setuptools]
 packages = ["geoclide"]

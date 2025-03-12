@@ -5,6 +5,39 @@
            #                         #
            ###########################
 
+v3.0.0
+------
+Release date: 12-03-2025
+
+This release includes only a breacking change with the function get_scale_tf.
+The Transform and Ray __call__ method is now recommended in replacement 
+of the method __getitem__. The method __getitem__ is still here but has a
+depracated message
+
+* Improve the __str__ and __repr__ methods in case of multiple vectors, points, 
+  normals or rays
+
+* Replace the Transform and Ray classes method __getitem__ by the method __call__
+
+* Multiple transformations is now possible with the Transform class
+  - Allow 1-D calculations with several transformations and 1 point, vectors, ...
+  - Allow 2-D calculations with several transformations and several points, vectors, ...
+  - Allow diagonal calculations (case 2-D with option diag_calc=True)
+
+* Add sphinx documentation
+
+* Function get_scale_tf takes as input a Vector variable instead of 3 scalars
+
+* Add new option flatten to Tranform __call__ method
+  - Instead of having a numpy array of Vector objects, the output can be only 1 Vector 
+    object where a flatten operation is made to x, y, z components of all vectors
+  - Avoid loop operation then reduce the computational time
+
+* Function vec2ang now accepts Vector object with multiple vectors
+
+* Function ang2vec now accepts 1d ndarray theta and phi angles
+
+
 v2.0.2
 ------
 Release date: 05-03-2025
@@ -97,7 +130,7 @@ Release date: 10-02-2025
 
 * Add new functions
     - ang2vec
-    - vec2and
+    - vec2ang
 
 * Add the Disk class
     - It can be a disk, a partial disk, an annulus or a partial annulus
