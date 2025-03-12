@@ -268,10 +268,6 @@ class Sphere(Shape):
             nhit             (xyz) float64 24B -0.6 0.0 0.8
             dpdu             (xyz) float64 24B 0.0 -3.77 0.0
             dpdv             (xyz) float64 24B 2.513 0.0 1.885
-        Attributes:
-            shape:    Sphere
-            date:     2025-02-28
-            version:  2.0.0
         >>> ds = sph1.intersect(r)
         >>> ds['phit'].values # the intersection point
         array([-0.6,  0. ,  0.8])
@@ -295,10 +291,6 @@ class Sphere(Shape):
             nhit             (xyz) float64 24B nan nan nan
             dpdu             (xyz) float64 24B nan nan nan
             dpdv             (xyz) float64 24B nan nan nan
-        Attributes:
-            shape:    Sphere
-            date:     2025-02-28
-            version:  2.0.0
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         sh_name = self.__class__.__name__
@@ -703,10 +695,6 @@ class Spheroid(Shape):
             nhit             (xyz) float64 24B 0.6019 -0.0 0.7985
             dpdu             (xyz) float64 24B 0.0 15.71 0.0
             dpdv             (xyz) float64 24B -5.21 0.0 3.927
-        Attributes:
-            shape:    Spheroid
-            date:     2025-02-28
-            version:  2.0.0
         >>> prolate.intersect(r2)
         <xarray.Dataset> Size: 209B
         Dimensions:          (xyz: 3)
@@ -725,10 +713,6 @@ class Spheroid(Shape):
             nhit             (xyz) float64 24B 0.7985 -0.0 0.6019
             dpdu             (xyz) float64 24B 0.0 5.21 0.0
             dpdv             (xyz) float64 24B -3.927 0.0 5.21
-        Attributes:
-            shape:    Spheroid
-            date:     2025-02-28
-            version:  2.0.0
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         sh_name = self.__class__.__name__
@@ -1109,10 +1093,6 @@ class Disk(Shape):
             nhit             (xyz) float64 24B 0.0 0.0 1.0
             dpdu             (xyz) float64 24B 0.0 7.54 0.0
             dpdv             (xyz) float64 24B -0.7 -0.0 -0.0
-        Attributes:
-            shape:    Disk
-            date:     2025-02-28
-            version:  2.0.0
         """
         if not isinstance(r, Ray): raise ValueError('The given parameter must be a Ray')
         sh_name = self.__class__.__name__

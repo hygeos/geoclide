@@ -6,9 +6,7 @@ from geoclide.quadrics import Sphere, Spheroid, Disk
 from geoclide.trianglemesh import Triangle, TriangleMesh
 from geoclide.shapes import Shape
 import xarray as xr
-import numpy as np
-from datetime import datetime
-from geoclide.constante import VERSION
+
 
 def calc_intersection(shape, r, **kwargs):
     """
@@ -56,10 +54,6 @@ def calc_intersection(shape, r, **kwargs):
         wTo_mInv         (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
         oTw_m            (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
         oTw_mInv         (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
-    Attributes:
-        shape:    Sphere
-        date:     2025-02-28
-        version:  2.0.0
     >>> ds_box = gc.calc_intersection(bbox, ray)
     >>> ds_bbox
     <xarray.Dataset> Size: 169B
@@ -76,10 +70,6 @@ def calc_intersection(shape, r, **kwargs):
         pmax             (xyz) float64 24B 1.0 1.0 1.0
         thit             float64 8B 2.0
         phit             (xyz) float64 24B 0.0 0.0 0.8
-    Attributes:
-        shape:    BBox
-        date:     2025-02-28
-        version:  2.0.0
     """
     if (not isinstance(r, Ray)):
         raise ValueError('The parameter r1 must a Ray')
