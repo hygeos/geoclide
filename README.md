@@ -7,8 +7,11 @@
 [![image](https://img.shields.io/pypi/v/geoclide.svg)](https://pypi.python.org/pypi/geoclide)
 [![image](https://img.shields.io/conda/vn/conda-forge/geoclide.svg)](https://anaconda.org/conda-forge/geoclide)
 [![image](https://pepy.tech/badge/geoclide)](https://pepy.tech/project/geoclide)
+[![image](https://img.shields.io/github/v/tag/hygeos/geoclide?label=github&color=blue)](https://github.com/hygeos/geoclide)
 
-The python package for geometric calculations in the three-dimentional Euclidian space
+A python package for geometric calculations in the three-dimentional Euclidian space
+
+The documentation is available here: https://hygeos.github.io/geoclide/
 
 Mustapha Moulana  
 [HYGEOS](https://hygeos.com/en/)
