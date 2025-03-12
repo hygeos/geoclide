@@ -3,9 +3,9 @@ name: docs workflow
 # execute this workflow automatically when a we push to master
 on:
   push:
-    branches: [ develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ develop ]
+    branches: [ main ]
 
   # To run the workflow manually
   workflow_dispatch:
