@@ -6,6 +6,8 @@
 import sys
 import os
 sys.path.insert(0, os.path.abspath(".."))
+from geoclide.constante import VERSION
+
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -13,7 +15,7 @@ sys.path.insert(0, os.path.abspath(".."))
 project = 'Geoclide'
 copyright = '2025, Geoclide team'
 author = 'Geoclide team'
-release = '2.1'
+release = VERSION
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -48,5 +50,5 @@ numpydoc_show_class_members = True
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'pydata_sphinx_theme'#'sphinx_rtd_theme'
 html_static_path = ['_static']

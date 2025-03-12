@@ -1,4 +1,4 @@
-geoclide package
+Geoclide package
 ================
 
 .. automodule:: geoclide
