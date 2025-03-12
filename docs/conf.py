@@ -24,7 +24,9 @@ extensions = ['sphinx.ext.todo',
               'sphinx.ext.autodoc',
               'myst_parser',
               'nbsphinx',
-              "sphinx.ext.napoleon"]
+              'sphinx.ext.graphviz',
+              'numpydoc']
+              #"sphinx.ext.napoleon"]
 
 templates_path = ['_templates']
 
@@ -52,3 +54,5 @@ numpydoc_show_class_members = True
 
 html_theme = 'pydata_sphinx_theme'#'sphinx_rtd_theme'
 html_static_path = ['_static']
+
+html_context = {"default_mode": "light"}

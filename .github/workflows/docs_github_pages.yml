@@ -39,6 +39,7 @@ jobs:
           python -m pip install sphinxcontrib-napoleon
           python -m pip install ghp-import
           python -m pip install -r requirements.txt
+          python -m pip install numpydoc
 
       - name: Generate the docs
         run: |
