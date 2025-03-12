@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/hygeos/geoclide/refs/heads/main/geoclide/img/geoclide_logo.png" width="300">
+<img src="https://raw.githubusercontent.com/hygeos/geoclide/refs/heads/main/geoclide/img/geoclide_logo2.png" width="300">
 </p>
 
 ------------------------------------------------
