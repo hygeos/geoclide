@@ -1,23 +1,18 @@
 
-           ###########################
-           #                         #
-           #    GEOCLIDE CHANGELOG   #
-           #                         #
-           ###########################
+# GEOCLIDE CHANGELOG
 
-v3.0.0
-------
+## v3.0.0
 Release date: 12-03-2025
 
-This release includes only a breacking change with the function get_scale_tf.
-The Transform and Ray __call__ method is now recommended in replacement 
-of the method __getitem__. The method __getitem__ is still here but has a
+This release includes only a breacking change with the function `get_scale_tf`.
+The Transform and Ray `__call__` method is now recommended in replacement 
+of the method `__getitem__`. The method `__getitem__` is still here but has a
 depracated message
 
-* Improve the __str__ and __repr__ methods in case of multiple vectors, points, 
+* Improve the `__str__` and `__repr__` methods in case of multiple vectors, points, 
   normals or rays
 
-* Replace the Transform and Ray classes method __getitem__ by the method __call__
+* Replace the Transform and Ray classes method `__getitem__` by the method `__call__`
 
 * Multiple transformations is now possible with the Transform class
   - Allow 1-D calculations with several transformations and 1 point, vectors, ...
@@ -26,24 +21,23 @@ depracated message
 
 * Add sphinx documentation
 
-* Function get_scale_tf takes as input a Vector variable instead of 3 scalars
+* Function `get_scale_tf` takes as input a Vector variable instead of 3 scalars
 
-* Add new option flatten to Tranform __call__ method
+* Add new option flatten to Tranform `__call__` method
   - Instead of having a numpy array of Vector objects, the output can be only 1 Vector 
     object where a flatten operation is made to x, y, z components of all vectors
   - Avoid loop operation then reduce the computational time
 
-* Function vec2ang now accepts Vector object with multiple vectors
+* Function `vec2ang` now accepts Vector object with multiple vectors
 
-* Function ang2vec now accepts 1d ndarray theta and phi angles
+* Function `ang2vec` now accepts 1d ndarray theta and phi angles
 
 
-v2.0.2
-------
+## v2.0.2
 Release date: 05-03-2025
 
-* Several corrections in TriangleMesh intersect, is_intersection_t and 
-  is_intersection methods
+* Several corrections in TriangleMesh `intersect`, `is_intersection_t` and 
+  `is_intersection` methods
 
 * Transformations were not taken into account when using the plot method, 
   now it's corrected
@@ -51,8 +45,7 @@ Release date: 05-03-2025
 * Addition of more tests
 
 
-v2.0.1
-------
+## v2.0.1
 Release date: 03-03-2025
 
 * Correction of a bug occuring while using a version of numpy < 2.0.0
@@ -65,8 +58,7 @@ Release date: 03-03-2025
 * Ignore certain unwanted warnings
 
 
-v2.0.0
-------
+## v2.0.0
 Release date: 02-03-2025
 
 This release includes some breaking changes like the input of TriangleMesh where
@@ -79,29 +71,28 @@ for example changes of certain method outputs.
       with 1-D ndarray x, y, z components
     - Readaptation of the Ray and BBox classes with the new Point, Vector and Normal
       classes
-    - BBox intersect method allow 1-D, 2-D and 2-D diagonal calculations
+    - BBox `intersect` method allow 1-D, 2-D and 2-D diagonal calculations
     - Readaptation of the quadric classes enabling intersection tests with a class
       Ray containing several rays
     - Readaptation of Triangle and TriangleMesh classes. Allow 1-D, 2-D and 2-D
       diagonal calculations
     - ...
 
-* The 3D objects intersect output is now an xarray Dataset
+* The 3D objects `intersect` method output is now an xarray Dataset
 
 * Several new functionalities
-    - New method 'to_triangle_mesh' to convert a quadric to a TriangleMesh object
-    - New method 'to_plot' for TriangleMesh, and also for all quadrics
-    - New TriangleMesh method 'write' to save the triangle mesh in nectcdf4 and also in
+    - New method `to_triangle_mesh` to convert a quadric to a TriangleMesh object
+    - New method `to_plot` for TriangleMesh, and also for all quadrics
+    - New TriangleMesh method `write` to save the triangle mesh in nectcdf4 and also in
     - several other formats as stl, ply, ...
-    - The 'read_trianglemesh' function allows to read triangle mesh files (gcnc, stl, ply,
+    - The `read_trianglemesh` function allows to read triangle mesh files (gcnc, stl, ply,
       etc.) and return a TriangleMesh object
     - ...
 
 * A lot of tests have been added, more documentations, cleaning, ...
 
 
-v1.2.2
-------
+## v1.2.2
 Release date: 13-02-2025
 
 * Correction of a bug in TriangleMesh constructor
@@ -112,11 +103,10 @@ Release date: 13-02-2025
 * Add docstring to area method for all objects
 
 
-v1.2.1
-------
+## v1.2.1
 Release date: 13-02-2025
 
-* Correction in vec2ang function
+* Correction in `vec2ang` function
     - small correction in the docstring
     - correct a bug appearing when the parameter v is not a normalized vector
     - add the missing default value of the parameter vec_view
@@ -124,41 +114,37 @@ Release date: 13-02-2025
 * Add tests enabling to detect the corrected bug
 
 
-v1.2.0
-------
+## v1.2.0
 Release date: 10-02-2025
 
 * Add new functions
-    - ang2vec
-    - vec2ang
+    - `ang2vec`
+    - `vec2ang`
 
 * Add the Disk class
     - It can be a disk, a partial disk, an annulus or a partial annulus
 
-* Add new method to all 3d objects "is_intersection_t"
-    - the method is faster than intersect method, but gives only thit
+* Add new method to all 3d objects `is_intersection_t`
+    - the method is faster than `intersect` method, but gives only thit
 
 * Move tests folder into geoclide folder
 * And some improvements
 
 
-v1.1.1
-------
+## v1.1.1
 Release date: 07-02-2025
 
 * Correction of a bug with the normal orientation at the intersection with a 3d object
 
 
-v1.1.0
-------
+## v1.1.0
 Release date: 05-02-2025
 
 * Add the Spheroid class (oblate or prolate object)
 * Small optimization of sphere intersection test
 
 
-v1.0.0
-------
+## v1.0.0
 
 Release date: 2025-01-27
 
