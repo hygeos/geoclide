@@ -11,14 +11,12 @@
 
 A python package for geometric calculations in the three-dimentional Euclidian space
 
-The documentation is available here: https://hygeos.github.io/geoclide/
-
 Mustapha Moulana  
 [HYGEOS](https://hygeos.com/en/)
 
 -----------------------------------------
 
-## Installation
+# Installation
 The installation can be performed using one of the following commands:
 ```shell
 $ conda install -c conda-forge geoclide
@@ -30,7 +28,7 @@ $ pip install geoclide
 $ pip install git+https://github.com/hygeos/geoclide.git
 ```
 
-## Testing
+# Testing
 Run the command `pytest geoclide/tests/ -s -v` to check that everything is running correctly.
 
 
