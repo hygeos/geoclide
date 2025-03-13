@@ -15,9 +15,9 @@ def calc_intersection(shape, r, **kwargs):
     Parameters
     ----------
     shape : BBox | Sphere | Spheroid | Disk | Triangle | TriangleMesh
-        The shape used for the intersection
+        The shape used for the intersection(s)
     r : Ray
-        The ray(s) used for the iuntersection
+        The ray(s) used for the intersection(s)
     **kwargs
         The keyword arguments are passed on to intersect method. The ds_output parameter 
         is forced here to always be True.

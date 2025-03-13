@@ -21,11 +21,11 @@ class Triangle(Shape):
     Parameters
     ----------
     p0 : Point
-        The first point of the triangle
+        The first point(s) of the triangle(s)
     p1 : Point
-        The second point of the triangle
+        The second point(s) of the triangle(s)
     p2 : Point
-        The the third point of the triangle
+        The the third point(s) of the triangle(s)
     oTw : Transform, optional
         From object to world space or the transformation applied to the triangle
     wTo : Transform, optional
@@ -73,12 +73,12 @@ class Triangle(Shape):
 
     def is_intersection(self, r, method='v3', diag_calc=False):
         """
-        Test if a Ray intersect with the triangle
+        Test if a ray/set of rays intersect with the triangle(s)
 
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 intersection test method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
@@ -100,12 +100,12 @@ class Triangle(Shape):
     
     def is_intersection_t(self, r, method='v3', diag_calc=False):
         """
-        Test if a Ray intersect with the triangle
+        Test if a ray/set of rays intersect with the triangle(s)
 
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 intersection test method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
@@ -116,7 +116,7 @@ class Triangle(Shape):
         Returns
         -------
         thit : None | float | 1-D ndarray | 2-D ndarray
-            The t ray variable for its first intersection at the shape surface
+            The t ray variable(s) for its first intersection at the shape surface
         is_intersection : bool | 1-D ndarray | 2-D ndarray
             If there is an intersection -> True, else False
         """
@@ -131,12 +131,12 @@ class Triangle(Shape):
         """
         :meta private:
 
-        Test if a Ray intersect with the triangle using mainly pbrt v2 method
+        Test if a ray/set of rays intersect with the triangle(s) using mainly pbrt v2 method
 
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         diag_calc : bool, optional
             Perform diagonal calculations in case Triangle and Ray have ndarray point components, 
             meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
@@ -145,7 +145,7 @@ class Triangle(Shape):
         Returns
         -------
         thit : None | float | 1-D ndarray | 2-D ndarray
-            The t ray variable for its first intersection at the shape surface
+            The t ray variable(s) for its first intersection at the shape surface
         is_intersection : bool | 1-D ndarray | 2-D ndarray
             If there is an intersection -> True, else False
         """
@@ -310,12 +310,12 @@ class Triangle(Shape):
         """
         :meta private:
 
-        Test if a Ray intersect with the triangle using mainly pbrt v2 method
+        Test if a ray/set of rays intersect with the triangle(s) using mainly pbrt v2 method
 
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         diag_calc : bool, optional
             Perform diagonal calculations in case Triangle and Ray have ndarray point components, 
             meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
@@ -333,12 +333,12 @@ class Triangle(Shape):
         """
         :meta private:
 
-        Test if a Ray intersect with the triangle using mainly pbrt v3 method
+        Test if a ray/set of rays intersect with the triangle(s) using mainly pbrt v3 method
 
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         diag_calc : bool, optional
             Perform diagonal calculations in case Triangle and Ray have ndarray point components, 
             meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
@@ -346,8 +346,8 @@ class Triangle(Shape):
         
         Returns
         -------
-        thit : None | float | 1-D ndarray | 2-D ndarray
-            The t ray variable for its first intersection at the shape surface
+        thit : None | float | 1-D ndarray | 2-D ndarray
+            The t ray variable(s) for its first intersection at the shape surface
         is_intersection : bool | 1-D ndarray | 2-D ndarray
             If there is an intersection -> True, else False
         """
@@ -761,12 +761,12 @@ class Triangle(Shape):
         """
         :meta private:
 
-        Test if a Ray intersect with the triangle using mainly pbrt v3 method
+        Test if a ray/set of rays intersect with the triangle(s) using mainly pbrt v3 method
 
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         diag_calc : bool, optional
             Perform diagonal calculations in case Triangle and Ray have ndarray point components, 
             meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
@@ -782,12 +782,12 @@ class Triangle(Shape):
 
     def intersect(self, r, method='v3', diag_calc=False, ds_output=True):
         """
-        Test if a Ray intersect with the triangle and return intersection information
+        Test if a ray/set of rays intersect with the triangle(s) and return intersection information
 
         Parameters
         ----------
         r : Ray
-            The ray to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 intersection test method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
@@ -809,17 +809,17 @@ class Triangle(Shape):
             * r : Ray
                 -> The ray(s) used for the intersection test
             * t : None | float | 1-D ndarray | 2-D ndarray
-                -> The t ray variable for its first intersection at the shape surface
+                -> The t ray variable(s) for its first intersection at the shape surface
             * is_intersection : bool | 1-D ndarray | 2-D ndarray
                 -> If there is an intersection return True, else False
             * u : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate of the parametric representation
+                -> The u coordinate(s) of the parametric representation
             * v : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate of the parametric representation
+                -> The u coordinate(s) of the parametric representation
             * dpdu : None | 1-D ndarray | 2-D ndarray
-                -> The surface partial derivative of phit with respect to u
+                -> The surface partial derivative(s) of phit with respect to u
             * dpdv : None | 1-D ndarray | 2-D ndarray
-                -> The surface partial derivative of phit with respect to v
+                -> The surface partial derivative(s) of phit with respect to v
             * diag_cal : bool
                 -> This indicates whether a diagonal calculation has been performed
 
@@ -839,13 +839,13 @@ class Triangle(Shape):
         """
         :meta private:
 
-        Test if a Ray intersect with the triangle using mainly pbrt v2 method,
+        Test if a ray/set of rays intersect with the triangle(s) using mainly pbrt v2 method,
         and return intersection information
         
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         diag_calc : bool, optional
             Perform diagonal calculations in case Triangle and Ray have ndarray point components, 
             meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
@@ -865,17 +865,17 @@ class Triangle(Shape):
             * r : Ray
                 -> The ray(s) used for the intersection test
             * t : None | float | 1-D ndarray | 2-D ndarray
-                -> The t ray variable for its first intersection at the shape surface
+                -> The t ray variable(s) for its first intersection at the shape surface
             * is_intersection : bool | 1-D ndarray | 2-D ndarray
                 -> If there is an intersection return True, else False
             * u : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate of the parametric representation
+                -> The u coordinate(s) of the parametric representation
             * v : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate of the parametric representation
+                -> The u coordinate(s) of the parametric representation
             * dpdu : None | 1-D ndarray | 2-D ndarray
-                -> The surface partial derivative of phit with respect to u
+                -> The surface partial derivative(s) of phit with respect to u
             * dpdv : None | 1-D ndarray | 2-D ndarray
-                -> The surface partial derivative of phit with respect to v
+                -> The surface partial derivative(s) of phit with respect to v
             * diag_cal : bool
                 -> This indicates whether a diagonal calculation has been performed
         """
@@ -1137,13 +1137,13 @@ class Triangle(Shape):
         """
         :meta private:
         
-        Test if a Ray intersect with the triangle using mainly pbrt v3 method,
+        Test if a ray/set of rays intersect with the triangle(s) using mainly pbrt v3 method,
         and return intersection information
 
         Parameters
         ----------
         r : Ray
-            The ray to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         diag_calc : bool, optional
             Perform diagonal calculations in case Triangle and Ray have ndarray point components, 
             meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
@@ -1163,17 +1163,17 @@ class Triangle(Shape):
             * r : Ray
                 -> The ray(s) used for the intersection test
             * t : None | float | 1-D ndarray | 2-D ndarray
-                -> The t ray variable for its first intersection at the shape surface
+                -> The t ray variable(s) for its first intersection at the shape surface
             * is_intersection : bool | 1-D ndarray | 2-D ndarray
                 -> If there is an intersection return True, else False
             * u : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate of the parametric representation
+                -> The u coordinate(s) of the parametric representation
             * v : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate of the parametric representation
+                -> The u coordinate(s) of the parametric representation
             * dpdu : None | 1-D ndarray | 2-D ndarray
-                -> The surface partial derivative of phit with respect to u
+                -> The surface partial derivative(s) of phit with respect to u
             * dpdv : None | 1-D ndarray | 2-D ndarray
-                -> The surface partial derivative of phit with respect to v
+                -> The surface partial derivative(s) of phit with respect to v
             * diag_cal : bool
                 -> This indicates whether a diagonal calculation has been performed
         """
@@ -1647,7 +1647,8 @@ class Triangle(Shape):
         """
         compute the area of the triangle
 
-        - !! the scale transform is not considered for the area calculation !!
+        .. warning::
+            `the scale transformation is not considered for the area calculation!`
         """
         return 0.5 * gv.cross(self.p1-self.p0, self.p2-self.p0).length()
 
@@ -1689,12 +1690,12 @@ class TriangleMesh(Shape):
 
     def intersect(self, r, method='v3', diag_calc=False, ds_output=True, use_loop=False):
         """
-        Test if a Ray intersect with the triangle mesh and return intersection information
+        Test if a ray/set of rays intersect with the triangle mesh and return intersection information
 
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
@@ -1718,17 +1719,17 @@ class TriangleMesh(Shape):
             * r : Ray
                 -> The ray(s) used for the intersection test
             * t : None | float | 1-D ndarray
-                -> The t ray variable for its first intersection at the shape surface
+                -> The t ray variable(s) for its first intersection at the shape surface
             * is_intersection : bool | 1-D ndarray
                 -> If there is an intersection return True, else False
             * u : None | float | 1-D ndarray
-                -> The u coordinate of the parametric representation
+                -> The u coordinate(s) of the parametric representation
             * v : None | float | 1-D ndarray
-                -> The u coordinate of the parametric representation
+                -> The u coordinate(s) of the parametric representation
             * dpdu : None | 1-D ndarray | 2-D ndarray
-                -> The surface partial derivative of phit with respect to u
+                -> The surface partial derivative(s) of phit with respect to u
             * dpdv : None | 1-D ndarray | 2-D ndarray
-                -> The surface partial derivative of phit with respect to v
+                -> The surface partial derivative(s) of phit with respect to v
             * diag_cal : bool
                 -> This indicates whether a diagonal calculation has been performed
         """
@@ -1860,12 +1861,12 @@ class TriangleMesh(Shape):
     
     def is_intersection(self, r, method='v3', diag_calc=False, use_loop=False):
         """
-        Test if a Ray intersect with the triangle mesh
+        Test if a ray/set of rays intersect with the triangle mesh
 
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
@@ -1947,12 +1948,12 @@ class TriangleMesh(Shape):
     
     def is_intersection_t(self, r, method='v3', diag_calc=False, use_loop=False):
         """
-        Test if a Ray intersect with the triangle mesh
+        Test if a ray/set of rays intersect with the triangle mesh
 
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         method : str, optional
             Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection test method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
@@ -1965,7 +1966,7 @@ class TriangleMesh(Shape):
         Returns
         -------
         thit : None | float | 1-D ndarray
-            The t ray variable for its first intersection at the shape surface
+            The t ray variable(s) for its first intersection at the shape surface
         is_intersection : bool | 1-D ndarray
             If there is an intersection -> True, else False
 
@@ -2072,7 +2073,8 @@ class TriangleMesh(Shape):
         """
         compute the area of the triangle mesh
 
-        - !! the scale transform is not considered for the area calculation !!
+        .. warning::
+            `the scale transformation is not considered for the area calculation!`
         """
         area = 0.
         for itri in range (0, self.ntriangles):

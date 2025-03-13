@@ -60,7 +60,7 @@ class Sphere(Shape):
 
     def is_intersection_t(self, r):
         """
-        Test if a ray intersects the sphere / partial sphere
+        Test if a ray/set of rays intersects the sphere/partial sphere
 
         Parameters
         ----------
@@ -69,9 +69,9 @@ class Sphere(Shape):
 
         Returns
         -------
-        thit : float
-            The t ray variable for its first intersection at the shape surface
-        is_intersection : bool
+        thit : float | 1-D ndarray
+            The t ray variable(s) for its first intersection at the shape surface
+        is_intersection : bool | 1-D ndarray
             If there is an intersection -> True, else False
 
         Examples
@@ -200,7 +200,7 @@ class Sphere(Shape):
     
     def is_intersection(self, r):
         """
-        Test if a ray intersects the sphere / partial sphere
+        Test if a ray/set of rays intersects the sphere / partial sphere
 
         Parameters
         ----------
@@ -209,7 +209,7 @@ class Sphere(Shape):
 
         Returns
         -------
-        out : bool
+        out : bool | 1-D ndarray
             If there is an intersection -> True, else False
 
         Examples
@@ -228,12 +228,12 @@ class Sphere(Shape):
 
     def intersect(self, r, ds_output=True):
         """
-        Test if a ray intersects the sphere / partial sphere
+        Test if a ray/set of rays intersects the sphere/partial sphere
 
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         ds_output : Bool, optional
             If True the output is a dataset, else -> a tuple with intersection information variables
 
@@ -241,8 +241,8 @@ class Sphere(Shape):
         -------
         out : xr.Dataset | tuple
             Look-up table with the intersection information if ds_output is True, 
-            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
-            geoclide/shapes.py)
+            else returns a tuple. The tuple is ready to be an input for the function 
+            geoclide.shapes.get_intersect_dataset
 
         Examples
         --------
@@ -450,7 +450,8 @@ class Sphere(Shape):
         """
         compute the sphere / partial sphere area
 
-        - !! the scale transform is not considered for the area calculation !!
+        .. warning::
+            `the scale transformation is not considered for the area calculation!`
         """
         return (math.radians(self.phi_max) * self.radius * (self.zmax-self.zmin)) # The sphere / partial sphere area
     
@@ -529,7 +530,7 @@ class Spheroid(Shape):
 
     def is_intersection_t(self, r):
         """
-        Test if a ray intersects the spheroid
+        Test if a ray/set of rays intersects the spheroid
 
         Parameters
         ----------
@@ -538,9 +539,9 @@ class Spheroid(Shape):
 
         Returns
         -------
-        thit : float
-            The t ray variable for its first intersection at the shape surface
-        is_intersection : bool
+        thit : float | 1-D ndarray
+            The t ray variable(s) for its first intersection at the shape surface
+        is_intersection : bool | 1-D ndarray
             If there is an intersection -> True, else False
 
         Examples
@@ -621,7 +622,7 @@ class Spheroid(Shape):
     
     def is_intersection(self, r):
         """
-        Test if a ray intersects the spheroid
+        Test if a ray/set of rays intersects the spheroid
 
         Parameters
         ----------
@@ -630,7 +631,7 @@ class Spheroid(Shape):
 
         Returns
         -------
-        out : bool
+        out : bool | 1-D ndarray
             If there is an intersection -> True, else False
 
         Examples
@@ -654,12 +655,12 @@ class Spheroid(Shape):
 
     def intersect(self, r, ds_output=True):
         """
-        Test if a ray intersects the spheroid
+        Test if a ray/set of rays intersects the spheroid
 
         Parameters
         ----------
         r : Ray
-            The ray to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         ds_output : Bool, optional
             If True the output is a dataset, else -> a tuple with intersection information variables
 
@@ -667,8 +668,8 @@ class Spheroid(Shape):
         -------
         out : xr.Dataset | tuple
             Look-up table with the intersection information if ds_output is True, 
-            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
-            geoclide/shapes.py)
+            else returns a tuple. The tuple is ready to be an input for the function 
+            geoclide.shapes.get_intersect_dataset
 
         Examples
         --------
@@ -830,7 +831,8 @@ class Spheroid(Shape):
         """
         compute the spheroid area
 
-        - !! the scale transform is not considered for the area calculation !!
+        .. warning::
+            `the scale transformation is not considered for the area calculation!`
         """
         if (self.gamma < self.alpha): # oblate spheroid
             e = math.sqrt(1 - (self.gamma2/self.alpha2))
@@ -927,7 +929,7 @@ class Disk(Shape):
 
     def is_intersection_t(self, r):
         """
-        Test if a ray intersects the disk
+        Test if a ray/set of rays intersects the disk
 
         Parameters
         ----------
@@ -936,9 +938,9 @@ class Disk(Shape):
 
         Returns
         -------
-        thit : float
-            The t ray variable for its first intersection at the shape surface
-        is_intersection : bool
+        thit : float | 1-D ndarray
+            The t ray variable(s) for its first intersection at the shape surface
+        is_intersection : bool | 1-D ndarray
             If there is an intersection -> True, else False
 
         Examples
@@ -1023,7 +1025,7 @@ class Disk(Shape):
     
     def is_intersection(self, r):
         """
-        Test if a ray intersects the disk
+        Test if a ray/set of rays intersects the disk
 
         Parameters
         ----------
@@ -1032,7 +1034,7 @@ class Disk(Shape):
 
         Returns
         -------
-        is_intersection : bool
+        is_intersection : bool | 1-D ndarray
             If there is an intersection -> True, else False
 
         Examples
@@ -1054,12 +1056,12 @@ class Disk(Shape):
 
     def intersect(self, r, ds_output=True):
         """
-        Test if a ray intersects the disk
+        Test if a ray/set of rays intersects the disk
 
         Parameters
         ----------
         r : Ray
-            The ray to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         ds_output : Bool, optional
             If True the output is a dataset, else -> a tuple with intersection information variables
 
@@ -1067,8 +1069,8 @@ class Disk(Shape):
         -------
         out : xr.Dataset | tuple
             Look-up table with the intersection information if ds_output is True, 
-            else -> tuple, ready to be an input for the function get_intersect_dataset() (in 
-            geoclide/shapes.py)
+            else returns a tuple. The tuple is ready to be an input for the function 
+            geoclide.shapes.get_intersect_dataset
 
         Examples
         --------
@@ -1194,7 +1196,8 @@ class Disk(Shape):
         """
         compute the disk / annulus area
 
-        - !! the scale transform is not considered for the area calculation !!
+        .. warning::
+            `the scale transformation is not considered for the area calculation!`
         """
         return 0.5*math.radians(self.phi_max)*(self.radius*self.radius - self.inner_radius*self.inner_radius)
 

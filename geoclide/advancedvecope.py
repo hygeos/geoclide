@@ -11,7 +11,8 @@ import math
 # TODO add ds_output option
 def ang2vec(theta, phi, vec_view='zenith', diag_calc=False):
     """
-    Convert a direction described by 2 angles into a direction described by a vector
+    Convert a direction/directions described by 2 angles/set of 2 angles into a 
+    direction/directions described by a vector/vectors
 
     - direct orthogonal coordinate system where z is pointing upwards
 
@@ -71,7 +72,8 @@ def ang2vec(theta, phi, vec_view='zenith', diag_calc=False):
 
 def vec2ang(v, vec_view='zenith'):
     """
-    Convert a direction described by a vector into a direction described by 2 angles
+    Convert a direction/directions described by a vector/vectors into 
+    a direction/directions described by 2 angles/set of 2 angles
 
     - direct orthogonal coordinate system where z is pointing upwards
 
