@@ -94,17 +94,19 @@ class Transform(object):
         Parameters
         ----------
         c : Vector | Point | Normal | Ray | BBox
-            The Vector/Point/Normal/Ray/BBox to which the transformation is applied
+            The vector(s)/point(s)/normal(s)/ray(s)/bounding box(es) to which the 
+            transformation is applied
         diag_calc : bool, optional
             Perform diagonal calculations between c(i) and tranformation(i). The number of 
-            transformations must be equal to the number of vectors / points / ... 
+            transformations must be equal to the number of vectors/points/ ... 
         
         Returns
         -------
         out : Vector | Point | Normal | Ray | BBox | 1-D array
-            The Vector/Point/Normal/Ray/BBox after the transformation, or in case 
-            several transformations are given return a 1-D ndarray where dtype is equal 
-            to one of the previously mentionned classes.
+            The vector(s)/point(s)/normal(s)/ray(s)/bounding box(es) after the 
+            application of the transformation(s). In case of several transformations, it returns 
+            a 1-D ndarray of dtype equals to the c parameter type, but if flatten is True 
+            returns directly an object of same type as the c parameter.
 
         Examples
         --------
@@ -317,17 +319,17 @@ class Transform(object):
 
     def inverse(self):
         """
-        Inverse the initial transformation
+        Inverse the transformation(s) matrix
 
         Parameters
         ----------
         t : Transform
-            The transformation to be inversed
+            The transformation(s) to be inversed
 
         Returns
         -------
         out : Transform
-            The inversed transformation
+            The inversed transformation(s)
         """
         return get_inverse_tf(self)
 
@@ -341,17 +343,17 @@ class Transform(object):
 
     def translate(self, v):
         """
-        Apply translate to initial transformation
+        Update the self transformation(s) by adding a translate transformation(s)
         
         Parameters
         ----------
         v : Vector
-            The vector used for the transformation
+            The vector(s) used for the transformation(s)
 
         Returns
         -------
         t : Transform
-            The product of the initial transformation and the translate transformation
+            The product of the self transformation(s) and the translate transformation(s)
 
         examples
         --------
@@ -375,123 +377,132 @@ class Transform(object):
         t = get_translate_tf(v)
         return self*t
 
-    def scale(self, x, y, z):
+    def scale(self, v):
         """
-        Apply scale to initial transformation
+        Update the self transformation(s) by adding a scale transformation(s)
 
         Parameters
         ----------
-        x : float
-            The scale factor to apply (x axis)
-        y : float
-            The scale factor to apply (y axis)
-        y : float
-            The scale factor to apply (z axis)
+        v : Vector
+            The vector(s) used for scale transformation(s)
 
         Returns
         -------
         t : Transform
-            The product of the initial transformation and the scale transformation
+            The product of the self transformation(s) and the scale transformation(s) 
+            matrices
         """
-        t = get_scale_tf(x,y,z)
+        t = get_scale_tf(v)
         return self*t
 
     def rotateX(self, angle):
         """
-        Apply rotateX to initial transformation
+        Update the self transformation(s) by adding a rotateX transformation(s)
 
         Parameters
         ----------
-        angle : float
-            The angle in degrees for the rotation around the x axis
+        angle : float | 1-D ndarray
+            The angle(s) in degrees for the rotation(s) around the x axis
 
         Returns
         -------
         t : Transform
-            The product of the initial transformation and the rotateX transformation
+            The product of the self transformation(s) and the rotateX transformation(s) 
+            matrices
         """
         t = get_rotateX_tf(angle)
         return self*t
 
     def rotateY(self, angle):
         """
-        Apply rotateY to initial transformation
+        Update the self transformation(s) by adding a rotateY transformation(s)
 
         Parameters
         ----------
-        angle : float
-            The angle in degrees for the rotation around the y axis
+        angle : float | 1-D ndarray
+            The angle(s) in degrees for the rotation(s) around the y axis
 
         Returns
         -------
         t : Transform
-            The product of the initial transformation and the rotateY transformation
+            The product of the self transformation(s) and the rotateY transformation(s) 
+            matrices
         """
         t = get_rotateY_tf(angle)
         return self*t
 
     def rotateZ(self, angle):
         """
-        Apply rotateZ to initial transformation
+        Update the self transformation(s) by adding a rotateZ transformation(s)
 
         Parameters
         ----------
-        v : Vector
-            The angle in degrees for the rotation around the Z axis
+        angle : float | 1-D ndarray
+            The angle(s) in degrees for the rotation(s) around the Z axis
 
         Returns
         -------
         t : Transform
-            The product of the initial transformation and the rotateZ transformation
+            The product of the initial transformation(s) and the rotateZ transformation(s) 
+            matrices
         """
         t = get_rotateZ_tf(angle)
         return self*t
 
-    def rotate(self, angle, axis):
+    def rotate(self, angle, axis, diag_calc=False):
         """
-        Apply rotate to initial transformation
+        Update the self transformation(s) by adding a rotate transformation(s)
+
+        .. warning::
+            The angle parameter can be a 1-D array only if axis parameter is a Vector/Normal 
+            with scalar x, y, z components, or if the parameter diag_calc=True
 
         Parameters
         ----------
-        angle : float
-            The angle in degrees for the rotation
+        angle : float | 1-D ndarray
+            The angle(s) in degrees for the rotation(s)
         axis : Vector | Normal
-            The rotation is performed arount the parameter axis 
+            The rotation(s) is/are performed around the vector(s)/normal(s) axis/axes
+        diag_calc : bool, optional
+                Perform diagonal calculations in case angle is a 1-D ndarray and axis is a 
+                Vector/Normal with 1-D ndarray x, y, z components. Use angle(i) with axis(i) 
+                to calculate transformation(i)
 
         Returns
         -------
         t : Transform
-            The product of the initial transformation and the rotate transformation
+            The product of the self transformation(s) and the rotate transformation(s) 
+            matrices
         """
-        t = get_rotate_tf(angle, axis)
+        t = get_rotate_tf(angle, axis, diag_calc=diag_calc)
         return self*t
 
 
 def get_inverse_tf(t):
     """
-    Get the inverse transformation
+    Get the inverse transformation(s)
 
     Parameters
     ----------
     t : Transform
-        The transformation to be inversed
+        The transformation(s) to be inversed
 
     Returns
     -------
     out : Transform
-        The inversed transformation
+        The inversed transformation(s)
     """
     return Transform(t.mInv, t.m)
     
 
 def get_translate_tf(v):
     """
-    Get the translate Transform
+    Get the translate transformation(s)
 
     Parameters
     ----------
     v : Vector
-        The vector(s) used for the translate transformation
+        The vector(s) used for the translate transformation(s)
 
     Returns
     -------
@@ -542,12 +553,12 @@ def get_translate_tf(v):
 
 def get_scale_tf(v):
     """
-    Get the scale Transform
+    Get the scale transformation(s)
 
     Parameters
     ----------
     v : Vector
-        The vector(s) used for scale transformation
+        The vector(s) used for scale transformation(s)
 
     Returns
     -------
@@ -581,12 +592,12 @@ def get_scale_tf(v):
 
 def get_rotateX_tf(angle):
     """
-    Get the rotateX Transform
+    Get the rotateX transformation(s)
 
     Parameters
     ----------
     angle : float | 1-D ndarray
-        The angle in degrees for the rotation around the x axis
+        The angle(s) in degrees for the rotation(s) around the x axis
 
     Returns
     -------
@@ -618,12 +629,12 @@ def get_rotateX_tf(angle):
 
 def get_rotateY_tf(angle):
     """
-    Get the rotateY Transform
+    Get the rotateY transformation(s)
 
     Parameters
     ----------
     angle : float | 1-D ndarray
-        The angle(s) in degrees for the rotation around the y axis
+        The angle(s) in degrees for the rotation(s) around the y axis
 
     Returns
     -------
@@ -655,12 +666,12 @@ def get_rotateY_tf(angle):
 
 def get_rotateZ_tf(angle):
     """
-    Get the rotateZ Transform
+    Get the rotateZ transformation(s)
 
     Parameters
     ----------
     angle : float | 1-D ndarray
-        The angle(s) in degrees for the rotation around the Z axis
+        The angle(s) in degrees for the rotation(s) around the Z axis
 
     Returns
     -------
@@ -692,15 +703,18 @@ def get_rotateZ_tf(angle):
 
 def get_rotate_tf(angle, axis, diag_calc=False):
     """
-    Get the rotate Transform around a given axis
+    Get the rotate transformation(s) around a given axis/axes
+
+    .. warning::
+            The angle parameter can be a 1-D array only if axis parameter is a Vector/Normal 
+            with scalar x, y, z components, or if the parameter diag_calc=True
 
     Parameters
     ----------
     angle : float | 1-D ndarray
-        The angle(s) in degrees for the rotation. The angle parameter can be a 1-D array 
-        only if axis is a Vector/Normal with scalar components or if diag_calc=True
+        The angle(s) in degrees for the rotation(s)
     axis : Vector | Normal
-        The rotation is performed around the Vector/Normal axis
+        The rotation(s) is/are performed around the vector(s)/normal(s) axis/axes
     diag_calc : bool, optional
             Perform diagonal calculations in case angle is a 1-D ndarray and axis is a 
             Vector/Normal with 1-D ndarray x, y, z components. Use angle(i) with axis(i) 
@@ -709,7 +723,7 @@ def get_rotate_tf(angle, axis, diag_calc=False):
     Returns
     -------
     t : Transform
-        The rotate transformation
+        The rotate transformation(s)
     """
     if ( (not isinstance(axis, Vector)) and
          (not isinstance(axis, Normal)) ):
