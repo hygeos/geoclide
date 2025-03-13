@@ -1,5 +1,5 @@
-Changelog file
+Releases
 ==============
 
-.. include:: ../CHANGELOG.txt
+.. include:: ../CHANGELOG.md
     :parser: myst_parser.sphinx_
