@@ -87,7 +87,7 @@ class Transform(object):
         
         return Transform(self.m@t.m, t.mInv@self.mInv)
     
-    def __call__(self, c, calc_diag=False, flatten=False):
+    def __call__(self, c, diag_calc=False, flatten=False):
         """
         Apply the transformations
 
@@ -125,7 +125,7 @@ class Transform(object):
                 is_c_arr = isinstance(c.x, np.ndarray)
                 key_bis = np.arange(nT)
                 if flatten: use_flatten = False
-                if is_c_arr and not calc_diag:
+                if is_c_arr and not diag_calc:
                     mat = mat[:,:,np.newaxis,:]
                     x = c.x[:,np.newaxis]
                     y = c.y[:,np.newaxis]
@@ -189,8 +189,8 @@ class Transform(object):
                         normals[inorm] = Normal(xn[keys[inorm]], yn[keys[inorm]], zn[keys[inorm]])
                 return normals
             elif isinstance(c, Ray):
-                origins = self(c.o, calc_diag, flatten)
-                directions = self(c.d, calc_diag, flatten)
+                origins = self(c.o, diag_calc, flatten)
+                directions = self(c.d, diag_calc, flatten)
                 if flatten:
                     rays = Ray(origins, directions, mint=c.mint, maxt=c.maxt)
                 else:
@@ -200,10 +200,10 @@ class Transform(object):
                         rays[ir] = Ray(origins[ir], directions[ir], mint=c.mint, maxt=c.maxt)
                 return rays
             elif isinstance(c, BBox):
-                p0 = self(c.p0, calc_diag, flatten)
-                v0 = self(c.p1-c.p0, calc_diag, flatten)
-                v1 = self(c.p3-c.p0, calc_diag, flatten)
-                v2 = self(c.p4-c.p0, calc_diag, flatten)
+                p0 = self(c.p0, diag_calc, flatten)
+                v0 = self(c.p1-c.p0, diag_calc, flatten)
+                v1 = self(c.p3-c.p0, diag_calc, flatten)
+                v2 = self(c.p4-c.p0, diag_calc, flatten)
                 if flatten:
                     b = BBox()
                     b = b.union(p0)

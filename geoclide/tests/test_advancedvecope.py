@@ -43,7 +43,7 @@ def test_vec2ang(phi, theta):
 def test_ang2vec_diag():
     theta = np.array([20., 30., 45.])
     phi = np.array([0., 0., 180.])
-    v_arr_f = gc.ang2vec(theta, phi, calc_diag=True).to_numpy()
+    v_arr_f = gc.ang2vec(theta, phi, diag_calc=True).to_numpy()
     v_arr = np.zeros_like(v_arr_f)
     for i in range (0, len(theta)):
         v_arr[i,:] = gc.ang2vec(theta[i], phi[i]).to_numpy()
@@ -87,14 +87,14 @@ def test_ang2vec_1d_arr2():
 def test_vec2ang_arr():
     phis = np.linspace(0., 360., 6)
     thetas = np.linspace(-180., 180., 6)
-    v_set1 = gc.ang2vec(theta=thetas, phi=phis, vec_view='zenith', calc_diag=True)
+    v_set1 = gc.ang2vec(theta=thetas, phi=phis, vec_view='zenith', diag_calc=True)
     ths, phs = gc.vec2ang(v_set1, vec_view='zenith')
-    v_set2 = gc.ang2vec(theta=ths, phi=phs, vec_view='zenith', calc_diag=True)
+    v_set2 = gc.ang2vec(theta=ths, phi=phs, vec_view='zenith', diag_calc=True)
 
     assert (np.allclose(v_set1.to_numpy(), v_set2.to_numpy(), 0., 1e-15))
 
-    v_set1 = gc.ang2vec(theta=thetas, phi=phis, vec_view='nadir', calc_diag=True)
+    v_set1 = gc.ang2vec(theta=thetas, phi=phis, vec_view='nadir', diag_calc=True)
     ths, phs = gc.vec2ang(v_set1, vec_view='nadir')
-    v_set2 = gc.ang2vec(theta=ths, phi=phs, vec_view='nadir', calc_diag=True)
+    v_set2 = gc.ang2vec(theta=ths, phi=phs, vec_view='nadir', diag_calc=True)
 
     assert (np.allclose(v_set1.to_numpy(), v_set2.to_numpy(), 0., 1e-15))

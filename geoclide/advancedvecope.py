@@ -9,7 +9,7 @@ import numpy as np
 import math
 
 # TODO add ds_output option
-def ang2vec(theta, phi, vec_view='zenith', calc_diag=False):
+def ang2vec(theta, phi, vec_view='zenith', diag_calc=False):
     """
     Convert a direction described by 2 angles into a direction described by a vector
 
@@ -63,7 +63,7 @@ def ang2vec(theta, phi, vec_view='zenith', calc_diag=False):
     else : flatten = False
 
     v = get_rotateY_tf(theta)(v, flatten=flatten)
-    v = get_rotateZ_tf(phi)(v, flatten=flatten, calc_diag=calc_diag)
+    v = get_rotateZ_tf(phi)(v, flatten=flatten, diag_calc=diag_calc)
     v = normalize(v)
     
     return v
@@ -163,7 +163,7 @@ def vec2ang(v, vec_view='zenith'):
                 raise NameError('No rotation has been found!')
 
             rotzy = get_rotateZ_tf(phi_bis)*get_rotateY_tf(theta_bis)
-            v_ini_rotated = normalize(rotzy(v_ini, flatten=True, calc_diag=True))
+            v_ini_rotated = normalize(rotzy(v_ini, flatten=True, diag_calc=True))
             c_tmp = np.all(np.isclose(v_arr, v_ini_rotated.to_numpy(), 0., 1e-14), axis=1)
             c_tmp_bis = np.logical_and(c_tot, c_tmp)
             theta[c_tmp_bis] = theta_bis[c_tmp_bis]
