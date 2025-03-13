@@ -11,16 +11,20 @@ import warnings
 
 class Transform(object):
     '''
-    Tool to perform tranlation(s) and/or rotation(s) to objects
+    Represents 3D geometric transformation(s) using a 4x4 matrix or ntx4x4 matrix, 
+    where nT is the number of transformations
+
+    It allows translation, rotation and scalling. It can be applied to vectors, points,
+    normals and rays
 
     Parameters
     ----------
     m : Transform | 2-D ndarray | 3-D ndarray, optional
         The matrix of the transformation(s)
     mInv : Transform | 2-D ndarray | 3-D ndarray, optional
-        The matrix of the inverse transformation(s)
+        The inverse matrix of the transformation(s)
 
-    Exemples
+    Examples
     --------
     >>> import geoclide as gc
     >>> t1 = gc.Transform()

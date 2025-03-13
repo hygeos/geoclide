@@ -383,17 +383,18 @@ class Ray(object):
     Definition of ray:
 
     r(t) = o + t*d, where:
-    - o is the origin point of the ray
-    - d is the direction of the ray
-    - t is a positive real scalar
+
+    - o is/are the origin point(s) of the ray(s)
+    - d is/are the direction(s) of the ray(s)
+    - t belongs to stricly positive real numbers
 
     Parameters
     ----------
     o : Point | Ray
-        Origin point of the ray.
+        Origin point(s) of the ray(s).
         If the o parameter is a Ray -> circumvent all the parameters by the ray attributs
     d : Vector
-        Direction of the ray
+        Direction(s) of the ray(s)
     mint : float, optional
         The minimum t value
     maxt : float, optional
@@ -435,7 +436,7 @@ class Ray(object):
         Parameters
         ----------
         t : float | 1-D ndarray
-            The t rays(s) value(s), must be between mint and maxt
+            The t rays(s) values(s). The value(s) must lie between mint and maxt
         
         Returns
         -------
@@ -535,9 +536,9 @@ class BBox(object):
     Parameters
     ----------
     p1 : Point, optional
-        Frist point to use to create the BBox
+        Frist point(s) to use to create the bounding box(es)
     p2 : Point, optional
-        Second point to use to create the BBox
+        Second point(s) to use to create the bounding box(es)
 
     Examples
     --------
@@ -590,17 +591,17 @@ class BBox(object):
         
     def union(self, b):
         """
-        Union with a Point or another BBox
+        Union with a point/set of points or a bounding box/set of bounding boxes
 
         Parameters
         ----------
         b : Point | BBox
-            The point or BBox to use for the union
+            The point(s) or bounding box(es) to use for the union
 
         Returns
         -------
         b_union : BBox
-            The new BBox after the union
+            The new bounding box(es) after the union
         
         Examples
         --------
@@ -654,7 +655,7 @@ class BBox(object):
 
     def is_inside(self, p):
         """
-        Test if Point P is included in BBox
+        Test if point(s) p is/are included in the bounding box(es)
         """
         if isinstance(self.p0.x, np.ndarray) or isinstance(p.x, np.ndarray):
             return np.logical_and.reduce(((p.x >= self.pmin.x), (p.x <= self.pmax.x), \
@@ -667,21 +668,21 @@ class BBox(object):
 
     def is_intersection(self, r, diag_calc=False) :
         """
-        Test if a ray intersects the BBox
+        Test if a ray/rays intersect(s) the bounding box(es)
 
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         diag_calc : bool
-            Perform diagonal calculations in case BBox and Ray have ndarray point components, 
-            meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
-            r(i) and bbox(i). The same size for the BBox and the Ray is required.
+            Perform diagonal calculations in case of multiple bounding boxes and rays, 
+            the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
+            r(i) and bbox(i). The same size for the BBox and Ray objects is required.
 
         Returns
         -------
         out : bool | 1-D ndarray| 2-D ndarray
-            If there is at least 1 intersection return True, else False.
+            If there is at least 1 intersection returns True, else False.
 
         Examples
         --------
@@ -703,9 +704,10 @@ class BBox(object):
 
     def intersect(self, r, diag_calc=False, ds_output=True) :
         """
-        Test if a ray intersects the BBox
+        Test if a ray/rays intersect(s) the bounding box(es)
 
         There are 3 possibilities:
+
         - no intersection
         - only 1 intersection (case of ray located initially inside the BBox)
         - 2 intersections
@@ -713,13 +715,13 @@ class BBox(object):
         Parameters
         ----------
         r : Ray
-            The ray(s) to use for the intersection test
+            The ray(s) to use for the intersection test(s)
         diag_calc : bool, optional
-            Perform diagonal calculations in case BBox and Ray have ndarray point components, 
-            meaning the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
-            r(i) and bbox(i). The same size for the BBox and the Ray is required.
+            Perform diagonal calculations in case of multiple bounding boxes and rays, 
+            the output is a 1-D array instead of a 2-D array where out[i] is calculated using 
+            r(i) and bbox(i). The same size for the BBox and Ray objects is required.
         ds_output : Bool, optional
-            If True the output is a dataset, else return a tuple with intersection information variables
+            If True the output is a dataset, else returns a tuple with intersection information variables
 
         Returns
         -------
@@ -729,10 +731,10 @@ class BBox(object):
 
             * t0 : None | float | 1-D ndarray | 2-D ndarray
                 -> The t ray variable of the first intersection. In case of only 1 intersection 
-                   it represents nothing. 
+                it represents nothing. 
             * t1 : None | float | 1-D ndarray | 2-D ndarray
                 -> The t ray variable of the second intersection. In case of only 1 intersection, 
-                   t1 becomes the t ray variable of the first intersection.
+                t1 becomes the t ray variable of the first intersection.
             * is_intersection : bool | 1-D ndarray | 2-D ndarray
                 -> If there is at least 1 intersection return True, else False.
 
@@ -838,19 +840,19 @@ class BBox(object):
 
     def common_vertices(self, b):
         """
-        Return a list of boolean checking which vertices (self) are common to
-        the BBox b
+        Get a list of boolean checking which vertices (self) are common to
+        the bounding box(es) b
 
         Parameters
         ----------
         b : BBox
-            The secondary Bounding Box
+            The secondary bounding box(es)
         
         Returns
         -------
         out : 1-D ndarray | 2D ndarray
-            Return an array of boolean indicating if the BBox vertices are common to 
-            the secondary BBox (b) vertices
+            Returns an array of boolean values indicating if the bounding box(es) vertices 
+            are common to the secondary b bounding box(es) vertices
 
         Examples
         --------
@@ -866,7 +868,8 @@ class BBox(object):
 
     def common_face(self, b, fill_value=None):
         """
-        Return the face index which is common with one of the face of BBox b2
+        Get the face index/indices which is/are common with one of the face(s) of 
+        bounding box(es) b2
     
         The convention of index from face 0 to 5, for +X,-X,+Y,-Y,+Z,-Z:
 
@@ -874,19 +877,19 @@ class BBox(object):
         >>> |F1|F4|F0|F5|  where ->  |-X|+Z|+X|-Z|
         >>>    |F3|                     |-Y|
 
-        More information see: `en.wikipedia.org/wiki/Cube_mapping`
+        `More information <https://en.wikipedia.org/wiki/Cube_mapping>`_
 
         Parameters
         ----------
         b : BBox
-            The secondary Bounding Box
+            The secondary bounding box(es)
         fill_value : integer, optional
-            In case there is no common face return fill_value
+            In case there is no common face(s) returns fill_value
 
         Returns
         -------
         out : integer | fill_value | 1-D ndarray
-            Return the index / indices of the common face or fill_value
+            Returns the index/indices of the common face(s) or fill_value
         
         Examples
         --------
@@ -903,20 +906,22 @@ class BBox(object):
 
 def get_common_vertices(b1, b2):
     """
-    Check which vertices of BBox b1 are common to the vectices of BBox b2
+    Check which vertices of bounding box(es) b1 are common to the vectices 
+    of bounding box(es) b2
 
     Parameters
     ----------
     b1 : BBox
-        The principal Bounding Box
+        The principal bounding box(es)
     b2 : BBox
-        The secondary Bounding Box
+        The secondary bounding box(es)
     
     Returns
     -------
     out : 1-D ndarray | 2D ndarray
-        Return an array of boolean indicating if the principal BBox (b1)
-        vertices are common to secondary BBox (b2) vertices
+        Returns an array of boolean values indicating whether the principal 
+        bounding box(es) b1 vertices are common to the secondary bounding box(es) 
+        b2 vertices.
 
     Examples
     --------
@@ -954,7 +959,8 @@ def get_common_vertices(b1, b2):
 def get_common_face(b1, b2, fill_value=None):
     """
 
-    Return the face index of the BBox b1 which is common to BBox b2
+    Get the face index/indices of the bounding box(es) b1 which is/are common 
+    to the bounding box(es) b2
     
     The convention of index from face 0 to 5, for +X,-X,+Y,-Y,+Z,-Z:
 
@@ -962,21 +968,21 @@ def get_common_face(b1, b2, fill_value=None):
     >>> |F1|F4|F0|F5|  where ->  |-X|+Z|+X|-Z|
     >>>    |F3|                     |-Y|
 
-    More information see: `en.wikipedia.org/wiki/Cube_mapping`
+    `More information <https://en.wikipedia.org/wiki/Cube_mapping>`_
 
     Parameters
     ----------
     b1 : BBox
-        The principal Bounding Box
+        The principal bounding box(es)
     b2 : BBox
-        The secondary Bounding Box
+        The secondary bounding box(es)
     fill_value : integer, optional
-            In case there is no common face return fill_value
+            In case there is no common face(s) returns fill_value
 
     Returns
     -------
     out : integer | fill_value | 1-D ndarray
-        Return the index / indices of the common face or fill_value
+        Returns the index/indices of the common face(s) or fill_value
 
     Examples
     --------
@@ -1053,9 +1059,9 @@ def get_bbox_intersect_dataset(bbox, r, t0=None, t1=None, is_intersection=False,
     t1 : float | 1-D ndarray | 2-D ndarray
         The t ray variable of the second intersection
     is_intersection : bool | 1-D ndarray | 2-D ndarray, optional
-        If there is an intersection -> True, else False
+        If there is an intersection returns True, else False
     diag_cal : bool, optional
-            This indicates whether a diagonal calculation has been performed
+            This indicates whether diagonal calculations have been performed
 
     Returns
     -------

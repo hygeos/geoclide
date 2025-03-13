@@ -6,7 +6,7 @@ Geoclide package
    :show-inheritance:
    :undoc-members:
 
-Submodules
+Modules
 ----------
 
 .. toctree::

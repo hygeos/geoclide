@@ -1,11 +1,6 @@
 Examples
 ================
 
-.. automodule:: examples
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 Notebooks
 ----------
 

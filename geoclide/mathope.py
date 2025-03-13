@@ -18,7 +18,7 @@ def clamp(val, val_min, val_max):
     val_max : float
         The maximum value
 
-    Results
+    Returns
     -------
     out : float
         The result of the clamp
@@ -46,20 +46,20 @@ def quadratic(a, b, c):
     Parameters
     ----------
     a : float | 1-D ndarray
-        The first coefficient of the quadratic polynomial
+        The first coefficient(s) of the quadratic polynomial
     b : float | 1-D ndarray
-        The second coefficient of the quadratic polynomial
+        The second coefficient(s) of the quadratic polynomial
     c : float | 1-D ndarray
-        The third coefficient of the quadratic polynomial
+        The third coefficient(s) of the quadratic polynomial
 
     Returns
     -------
     b : bool | 1-D ndarray
         If the quadratic can be solved return True, else False
     x0 : float | None | 1-D ndarray
-        The first solution
+        The first solution(s)
     x1 : float | None | 1-D ndarray
-        The second solution
+        The second solution(s)
 
     Notes
     -----
