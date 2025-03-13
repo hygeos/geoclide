@@ -1,6 +1,27 @@
 
 # GEOCLIDE CHANGELOG
 
+
+## v3.0.1
+Release date: 13-03-2025
+
+* Several doctring corrections
+
+* Clearer docsting
+
+* Improvement of the sphinx docs
+
+* A mistake has been found concerning the parameter name for diagonal calculations 
+  only for the the Transform `__call__` method and the function `ang2vec` 
+  - The name calc_diag has been replaced by the correct one i.e. diag_calc
+
+* Add missing diag_calc parameter to Transform `rotate` method
+
+* Correct the Transform `scale` method
+  - the method uses the `get_scale_tf` function, which takes only one parameter
+    of type Vector instead of three
+
+
 ## v3.0.0
 Release date: 12-03-2025
 
