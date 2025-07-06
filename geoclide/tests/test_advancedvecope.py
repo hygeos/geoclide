@@ -39,6 +39,10 @@ def test_vec2ang(phi, theta):
     assert (np.isclose(v1.y, v3.y, 0., 1e-14))
     assert (np.isclose(v1.z, v3.z, 0., 1e-14))
 
+def test_vec2ang_old_bug():
+    # check if bug from 3.0.1 is fixed
+    gc.vec2ang(gc.Vector(-0.028830092518596997, 0.004805015419766166, -0.9995727775365759))
+
 
 def test_ang2vec_diag():
     theta = np.array([20., 30., 45.])
