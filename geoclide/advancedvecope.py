@@ -208,7 +208,7 @@ def vec2ang(v, vec_view='zenith'):
             rotzy = get_rotateZ_tf(phi)*get_rotateY_tf(theta)
             v_ini_rotated = normalize(rotzy(v_ini))
 
-            if (np.all(np.isclose(v.to_numpy()-v_ini_rotated.to_numpy(), 0., 0., 1e-14))):
+            if (np.all(np.isclose(v.to_numpy()-v_ini_rotated.to_numpy(), 0., 0., 1e-12))):
                 break
         
         return theta, phi
