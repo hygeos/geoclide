@@ -2,6 +2,12 @@
 # GEOCLIDE CHANGELOG
 
 
+## v3.0.2
+Release date: 06-06-2025
+
+* Fix bug in `vec2ang` function
+
+
 ## v3.0.1
 Release date: 13-03-2025
 
