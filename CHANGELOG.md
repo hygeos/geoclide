@@ -2,6 +2,13 @@
 # GEOCLIDE CHANGELOG
 
 
+## v3.0.3
+Release date: 07-06-2025
+
+* Fix bug in `vec2ang` function with float32 x, y, z vector components
+  - Also add acc parameter to control the tolerance of numerical errors
+
+
 ## v3.0.2
 Release date: 06-06-2025
 
