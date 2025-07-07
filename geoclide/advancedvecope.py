@@ -7,6 +7,7 @@ from geoclide.transform import get_rotateY_tf, get_rotateZ_tf
 from geoclide.mathope import clamp
 import numpy as np
 import math
+from warnings import warn
 
 # TODO add ds_output option
 def ang2vec(theta, phi, vec_view='zenith', diag_calc=False):
@@ -132,7 +133,7 @@ def vec2ang(v, vec_view='zenith', acc=1e-6):
         v_ini_arr = np.zeros_like(v_arr)
         v_ini_arr[:,2] = 1.
         v_ini = Vector(v_ini_arr)
-        theta = np.empty(nv, dtype=np.float64)
+        theta = np.full(nv, np.nan, dtype=np.float64)
         phi = theta.copy()
         
         c1 = np.all(np.isclose(v_arr, v_ini_arr, 0., acc), axis=1)
@@ -162,7 +163,8 @@ def vec2ang(v, vec_view='zenith', acc=1e-6):
                 rotz_rad = -np.arccos(cosphi)
                 phi_bis = np.degrees(rotz_rad)
             else:
-                raise NameError('No rotation has been found!')
+                warn('No rotation has been found for some (or all) vectors!', Warning)
+                return theta, phi
 
             rotzy = get_rotateZ_tf(phi_bis)*get_rotateY_tf(theta_bis)
             v_ini_rotated = normalize(rotzy(v_ini, flatten=True, diag_calc=True))
