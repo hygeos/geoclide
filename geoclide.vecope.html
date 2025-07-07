@@ -1,0 +1,850 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>geoclide.vecope module &#8212; Geoclide 3.0.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=9b3fc59f"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'geoclide.vecope';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="geoclide.transform module" href="geoclide.transform.html" />
+    <link rel="prev" title="geoclide.mathope module" href="geoclide.mathope.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Geoclide 3.0.3 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="geoclide.html">
+    Geoclide package
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog_link.html">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="geoclide.html">
+    Geoclide package
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog_link.html">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="geoclide.basic.html">geoclide.basic module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.mathope.html">geoclide.mathope module</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">geoclide.vecope module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.transform.html">geoclide.transform module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.quadrics.html">geoclide.quadrics module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.trianglemesh.html">geoclide.trianglemesh module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.intersection.html">geoclide.intersection module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.shapes.html">geoclide.shapes module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.advancedvecope.html">geoclide.advancedvecope module</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="geoclide.html" class="nav-link">Geoclide package</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoclide.vecope module</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-geoclide.vecope">
+<span id="geoclide-vecope-module"></span><h1>geoclide.vecope module<a class="headerlink" href="#module-geoclide.vecope" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.coordinate_system">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">coordinate_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'m2'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.coordinate_system" title="Link to this definition">#</a></dt>
+<dd><p>Create orthogonal coordinate system(s) from a vector/set of vectors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>v1</strong><span class="classifier">Vector</span></dt><dd><p>The base vector(s) used to create the orthogonal coordinate system(s)</p>
+</dd>
+<dt><strong>method: str, optional</strong></dt><dd><p>Default is ‘m2’ (method from pbrt v4), other choice is ‘m1’ (pbrt v2 and v3)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>v2</strong><span class="classifier">Vector</span></dt><dd><p>The second vector(s) of the orthogonal coordinate system(s)</p>
+</dd>
+<dt><strong>v3</strong><span class="classifier">Vector</span></dt><dd><p>The third vector(s) of the orthogonal coordinate system(s)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">geoclide</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span><span class="p">,</span> <span class="n">v3</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">coordinate_system</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+<span class="go">(Vector(1.0, -0.0, -0.0), Vector(-0.0, 1.0, -0.0))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.cross">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">cross</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.cross" title="Link to this definition">#</a></dt>
+<dd><p>The cross product</p>
+<ul>
+<li><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The cross product of 2 normals is not allowed</p>
+</div>
+</li>
+</ul>
+<p>Definition of the cross product:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\((a × b) = ((a.y*b.z)-(a.z*b.y))x̂ + ((a.z*b.x)-(a.x*b.z))ŷ + ((a.x*b.y)-(a.y*b.x))\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\((a × b) = ||a||*||b||*sin(θ)\)</span></p>
+<blockquote>
+<div><p>where x̂, ŷ and ẑ are the unitary vectors respectively in axes x, y and z</p>
+</div></blockquote>
+</li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>a</strong><span class="classifier">Vector | Normal</span></dt><dd><p>The first vector(s) or normal(s) used for the cross product</p>
+</dd>
+<dt><strong>b</strong><span class="classifier">Vector | Normal</span></dt><dd><p>The second vector(s) or normal(s) used for the cross product</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>out</strong><span class="classifier">Vector</span></dt><dd><p>The result(s) of the cross product</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">geoclide</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="go">Vector(0.0, 1.0, 0.0)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.distance">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.distance" title="Link to this definition">#</a></dt>
+<dd><p>Compute the distance(s) between 2 points/set of points</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>p1</strong><span class="classifier">Point</span></dt><dd><p>The first point(s)</p>
+</dd>
+<dt><strong>p2</strong><span class="classifier">Point</span></dt><dd><p>The second point(s)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>out</strong><span class="classifier">float | 1-D ndarray</span></dt><dd><p>The distance(s) between the 2 points/set of points</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p1</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p2</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">)</span>
+<span class="go">10.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p1</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">1.9</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p2</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="mf">5.</span><span class="p">,</span> <span class="mf">15.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">)</span>
+<span class="go">13.64587849865299</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.dot">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.dot" title="Link to this definition">#</a></dt>
+<dd><p>The dot/scalar product</p>
+<p>Definition of the dot product:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\((a . b) = a.x*b.x + a.y*b.y + a.z*b.z\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\((a . b) = ||a|| * ||b|| * cos(θ)\)</span></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>a</strong><span class="classifier">Vector | Normal</span></dt><dd><p>The first vector(s) or normal(s) used for the dot product</p>
+</dd>
+<dt><strong>b</strong><span class="classifier">Vector | Normal</span></dt><dd><p>The second vector(s) or normal(s) used for the dot product</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>out</strong><span class="classifier">float | 1-D ndarray</span></dt><dd><p>The result(s) of the dot product i.e. sum of products</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">geoclide</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">)</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.</span><span class="p">)</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="go">0.7071067811865476</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.face_forward">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">face_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.face_forward" title="Link to this definition">#</a></dt>
+<dd><p>Flip the vector(s)/normal(s) a if the vector(s)/normal(s) b is/are in the opposite 
+direction(s)</p>
+<p>It can be useful to flip a surface normal so that it lies in the same
+hemisphere as a given vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>a</strong><span class="classifier">Vector | Normal</span></dt><dd><p>The vector(s) or normal(s) to potentially flip</p>
+</dd>
+<dt><strong>b</strong><span class="classifier">Vector | Normal</span></dt><dd><p>The base vector(s) or normal(s) used for the flip</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>out</strong><span class="classifier">Vector | Normal</span></dt><dd><p>The potentially flipped vector(s) or normal(s)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">geoclide</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n1</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">face_forward</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">n1</span><span class="p">)</span>
+<span class="go">Vector(1.0, -0.0, -0.0)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.normalize">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.normalize" title="Link to this definition">#</a></dt>
+<dd><p>Normalize a vector/normal or a set of vectors/normals</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>v</strong><span class="classifier">Vector | Normal</span></dt><dd><p>The vector(s) or normal(s) to be normalized</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>out</strong><span class="classifier">Vector | Normal</span></dt><dd><p>The normalized vector(s)/normal(s)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">geoclide</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+<span class="go">Vector(0.7071067811865475, 0.0, 0.7071067811865475)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.permute">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">permute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.permute" title="Link to this definition">#</a></dt>
+<dd><p>Permutes the vector(s)/point(s)/normal(s) x, y, z values according to the given indices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>a</strong><span class="classifier">Vector | Point | Normal</span></dt><dd><p>The vector(s), point(s) or normal(s) used for permutation</p>
+</dd>
+<dt><strong>ix</strong><span class="classifier">int | np.ndarray | list, optional</span></dt><dd><p>The index/indices of the value(s) we want to keep as a remplacement for the x component(s)</p>
+</dd>
+<dt><strong>iy</strong><span class="classifier">int | np.ndarray | list, optional</span></dt><dd><p>The index/indices of the value(s) we want to keep as a remplacement for the y component(s)</p>
+</dd>
+<dt><strong>iz</strong><span class="classifier">int | np.ndarray | list, optional</span></dt><dd><p>The index/indices of the value(s) we want to keep as a remplacement for the z component(s)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>out</strong><span class="classifier">Vector | Point | Normal</span></dt><dd><p>The vector(s)/point(s)/normal(s) after the permute operation</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">geoclide</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">Vector(3.0, 2.0, 1.0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="go">Vector(3.0, 2.0, 1.0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p_set</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">3.</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="o">-</span><span class="mf">3.</span><span class="p">,</span><span class="mf">0.</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p_set</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">p_set</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="n">p_set</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="go">array([[ 3. ,  0. ,  3. ],</span>
+<span class="go">       [ 1. ,  0. ,  0. ],</span>
+<span class="go">       [-0.5,  0. ,  0. ],</span>
+<span class="go">       [ 0. , -3. ,  0. ]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.vabs">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">vabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.vabs" title="Link to this definition">#</a></dt>
+<dd><p>Calculate the absolute value(s) of each component of the vector(s)/point(s)/normal(s)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>a</strong><span class="classifier">Vector | Point | Normal</span></dt><dd><p>The vector(s)/point(s)/normal(s) used</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>out: Vector | Point | Normal | 1-D ndarray</dt><dd><p>The vector(s)/point(s)/normal(s) with absolute values</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.vargmax">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">vargmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.vargmax" title="Link to this definition">#</a></dt>
+<dd><p>Get the index/indices of the vector(s)/point(s)/normal(s) components with 
+the largest value(s)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>a</strong><span class="classifier">Vector | Point | Normal</span></dt><dd><p>The vector(s)/point(s)/normal(s) used</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>out: int | 1-D ndarray</dt><dd><p>The index/indices of the largest vector(s)/point(s)/normal(s) value(s)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">geoclide</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.vargmin">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">vargmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.vargmin" title="Link to this definition">#</a></dt>
+<dd><p>Get the index/indices of the vector(s)/point(s)/normal(s) components with 
+the smallest value(s)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>a</strong><span class="classifier">Vector | Point | Normal</span></dt><dd><p>The vector(s)/point(s)/normal(s) used</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>out: int | 1-D ndarray</dt><dd><p>The index/indices of the smallest vector(s)/point(s)/normal(s) value(s)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">geoclide</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.vmax">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">vmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.vmax" title="Link to this definition">#</a></dt>
+<dd><p>Get the largest components value(s) of the vector(s)/point(s)/normal(s)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>a</strong><span class="classifier">Vector | Point | Normal</span></dt><dd><p>The vector(s)/point(s)/normal(s) used</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>out: float | 1-D ndarray</dt><dd><p>The largest vector(s)/point(s)/normal(s) value(s)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">geoclide</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoclide.vecope.vmin">
+<span class="sig-prename descclassname"><span class="pre">geoclide.vecope.</span></span><span class="sig-name descname"><span class="pre">vmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoclide.vecope.vmin" title="Link to this definition">#</a></dt>
+<dd><p>Get the smallest components value(s) of the vector(s)/point(s)/normal(s)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>a</strong><span class="classifier">Vector | Point | Normal</span></dt><dd><p>The vector(s)/point(s)/normal(s) used</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>out: float | 1-D ndarray</dt><dd><p>The smallest vector(s)/point(s)/normal(s) value(s)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">geoclide</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gc</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="geoclide.mathope.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">geoclide.mathope module</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="geoclide.transform.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">geoclide.transform module</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.coordinate_system"><code class="docutils literal notranslate"><span class="pre">coordinate_system()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.cross"><code class="docutils literal notranslate"><span class="pre">cross()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.distance"><code class="docutils literal notranslate"><span class="pre">distance()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.dot"><code class="docutils literal notranslate"><span class="pre">dot()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.face_forward"><code class="docutils literal notranslate"><span class="pre">face_forward()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.normalize"><code class="docutils literal notranslate"><span class="pre">normalize()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.permute"><code class="docutils literal notranslate"><span class="pre">permute()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.vabs"><code class="docutils literal notranslate"><span class="pre">vabs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.vargmax"><code class="docutils literal notranslate"><span class="pre">vargmax()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.vargmin"><code class="docutils literal notranslate"><span class="pre">vargmin()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.vmax"><code class="docutils literal notranslate"><span class="pre">vmax()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide.vecope.vmin"><code class="docutils literal notranslate"><span class="pre">vmin()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/geoclide.vecope.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Geoclide team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

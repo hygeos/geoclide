@@ -1,0 +1,609 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Geoclide package &#8212; Geoclide 3.0.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=9b3fc59f"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'geoclide';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="geoclide.basic module" href="geoclide.basic.html" />
+    <link rel="prev" title="Acceleration with numpy" href="04_numpy_acceleration_example.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Geoclide 3.0.3 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Geoclide package
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog_link.html">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Geoclide package
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog_link.html">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="geoclide.basic.html">geoclide.basic module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.mathope.html">geoclide.mathope module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.vecope.html">geoclide.vecope module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.transform.html">geoclide.transform module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.quadrics.html">geoclide.quadrics module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.trianglemesh.html">geoclide.trianglemesh module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.intersection.html">geoclide.intersection module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.shapes.html">geoclide.shapes module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.advancedvecope.html">geoclide.advancedvecope module</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Geoclide package</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-geoclide">
+<span id="geoclide-package"></span><h1>Geoclide package<a class="headerlink" href="#module-geoclide" title="Link to this heading">#</a></h1>
+<section id="modules">
+<h2>Modules<a class="headerlink" href="#modules" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.basic.html">geoclide.basic module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.BBox"><code class="docutils literal notranslate"><span class="pre">BBox</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.BBox.common_face"><code class="docutils literal notranslate"><span class="pre">BBox.common_face()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.BBox.common_vertices"><code class="docutils literal notranslate"><span class="pre">BBox.common_vertices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.BBox.intersect"><code class="docutils literal notranslate"><span class="pre">BBox.intersect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.BBox.is_inside"><code class="docutils literal notranslate"><span class="pre">BBox.is_inside()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.BBox.is_intersection"><code class="docutils literal notranslate"><span class="pre">BBox.is_intersection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.BBox.union"><code class="docutils literal notranslate"><span class="pre">BBox.union()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Normal"><code class="docutils literal notranslate"><span class="pre">Normal</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Normal.length"><code class="docutils literal notranslate"><span class="pre">Normal.length()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Normal.length_squared"><code class="docutils literal notranslate"><span class="pre">Normal.length_squared()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Normal.to_numpy"><code class="docutils literal notranslate"><span class="pre">Normal.to_numpy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Point"><code class="docutils literal notranslate"><span class="pre">Point</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Point.to_numpy"><code class="docutils literal notranslate"><span class="pre">Point.to_numpy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Ray"><code class="docutils literal notranslate"><span class="pre">Ray</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Ray.__call__"><code class="docutils literal notranslate"><span class="pre">Ray.__call__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Vector"><code class="docutils literal notranslate"><span class="pre">Vector</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Vector.length"><code class="docutils literal notranslate"><span class="pre">Vector.length()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Vector.length_squared"><code class="docutils literal notranslate"><span class="pre">Vector.length_squared()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.Vector.to_numpy"><code class="docutils literal notranslate"><span class="pre">Vector.to_numpy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.get_bbox_intersect_dataset"><code class="docutils literal notranslate"><span class="pre">get_bbox_intersect_dataset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.get_common_face"><code class="docutils literal notranslate"><span class="pre">get_common_face()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.basic.html#geoclide.basic.get_common_vertices"><code class="docutils literal notranslate"><span class="pre">get_common_vertices()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.mathope.html">geoclide.mathope module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.mathope.html#geoclide.mathope.clamp"><code class="docutils literal notranslate"><span class="pre">clamp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.mathope.html#geoclide.mathope.quadratic"><code class="docutils literal notranslate"><span class="pre">quadratic()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.vecope.html">geoclide.vecope module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.coordinate_system"><code class="docutils literal notranslate"><span class="pre">coordinate_system()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.cross"><code class="docutils literal notranslate"><span class="pre">cross()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.distance"><code class="docutils literal notranslate"><span class="pre">distance()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.dot"><code class="docutils literal notranslate"><span class="pre">dot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.face_forward"><code class="docutils literal notranslate"><span class="pre">face_forward()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.normalize"><code class="docutils literal notranslate"><span class="pre">normalize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.permute"><code class="docutils literal notranslate"><span class="pre">permute()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.vabs"><code class="docutils literal notranslate"><span class="pre">vabs()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.vargmax"><code class="docutils literal notranslate"><span class="pre">vargmax()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.vargmin"><code class="docutils literal notranslate"><span class="pre">vargmin()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.vmax"><code class="docutils literal notranslate"><span class="pre">vmax()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.vecope.html#geoclide.vecope.vmin"><code class="docutils literal notranslate"><span class="pre">vmin()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.transform.html">geoclide.transform module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.Transform"><code class="docutils literal notranslate"><span class="pre">Transform</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.Transform.__call__"><code class="docutils literal notranslate"><span class="pre">Transform.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.Transform.inverse"><code class="docutils literal notranslate"><span class="pre">Transform.inverse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.Transform.is_identity"><code class="docutils literal notranslate"><span class="pre">Transform.is_identity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.Transform.rotate"><code class="docutils literal notranslate"><span class="pre">Transform.rotate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.Transform.rotateX"><code class="docutils literal notranslate"><span class="pre">Transform.rotateX()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.Transform.rotateY"><code class="docutils literal notranslate"><span class="pre">Transform.rotateY()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.Transform.rotateZ"><code class="docutils literal notranslate"><span class="pre">Transform.rotateZ()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.Transform.scale"><code class="docutils literal notranslate"><span class="pre">Transform.scale()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.Transform.translate"><code class="docutils literal notranslate"><span class="pre">Transform.translate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.get_inverse_tf"><code class="docutils literal notranslate"><span class="pre">get_inverse_tf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.get_rotateX_tf"><code class="docutils literal notranslate"><span class="pre">get_rotateX_tf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.get_rotateY_tf"><code class="docutils literal notranslate"><span class="pre">get_rotateY_tf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.get_rotateZ_tf"><code class="docutils literal notranslate"><span class="pre">get_rotateZ_tf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.get_rotate_tf"><code class="docutils literal notranslate"><span class="pre">get_rotate_tf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.get_scale_tf"><code class="docutils literal notranslate"><span class="pre">get_scale_tf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.transform.html#geoclide.transform.get_translate_tf"><code class="docutils literal notranslate"><span class="pre">get_translate_tf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.quadrics.html">geoclide.quadrics module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Disk"><code class="docutils literal notranslate"><span class="pre">Disk</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Disk.area"><code class="docutils literal notranslate"><span class="pre">Disk.area()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Disk.intersect"><code class="docutils literal notranslate"><span class="pre">Disk.intersect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Disk.is_intersection"><code class="docutils literal notranslate"><span class="pre">Disk.is_intersection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Disk.is_intersection_t"><code class="docutils literal notranslate"><span class="pre">Disk.is_intersection_t()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Disk.plot"><code class="docutils literal notranslate"><span class="pre">Disk.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Disk.to_trianglemesh"><code class="docutils literal notranslate"><span class="pre">Disk.to_trianglemesh()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Sphere"><code class="docutils literal notranslate"><span class="pre">Sphere</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Sphere.area"><code class="docutils literal notranslate"><span class="pre">Sphere.area()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Sphere.intersect"><code class="docutils literal notranslate"><span class="pre">Sphere.intersect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Sphere.is_intersection"><code class="docutils literal notranslate"><span class="pre">Sphere.is_intersection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Sphere.is_intersection_t"><code class="docutils literal notranslate"><span class="pre">Sphere.is_intersection_t()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Sphere.plot"><code class="docutils literal notranslate"><span class="pre">Sphere.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Sphere.to_trianglemesh"><code class="docutils literal notranslate"><span class="pre">Sphere.to_trianglemesh()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Spheroid"><code class="docutils literal notranslate"><span class="pre">Spheroid</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Spheroid.area"><code class="docutils literal notranslate"><span class="pre">Spheroid.area()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Spheroid.intersect"><code class="docutils literal notranslate"><span class="pre">Spheroid.intersect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Spheroid.is_intersection"><code class="docutils literal notranslate"><span class="pre">Spheroid.is_intersection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Spheroid.is_intersection_t"><code class="docutils literal notranslate"><span class="pre">Spheroid.is_intersection_t()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Spheroid.plot"><code class="docutils literal notranslate"><span class="pre">Spheroid.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.quadrics.html#geoclide.quadrics.Spheroid.to_trianglemesh"><code class="docutils literal notranslate"><span class="pre">Spheroid.to_trianglemesh()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.trianglemesh.html">geoclide.trianglemesh module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.Triangle"><code class="docutils literal notranslate"><span class="pre">Triangle</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.Triangle.area"><code class="docutils literal notranslate"><span class="pre">Triangle.area()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.Triangle.intersect"><code class="docutils literal notranslate"><span class="pre">Triangle.intersect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.Triangle.is_intersection"><code class="docutils literal notranslate"><span class="pre">Triangle.is_intersection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.Triangle.is_intersection_t"><code class="docutils literal notranslate"><span class="pre">Triangle.is_intersection_t()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.TriangleMesh"><code class="docutils literal notranslate"><span class="pre">TriangleMesh</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.TriangleMesh.apply_tf"><code class="docutils literal notranslate"><span class="pre">TriangleMesh.apply_tf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.TriangleMesh.area"><code class="docutils literal notranslate"><span class="pre">TriangleMesh.area()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.TriangleMesh.intersect"><code class="docutils literal notranslate"><span class="pre">TriangleMesh.intersect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.TriangleMesh.is_intersection"><code class="docutils literal notranslate"><span class="pre">TriangleMesh.is_intersection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.TriangleMesh.is_intersection_t"><code class="docutils literal notranslate"><span class="pre">TriangleMesh.is_intersection_t()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.TriangleMesh.plot"><code class="docutils literal notranslate"><span class="pre">TriangleMesh.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.TriangleMesh.to_dataset"><code class="docutils literal notranslate"><span class="pre">TriangleMesh.to_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.TriangleMesh.write"><code class="docutils literal notranslate"><span class="pre">TriangleMesh.write()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.read_gcnc_trianglemesh"><code class="docutils literal notranslate"><span class="pre">read_gcnc_trianglemesh()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.trianglemesh.html#geoclide.trianglemesh.read_trianglemesh"><code class="docutils literal notranslate"><span class="pre">read_trianglemesh()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.intersection.html">geoclide.intersection module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.intersection.html#geoclide.intersection.calc_intersection"><code class="docutils literal notranslate"><span class="pre">calc_intersection()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.shapes.html">geoclide.shapes module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.shapes.html#geoclide.shapes.get_intersect_dataset"><code class="docutils literal notranslate"><span class="pre">get_intersect_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="geoclide.advancedvecope.html">geoclide.advancedvecope module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.advancedvecope.html#geoclide.advancedvecope.ang2vec"><code class="docutils literal notranslate"><span class="pre">ang2vec()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoclide.advancedvecope.html#geoclide.advancedvecope.vec2ang"><code class="docutils literal notranslate"><span class="pre">vec2ang()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="04_numpy_acceleration_example.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Acceleration with numpy</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="geoclide.basic.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">geoclide.basic module</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modules">Modules</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/geoclide.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Geoclide team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

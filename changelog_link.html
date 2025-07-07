@@ -1,0 +1,658 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Releases &#8212; Geoclide 3.0.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=9b3fc59f"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'changelog_link';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="geoclide.advancedvecope module" href="geoclide.advancedvecope.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Geoclide 3.0.3 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="geoclide.html">
+    Geoclide package
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="geoclide.html">
+    Geoclide package
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Releases</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="releases">
+<h1>Releases<a class="headerlink" href="#releases" title="Link to this heading">#</a></h1>
+<section id="geoclide-changelog">
+<h2>GEOCLIDE CHANGELOG<a class="headerlink" href="#geoclide-changelog" title="Link to this heading">#</a></h2>
+<section id="v3-0-3">
+<h3>v3.0.3<a class="headerlink" href="#v3-0-3" title="Link to this heading">#</a></h3>
+<p>Release date: 07-06-2025</p>
+<ul class="simple">
+<li><p>Fix bug in <code class="docutils literal notranslate"><span class="pre">vec2ang</span></code> function with float32 x, y, z vector components</p>
+<ul>
+<li><p>Also add acc parameter to control the tolerance of numerical errors</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="v3-0-2">
+<h3>v3.0.2<a class="headerlink" href="#v3-0-2" title="Link to this heading">#</a></h3>
+<p>Release date: 06-06-2025</p>
+<ul class="simple">
+<li><p>Fix bug in <code class="docutils literal notranslate"><span class="pre">vec2ang</span></code> function</p></li>
+</ul>
+</section>
+<section id="v3-0-1">
+<h3>v3.0.1<a class="headerlink" href="#v3-0-1" title="Link to this heading">#</a></h3>
+<p>Release date: 13-03-2025</p>
+<ul class="simple">
+<li><p>Several doctring corrections</p></li>
+<li><p>Clearer docsting</p></li>
+<li><p>Improvement of the sphinx docs</p></li>
+<li><p>A mistake has been found concerning the parameter name for diagonal calculations
+only for the the Transform <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method and the function <code class="docutils literal notranslate"><span class="pre">ang2vec</span></code></p>
+<ul>
+<li><p>The name calc_diag has been replaced by the correct one i.e. diag_calc</p></li>
+</ul>
+</li>
+<li><p>Add missing diag_calc parameter to Transform <code class="docutils literal notranslate"><span class="pre">rotate</span></code> method</p></li>
+<li><p>Correct the Transform <code class="docutils literal notranslate"><span class="pre">scale</span></code> method</p>
+<ul>
+<li><p>the method uses the <code class="docutils literal notranslate"><span class="pre">get_scale_tf</span></code> function, which takes only one parameter
+of type Vector instead of three</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="v3-0-0">
+<h3>v3.0.0<a class="headerlink" href="#v3-0-0" title="Link to this heading">#</a></h3>
+<p>Release date: 12-03-2025</p>
+<p>This release includes only a breacking change with the function <code class="docutils literal notranslate"><span class="pre">get_scale_tf</span></code>.
+The Transform and Ray <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method is now recommended in replacement
+of the method <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code>. The method <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> is still here but has a
+depracated message</p>
+<ul class="simple">
+<li><p>Improve the <code class="docutils literal notranslate"><span class="pre">__str__</span></code> and <code class="docutils literal notranslate"><span class="pre">__repr__</span></code> methods in case of multiple vectors, points,
+normals or rays</p></li>
+<li><p>Replace the Transform and Ray classes method <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> by the method <code class="docutils literal notranslate"><span class="pre">__call__</span></code></p></li>
+<li><p>Multiple transformations is now possible with the Transform class</p>
+<ul>
+<li><p>Allow 1-D calculations with several transformations and 1 point, vectors, …</p></li>
+<li><p>Allow 2-D calculations with several transformations and several points, vectors, …</p></li>
+<li><p>Allow diagonal calculations (case 2-D with option diag_calc=True)</p></li>
+</ul>
+</li>
+<li><p>Add sphinx documentation</p></li>
+<li><p>Function <code class="docutils literal notranslate"><span class="pre">get_scale_tf</span></code> takes as input a Vector variable instead of 3 scalars</p></li>
+<li><p>Add new option flatten to Tranform <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method</p>
+<ul>
+<li><p>Instead of having a numpy array of Vector objects, the output can be only 1 Vector
+object where a flatten operation is made to x, y, z components of all vectors</p></li>
+<li><p>Avoid loop operation then reduce the computational time</p></li>
+</ul>
+</li>
+<li><p>Function <code class="docutils literal notranslate"><span class="pre">vec2ang</span></code> now accepts Vector object with multiple vectors</p></li>
+<li><p>Function <code class="docutils literal notranslate"><span class="pre">ang2vec</span></code> now accepts 1d ndarray theta and phi angles</p></li>
+</ul>
+</section>
+<section id="v2-0-2">
+<h3>v2.0.2<a class="headerlink" href="#v2-0-2" title="Link to this heading">#</a></h3>
+<p>Release date: 05-03-2025</p>
+<ul class="simple">
+<li><p>Several corrections in TriangleMesh <code class="docutils literal notranslate"><span class="pre">intersect</span></code>, <code class="docutils literal notranslate"><span class="pre">is_intersection_t</span></code> and
+<code class="docutils literal notranslate"><span class="pre">is_intersection</span></code> methods</p></li>
+<li><p>Transformations were not taken into account when using the plot method,
+now it’s corrected</p></li>
+<li><p>Addition of more tests</p></li>
+</ul>
+</section>
+<section id="v2-0-1">
+<h3>v2.0.1<a class="headerlink" href="#v2-0-1" title="Link to this heading">#</a></h3>
+<p>Release date: 03-03-2025</p>
+<ul class="simple">
+<li><p>Correction of a bug occuring while using a version of numpy &lt; 2.0.0</p>
+<ul>
+<li><p>np.atan2 and np.acos replaced by np.arctan2 and np.arccos</p></li>
+</ul>
+</li>
+<li><p>README image links updated</p></li>
+<li><p>Correct file format and add test files in MANIFEST file</p></li>
+<li><p>Ignore certain unwanted warnings</p></li>
+</ul>
+</section>
+<section id="v2-0-0">
+<h3>v2.0.0<a class="headerlink" href="#v2-0-0" title="Link to this heading">#</a></h3>
+<p>Release date: 02-03-2025</p>
+<p>This release includes some breaking changes like the input of TriangleMesh where
+the variable names are different, but also the input (2d ndarray). Other breaks are
+for example changes of certain method outputs.</p>
+<ul class="simple">
+<li><p>Acceleration of geometric calculations thanks to numpy multi-dimentional array operations</p>
+<ul>
+<li><p>Point, Vector and Normal classes can now have 1-D ndarray x, y, z components</p></li>
+<li><p>Functions in vecope.py have been adapted to allow Point, Vector and Normal
+with 1-D ndarray x, y, z components</p></li>
+<li><p>Readaptation of the Ray and BBox classes with the new Point, Vector and Normal
+classes</p></li>
+<li><p>BBox <code class="docutils literal notranslate"><span class="pre">intersect</span></code> method allow 1-D, 2-D and 2-D diagonal calculations</p></li>
+<li><p>Readaptation of the quadric classes enabling intersection tests with a class
+Ray containing several rays</p></li>
+<li><p>Readaptation of Triangle and TriangleMesh classes. Allow 1-D, 2-D and 2-D
+diagonal calculations</p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+<li><p>The 3D objects <code class="docutils literal notranslate"><span class="pre">intersect</span></code> method output is now an xarray Dataset</p></li>
+<li><p>Several new functionalities</p>
+<ul>
+<li><p>New method <code class="docutils literal notranslate"><span class="pre">to_triangle_mesh</span></code> to convert a quadric to a TriangleMesh object</p></li>
+<li><p>New method <code class="docutils literal notranslate"><span class="pre">to_plot</span></code> for TriangleMesh, and also for all quadrics</p></li>
+<li><p>New TriangleMesh method <code class="docutils literal notranslate"><span class="pre">write</span></code> to save the triangle mesh in nectcdf4 and also in</p></li>
+<li><p>several other formats as stl, ply, …</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">read_trianglemesh</span></code> function allows to read triangle mesh files (gcnc, stl, ply,
+etc.) and return a TriangleMesh object</p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+<li><p>A lot of tests have been added, more documentations, cleaning, …</p></li>
+</ul>
+</section>
+<section id="v1-2-2">
+<h3>v1.2.2<a class="headerlink" href="#v1-2-2" title="Link to this heading">#</a></h3>
+<p>Release date: 13-02-2025</p>
+<ul class="simple">
+<li><p>Correction of a bug in TriangleMesh constructor</p>
+<ul>
+<li><p>The bug occurred when we set the vi parameter as a 2d array.</p></li>
+</ul>
+</li>
+<li><p>Add tests detecting the corrected bug</p></li>
+<li><p>Add docstring to area method for all objects</p></li>
+</ul>
+</section>
+<section id="v1-2-1">
+<h3>v1.2.1<a class="headerlink" href="#v1-2-1" title="Link to this heading">#</a></h3>
+<p>Release date: 13-02-2025</p>
+<ul class="simple">
+<li><p>Correction in <code class="docutils literal notranslate"><span class="pre">vec2ang</span></code> function</p>
+<ul>
+<li><p>small correction in the docstring</p></li>
+<li><p>correct a bug appearing when the parameter v is not a normalized vector</p></li>
+<li><p>add the missing default value of the parameter vec_view</p></li>
+</ul>
+</li>
+<li><p>Add tests enabling to detect the corrected bug</p></li>
+</ul>
+</section>
+<section id="v1-2-0">
+<h3>v1.2.0<a class="headerlink" href="#v1-2-0" title="Link to this heading">#</a></h3>
+<p>Release date: 10-02-2025</p>
+<ul class="simple">
+<li><p>Add new functions</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ang2vec</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vec2ang</span></code></p></li>
+</ul>
+</li>
+<li><p>Add the Disk class</p>
+<ul>
+<li><p>It can be a disk, a partial disk, an annulus or a partial annulus</p></li>
+</ul>
+</li>
+<li><p>Add new method to all 3d objects <code class="docutils literal notranslate"><span class="pre">is_intersection_t</span></code></p>
+<ul>
+<li><p>the method is faster than <code class="docutils literal notranslate"><span class="pre">intersect</span></code> method, but gives only thit</p></li>
+</ul>
+</li>
+<li><p>Move tests folder into geoclide folder</p></li>
+<li><p>And some improvements</p></li>
+</ul>
+</section>
+<section id="v1-1-1">
+<h3>v1.1.1<a class="headerlink" href="#v1-1-1" title="Link to this heading">#</a></h3>
+<p>Release date: 07-02-2025</p>
+<ul class="simple">
+<li><p>Correction of a bug with the normal orientation at the intersection with a 3d object</p></li>
+</ul>
+</section>
+<section id="v1-1-0">
+<h3>v1.1.0<a class="headerlink" href="#v1-1-0" title="Link to this heading">#</a></h3>
+<p>Release date: 05-02-2025</p>
+<ul class="simple">
+<li><p>Add the Spheroid class (oblate or prolate object)</p></li>
+<li><p>Small optimization of sphere intersection test</p></li>
+</ul>
+</section>
+<section id="v1-0-0">
+<h3>v1.0.0<a class="headerlink" href="#v1-0-0" title="Link to this heading">#</a></h3>
+<p>Release date: 2025-01-27</p>
+<p>First public release.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="geoclide.advancedvecope.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">geoclide.advancedvecope module</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide-changelog">GEOCLIDE CHANGELOG</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v3-0-3">v3.0.3</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v3-0-2">v3.0.2</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v3-0-1">v3.0.1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v3-0-0">v3.0.0</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-2">v2.0.2</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-1">v2.0.1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-0">v2.0.0</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-2-2">v1.2.2</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-2-1">v1.2.1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-2-0">v1.2.0</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-1-1">v1.1.1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-1-0">v1.1.0</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-0-0">v1.0.0</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/changelog_link.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Geoclide team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
