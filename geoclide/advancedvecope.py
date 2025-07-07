@@ -70,7 +70,7 @@ def ang2vec(theta, phi, vec_view='zenith', diag_calc=False):
     return v
 
 
-def vec2ang(v, vec_view='zenith'):
+def vec2ang(v, vec_view='zenith', acc=1e-6):
     """
     Convert a direction/directions described by a vector/vectors into 
     a direction/directions described by 2 angles/set of 2 angles
@@ -81,17 +81,17 @@ def vec2ang(v, vec_view='zenith'):
     ----------
     v : Vector
         The direction(s) described by a vector
-
     vec_view : str, optional
         Two choices (concerning intial direction at theta=phi=0): 'zenith' (i.e. pointing above) or 
         'nadir' (i.e. pointing bellow)
+    acc : float, optional
+        The tolerance for numerical errors. Default is 1e-6.
 
     Returns
     -------
     theta : float | 1-D ndarray
         The polar angle(s) in degrees, starting at z+ in the zx plane and going 
         in the trigonometric direction around the y axis
-
     phi : float | 1-D ndarray
         The azimuthal angle(s) in degrees, starting at x+ in the xy plane and going in 
         the trigonométric direction around the z axis
@@ -132,12 +132,12 @@ def vec2ang(v, vec_view='zenith'):
         v_ini_arr = np.zeros_like(v_arr)
         v_ini_arr[:,2] = 1.
         v_ini = Vector(v_ini_arr)
-        theta = np.zeros(nv, dtype=np.float64)
-        phi = np.zeros_like(theta)
+        theta = np.empty(nv, dtype=np.float64)
+        phi = theta.copy()
         
-        c1 = np.all(np.isclose(v_arr, v_ini_arr, 0., 1e-14), axis=1)
-        c_tot = np.logical_not(c1)
-        if c_tot.sum() == 0 : return theta, phi
+        c1 = np.all(np.isclose(v_arr, v_ini_arr, 0., acc), axis=1)
+        not_resolved = np.logical_not(c1)
+        if not_resolved.sum() == 0 : return theta, phi
 
         for icase in range (1, 6):
             if icase == 1:
@@ -166,17 +166,17 @@ def vec2ang(v, vec_view='zenith'):
 
             rotzy = get_rotateZ_tf(phi_bis)*get_rotateY_tf(theta_bis)
             v_ini_rotated = normalize(rotzy(v_ini, flatten=True, diag_calc=True))
-            c_tmp = np.all(np.isclose(v_arr, v_ini_rotated.to_numpy(), 0., 1e-12), axis=1)
-            c_tmp_bis = np.logical_and(c_tot, c_tmp)
+            c_tmp = np.all(np.isclose(v_arr, v_ini_rotated.to_numpy(), 0., acc), axis=1)
+            c_tmp_bis = np.logical_and(not_resolved, c_tmp)
             theta[c_tmp_bis] = theta_bis[c_tmp_bis]
             phi[c_tmp_bis] = phi_bis[c_tmp_bis]
-            c_tot = np.logical_and(c_tot, np.logical_not(c_tmp))
-            if c_tot.sum() == 0 : return theta, phi
+            not_resolved = np.logical_and(not_resolved, np.logical_not(c_tmp))
+            if not_resolved.sum() == 0 : return theta, phi
     else: # if only 1 vector
         v_ini = Vector(0., 0., 1.)
 
         # In case v = v_ini -> no rotations
-        if (np.all(np.isclose(v.to_numpy()-v_ini.to_numpy(), 0., 0., 1e-14))):
+        if (np.all(np.isclose(v.to_numpy()-v_ini.to_numpy(), 0., 0., acc))):
             return 0., 0.
         
         for icase in range (1, 6):
@@ -208,7 +208,7 @@ def vec2ang(v, vec_view='zenith'):
             rotzy = get_rotateZ_tf(phi)*get_rotateY_tf(theta)
             v_ini_rotated = normalize(rotzy(v_ini))
 
-            if (np.all(np.isclose(v.to_numpy()-v_ini_rotated.to_numpy(), 0., 0., 1e-12))):
+            if (np.all(np.isclose(v.to_numpy()-v_ini_rotated.to_numpy(), 0., 0., acc))):
                 break
         
         return theta, phi
