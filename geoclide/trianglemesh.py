@@ -10,7 +10,7 @@ import xarray as xr
 
 import geoclide.vecope as gv
 from geoclide.basic import Point, Ray, Vector
-from geoclide.constante import GAMMA2_F64, GAMMA3_F64, GAMMA5_F64, VERSION
+from geoclide.constants import GAMMA2_F64, GAMMA3_F64, GAMMA5_F64, VERSION
 from geoclide.shapes import Shape, get_intersect_dataset
 from geoclide.transform import Transform
 

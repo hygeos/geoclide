@@ -6,7 +6,7 @@ import numpy as np
 import xarray as xr
 
 from geoclide.basic import Point, Ray, Vector
-from geoclide.constante import TWO_PI
+from geoclide.constants import TWO_PI
 from geoclide.mathope import clamp, quadratic
 from geoclide.shapes import Shape, get_intersect_dataset
 from geoclide.transform import Transform, get_scale_tf

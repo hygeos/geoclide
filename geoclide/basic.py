@@ -7,7 +7,7 @@ from datetime import datetime
 import numpy as np
 import xarray as xr
 
-from geoclide.constante import GAMMA3_F64, VERSION
+from geoclide.constants import GAMMA3_F64, VERSION
 
 
 class Vector:

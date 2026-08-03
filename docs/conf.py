@@ -6,7 +6,7 @@
 import sys
 import os
 sys.path.insert(0, os.path.abspath(".."))
-from geoclide.constante import VERSION
+from geoclide.constants import VERSION
 
 
 # -- Project information -----------------------------------------------------
@@ -32,7 +32,7 @@ templates_path = ['_templates']
 
 # autodoc_default_flags = ['members', 'show-inheritance', 'special-members']
 
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '*constante.rst',
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '*constants.rst',
                     'modules.rst']
 
 autodoc_default_options = {

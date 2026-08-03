@@ -6,7 +6,7 @@ import numpy as np
 import xarray as xr
 
 from geoclide.basic import Normal, Point, Ray, Vector
-from geoclide.constante import VERSION
+from geoclide.constants import VERSION
 from geoclide.transform import Transform
 from geoclide.vecope import cross, face_forward, normalize
 

@@ -1,7 +1,7 @@
-geoclide.constante module
+geoclide.constants module
 =========================
 
-.. automodule:: geoclide.constante
+.. automodule:: geoclide.constants
    :members:
    :show-inheritance:
    :undoc-members:

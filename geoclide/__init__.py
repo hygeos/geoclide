@@ -8,7 +8,7 @@ from geoclide.basic import (
     get_common_face,
     get_common_vertices,
 )
-from geoclide.constante import (
+from geoclide.constants import (
     GAMMA2_F32,
     GAMMA2_F64,
     GAMMA3_F32,
