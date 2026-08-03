@@ -1,11 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
-import numpy as np
 import math
 
+import numpy as np
 
-def clamp(val, val_min, val_max):
+
+def clamp(val: float, val_min: float, val_max: float) -> float:
     """
     Clamps val into the range [val_min, val_max]
 
@@ -29,19 +29,30 @@ def clamp(val, val_min, val_max):
     >>> gc.clamp(4, val_min=5, val_max=11)
     5
     """
-    if (not np.isscalar(val)     or 
-        not np.isscalar(val_min) or
-        not np.isscalar(val_max) ):
-        raise ValueError('The parameters must be all scalars')
-    
-    return val_min if (val < val_min) else (val_max if (val > val_max) else val)
+    if (
+        not np.isscalar(val)
+        or not np.isscalar(val_min)
+        or not np.isscalar(val_max)
+    ):
+        raise ValueError("The parameters must be all scalars")
+
+    return val_min if val < val_min else (val_max if val > val_max else val)
 
 
-def quadratic(a, b, c):
+def quadratic(
+    a: float | np.ndarray,
+    b: float | np.ndarray,
+    c: float | np.ndarray,
+) -> tuple[
+    bool | np.ndarray,
+    float | np.ndarray | None,
+    float | np.ndarray | None,
+]:
     """
     Resolve the quadratic polynomial: ax**2 + bx + c
 
-    - where x is the quadratic polynomial variable and a, b and c the coefficients
+    - where x is the quadratic polynomial variable and a, b and c the
+      coefficients
 
     Parameters
     ----------
@@ -63,7 +74,8 @@ def quadratic(a, b, c):
 
     Notes
     -----
-    If There are 2 solutions x0 < x1. And if there is only one solution x0 = x1.
+    If There are 2 solutions x0 < x1. And if there is only one
+    solution x0 = x1.
 
     Examples
     --------
@@ -74,26 +86,26 @@ def quadratic(a, b, c):
     >>> gc.quadratic(a, b, c)
     (True, 0.0, 2.5)
     """
-    if isinstance(a, np.ndarray):        
-        #  Find quadratic discriminant
+    if isinstance(a, np.ndarray):
+        # Find quadratic discriminant
         discrim = (b * b) - (4 * a * c)
         is_solution = np.full(discrim.shape, True, dtype=bool)
 
         c1 = discrim < 0
-        rootDiscrim = np.sqrt(discrim)
+        root_discrim = np.sqrt(discrim)
 
         # Compute quadratic xi values
         q = np.zeros_like(discrim)
 
         c2 = b < 0
         not_c2 = np.logical_not(c2)
-        q[c2] = -0.5 * (b[c2] - rootDiscrim[c2])
-        q[not_c2] = -0.5 * (b[not_c2] + rootDiscrim[not_c2])
+        q[c2] = -0.5 * (b[c2] - root_discrim[c2])
+        q[not_c2] = -0.5 * (b[not_c2] + root_discrim[not_c2])
 
         x0 = np.zeros_like(discrim)
-        c3 = a!=0
+        c3 = a != 0
         not_c3 = np.logical_not(c3)
-        x0[c3] =  q[c3] / a[c3]
+        x0[c3] = q[c3] / a[c3]
         x0[not_c3] = c[not_c3] / q[not_c3]
 
         x1 = c / q
@@ -107,42 +119,48 @@ def quadratic(a, b, c):
 
         return is_solution, x0, x1
     else:
-        #  Find quadratic discriminant
+        # Find quadratic discriminant
         discrim = (b * b) - (4 * a * c)
 
-        if (discrim < 0): return False, None, None
+        if discrim < 0:
+            return False, None, None
 
-        rootDiscrim = math.sqrt(discrim)
+        root_discrim = math.sqrt(discrim)
 
         # Compute quadratic xi values
-        if (b < 0): q = -0.5 * (b - rootDiscrim)
-        else: q = -0.5 * (b + rootDiscrim)
+        if b < 0:
+            q = -0.5 * (b - root_discrim)
+        else:
+            q = -0.5 * (b + root_discrim)
 
-        if (a != 0): x0 = q / a
-        else: x0 = c / q
+        if a != 0:
+            x0 = q / a
+        else:
+            x0 = c / q
 
         x1 = c / q
 
-        if (x0 > x1): x0, x1 = x1, x0
+        if x0 > x1:
+            x0, x1 = x1, x0
 
         return True, x0, x1
 
 
-def gamma_f32(n):
+def gamma_f32(n: float | np.ndarray) -> float | np.ndarray:
     """
     :meta private:
 
     Gamma function from pbrt v3
     """
     epsi = np.finfo(np.float32).eps * 0.5
-    return (n*epsi)/(1 - n*epsi)
+    return (n * epsi) / (1 - n * epsi)
 
 
-def gamma_f64(n):
+def gamma_f64(n: float | np.ndarray) -> float | np.ndarray:
     """
     :meta private:
 
     Gamma function from pbrt v3 but in double precision
     """
     epsi = np.finfo(np.float64).eps * 0.5
-    return (n*epsi)/(1 - n*epsi)
+    return (n * epsi) / (1 - n * epsi)
