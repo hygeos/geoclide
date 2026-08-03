@@ -19,11 +19,11 @@ def test_get_translate_tf(v_arr):
     m[1,-1] = v_arr[1]
     m[2,-1] = v_arr[2]
     assert (np.all(t.m == m))
-    mInv = np.identity(4)
-    mInv[0,-1] = -v_arr[0]
-    mInv[1,-1] = -v_arr[1]
-    mInv[2,-1] = -v_arr[2]
-    assert (np.all(t.mInv == mInv))
+    m_inv = np.identity(4)
+    m_inv[0,-1] = -v_arr[0]
+    m_inv[1,-1] = -v_arr[1]
+    m_inv[2,-1] = -v_arr[2]
+    assert (np.all(t.m_inv == m_inv))
 
 
 @pytest.mark.parametrize('v_arr', V2)
@@ -34,16 +34,16 @@ def test_get_scale_tf(v_arr):
     m[1,1] = v_arr[1]
     m[2,2] = v_arr[2]
     assert (np.all(t.m == m))
-    mInv = np.identity(4)
-    mInv[0,0] = 1 * (1/v_arr[0])
-    mInv[1,1] = 1 * (1/v_arr[1])
-    mInv[2,2] = 1 * (1/v_arr[2])
-    assert (np.all(t.mInv == mInv))
+    m_inv = np.identity(4)
+    m_inv[0,0] = 1 * (1/v_arr[0])
+    m_inv[1,1] = 1 * (1/v_arr[1])
+    m_inv[2,2] = 1 * (1/v_arr[2])
+    assert (np.all(t.m_inv == m_inv))
 
 
 @pytest.mark.parametrize('angle', ANGLES)
-def test_get_rotateX_tf(angle):
-    t = gc.get_rotateX_tf(angle)
+def test_get_rotate_x_tf(angle):
+    t = gc.get_rotate_x_tf(angle)
     sin_t = math.sin(angle*(math.pi / 180.))
     cos_t = math.cos(angle*(math.pi / 180.))
     m = np.identity(4)
@@ -52,13 +52,13 @@ def test_get_rotateX_tf(angle):
     m[2,1] = sin_t
     m[2,2] = cos_t
     assert (np.all(t.m == m))
-    mInv = np.transpose(m)
-    assert (np.all(t.mInv == mInv))
+    m_inv = np.transpose(m)
+    assert (np.all(t.m_inv == m_inv))
 
 
 @pytest.mark.parametrize('angle', ANGLES)
-def test_get_rotateY_tf(angle):
-    t = gc.get_rotateY_tf(angle)
+def test_get_rotate_y_tf(angle):
+    t = gc.get_rotate_y_tf(angle)
     sin_t = math.sin(angle*(math.pi / 180.))
     cos_t = math.cos(angle*(math.pi / 180.))
     m = np.identity(4)
@@ -67,13 +67,13 @@ def test_get_rotateY_tf(angle):
     m[0,2] = sin_t
     m[2,2] = cos_t
     assert (np.all(t.m == m))
-    mInv = np.transpose(m)
-    assert (np.all(t.mInv == mInv))
+    m_inv = np.transpose(m)
+    assert (np.all(t.m_inv == m_inv))
 
 
 @pytest.mark.parametrize('angle', ANGLES)
-def test_get_rotateZ_tf(angle):
-    t = gc.get_rotateZ_tf(angle)
+def test_get_rotate_z_tf(angle):
+    t = gc.get_rotate_z_tf(angle)
     sin_t = math.sin(angle*(math.pi / 180.))
     cos_t = math.cos(angle*(math.pi / 180.))
     m = np.identity(4)
@@ -82,29 +82,29 @@ def test_get_rotateZ_tf(angle):
     m[1,0] = sin_t
     m[1,1] = cos_t
     assert (np.all(t.m == m))
-    mInv = np.transpose(m)
-    assert (np.all(t.mInv == mInv))
+    m_inv = np.transpose(m)
+    assert (np.all(t.m_inv == m_inv))
 
 
 @pytest.mark.parametrize('angle', ANGLES)
 def test_get_rotate_tf_1(angle):
     v_x = gc.Vector(1., 0., 0.)
-    tx = gc.get_rotateX_tf(angle)
+    tx = gc.get_rotate_x_tf(angle)
     t = gc.get_rotate_tf(angle, v_x)
     assert (np.all(tx.m == t.m))
-    assert (np.all(tx.mInv == t.mInv))
+    assert (np.all(tx.m_inv == t.m_inv))
 
     v_y = gc.Vector(0., 1., 0.)
-    ty = gc.get_rotateY_tf(angle)
+    ty = gc.get_rotate_y_tf(angle)
     t = gc.get_rotate_tf(angle, v_y)
     assert (np.all(ty.m == t.m))
-    assert (np.all(ty.mInv == t.mInv))
+    assert (np.all(ty.m_inv == t.m_inv))
 
     v_z = gc.Vector(0., 0., 1.)
-    tz = gc.get_rotateZ_tf(angle)
+    tz = gc.get_rotate_z_tf(angle)
     t = gc.get_rotate_tf(angle, v_z)
     assert (np.all(tz.m == t.m))
-    assert (np.all(tz.mInv == t.mInv))
+    assert (np.all(tz.m_inv == t.m_inv))
 
 
 @pytest.mark.parametrize('angle', ANGLES)
@@ -127,14 +127,14 @@ def test_get_rotate_tf_2(angle, v_arr):
     matC = matB.dot(matB)
     m[0:3,0:3] = (matA + matB*sin_t + matC*(1-cos_t))
     assert (np.allclose(t.m, m, rtol=0., atol=1e-15))
-    mInv = np.transpose(m)
-    assert (np.allclose(t.mInv, mInv, rtol=0., atol=1e-15))
+    m_inv = np.transpose(m)
+    assert (np.allclose(t.m_inv, m_inv, rtol=0., atol=1e-15))
 
 
 def test_transform():
     t1 = gc.Transform()
     assert (np.all(t1.m == np.identity(4)))
-    assert (np.all(t1.mInv == np.identity(4)))
+    assert (np.all(t1.m_inv == np.identity(4)))
 
     t2 = gc.get_translate_tf(gc.Vector(5., 5., 5.))
     p1 = gc.Point(0., 0., 0.)
@@ -241,14 +241,14 @@ def test_get_translate_tf_arr():
     v_set = gc.Vector(v_arr)
     multi_tf = gc.get_translate_tf(v_set)
     mtf_m = multi_tf.m
-    mtf_mInv = multi_tf.mInv
+    mtf_mInv = multi_tf.m_inv
 
     mf_m = np.zeros_like(mtf_m)
     mf_mInv = np.zeros_like(mtf_mInv)
     for i in range (0, 2):
         tfi = gc.get_translate_tf(gc.Vector(v_arr[i,:]))
         mf_m[i,:,:] = tfi.m
-        mf_mInv[i,:,:] = tfi.mInv
+        mf_mInv[i,:,:] = tfi.m_inv
     assert (np.all(mtf_m == mf_m))
     assert (np.all(mtf_mInv == mf_mInv))
 
@@ -258,62 +258,62 @@ def test_get_scale_tf_arr():
     v_set = gc.Vector(v_arr)
     multi_tf = gc.get_scale_tf(v_set)
     mtf_m = multi_tf.m
-    mtf_mInv = multi_tf.mInv
+    mtf_mInv = multi_tf.m_inv
 
     mf_m = np.zeros_like(mtf_m)
     mf_mInv = np.zeros_like(mtf_mInv)
     for i in range (0, 2):
         tfi = gc.get_scale_tf(gc.Vector(v_arr[i,:]))
         mf_m[i,:,:] = tfi.m
-        mf_mInv[i,:,:] = tfi.mInv
+        mf_mInv[i,:,:] = tfi.m_inv
     assert (np.all(mtf_m == mf_m))
     assert (np.all(mtf_mInv == mf_mInv))
 
 
-def test_get_rotateX_tf_arr():
+def test_get_rotate_x_tf_arr():
     angles = np.array([45, 78, 115])
-    multi_tf = gc.get_rotateX_tf(angles)
+    multi_tf = gc.get_rotate_x_tf(angles)
     mtf_m = multi_tf.m
-    mtf_mInv = multi_tf.mInv
+    mtf_mInv = multi_tf.m_inv
 
     mf_m = np.zeros_like(mtf_m)
     mf_mInv = np.zeros_like(mtf_m)
     for i in range (0, 3):
-        tfi = gc.get_rotateX_tf(angles[i])
+        tfi = gc.get_rotate_x_tf(angles[i])
         mf_m[i,:,:] = tfi.m
-        mf_mInv[i,:,:] = tfi.mInv
+        mf_mInv[i,:,:] = tfi.m_inv
     assert (np.allclose(mtf_m, mf_m, 0., 1e-15))
     assert (np.allclose(mtf_mInv, mf_mInv, 0., 1e-15))
 
 
-def test_get_rotateY_tf_arr():
+def test_get_rotate_y_tf_arr():
     angles = np.array([45, 78, 115])
-    multi_tf = gc.get_rotateY_tf(angles)
+    multi_tf = gc.get_rotate_y_tf(angles)
     mtf_m = multi_tf.m
-    mtf_mInv = multi_tf.mInv
+    mtf_mInv = multi_tf.m_inv
 
     mf_m = np.zeros_like(mtf_m)
     mf_mInv = np.zeros_like(mtf_m)
     for i in range (0, 3):
-        tfi = gc.get_rotateY_tf(angles[i])
+        tfi = gc.get_rotate_y_tf(angles[i])
         mf_m[i,:,:] = tfi.m
-        mf_mInv[i,:,:] = tfi.mInv
+        mf_mInv[i,:,:] = tfi.m_inv
     assert (np.allclose(mtf_m, mf_m, 0., 1e-15))
     assert (np.allclose(mtf_mInv, mf_mInv, 0., 1e-15))
 
 
-def test_get_rotateZ_tf_arr():
+def test_get_rotate_z_tf_arr():
     angles = np.array([45, 78, 115])
-    multi_tf = gc.get_rotateZ_tf(angles)
+    multi_tf = gc.get_rotate_z_tf(angles)
     mtf_m = multi_tf.m
-    mtf_mInv = multi_tf.mInv
+    mtf_mInv = multi_tf.m_inv
 
     mf_m = np.zeros_like(mtf_m)
     mf_mInv = np.zeros_like(mtf_m)
     for i in range (0, 3):
-        tfi = gc.get_rotateZ_tf(angles[i])
+        tfi = gc.get_rotate_z_tf(angles[i])
         mf_m[i,:,:] = tfi.m
-        mf_mInv[i,:,:] = tfi.mInv
+        mf_mInv[i,:,:] = tfi.m_inv
     assert (np.allclose(mtf_m, mf_m, 0., 1e-15))
     assert (np.allclose(mtf_mInv, mf_mInv, 0., 1e-15))
 
@@ -324,14 +324,14 @@ def test_get_rotate_tf_arr1():
     angles = np.array([45, 78])
     multi_tf = gc.get_rotate_tf(angles, v, diag_calc=True)
     mtf_m = multi_tf.m
-    mtf_mInv = multi_tf.mInv
+    mtf_mInv = multi_tf.m_inv
 
     mf_m = np.zeros_like(mtf_m)
     mf_mInv = np.zeros_like(mtf_m)
     for i in range (0, 2):
         tfi = gc.get_rotate_tf(angles[i], v)
         mf_m[i,:,:] = tfi.m
-        mf_mInv[i,:,:] = tfi.mInv
+        mf_mInv[i,:,:] = tfi.m_inv
     assert (np.allclose(mtf_m, mf_m, 0., 1e-15))
     assert (np.allclose(mtf_mInv, mf_mInv, 0., 1e-15))
 
@@ -342,14 +342,14 @@ def test_get_rotate_tf_arr2():
     angle = 45
     multi_tf = gc.get_rotate_tf(angle, v_set, diag_calc=True)
     mtf_m = multi_tf.m
-    mtf_mInv = multi_tf.mInv
+    mtf_mInv = multi_tf.m_inv
 
     mf_m = np.zeros_like(mtf_m)
     mf_mInv = np.zeros_like(mtf_m)
     for i in range (0, 2):
         tfi = gc.get_rotate_tf(angle, gc.Vector(v_arr[i,:]))
         mf_m[i,:,:] = tfi.m
-        mf_mInv[i,:,:] = tfi.mInv
+        mf_mInv[i,:,:] = tfi.m_inv
     assert (np.allclose(mtf_m, mf_m, 0., 1e-15))
     assert (np.allclose(mtf_mInv, mf_mInv, 0., 1e-15))
 
@@ -360,14 +360,14 @@ def test_get_rotate_tf_diag():
     angles = np.array([45, 78])
     multi_tf = gc.get_rotate_tf(angles, v_set, diag_calc=True)
     mtf_m = multi_tf.m
-    mtf_mInv = multi_tf.mInv
+    mtf_mInv = multi_tf.m_inv
 
     mf_m = np.zeros_like(mtf_m)
     mf_mInv = np.zeros_like(mtf_m)
     for i in range (0, 2):
         tfi = gc.get_rotate_tf(angles[i], gc.Vector(v_arr[i,:]))
         mf_m[i,:,:] = tfi.m
-        mf_mInv[i,:,:] = tfi.mInv
+        mf_mInv[i,:,:] = tfi.m_inv
     assert (np.allclose(mtf_m, mf_m, 0., 1e-15))
     assert (np.allclose(mtf_mInv, mf_mInv, 0., 1e-15))
 
@@ -378,7 +378,7 @@ def test_flatten_tf_1d_arr1():
     tr_arr[:,0] = 1
     tr_arr[:,1] = 2
     tr_arr[:,2] = 3
-    multi_tf = gc.get_translate_tf(gc.Vector(tr_arr))*gc.get_rotateY_tf(angles)
+    multi_tf = gc.get_translate_tf(gc.Vector(tr_arr))*gc.get_rotate_y_tf(angles)
     v_arr = np.array([1.,2.,3.])
     p_arr = np.array([1.,1.,1.])
     v = gc.Vector(v_arr)
@@ -409,7 +409,7 @@ def test_flatten_tf_1d_arr1():
 
 def test_flatten_tf_1d_arr2():
     angle = 45.
-    tf = gc.get_translate_tf(gc.Vector(1,2,3))*gc.get_rotateY_tf(angle)
+    tf = gc.get_translate_tf(gc.Vector(1,2,3))*gc.get_rotate_y_tf(angle)
     v_arr = np.array([[1.,2.,3.], [0.5,5.,1.]])
     p_arr = np.array([[1.,1.,1.], [5.,1.,1.]])
     v = gc.Vector(v_arr)
@@ -437,7 +437,7 @@ def test_flatten_tf_2d_arr():
     tr_arr[:,0] = 1
     tr_arr[:,1] = 2
     tr_arr[:,2] = 3
-    multi_tf = gc.get_translate_tf(gc.Vector(tr_arr))*gc.get_rotateY_tf(angles)
+    multi_tf = gc.get_translate_tf(gc.Vector(tr_arr))*gc.get_rotate_y_tf(angles)
     v_arr = np.array([[1.,2.,3.], [0.5,5.,1.]])
     p_arr = np.array([[1.,1.,1.], [5.,1.,1.]])
     v = gc.Vector(v_arr)
@@ -474,7 +474,7 @@ def test_flatten_tf_diag():
     tr_arr[:,0] = 1
     tr_arr[:,1] = 2
     tr_arr[:,2] = 3
-    multi_tf = gc.get_translate_tf(gc.Vector(tr_arr))*gc.get_rotateY_tf(angles)
+    multi_tf = gc.get_translate_tf(gc.Vector(tr_arr))*gc.get_rotate_y_tf(angles)
     v_arr = np.array([[1.,2.,3.], [0.5,5.,1.]])
     p_arr = np.array([[1.,1.,1.], [5.,1.,1.]])
     v = gc.Vector(v_arr)

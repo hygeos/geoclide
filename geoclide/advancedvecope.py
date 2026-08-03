@@ -3,7 +3,7 @@
 
 from geoclide.basic import Vector
 from geoclide.vecope import normalize
-from geoclide.transform import get_rotateY_tf, get_rotateZ_tf
+from geoclide.transform import get_rotate_y_tf, get_rotate_z_tf
 from geoclide.mathope import clamp
 import numpy as np
 import math
@@ -64,8 +64,8 @@ def ang2vec(theta, phi, vec_view='zenith', diag_calc=False):
     if isinstance(theta, np.ndarray) or isinstance(phi, np.ndarray): flatten = True
     else : flatten = False
 
-    v = get_rotateY_tf(theta)(v, flatten=flatten)
-    v = get_rotateZ_tf(phi)(v, flatten=flatten, diag_calc=diag_calc)
+    v = get_rotate_y_tf(theta)(v, flatten=flatten)
+    v = get_rotate_z_tf(phi)(v, flatten=flatten, diag_calc=diag_calc)
     v = normalize(v)
     
     return v
@@ -166,7 +166,7 @@ def vec2ang(v, vec_view='zenith', acc=1e-6):
                 warn('No rotation has been found for some (or all) vectors!', Warning)
                 return theta, phi
 
-            rotzy = get_rotateZ_tf(phi_bis)*get_rotateY_tf(theta_bis)
+            rotzy = get_rotate_z_tf(phi_bis)*get_rotate_y_tf(theta_bis)
             v_ini_rotated = normalize(rotzy(v_ini, flatten=True, diag_calc=True))
             c_tmp = np.all(np.isclose(v_arr, v_ini_rotated.to_numpy(), 0., acc), axis=1)
             c_tmp_bis = np.logical_and(not_resolved, c_tmp)
@@ -207,7 +207,7 @@ def vec2ang(v, vec_view='zenith', acc=1e-6):
             
             theta = math.degrees(roty_rad)
             phi = math.degrees(rotz_rad)
-            rotzy = get_rotateZ_tf(phi)*get_rotateY_tf(theta)
+            rotzy = get_rotate_z_tf(phi)*get_rotate_y_tf(theta)
             v_ini_rotated = normalize(rotzy(v_ini))
 
             if (np.all(np.isclose(v.to_numpy()-v_ini_rotated.to_numpy(), 0., 0., acc))):

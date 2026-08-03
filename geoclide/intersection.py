@@ -125,11 +125,11 @@ def calc_intersection(shape, r, **kwargs):
     if (not isinstance(shape, BBox)):
         ds['wTo_m'] = xr.DataArray(shape.wTo.m)
         ds['wTo_m'].attrs = {'description':'the transformation matrix of the ' + str(ds.attrs['shape']).lower() + ' wTo attribut'}
-        ds['wTo_mInv'] = xr.DataArray(shape.wTo.mInv)
+        ds['wTo_mInv'] = xr.DataArray(shape.wTo.m_inv)
         ds['wTo_mInv'].attrs = {'description':'the inverse transformation matrix of the ' + str(ds.attrs['shape']).lower() + ' wTo attribut'}
         ds['oTw_m'] = xr.DataArray(shape.oTw.m)
         ds['oTw_m'].attrs = {'description':'the transformation matrix of the ' + str(ds.attrs['shape']).lower() + ' oTw attribut'}
-        ds['oTw_mInv'] = xr.DataArray(shape.oTw.mInv)
+        ds['oTw_mInv'] = xr.DataArray(shape.oTw.m_inv)
         ds['oTw_mInv'].attrs = {'description':'the inverse transformation matrix of the ' + str(ds.attrs['shape']).lower() +' oTw attribut'}
 
     return ds

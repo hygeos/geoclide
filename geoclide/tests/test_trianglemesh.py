@@ -53,7 +53,7 @@ def test_triangle_transform():
     p1 = gc.Point(0.5, 0.5, 0.)
     p2 = gc.Point(0.5, -0.5, 0.)
 
-    oTw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotateY_tf(45.)
+    oTw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotate_y_tf(45.)
     tri = gc.Triangle(p0, p1, p2, oTw=oTw)
     assert (tri.area() == 0.5)
 
@@ -106,7 +106,7 @@ def test_triangle_mesh():
     faces = np.array([[0, 1, 2],                   # vertices index of T0
                       [2, 3, 1]], dtype=np.int32)  # vertices index of T1
 
-    oTw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotateY_tf(45.)
+    oTw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotate_y_tf(45.)
     tri_mesh = gc.TriangleMesh(vertices=vertices, faces=faces, oTw=oTw)
     assert (tri_mesh.area() == 1.)
 
