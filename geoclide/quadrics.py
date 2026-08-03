@@ -29,28 +29,28 @@ class Sphere(Shape):
         The maximum z value of the sphere where z1 is between [0, radius]
     phi_max : float, optional
         The maximum phi value in degrees of the sphere, where phi is between 0 and 360°
-    oTw : Transform, optional
+    otw : Transform, optional
         From object to world space or the transformation applied to the sphere
-    wTo : Transform, optional
+    wto : Transform, optional
         From world to object space or the in inverse transformation applied to the sphere
     '''
-    def __init__(self, radius, z_min=None, z_max=None, phi_max=360., oTw=None, wTo=None):
+    def __init__(self, radius, z_min=None, z_max=None, phi_max=360., otw=None, wto=None):
         if z_min is None: z_min = -radius
         if z_max is None: z_max = radius
         if z_max < z_min : raise ValueError ('zmax must be greater than zmin')
         if (phi_max < 0. or phi_max > 360.):
             raise ValueError ('The value of the parameter phi_max must in the range: [0, 360]')
-        if wTo is None and oTw is None:
-            wTo = Transform()
-            oTw = Transform()
-        elif (wTo is None and isinstance(oTw, Transform)): wTo = oTw.inverse()
-        elif (isinstance(wTo, Transform) and oTw is None): oTw = wTo.inverse()
+        if wto is None and otw is None:
+            wto = Transform()
+            otw = Transform()
+        elif (wto is None and isinstance(otw, Transform)): wto = otw.inverse()
+        elif (isinstance(wto, Transform) and otw is None): otw = wto.inverse()
         if (not np.isscalar(radius) or
             not np.isscalar(z_min)  or
             not np.isscalar(z_max)  or
             not np.isscalar(phi_max) ):
             raise ValueError('The parameters radius, z_min, z_max and phi_max must be all scalars')
-        Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
+        Shape.__init__(self, object_to_world = otw, world_to_object = wto)
         self.radius = radius
         self.zmin = clamp(z_min, -self.radius, self.radius)
         self.zmax = clamp(z_max, -self.radius, self.radius)
@@ -89,8 +89,8 @@ class Sphere(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo(r.o)
-        ray.d = self.wTo(r.d)
+        ray.o = self.wto(r.o)
+        ray.d = self.wto(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -297,8 +297,8 @@ class Sphere(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo(r.o)
-        ray.d = self.wTo(r.d)
+        ray.o = self.wto(r.o)
+        ray.d = self.wto(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -374,7 +374,7 @@ class Sphere(Shape):
                 is_intersection[c7] = False
                 thit[c7] = None
 
-                out = sh_name, r, thit, is_intersection, u, v, self.oTw(dpdu).to_numpy(), self.oTw(dpdv).to_numpy(), False
+                out = sh_name, r, thit, is_intersection, u, v, self.otw(dpdu).to_numpy(), self.otw(dpdv).to_numpy(), False
                 if ds_output : return get_intersect_dataset(*out)
                 else : return out
         else:
@@ -442,7 +442,7 @@ class Sphere(Shape):
             dpdu = Vector(-phi_max_rad * phit.y, phi_max_rad * phit.x, 0)
             dpdv = (self.theta_max-self.theta_min) * Vector(phit.z*cosphi, phit.z*sinphi, -self.radius*math.sin(theta)) 
 
-            out = sh_name, r, thit, True, u, v, self.oTw(dpdu).to_numpy(), self.oTw(dpdv).to_numpy(), False
+            out = sh_name, r, thit, True, u, v, self.otw(dpdu).to_numpy(), self.otw(dpdv).to_numpy(), False
             if ds_output : return get_intersect_dataset(*out)
             else : return out
 
@@ -476,7 +476,7 @@ class Sphere(Shape):
         theta_min = min(theta_zmin, theta_zmax)
         theta_max = max(theta_zmin, theta_zmax)
         return create_sphere_trianglemesh(self.radius, reso_theta, reso_phi, theta_min, theta_max,
-                                          self.phi_max, self.oTw, self.wTo)
+                                          self.phi_max, self.otw, self.wto)
     
     def plot(self, **kwargs):
         """
@@ -509,20 +509,20 @@ class Spheroid(Shape):
         The equatorial radius of the spheroid
     radius_z : float
         The pole radius of the spheroid (distance from center to pole along z axis)
-    oTw : Transform, optional
+    otw : Transform, optional
         From object to world space or the transformation applied to the spheroid
-    wTo : Transform, optional
+    wto : Transform, optional
         From world to object space or the in inverse transformation applied to the spheroid
     '''
-    def __init__(self, radius_xy, radius_z, oTw=None, wTo=None):
-        if wTo is None and oTw is None:
-            wTo = Transform()
-            oTw = Transform()
-        elif (wTo is None and isinstance(oTw, Transform)): wTo = oTw.inverse()
-        elif (isinstance(wTo, Transform) and oTw is None): oTw = wTo.inverse()
+    def __init__(self, radius_xy, radius_z, otw=None, wto=None):
+        if wto is None and otw is None:
+            wto = Transform()
+            otw = Transform()
+        elif (wto is None and isinstance(otw, Transform)): wto = otw.inverse()
+        elif (isinstance(wto, Transform) and otw is None): otw = wto.inverse()
         if (not np.isscalar(radius_xy) or not np.isscalar(radius_z)):
             raise ValueError('The parameters alpha and gamma must be all scalars')
-        Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
+        Shape.__init__(self, object_to_world = otw, world_to_object = wto)
         self.alpha = radius_xy
         self.gamma = radius_z
         self.alpha2 = radius_xy*radius_xy
@@ -564,8 +564,8 @@ class Spheroid(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo(r.o)
-        ray.d = self.wTo(r.d)
+        ray.o = self.wto(r.o)
+        ray.d = self.wto(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -720,8 +720,8 @@ class Spheroid(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo(r.o)
-        ray.d = self.wTo(r.d)
+        ray.o = self.wto(r.o)
+        ray.d = self.wto(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -773,7 +773,7 @@ class Spheroid(Shape):
                 is_intersection[c4] = False
                 thit[c4] = None
 
-                out = sh_name, r, thit, is_intersection, u, v, self.oTw(dpdu).to_numpy(), self.oTw(dpdv).to_numpy(), False
+                out = sh_name, r, thit, is_intersection, u, v, self.otw(dpdu).to_numpy(), self.otw(dpdv).to_numpy(), False
                 if ds_output : return get_intersect_dataset(*out)
                 else : return out
         else:
@@ -823,7 +823,7 @@ class Spheroid(Shape):
             dpdu = Vector(-TWO_PI*phit.y, TWO_PI*phit.x, 0.)
             dpdv = Vector(fac*cosphi, fac*sinphi, math.pi*self.gamma*math.sin(theta))
 
-            out = sh_name, r, thit, True, u, v, self.oTw(dpdu).to_numpy(), self.oTw(dpdv).to_numpy(), False
+            out = sh_name, r, thit, True, u, v, self.otw(dpdu).to_numpy(), self.otw(dpdv).to_numpy(), False
             if ds_output : return get_intersect_dataset(*out)
             else : return out
     
@@ -865,7 +865,7 @@ class Spheroid(Shape):
         vertices_t = np.zeros((msh.nvertices,3))
         for iver in range (0, msh.nvertices):
             vertices_t[iver,:] = rescale_xyz(Point(msh.vertices[iver,:])).to_numpy()
-        return TriangleMesh(vertices_t, msh.faces, oTw=self.oTw, wTo=self.wTo)
+        return TriangleMesh(vertices_t, msh.faces, otw=self.otw, wto=self.wto)
     
     def plot(self, **kwargs):
         """
@@ -896,9 +896,9 @@ class Disk(Shape):
         The maximum phi value in degrees of the disk/annulus, where phi is between 0 and 360°
     z_height : float, optional
         the disk height along the z axis
-    oTw : Transform, optional
+    otw : Transform, optional
         From object to world space or the transformation applied to the spheroid
-    wTo : Transform, optional
+    wto : Transform, optional
         From world to object space or the in inverse transformation applied to the spheroid
     
     Notes
@@ -908,20 +908,20 @@ class Disk(Shape):
     we be rotated from (0.,0.,0.), meaning the disk we be moved from position (0.,0.,5.) to
     (5.,0.,0.).
     '''
-    def __init__(self, radius, inner_radius=0., phi_max=360., z_height=0., oTw=None, wTo=None):
-        if wTo is None and oTw is None:
-            wTo = Transform()
-            oTw = Transform()
+    def __init__(self, radius, inner_radius=0., phi_max=360., z_height=0., otw=None, wto=None):
+        if wto is None and otw is None:
+            wto = Transform()
+            otw = Transform()
         if (phi_max < 0. or phi_max > 360.):
             raise ValueError ('The value of the parameter phi_max must in the range: [0, 360]')
-        elif (wTo is None and isinstance(oTw, Transform)): wTo = oTw.inverse()
-        elif (isinstance(wTo, Transform) and oTw is None): oTw = wTo.inverse()
+        elif (wto is None and isinstance(otw, Transform)): wto = otw.inverse()
+        elif (isinstance(wto, Transform) and otw is None): otw = wto.inverse()
         if (inner_radius >= radius): raise NameError ('The parameter inner_radius must be < to radius')
         if (not np.isscalar(radius)): raise ValueError('The parameters radius must be a scalar')
         if (not np.isscalar(inner_radius)): raise ValueError('The parameters inner_radius must be a scalar')
         if (not np.isscalar(phi_max)): raise ValueError('The parameters phi_max must be a scalar')
         if (not np.isscalar(z_height)): raise ValueError('The parameters z_height must be a scalar')
-        Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
+        Shape.__init__(self, object_to_world = otw, world_to_object = wto)
         self.radius = radius
         self.inner_radius = inner_radius
         self.phi_max = phi_max
@@ -961,8 +961,8 @@ class Disk(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo(r.o)
-        ray.d = self.wTo(r.d)
+        ray.o = self.wto(r.o)
+        ray.d = self.wto(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -1101,8 +1101,8 @@ class Disk(Shape):
         is_r_arr = isinstance(r.o.x, np.ndarray)
         if is_r_arr: nrays = len(r.o.x)
         ray = Ray(r)
-        ray.o = self.wTo(r.o)
-        ray.d = self.wTo(r.d)
+        ray.o = self.wto(r.o)
+        ray.d = self.wto(r.d)
 
         if is_r_arr:
             with np.errstate(divide='ignore', invalid='ignore'):
@@ -1143,8 +1143,8 @@ class Disk(Shape):
                 is_intersection[c6] = False
                 thit[c6] = None
 
-                out = sh_name, r, thit, is_intersection, u, v, self.oTw(dpdu).to_numpy(), \
-                    self.oTw(dpdv).to_numpy(), False
+                out = sh_name, r, thit, is_intersection, u, v, self.otw(dpdu).to_numpy(), \
+                    self.otw(dpdv).to_numpy(), False
                 if ds_output : return get_intersect_dataset(*out)
                 else : return out
         else:
@@ -1188,7 +1188,7 @@ class Disk(Shape):
             dpdu = Vector(-phi_max_rad*phit.y, phi_max_rad*phit.x, 0.)
             dpdv = Vector(phit.x, phit.y, 0.) * ( (self.inner_radius-self.radius)/hit_radius )
 
-            out = sh_name, r, thit, True, u, v, self.oTw(dpdu).to_numpy(), self.oTw(dpdv).to_numpy(), False
+            out = sh_name, r, thit, True, u, v, self.otw(dpdu).to_numpy(), self.otw(dpdv).to_numpy(), False
             if ds_output : return get_intersect_dataset(*out)
             else : return out
     
@@ -1216,7 +1216,7 @@ class Disk(Shape):
             The disk converted to a triangle mesh
         """
         return create_disk_trianglemesh(self.radius, self.inner_radius, reso, self.phi_max,
-                                        self.z_height, self.oTw, self.wTo)
+                                        self.z_height, self.otw, self.wto)
     
     def plot(self, **kwargs):
         """

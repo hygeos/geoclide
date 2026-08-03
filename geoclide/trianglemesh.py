@@ -26,9 +26,9 @@ class Triangle(Shape):
         The second point(s) of the triangle(s)
     p2 : Point
         The the third point(s) of the triangle(s)
-    oTw : Transform, optional
+    otw : Transform, optional
         From object to world space or the transformation applied to the triangle
-    wTo : Transform, optional
+    wto : Transform, optional
         From world to object space or the in inverse transformation applied to the triangle
     p0t : Point, optional
         If given circumvent the automatically computed p0t (p0 after applying transformation)
@@ -37,25 +37,25 @@ class Triangle(Shape):
     p2t : Point, optional
         If given circumvent the automatically computed p2t (p2 after applying transformation)
     '''
-    def __init__(self, p0=None, p1=None, p2=None, oTw=None, wTo=None,
+    def __init__(self, p0=None, p1=None, p2=None, otw=None, wto=None,
                  p0t=None, p1t=None, p2t=None):
         # Manage None cases
         if p0 is None : p0 = Point()
         if p1 is None : p1 = Point()
         if p2 is None : p2 = Point()
-        if oTw is None and wTo is None:
-            oTw = Transform()
-            wTo = Transform()
+        if otw is None and wto is None:
+            otw = Transform()
+            wto = Transform()
             self.p0t = p0
             self.p1t = p1
             self.p2t = p2
-        elif ( (oTw is None or isinstance(oTw, Transform)) and
-               (wTo is None or isinstance(wTo, Transform)) ):
-            if (oTw is None): oTw = wTo.inverse() # if oTw is None then wTo should be Transform
-            if (wTo is None): wTo = oTw.inverse() # if wTo is None then oTw should be Transform
-            if (p0t is None): self.p0t = oTw(p0)
-            if (p1t is None): self.p1t = oTw(p1)
-            if (p2t is None): self.p2t = oTw(p2)
+        elif ( (otw is None or isinstance(otw, Transform)) and
+               (wto is None or isinstance(wto, Transform)) ):
+            if (otw is None): otw = wto.inverse() # if otw is None then wto should be Transform
+            if (wto is None): wto = otw.inverse() # if wto is None then otw should be Transform
+            if (p0t is None): self.p0t = otw(p0)
+            if (p1t is None): self.p1t = otw(p1)
+            if (p2t is None): self.p2t = otw(p2)
 
         if (not isinstance(p0, Point) or not isinstance(p1, Point) or not isinstance(p2, Point)):
             raise ValueError('The parameters p0, p1 and p2 must be all Point')
@@ -63,7 +63,7 @@ class Triangle(Shape):
              (p1t is not None and not isinstance(p1t, Point)) or
              (p2t is not None and not isinstance(p2t, Point)) ):
             raise ValueError('The parameters p0t, p1t and p2t must be all Point')
-        Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
+        Shape.__init__(self, object_to_world = otw, world_to_object = wto)
         self.p0 = p0
         self.p1 = p1
         self.p2 = p2
@@ -1665,24 +1665,24 @@ class TriangleMesh(Shape):
     faces : 2-D ndarray
         The vertices indices of triangles, a 2d ndarray of shape (ntriangles, 3).
         The 3 first indices are the vertices (p0, p1 and p3) indices of the first triangle and so on
-    oTw : Transform, optional
+    otw : Transform, optional
         From object to world space or the transformation applied to the triangle mesh
-    wTo : Transform, optional
+    wto : Transform, optional
         From world to object space or the in inverse transformation applied to the triangle mesh
     '''
-    def __init__(self, vertices, faces, oTw=None, wTo=None):
-        if wTo is None and oTw is None:
-            wTo = Transform()
-            oTw = Transform()
-        elif (wTo is None and isinstance(oTw, Transform)): wTo = oTw.inverse()
-        elif (isinstance(wTo, Transform) and oTw is None): oTw = wTo.inverse()
+    def __init__(self, vertices, faces, otw=None, wto=None):
+        if wto is None and otw is None:
+            wto = Transform()
+            otw = Transform()
+        elif (wto is None and isinstance(otw, Transform)): wto = otw.inverse()
+        elif (isinstance(wto, Transform) and otw is None): otw = wto.inverse()
         if (  not isinstance(faces, np.ndarray)                                            or
               not (len(faces.shape) == 2)                                                  or
               not (np.issubdtype(faces.dtype, int) or np.issubdtype(faces.dtype, np.integer))  ):
             raise ValueError('The parameter faces must be a 2d ndarray of intergers')
         if (  not ( isinstance(vertices, np.ndarray) )  or not ( len(vertices.shape) == 2 )  ):
             raise ValueError('The paramerter vertices must be a 2d ndarray')
-        Shape.__init__(self, ObjectToWorld = oTw, WorldToObject = wTo)
+        Shape.__init__(self, object_to_world = otw, world_to_object = wto)
         self.vertices = vertices
         self.nvertices = vertices.shape[0]
         self.faces = faces
@@ -1753,7 +1753,7 @@ class TriangleMesh(Shape):
                     p0 = Point(self.vertices[self.faces[itri,0],:])
                     p1 = Point(self.vertices[self.faces[itri,1],:])
                     p2 = Point(self.vertices[self.faces[itri,2],:])
-                    triangles[itri] = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                    triangles[itri] = Triangle(p0, p1, p2, self.otw, self.wto)
 
                 for ir in range (0, nrays):
                     ri = Ray(Point(o_set_arr[ir,:]), Vector(d_set_arr[ir,:]))
@@ -1794,7 +1794,7 @@ class TriangleMesh(Shape):
                     p0 = Point(self.vertices[self.faces[idiag,0],:])
                     p1 = Point(self.vertices[self.faces[idiag,1],:])
                     p2 = Point(self.vertices[self.faces[idiag,2],:])
-                    triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                    triangle = Triangle(p0, p1, p2, self.otw, self.wto)
                     res_bis = triangle.intersect(ri, method=method, ds_output=False)
                     thit_bis = res_bis[2]
                     is_intersection = res_bis[3]
@@ -1817,7 +1817,7 @@ class TriangleMesh(Shape):
                     p0 = Point(self.vertices[self.faces[itri,0],:])
                     p1 = Point(self.vertices[self.faces[itri,1],:])
                     p2 = Point(self.vertices[self.faces[itri,2],:])
-                    triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                    triangle = Triangle(p0, p1, p2, self.otw, self.wto)
                     res_bis = triangle.intersect(r, method=method, ds_output=False)
                     thit_bis = res_bis[2]
                     is_intersection = res_bis[3]
@@ -1830,7 +1830,7 @@ class TriangleMesh(Shape):
             p0 = Point(self.vertices[self.faces[:,0],:])
             p1 = Point(self.vertices[self.faces[:,1],:])
             p2 = Point(self.vertices[self.faces[:,2],:])
-            triangles = Triangle(p0, p1, p2, self.oTw, self.wTo)
+            triangles = Triangle(p0, p1, p2, self.otw, self.wto)
             res = self.__class__.__name__, r, None, False, None, None, None, None, False
             res_bis = triangles.intersect(r, method=method, diag_calc=diag_calc, ds_output=False)
 
@@ -1894,7 +1894,7 @@ class TriangleMesh(Shape):
                     p0 = Point(self.vertices[self.faces[itri,0],:])
                     p1 = Point(self.vertices[self.faces[itri,1],:])
                     p2 = Point(self.vertices[self.faces[itri,2],:])
-                    triangles[itri] = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                    triangles[itri] = Triangle(p0, p1, p2, self.otw, self.wto)
                 for ir in range (0, nrays):
                     ri = Ray(Point(o_set_arr[ir,:]), Vector(d_set_arr[ir,:]))
                     is_intersection = False
@@ -1913,7 +1913,7 @@ class TriangleMesh(Shape):
                     p0 = Point(self.vertices[self.faces[idiag,0],:])
                     p1 = Point(self.vertices[self.faces[idiag,1],:])
                     p2 = Point(self.vertices[self.faces[idiag,2],:])
-                    triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                    triangle = Triangle(p0, p1, p2, self.otw, self.wto)
                     is_int_1d[idiag] = triangle.is_intersection(ri, method=method)
                 return is_int_1d
             else: # nrays == 1 and ntriangles >= 1
@@ -1922,14 +1922,14 @@ class TriangleMesh(Shape):
                     p0 = Point(self.vertices[self.faces[itri,0],:])
                     p1 = Point(self.vertices[self.faces[itri,1],:])
                     p2 = Point(self.vertices[self.faces[itri,2],:])
-                    triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                    triangle = Triangle(p0, p1, p2, self.otw, self.wto)
                     if (triangle.is_intersection(r, method=method)): return True
                 return False
         else: # use_loop = False
             p0 = Point(self.vertices[self.faces[:,0],:])
             p1 = Point(self.vertices[self.faces[:,1],:])
             p2 = Point(self.vertices[self.faces[:,2],:])
-            triangles = Triangle(p0, p1, p2, self.oTw, self.wTo)
+            triangles = Triangle(p0, p1, p2, self.otw, self.wto)
             is_intersection = triangles.is_intersection(r, method=method, diag_calc=diag_calc)
             res_shape = is_intersection.shape
             if np.any(is_intersection):
@@ -1990,7 +1990,7 @@ class TriangleMesh(Shape):
                     p0 = Point(self.vertices[self.faces[itri,0],:])
                     p1 = Point(self.vertices[self.faces[itri,1],:])
                     p2 = Point(self.vertices[self.faces[itri,2],:])
-                    triangles[itri] = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                    triangles[itri] = Triangle(p0, p1, p2, self.otw, self.wto)
                 for ir in range (0, nrays):
                     ri = Ray(Point(o_set_arr[ir,:]), Vector(d_set_arr[ir,:]))
                     thit = float("inf")
@@ -2016,7 +2016,7 @@ class TriangleMesh(Shape):
                     p0 = Point(self.vertices[self.faces[idiag,0],:])
                     p1 = Point(self.vertices[self.faces[idiag,1],:])
                     p2 = Point(self.vertices[self.faces[idiag,2],:])
-                    triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                    triangle = Triangle(p0, p1, p2, self.otw, self.wto)
                     thit_bis, is_intersection_bis = triangle.is_intersection_t(ri, method=method)
                     if is_intersection_bis and thit > thit_bis:
                         t_1d[idiag] = thit_bis
@@ -2029,7 +2029,7 @@ class TriangleMesh(Shape):
                     p0 = Point(self.vertices[self.faces[itri,0],:])
                     p1 = Point(self.vertices[self.faces[itri,1],:])
                     p2 = Point(self.vertices[self.faces[itri,2],:])
-                    triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+                    triangle = Triangle(p0, p1, p2, self.otw, self.wto)
                     thit_bis, is_intersection_bis = triangle.is_intersection_t(r, method=method)
                     if is_intersection_bis and thit > thit_bis:
                         thit = thit_bis
@@ -2040,7 +2040,7 @@ class TriangleMesh(Shape):
             p0 = Point(self.vertices[self.faces[:,0],:])
             p1 = Point(self.vertices[self.faces[:,1],:])
             p2 = Point(self.vertices[self.faces[:,2],:])
-            triangles = Triangle(p0, p1, p2, self.oTw, self.wTo)
+            triangles = Triangle(p0, p1, p2, self.otw, self.wto)
             thit, is_intersection = triangles.is_intersection_t(r, method=method, diag_calc=diag_calc)
             if np.any(is_intersection):
                 thit_bis = thit.copy()
@@ -2081,7 +2081,7 @@ class TriangleMesh(Shape):
             p0 = Point(self.vertices[self.faces[itri,0],:])
             p1 = Point(self.vertices[self.faces[itri,1],:])
             p2 = Point(self.vertices[self.faces[itri,2],:])
-            triangle = Triangle(p0, p1, p2, self.oTw, self.wTo)
+            triangle = Triangle(p0, p1, p2, self.otw, self.wto)
             area+=triangle.area()
         return area
     
@@ -2127,8 +2127,8 @@ class TriangleMesh(Shape):
         >>> msh.plot(color='green', edgecolor='k')
         image
         """
-        if self.oTw.is_identity(): vertices = self.vertices
-        else: vertices = self.oTw(Point(self.vertices)).to_numpy()
+        if self.otw.is_identity(): vertices = self.vertices
+        else: vertices = self.otw(Point(self.vertices)).to_numpy()
 
         if ((source is None and self.ntriangles < 5000) or source == 'matplotlib'):
             fig = plt.figure()
@@ -2196,7 +2196,7 @@ class TriangleMesh(Shape):
 
 
 def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min=0., theta_max=180.,
-                               phi_max=360., oTw=None, wTo=None):
+                               phi_max=360., otw=None, wto=None):
     """
     :meta private:
 
@@ -2216,9 +2216,9 @@ def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min
         The maximum theta value in degrees (partial sphere)
     phi_max : float, optional
         The maxium phi value in degrees (partial sphere)
-    oTw : Transform, optional
+    otw : Transform, optional
         From object to world space or the transformation applied to the spheroid
-    wTo : Transform, optional
+    wto : Transform, optional
         From world to object space or the in inverse transformation applied to the spheroid
 
     Results
@@ -2233,9 +2233,9 @@ def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min
     >>> msh
     <geoclide.trianglemesh.TriangleMesh at 0x7fe3a0ea0950>
     """
-    if wTo is None and oTw is None:
-            wTo = Transform()
-            oTw = Transform()
+    if wto is None and otw is None:
+            wto = Transform()
+            otw = Transform()
     if reso_theta is None : reso_theta = max(round(theta_max/10.), 10)
     if reso_phi is None: reso_phi = max(round(theta_max/10.), 10)
     if reso_theta < 3 : raise ValueError("the value of reso_theta must >= 3")
@@ -2391,11 +2391,11 @@ def create_sphere_trianglemesh(radius, reso_theta=None, reso_phi=None, theta_min
                 faces[-reso_phi:,1]=np.full(reso_phi, ind_below) # p1
                 faces[-reso_phi:,2]=ind_below_p1                 # p2
 
-    return TriangleMesh(vertices, faces, oTw, wTo)
+    return TriangleMesh(vertices, faces, otw, wto)
 
 
 def create_disk_trianglemesh(radius, inner_radius=0., reso=None, phi_max=360., z_height=0.,
-                             oTw=None, wTo=None):
+                             otw=None, wto=None):
     """
     :meta private:
 
@@ -2413,9 +2413,9 @@ def create_disk_trianglemesh(radius, inner_radius=0., reso=None, phi_max=360., z
         The maximum phi value in degrees of the disk/annulus, where phi is between 0 and 360°
     z_height : float, optional
         the disk height along the z axis
-    oTw : Transform, optional
+    otw : Transform, optional
         From object to world space or the transformation applied to the spheroid
-    wTo : Transform, optional
+    wto : Transform, optional
         From world to object space or the in inverse transformation applied to the spheroid
 
     Results
@@ -2430,9 +2430,9 @@ def create_disk_trianglemesh(radius, inner_radius=0., reso=None, phi_max=360., z
     >>> msh
     <geoclide.trianglemesh.TriangleMesh at 0x7fa11c504940>
     """
-    if wTo is None and oTw is None:
-            wTo = Transform()
-            oTw = Transform()
+    if wto is None and otw is None:
+            wto = Transform()
+            otw = Transform()
     if reso is None : reso = max(round(phi_max/10.), 10)
     if reso < 3 : raise ValueError("the value of reso must >= 3")
 
@@ -2505,7 +2505,7 @@ def create_disk_trianglemesh(radius, inner_radius=0., reso=None, phi_max=360., z
         faces[:,1] = p1_id_t
         faces[:,2] = p2_id_t
 
-    return TriangleMesh(vertices, faces, oTw, wTo)
+    return TriangleMesh(vertices, faces, otw, wto)
 
 
 def read_gcnc_trianglemesh(path, **kwargs):

@@ -53,8 +53,8 @@ def test_triangle_transform():
     p1 = gc.Point(0.5, 0.5, 0.)
     p2 = gc.Point(0.5, -0.5, 0.)
 
-    oTw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotate_y_tf(45.)
-    tri = gc.Triangle(p0, p1, p2, oTw=oTw)
+    otw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotate_y_tf(45.)
+    tri = gc.Triangle(p0, p1, p2, otw=otw)
     assert (tri.area() == 0.5)
 
     ray = gc.Ray(o=gc.Point(0., 0., 4.8), d=gc.normalize(gc.Vector(1.,0.,0.)))
@@ -106,8 +106,8 @@ def test_triangle_mesh():
     faces = np.array([[0, 1, 2],                   # vertices index of T0
                       [2, 3, 1]], dtype=np.int32)  # vertices index of T1
 
-    oTw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotate_y_tf(45.)
-    tri_mesh = gc.TriangleMesh(vertices=vertices, faces=faces, oTw=oTw)
+    otw = gc.get_translate_tf(gc.Vector(10., 0., 5.)) * gc.get_rotate_y_tf(45.)
+    tri_mesh = gc.TriangleMesh(vertices=vertices, faces=faces, otw=otw)
     assert (tri_mesh.area() == 1.)
 
     ray = gc.Ray(o=gc.Point(0., 0., 4.8), d=gc.normalize(gc.Vector(1.,0.,0.)))
@@ -385,7 +385,7 @@ def test_triangle_2d_arr1():
 
     dimx=2
     dimy=2
-    msh = gc.Sphere(4, oTw=gc.get_translate_tf(gc.Vector(0., 3.5, 10.))).to_trianglemesh(9,18)
+    msh = gc.Sphere(4, otw=gc.get_translate_tf(gc.Vector(0., 3.5, 10.))).to_trianglemesh(9,18)
     nx = 11
     ny = 11
     n_samples = nx*ny

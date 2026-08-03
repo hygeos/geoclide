@@ -50,10 +50,10 @@ def calc_intersection(shape, r, **kwargs):
         ...               ...
         z_max            float64 8B 1.0
         phi_max          float64 8B 360.0
-        wTo_m            (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
-        wTo_mInv         (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
-        oTw_m            (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
-        oTw_mInv         (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
+        wto_m            (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
+        wto_m_inv         (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
+        otw_m            (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
+        otw_m_inv         (dim_0, dim_1) float64 128B 1.0 0.0 0.0 0.0 ... 0.0 0.0 1.0
     >>> ds_box = gc.calc_intersection(bbox, ray)
     >>> ds_bbox
     <xarray.Dataset> Size: 169B
@@ -123,13 +123,13 @@ def calc_intersection(shape, r, **kwargs):
         ds['faces'].attrs = {'description': 'For each triangle, the index of vertices point p0, p1 and p2 (from variable v).'}
         ds.attrs.update({'ntriangles': shape.ntriangles, 'nvertices' : shape.nvertices})
     if (not isinstance(shape, BBox)):
-        ds['wTo_m'] = xr.DataArray(shape.wTo.m)
-        ds['wTo_m'].attrs = {'description':'the transformation matrix of the ' + str(ds.attrs['shape']).lower() + ' wTo attribut'}
-        ds['wTo_mInv'] = xr.DataArray(shape.wTo.m_inv)
-        ds['wTo_mInv'].attrs = {'description':'the inverse transformation matrix of the ' + str(ds.attrs['shape']).lower() + ' wTo attribut'}
-        ds['oTw_m'] = xr.DataArray(shape.oTw.m)
-        ds['oTw_m'].attrs = {'description':'the transformation matrix of the ' + str(ds.attrs['shape']).lower() + ' oTw attribut'}
-        ds['oTw_mInv'] = xr.DataArray(shape.oTw.m_inv)
-        ds['oTw_mInv'].attrs = {'description':'the inverse transformation matrix of the ' + str(ds.attrs['shape']).lower() +' oTw attribut'}
+        ds['wto_m'] = xr.DataArray(shape.wto.m)
+        ds['wto_m'].attrs = {'description':'the transformation matrix of the ' + str(ds.attrs['shape']).lower() + ' wto attribut'}
+        ds['wto_m_inv'] = xr.DataArray(shape.wto.m_inv)
+        ds['wto_m_inv'].attrs = {'description':'the inverse transformation matrix of the ' + str(ds.attrs['shape']).lower() + ' wto attribut'}
+        ds['otw_m'] = xr.DataArray(shape.otw.m)
+        ds['otw_m'].attrs = {'description':'the transformation matrix of the ' + str(ds.attrs['shape']).lower() + ' otw attribut'}
+        ds['otw_m_inv'] = xr.DataArray(shape.otw.m_inv)
+        ds['otw_m_inv'].attrs = {'description':'the inverse transformation matrix of the ' + str(ds.attrs['shape']).lower() +' otw attribut'}
 
     return ds

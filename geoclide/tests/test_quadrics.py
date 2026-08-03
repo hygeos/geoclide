@@ -27,8 +27,8 @@ def test_sphere():
     ray = gc.Ray(o=origin, d=dir_to_sat)
 
     earth_radius = 6378. 
-    oTw = gc.get_translate_tf(gc.Vector(0., 0., -earth_radius))
-    sphere_sat_alti = gc.Sphere(radius=earth_radius+sat_altitude, oTw=oTw)  # apply oTw to move the sphere center to earth center
+    otw = gc.get_translate_tf(gc.Vector(0., 0., -earth_radius))
+    sphere_sat_alti = gc.Sphere(radius=earth_radius+sat_altitude, otw=otw)  # apply otw to move the sphere center to earth center
     ds_sp = gc.calc_intersection(sphere_sat_alti, ray)
 
     p = ds_sp['phit'].values
@@ -91,8 +91,8 @@ def test_disk():
 
     # 2) general cases
     roty_90 = gc.get_rotate_y_tf(90.)
-    disk = gc.Disk(radius=1.5, z_height=5., oTw=roty_90)
-    annulus = gc.Disk(radius=1.5, inner_radius=0.8, z_height=5., oTw=roty_90)
+    disk = gc.Disk(radius=1.5, z_height=5., otw=roty_90)
+    annulus = gc.Disk(radius=1.5, inner_radius=0.8, z_height=5., otw=roty_90)
     d = gc.Vector(-1.,0.,0.)
     r1 = gc.Ray(gc.Point(10.,0.,1.2), d)
     r2 = gc.Ray(gc.Point(10.,0.,0.2), d)
