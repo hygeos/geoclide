@@ -14,7 +14,7 @@ from geoclide.constants import VERSION
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 project = 'Geoclide'
-copyright = '2025, Geoclide team'
+copyright = '2025-2026, Geoclide team'
 author = 'Geoclide team'
 release = VERSION
 
