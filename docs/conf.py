@@ -22,6 +22,7 @@ release = VERSION
 
 extensions = ['sphinx.ext.todo',
               'sphinx.ext.autodoc',
+              'sphinx.ext.viewcode',
               'myst_parser',
               'nbsphinx',
               'sphinx.ext.graphviz',

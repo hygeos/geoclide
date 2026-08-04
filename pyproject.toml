@@ -37,6 +37,17 @@ dependencies = [
     "trimesh"
 ]
 
+[project.optional-dependencies]
+docs = [
+    "sphinx",
+    "pydata-sphinx-theme",
+    "myst-parser",
+    "nbsphinx",
+    "numpydoc",
+    "jupytext",
+    "nbconvert",
+]
+
 [project.urls]
 Homepage = "https://hygeos.github.io/geoclide/"
 Source = "https://github.com/hygeos/geoclide"
