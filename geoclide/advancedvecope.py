@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from warnings import warn
+import warnings
 
 import numpy as np
 
@@ -200,7 +200,7 @@ def vec2ang(
                 rotz_rad = -np.arccos(cosphi)
                 phi_bis = np.degrees(rotz_rad)
             else:
-                warn(
+                warnings.warn(
                     "No rotation has been found for some (or all) vectors!",
                     Warning,
                     stacklevel=2,
