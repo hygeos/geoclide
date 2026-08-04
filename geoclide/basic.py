@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import warnings
 from datetime import datetime
+from typing import overload
 
 import numpy as np
 import xarray as xr
@@ -259,6 +260,12 @@ class Point:
                 "Addition with a Point must be only with a Vector or"
                 " (exceptionally tolerated) another Point"
             )
+
+    @overload
+    def __sub__(self, vp2: Vector) -> Point: ...
+
+    @overload
+    def __sub__(self, vp2: Point) -> Vector: ...
 
     def __sub__(self, vp2: Vector | Point) -> Point | Vector:
         if isinstance(vp2, Vector):

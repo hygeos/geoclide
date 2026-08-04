@@ -55,6 +55,13 @@ Source = "https://github.com/hygeos/geoclide"
 [tool.setuptools]
 packages = ["geoclide"]
 
+[tool.pyright]
+# bare expressions in the notebooks are display outputs
+[[tool.pyright.executionEnvironments]]
+root = "docs/_notebooks"
+extraPaths = ["."]
+reportUnusedExpression = false
+
 [tool.ruff]
 line-length = 79
 extend-exclude = ["docs/_build"]

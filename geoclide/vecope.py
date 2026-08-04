@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from typing import overload
 
 import numpy as np
 
@@ -91,6 +92,14 @@ def cross(a: Vector | Normal, b: Vector | Normal) -> Vector:
         raise ValueError("Only 1 Normal is tolerated not 2")
     else:
         raise ValueError("Only Vector or Normal parameters are accepted")
+
+
+@overload
+def normalize(v: Vector) -> Vector: ...
+
+
+@overload
+def normalize(v: Normal) -> Normal: ...
 
 
 def normalize(v: Vector | Normal) -> Vector | Normal:
