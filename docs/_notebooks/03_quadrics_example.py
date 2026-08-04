@@ -16,7 +16,9 @@
 # # How to create and visualize quadrics
 
 # %%
-import os, sys
+import os
+import sys
+
 sys.path.insert(0, os.path.abspath(".."))
 
 import geoclide as gc

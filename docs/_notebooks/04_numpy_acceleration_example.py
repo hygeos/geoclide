@@ -16,29 +16,33 @@
 # # Acceleration with numpy
 
 # %%
-import os, sys
+import os
+import sys
+
 sys.path.insert(0, os.path.abspath(".."))
 
-import geoclide as gc
 from time import process_time
+
 import numpy as np
 
+import geoclide as gc
+
 # %% [markdown]
-# ## BBox -Ray intersection test, multiples bboxes and 1 ray
+# ## BBox - Ray intersection test, multiples bboxes and 1 ray
 
 # %%
 # Here we create 100000 bounding boxes and 1 ray
 nx = 100
 ny = 100
 nz = 10
-x = np.linspace(0., nx-1, nx, np.float64)
-y = np.linspace(0., ny-1, ny, np.float64)
-z = np.linspace(0., nz-1, nz, np.float64)
+x = np.linspace(0., nx-1, nx, dtype=np.float64)
+y = np.linspace(0., ny-1, ny, dtype=np.float64)
+z = np.linspace(0., nz-1, nz, dtype=np.float64)
 x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
 pmin_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
-x = np.linspace(1., nx, nx, np.float64)
-y = np.linspace(1., ny, ny, np.float64)
-z = np.linspace(1., nz, nz, np.float64)
+x = np.linspace(1., nx, nx, dtype=np.float64)
+y = np.linspace(1., ny, ny, dtype=np.float64)
+z = np.linspace(1., nz, nz, dtype=np.float64)
 x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
 pmax_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
 r0 = gc.Ray(gc.Point(-2., 0., 0.25), gc.normalize(gc.Vector(1, 0., 0.5)))
@@ -74,26 +78,26 @@ print("elapsed time (s) using numpy: ", end - start)
 # ## BBox - Ray intersection test, multiples bboxes and multiple rays
 
 # %% [markdown]
-# ### Case 1: for each ray, perform intersection test with all the bounding boxes
+# ### Case 1: test each ray against all the bounding boxes
 
 # %%
 # We create 400 bounding boxes and 400 rays
 nx = 20
 ny = 20
 nz = 1
-x = np.linspace(0., nx-1, nx, np.float64)
-y = np.linspace(0., ny-1, ny, np.float64)
-z = np.linspace(0., nz-1, nz, np.float64)
+x = np.linspace(0., nx-1, nx, dtype=np.float64)
+y = np.linspace(0., ny-1, ny, dtype=np.float64)
+z = np.linspace(0., nz-1, nz, dtype=np.float64)
 x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
 pmin_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
-x = np.linspace(1., nx, nx, np.float64)
-y = np.linspace(1., ny, ny, np.float64)
-z = np.linspace(1., nz, nz, np.float64)
+x = np.linspace(1., nx, nx, dtype=np.float64)
+y = np.linspace(1., ny, ny, dtype=np.float64)
+z = np.linspace(1., nz, nz, dtype=np.float64)
 x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
 pmax_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
 nboxes = pmin_arr.shape[0]
-x_, y_, z_ = np.meshgrid(np.linspace(0.5, nx-0.5, nx, np.float64),
-                        np.linspace(0.5, ny-0.5, ny, np.float64),
+x_, y_, z_ = np.meshgrid(np.linspace(0.5, nx-0.5, nx, dtype=np.float64),
+                        np.linspace(0.5, ny-0.5, ny, dtype=np.float64),
                         nz+1, indexing='ij')
 
 o_set_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
@@ -120,7 +124,8 @@ for ir in range(0, nrays):
 for ib in range (0, nboxes):
   bi = gc.BBox(gc.Point(pmin_arr[ib,:]), gc.Point(pmax_arr[ib,:]))
   for ir in range(0, nrays):
-      t0_[ib,ir], t1_[ib,ir], is_int_[ib,ir] = bi.intersect(list_rays[ir], ds_output=False)
+      t0_[ib,ir], t1_[ib,ir], is_int_[ib,ir] = bi.intersect(
+          list_rays[ir], ds_output=False)
 end = process_time()
 print("case 1 - elapsed time (s) using loops:", end-start)
 
@@ -139,26 +144,26 @@ time_fast = end-start
 print("case 1 - elapsed time (s) using numpy:", end-start)
 
 # %% [markdown]
-# ### Case 2: diagonal calculations i.e. test only between ray(i) and bbox(i)
+# ### Case 2: diagonal calculations, only ray(i) with bbox(i)
 
 # %%
 # We create 40000 bounding boxes and 40000 rays
 nx = 200
 ny = 200
 nz = 1
-x = np.linspace(0., nx-1, nx, np.float64)
-y = np.linspace(0., ny-1, ny, np.float64)
-z = np.linspace(0., nz-1, nz, np.float64)
+x = np.linspace(0., nx-1, nx, dtype=np.float64)
+y = np.linspace(0., ny-1, ny, dtype=np.float64)
+z = np.linspace(0., nz-1, nz, dtype=np.float64)
 x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
 pmin_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
-x = np.linspace(1., nx, nx, np.float64)
-y = np.linspace(1., ny, ny, np.float64)
-z = np.linspace(1., nz, nz, np.float64)
+x = np.linspace(1., nx, nx, dtype=np.float64)
+y = np.linspace(1., ny, ny, dtype=np.float64)
+z = np.linspace(1., nz, nz, dtype=np.float64)
 x_, y_, z_ = np.meshgrid(x,y,z, indexing='ij')
 pmax_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
 nboxes = pmin_arr.shape[0]
-x_, y_, z_ = np.meshgrid(np.linspace(0.5, nx-0.5, nx, np.float64),
-                        np.linspace(0.5, ny-0.5, ny, np.float64),
+x_, y_, z_ = np.meshgrid(np.linspace(0.5, nx-0.5, nx, dtype=np.float64),
+                        np.linspace(0.5, ny-0.5, ny, dtype=np.float64),
                         nz+1, indexing='ij')
 
 o_set_arr = np.vstack((x_.ravel(), y_.ravel(), z_.ravel())).T
