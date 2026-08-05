@@ -18,7 +18,7 @@ from typing import overload
 
 import numpy as np
 
-from geoclide.basic import Normal, Point, Vector
+from geoclide.basic import Normal, Point, Vector, _xyz_arrays
 
 
 def dot(a: Vector | Normal, b: Vector | Normal) -> float | np.ndarray:
@@ -194,24 +194,23 @@ def coordinate_system(v1: Vector, method: str = "m2") -> tuple[Vector, Vector]:
     # used in pbrt v2 and v3
     elif method == "m1":
         if isinstance(v1.x, np.ndarray):
-            v2 = np.zeros((len(v1.x), 3), np.float64)
-            cond = np.abs(v1.x) > np.abs(v1.y)
+            x, y, z = _xyz_arrays(v1)
+            v2_arr = np.zeros((len(x), 3), np.float64)
+            cond = np.abs(x) > np.abs(y)
             not_cond = np.logical_not(cond)
-            any_cond = np.any(cond)
-            any_not_cond = np.any(not_cond)
-            if any_cond:
-                v2[cond, 0] = (
-                    1.0 / np.sqrt(v1.x * v1.x + v1.z * v1.z)
-                ) * -v1.z
-                v2[cond, 2] = (1.0 / np.sqrt(v1.x * v1.x + v1.z * v1.z)) * v1.x
-            if any_not_cond:
-                v2[not_cond, 1] = (
-                    1.0 / np.sqrt(v1.x * v1.x + v1.z * v1.z)
-                ) * v1.z
-                v2[not_cond, 2] = (
-                    1.0 / np.sqrt(v1.x * v1.x + v1.z * v1.z)
-                ) * -v1.y
-            v2 = Vector(v2)
+            # the inverse length is computed on each subset, using the
+            # x component where |x| > |y| and the y component elsewhere
+            if np.any(cond):
+                xc, zc = x[cond], z[cond]
+                inv_len = 1.0 / np.sqrt(xc * xc + zc * zc)
+                v2_arr[cond, 0] = -zc * inv_len
+                v2_arr[cond, 2] = xc * inv_len
+            if np.any(not_cond):
+                yc, zc = y[not_cond], z[not_cond]
+                inv_len = 1.0 / np.sqrt(yc * yc + zc * zc)
+                v2_arr[not_cond, 1] = zc * inv_len
+                v2_arr[not_cond, 2] = -yc * inv_len
+            v2 = Vector(v2_arr)
         else:
             if abs(v1.x) > abs(v1.y):
                 inv_len = 1 / math.sqrt(v1.x * v1.x + v1.z * v1.z)

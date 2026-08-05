@@ -132,6 +132,25 @@ def test_coordinate_system():
     assert v2_u2 == gc.Vector(v1v2_u2.to_numpy()[1, :])
     assert v2_u3 == gc.Vector(v1v2_u3.to_numpy()[1, :])
 
+    # a set mixing the 2 cases: |x| > |y| and |x| <= |y|
+    v_list = [
+        gc.Vector(5.0, 2.0, 10.0),
+        gc.Vector(1.0, 4.0, -2.0),
+        gc.Vector(0.0, 1.0, 0.0),
+        gc.Vector(-3.0, 0.5, 1.0),
+    ]
+    v_set = gc.Vector(np.vstack([v.to_numpy() for v in v_list]))
+    for method in ["m1", "m2"]:
+        set_u2, set_u3 = gc.coordinate_system(v_set, method)
+        for iv, v in enumerate(v_list):
+            u2, u3 = gc.coordinate_system(v, method)
+            assert u2 == gc.Vector(set_u2.to_numpy()[iv, :]), (
+                "Problem with the set of vectors and method " + method
+            )
+            assert u3 == gc.Vector(set_u3.to_numpy()[iv, :]), (
+                "Problem with the set of vectors and method " + method
+            )
+
 
 def test_distance():
     p1 = gc.Point(0.0, 0.0, 0.0)
