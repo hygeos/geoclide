@@ -1,3 +1,15 @@
+"""
+Geometric transformations of the geoclide objects.
+
+This module implements the Transform class, which encapsulates a
+4x4 transformation matrix along with its inverse. A transform is
+applied by calling it directly on a Vector, Point, Normal, Ray or
+BBox, returning an object of the same nature, and two transforms
+can be combined by multiplication. Helper functions create the
+common transformations: translation, scale, and rotations around
+the x, y or z axis or around an arbitrary axis.
+"""
+
 from __future__ import annotations
 
 import math
@@ -21,10 +33,12 @@ class Transform:
 
     Parameters
     ----------
-    m : Transform | 2-D ndarray | 3-D ndarray, optional
-        The matrix of the transformation(s)
-    m_inv : Transform | 2-D ndarray | 3-D ndarray, optional
-        The inverse matrix of the transformation(s)
+    m : Transform or ndarray, optional
+        The matrix of the transformation(s), of shape (4, 4) or
+        (nt, 4, 4) for a set of nt transformations
+    m_inv : Transform or ndarray, optional
+        The inverse matrix of the transformation(s), of shape
+        (4, 4) or (nt, 4, 4) for a set of nt transformations
 
     Examples
     --------
@@ -152,7 +166,7 @@ class Transform:
 
         Parameters
         ----------
-        c : Vector | Point | Normal | Ray | BBox
+        c : Vector or Point or Normal or Ray or BBox
             The vector(s)/point(s)/normal(s)/ray(s)/bounding box(es) to
             which the transformation is applied
         diag_calc : bool, optional
@@ -162,7 +176,7 @@ class Transform:
 
         Returns
         -------
-        out : Vector | Point | Normal | Ray | BBox | 1-D array
+        Vector or Point or Normal or Ray or BBox or ndarray
             The vector(s)/point(s)/normal(s)/ray(s)/bounding box(es)
             after the application of the transformation(s). In case of
             several transformations, it returns a 1-D ndarray of dtype
@@ -448,7 +462,7 @@ class Transform:
 
         Parameters
         ----------
-        c : Vector | Point | Normal | Ray | BBox
+        c : Vector or Point or Normal or Ray or BBox
             The Vector/Point/Normal/Ray/BBox to which the
             transformation is applied
         diag_calc : bool, optional
@@ -458,11 +472,11 @@ class Transform:
 
         Returns
         -------
-        out : Vector | Point | Normal | Ray | BBox | 1-D array
+        Vector or Point or Normal or Ray or BBox or ndarray
             The Vector/Point/Normal/Ray/BBox after the transformation,
             or in case several transformations are given return a 1-D
             ndarray where dtype is equal to one of the previously
-            mentionned classes.
+            mentioned classes.
 
         Examples
         --------
@@ -500,7 +514,7 @@ class Transform:
 
         Returns
         -------
-        out : Transform
+        Transform
             The inversed transformation(s)
         """
         return get_inverse_tf(self)
@@ -537,7 +551,7 @@ class Transform:
 
         Returns
         -------
-        t : Transform
+        Transform
             The product of the self transformation(s) and the translate
             transformation(s)
 
@@ -575,7 +589,7 @@ class Transform:
 
         Returns
         -------
-        t : Transform
+        Transform
             The product of the self transformation(s) and the scale
             transformation(s) matrices
         """
@@ -589,13 +603,13 @@ class Transform:
 
         Parameters
         ----------
-        angle : float | 1-D ndarray
+        angle : float or ndarray
             The angle(s) in degrees for the rotation(s) around the x
-            axis
+            axis. In case of an ndarray, it must be 1-D
 
         Returns
         -------
-        t : Transform
+        Transform
             The product of the self transformation(s) and the rotate_x
             transformation(s) matrices
         """
@@ -609,13 +623,13 @@ class Transform:
 
         Parameters
         ----------
-        angle : float | 1-D ndarray
+        angle : float or ndarray
             The angle(s) in degrees for the rotation(s) around the y
-            axis
+            axis. In case of an ndarray, it must be 1-D
 
         Returns
         -------
-        t : Transform
+        Transform
             The product of the self transformation(s) and the rotate_y
             transformation(s) matrices
         """
@@ -629,13 +643,13 @@ class Transform:
 
         Parameters
         ----------
-        angle : float | 1-D ndarray
+        angle : float or ndarray
             The angle(s) in degrees for the rotation(s) around the Z
-            axis
+            axis. In case of an ndarray, it must be 1-D
 
         Returns
         -------
-        t : Transform
+        Transform
             The product of the initial transformation(s) and the
             rotate_z transformation(s) matrices
         """
@@ -659,9 +673,10 @@ class Transform:
 
         Parameters
         ----------
-        angle : float | 1-D ndarray
-            The angle(s) in degrees for the rotation(s)
-        axis : Vector | Normal
+        angle : float or ndarray
+            The angle(s) in degrees for the rotation(s). In case
+            of an ndarray, it must be 1-D
+        axis : Vector or Normal
             The rotation(s) is/are performed around the
             vector(s)/normal(s) axis/axes
         diag_calc : bool, optional
@@ -672,7 +687,7 @@ class Transform:
 
         Returns
         -------
-        t : Transform
+        Transform
             The product of the self transformation(s) and the rotate
             transformation(s) matrices
         """
@@ -691,7 +706,7 @@ def get_inverse_tf(t: Transform) -> Transform:
 
     Returns
     -------
-    out : Transform
+    Transform
         The inversed transformation(s)
     """
     return Transform(t.m_inv, t.m)
@@ -708,7 +723,7 @@ def get_translate_tf(v: Vector) -> Transform:
 
     Returns
     -------
-    t : Transform
+    Transform
         The translate transformation(s)
 
     examples
@@ -766,7 +781,7 @@ def get_scale_tf(v: Vector) -> Transform:
 
     Returns
     -------
-    t : Transform
+    Transform
         The scale transformation(s)
     """
     if not isinstance(v, Vector):
@@ -802,12 +817,13 @@ def get_rotate_x_tf(angle: float | np.ndarray) -> Transform:
 
     Parameters
     ----------
-    angle : float | 1-D ndarray
-        The angle(s) in degrees for the rotation(s) around the x axis
+    angle : float or ndarray
+        The angle(s) in degrees for the rotation(s) around the x
+        axis. In case of an ndarray, it must be 1-D
 
     Returns
     -------
-    t : Transform
+    Transform
         The rotate_x transformation(s)
     """
     is_ang_arr = isinstance(angle, np.ndarray)
@@ -841,12 +857,13 @@ def get_rotate_y_tf(angle: float | np.ndarray) -> Transform:
 
     Parameters
     ----------
-    angle : float | 1-D ndarray
-        The angle(s) in degrees for the rotation(s) around the y axis
+    angle : float or ndarray
+        The angle(s) in degrees for the rotation(s) around the y
+        axis. In case of an ndarray, it must be 1-D
 
     Returns
     -------
-    t : Transform
+    Transform
         The rotate_y transformation(s)
     """
     is_ang_arr = isinstance(angle, np.ndarray)
@@ -880,12 +897,13 @@ def get_rotate_z_tf(angle: float | np.ndarray) -> Transform:
 
     Parameters
     ----------
-    angle : float | 1-D ndarray
-        The angle(s) in degrees for the rotation(s) around the Z axis
+    angle : float or ndarray
+        The angle(s) in degrees for the rotation(s) around the Z
+        axis. In case of an ndarray, it must be 1-D
 
     Returns
     -------
-    t : Transform
+    Transform
         The rotate_z transformation(s)
     """
     is_ang_arr = isinstance(angle, np.ndarray)
@@ -928,9 +946,10 @@ def get_rotate_tf(
 
     Parameters
     ----------
-    angle : float | 1-D ndarray
-        The angle(s) in degrees for the rotation(s)
-    axis : Vector | Normal
+    angle : float or ndarray
+        The angle(s) in degrees for the rotation(s). In case of
+        an ndarray, it must be 1-D
+    axis : Vector or Normal
         The rotation(s) is/are performed around the
         vector(s)/normal(s) axis/axes
     diag_calc : bool, optional
@@ -941,7 +960,7 @@ def get_rotate_tf(
 
     Returns
     -------
-    t : Transform
+    Transform
         The rotate transformation(s)
     """
     if not isinstance(axis, (Vector, Normal)):
