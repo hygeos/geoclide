@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import math
+from typing import cast
 
 import numpy as np
 import pytest
@@ -268,24 +269,33 @@ def test_basic_array():
     p2 = gc.Point(4, 2, 1)
     parr = np.vstack((p1.to_numpy(), p2.to_numpy()))
     p1p2 = gc.Point(parr)
-    assert p1 == gc.Point(p1p2.x[0], p1p2.y[0], p1p2.z[0])
-    assert p2 == gc.Point(p1p2.x[1], p1p2.y[1], p1p2.z[1])
+    p1p2_x = cast(np.ndarray, p1p2.x)
+    p1p2_y = cast(np.ndarray, p1p2.y)
+    p1p2_z = cast(np.ndarray, p1p2.z)
+    assert p1 == gc.Point(p1p2_x[0], p1p2_y[0], p1p2_z[0])
+    assert p2 == gc.Point(p1p2_x[1], p1p2_y[1], p1p2_z[1])
     assert np.all(p1p2 == gc.Point(parr[:, 0], parr[:, 1], parr[:, 2]))
 
     n1 = gc.Normal(5, 2, 10)
     n2 = gc.Normal(4, 2, 1)
     narr = np.vstack((n1.to_numpy(), n2.to_numpy()))
     n1n2 = gc.Normal(narr)
-    assert n1 == gc.Normal(n1n2.x[0], n1n2.y[0], n1n2.z[0])
-    assert n2 == gc.Normal(n1n2.x[1], n1n2.y[1], n1n2.z[1])
+    n1n2_x = cast(np.ndarray, n1n2.x)
+    n1n2_y = cast(np.ndarray, n1n2.y)
+    n1n2_z = cast(np.ndarray, n1n2.z)
+    assert n1 == gc.Normal(n1n2_x[0], n1n2_y[0], n1n2_z[0])
+    assert n2 == gc.Normal(n1n2_x[1], n1n2_y[1], n1n2_z[1])
     assert np.all(n1n2 == gc.Normal(narr[:, 0], narr[:, 1], narr[:, 2]))
 
     v1 = gc.Vector(5, 2, 10)
     v2 = gc.Vector(4, 2, 1)
     arr = np.vstack((v1.to_numpy(), v2.to_numpy()))
     v1v2 = gc.Vector(arr)
-    assert v1 == gc.Vector(v1v2.x[0], v1v2.y[0], v1v2.z[0])
-    assert v2 == gc.Vector(v1v2.x[1], v1v2.y[1], v1v2.z[1])
+    v1v2_x = cast(np.ndarray, v1v2.x)
+    v1v2_y = cast(np.ndarray, v1v2.y)
+    v1v2_z = cast(np.ndarray, v1v2.z)
+    assert v1 == gc.Vector(v1v2_x[0], v1v2_y[0], v1v2_z[0])
+    assert v2 == gc.Vector(v1v2_x[1], v1v2_y[1], v1v2_z[1])
     assert np.all(v1v2 == gc.Vector(arr[:, 0], arr[:, 1], arr[:, 2]))
     v1v2_x3 = 3 * v1v2
     v1_x3 = 3 * v1
@@ -319,18 +329,13 @@ def test_bbox_array():
     assert np.all(b_set.common_vertices(b1)[0, :] == b1.common_vertices(b1))
     assert np.all(b_set.common_vertices(b1)[1, :] == b2.common_vertices(b1))
 
-    assert gc.get_common_face(b_set, b2, fill_value=-1)[
-        0
-    ] == gc.get_common_face(b1, b2, fill_value=-1)
-    assert gc.get_common_face(b_set, b2, fill_value=-1)[
-        1
-    ] == gc.get_common_face(b2, b2, fill_value=-1)
-    assert gc.get_common_face(b_set, b2, fill_value=-1)[
-        2
-    ] == gc.get_common_face(b3, b2, fill_value=-1)
-    assert gc.get_common_face(b_set, b2, fill_value=-1)[
-        3
-    ] == gc.get_common_face(b4, b2, fill_value=-1)
+    faces_set = cast(
+        np.ndarray, gc.get_common_face(b_set, b2, fill_value=-1)
+    )
+    assert faces_set[0] == gc.get_common_face(b1, b2, fill_value=-1)
+    assert faces_set[1] == gc.get_common_face(b2, b2, fill_value=-1)
+    assert faces_set[2] == gc.get_common_face(b3, b2, fill_value=-1)
+    assert faces_set[3] == gc.get_common_face(b4, b2, fill_value=-1)
 
 
 def test_bbox_ray_array():
@@ -352,7 +357,7 @@ def test_bbox_ray_array():
 
     is_int1 = b1.is_intersection(r1)
     is_int2 = b1.is_intersection(r2)
-    is_int_set = b1.is_intersection(r_set)
+    is_int_set = cast(np.ndarray, b1.is_intersection(r_set))
     assert is_int1 == is_int_set[0]
     assert is_int2 == is_int_set[1]
     assert is_int1 == is_int_set[2]
@@ -361,6 +366,8 @@ def test_bbox_ray_array():
     t0_1, t1_1, is_int1 = b1.intersect(r1, ds_output=False)
     t0_2, t1_2, is_int2 = b1.intersect(r2, ds_output=False)
     t0_set, t1_set, is_int_set = b1.intersect(r_set, ds_output=False)
+    t0_set = cast(np.ndarray, t0_set)
+    t1_set = cast(np.ndarray, t1_set)
     assert t0_1 == t0_set[0]
     assert t1_1 == t1_set[0]
     assert t0_2 == t0_set[1]
