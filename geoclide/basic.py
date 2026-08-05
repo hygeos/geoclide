@@ -129,7 +129,9 @@ def _init_xyz(
                     x[:, 2].astype(np.float64),
                 )
         raise ValueError("Wrong parameter value(s)")
-    if isinstance(x, float) and isinstance(y, float) and isinstance(z, float):
+    # the exact type is checked, a numpy float is converted below to
+    # keep python floats as components
+    if type(x) is float and type(y) is float and type(z) is float:
         return x, y, z
     if x is None and y is None and z is None:
         return 0.0, 0.0, 0.0
