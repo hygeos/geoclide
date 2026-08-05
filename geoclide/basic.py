@@ -137,7 +137,8 @@ def _init_xyz(
         return 0.0, 0.0, 0.0
     if isinstance(x, (Vector, Point, Normal)):
         if copy and isinstance(x.x, np.ndarray):
-            return x.x.copy(), x.y.copy(), x.z.copy()
+            xa, ya, za = _xyz_arrays(x)
+            return xa.copy(), ya.copy(), za.copy()
         return x.x, x.y, x.z
     if np.isscalar(x) and np.isscalar(y) and np.isscalar(z):
         return (

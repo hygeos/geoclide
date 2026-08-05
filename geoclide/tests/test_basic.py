@@ -451,4 +451,6 @@ def test_copy_parameter():
     xyz = np.array([[1.0, 3.0, 5.0], [2.0, 4.0, 6.0]])
     v = gc.Vector(xyz)
     xyz[0, 0] = 100.0
-    assert v.x[0] == 1.0, "The (n,3) form must copy the components"
+    assert cast(np.ndarray, v.x)[0] == 1.0, (
+        "The (n,3) form must copy the components"
+    )
