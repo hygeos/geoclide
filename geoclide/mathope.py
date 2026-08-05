@@ -89,7 +89,7 @@ def quadratic(
     -------
     b : bool or ndarray
         If the quadratic can be solved return True, else False.
-        In case of an ndarray, it is 1-D
+        In case of an ndarray, it is a 1-D ndarray of booleans
     x0 : float or None or ndarray
         The first solution(s). In case of an ndarray, it is 1-D
     x1 : float or None or ndarray

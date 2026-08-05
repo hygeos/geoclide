@@ -132,7 +132,7 @@ class Sphere(Shape):
             shape surface. In case of an ndarray, it is 1-D
         is_intersection : bool or ndarray
             If there is an intersection -> True, else False. In
-            case of an ndarray, it is 1-D
+            case of an ndarray, it is a 1-D ndarray of booleans
 
         Examples
         --------
@@ -326,7 +326,7 @@ class Sphere(Shape):
         -------
         bool or ndarray
             If there is an intersection -> True, else False. In
-            case of an ndarray, it is 1-D
+            case of an ndarray, it is a 1-D ndarray of booleans
 
         Examples
         --------
@@ -881,7 +881,7 @@ class Spheroid(Shape):
             shape surface. In case of an ndarray, it is 1-D
         is_intersection : bool or ndarray
             If there is an intersection -> True, else False. In
-            case of an ndarray, it is 1-D
+            case of an ndarray, it is a 1-D ndarray of booleans
 
         Examples
         --------
@@ -1017,7 +1017,7 @@ class Spheroid(Shape):
         -------
         bool or ndarray
             If there is an intersection -> True, else False. In
-            case of an ndarray, it is 1-D
+            case of an ndarray, it is a 1-D ndarray of booleans
 
         Examples
         --------
@@ -1507,7 +1507,7 @@ class Disk(Shape):
             shape surface. In case of an ndarray, it is 1-D
         is_intersection : bool or ndarray
             If there is an intersection -> True, else False. In
-            case of an ndarray, it is 1-D
+            case of an ndarray, it is a 1-D ndarray of booleans
 
         Examples
         --------
@@ -1621,7 +1621,7 @@ class Disk(Shape):
         -------
         bool or ndarray
             If there is an intersection -> True, else False. In
-            case of an ndarray, it is 1-D
+            case of an ndarray, it is a 1-D ndarray of booleans
 
         Examples
         --------

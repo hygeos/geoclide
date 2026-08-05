@@ -933,8 +933,9 @@ class BBox:
         -------
         bool or ndarray
             If there is at least 1 intersection returns True, else
-            False. In case of an ndarray, it is 1-D, or 2-D for a
-            set of rays and a set of bounding boxes.
+            False. In case of an ndarray, it is an ndarray of
+            booleans, 1-D, or 2-D for a set of rays and a set of
+            bounding boxes.
 
         Examples
         --------
@@ -1026,8 +1027,9 @@ class BBox:
                 bounding boxes.
             * is_intersection : bool or ndarray
                 -> If there is at least 1 intersection return True, else
-                False. An ndarray is 1-D, or 2-D for a set of rays
-                and a set of bounding boxes.
+                False. An ndarray is an ndarray of booleans, 1-D,
+                or 2-D for a set of rays and a set of bounding
+                boxes.
 
         Examples
         --------
@@ -1416,8 +1418,8 @@ def get_bbox_intersect_dataset(
         of bounding boxes
     is_intersection : bool or ndarray, optional
         If there is an intersection returns True, else False. In
-        case of an ndarray, it is 1-D, or 2-D for a set of rays
-        and a set of bounding boxes
+        case of an ndarray, it is an ndarray of booleans, 1-D, or
+        2-D for a set of rays and a set of bounding boxes
     diag_calc : bool, optional
         This indicates whether diagonal calculations have been
         performed

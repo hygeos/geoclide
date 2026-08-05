@@ -165,8 +165,8 @@ class Triangle(Shape):
         -------
         bool or ndarray
             If there is an intersection -> True, else False.
-            In case of an ndarray, it is 1-D, or 2-D for a
-            set of rays and a set of triangles
+            In case of an ndarray, it is an ndarray of booleans,
+            1-D, or 2-D for a set of rays and a set of triangles
         """
         if method == "v3":
             return self.is_intersection_v3(r, diag_calc=diag_calc)
@@ -205,8 +205,8 @@ class Triangle(Shape):
             or 2-D for a set of rays and a set of triangles
         is_intersection : bool or ndarray
             If there is an intersection -> True, else False.
-            In case of an ndarray, it is 1-D, or 2-D for a
-            set of rays and a set of triangles
+            In case of an ndarray, it is an ndarray of booleans,
+            1-D, or 2-D for a set of rays and a set of triangles
         """
         if method == "v3":
             return self.is_intersection_v3_t(r, diag_calc=diag_calc)
@@ -245,8 +245,8 @@ class Triangle(Shape):
             or 2-D for a set of rays and a set of triangles
         is_intersection : bool or ndarray
             If there is an intersection -> True, else False.
-            In case of an ndarray, it is 1-D, or 2-D for a
-            set of rays and a set of triangles
+            In case of an ndarray, it is an ndarray of booleans,
+            1-D, or 2-D for a set of rays and a set of triangles
         """
         if not isinstance(r, Ray):
             raise ValueError("The given parameter must be a Ray")
@@ -440,8 +440,8 @@ class Triangle(Shape):
         -------
         bool or ndarray
             If there is an intersection -> True, else False.
-            In case of an ndarray, it is 1-D, or 2-D for a
-            set of rays and a set of triangles
+            In case of an ndarray, it is an ndarray of booleans,
+            1-D, or 2-D for a set of rays and a set of triangles
         """
         _, is_intersection = self.is_intersection_v2_t(r, diag_calc=diag_calc)
         return is_intersection
@@ -474,8 +474,8 @@ class Triangle(Shape):
             or 2-D for a set of rays and a set of triangles
         is_intersection : bool or ndarray
             If there is an intersection -> True, else False.
-            In case of an ndarray, it is 1-D, or 2-D for a
-            set of rays and a set of triangles
+            In case of an ndarray, it is an ndarray of booleans,
+            1-D, or 2-D for a set of rays and a set of triangles
         """
         if not isinstance(r, Ray):
             raise ValueError("The given parameter must be a Ray")
@@ -1051,8 +1051,8 @@ class Triangle(Shape):
         -------
         bool or ndarray
             If there is an intersection -> True, else False.
-            In case of an ndarray, it is 1-D, or 2-D for a
-            set of rays and a set of triangles
+            In case of an ndarray, it is an ndarray of booleans,
+            1-D, or 2-D for a set of rays and a set of triangles
         """
         _, is_intersection = self.is_intersection_v3_t(r, diag_calc=diag_calc)
         return is_intersection
@@ -1134,8 +1134,8 @@ class Triangle(Shape):
                 and a set of triangles.
             * is_intersection : bool or ndarray
                 -> If there is an intersection return True, else False.
-                An ndarray is 1-D, or 2-D for a set of rays
-                and a set of triangles.
+                An ndarray is an ndarray of booleans, 1-D, or 2-D
+                for a set of rays and a set of triangles.
             * u : None or float or ndarray
                 -> The u coordinate(s) of the parametric representation.
                 An ndarray is 1-D, or 2-D for a set of rays
@@ -1242,8 +1242,8 @@ class Triangle(Shape):
                 and a set of triangles.
             * is_intersection : bool or ndarray
                 -> If there is an intersection return True, else False.
-                An ndarray is 1-D, or 2-D for a set of rays
-                and a set of triangles.
+                An ndarray is an ndarray of booleans, 1-D, or 2-D
+                for a set of rays and a set of triangles.
             * u : None or float or ndarray
                 -> The u coordinate(s) of the parametric representation.
                 An ndarray is 1-D, or 2-D for a set of rays
@@ -1726,8 +1726,8 @@ class Triangle(Shape):
                 and a set of triangles.
             * is_intersection : bool or ndarray
                 -> If there is an intersection return True, else False.
-                An ndarray is 1-D, or 2-D for a set of rays
-                and a set of triangles.
+                An ndarray is an ndarray of booleans, 1-D, or 2-D
+                for a set of rays and a set of triangles.
             * u : None or float or ndarray
                 -> The u coordinate(s) of the parametric representation.
                 An ndarray is 1-D, or 2-D for a set of rays
@@ -2672,7 +2672,7 @@ class TriangleMesh(Shape):
                 An ndarray is 1-D.
             * is_intersection : bool or ndarray
                 -> If there is an intersection return True, else False.
-                An ndarray is 1-D.
+                An ndarray is a 1-D ndarray of booleans.
             * u : None or float or ndarray
                 -> The u coordinate(s) of the parametric representation.
                 An ndarray is 1-D.
@@ -2952,7 +2952,7 @@ class TriangleMesh(Shape):
         -------
         bool or ndarray
             If there is an intersection -> True, else False.
-            In case of an ndarray, it is 1-D
+            In case of an ndarray, it is a 1-D ndarray of booleans
         """
         if not isinstance(r, Ray):
             raise ValueError("The parameter r must be a Ray")
@@ -3068,7 +3068,7 @@ class TriangleMesh(Shape):
             shape surface. In case of an ndarray, it is 1-D
         is_intersection : bool or ndarray
             If there is an intersection -> True, else False.
-            In case of an ndarray, it is 1-D
+            In case of an ndarray, it is a 1-D ndarray of booleans
 
         Notes
         -----

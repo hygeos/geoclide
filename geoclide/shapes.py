@@ -74,8 +74,8 @@ def get_intersect_dataset(
         set of rays and a set of triangles
     is_intersection : bool or ndarray, optional
         If there is an intersection -> True, else False. In case
-        of an ndarray, it is 1-D, or 2-D for a set of rays and a
-        set of triangles
+        of an ndarray, it is an ndarray of booleans, 1-D, or 2-D
+        for a set of rays and a set of triangles
     u : float or ndarray, optional
         The u coordinate of the parametric representation. In
         case of an ndarray, it is 1-D, or 2-D for a set of rays
