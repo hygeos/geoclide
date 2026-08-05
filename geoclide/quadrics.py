@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from typing import cast
 
 import numpy as np
 import xarray as xr
@@ -74,16 +75,15 @@ class Sphere(Shape):
             wto = otw.inverse()
         elif isinstance(wto, Transform) and otw is None:
             otw = wto.inverse()
-        if (
-            not np.isscalar(radius)
-            or not np.isscalar(z_min)
-            or not np.isscalar(z_max)
-            or not np.isscalar(phi_max)
+        if not all(
+            np.isscalar(v) for v in (radius, z_min, z_max, phi_max)
         ):
             raise ValueError(
                 "The parameters radius, z_min, z_max and phi_max "
                 "must be all scalars"
             )
+        otw = cast(Transform, otw)
+        wto = cast(Transform, wto)
         Shape.__init__(self, object_to_world=otw, world_to_object=wto)
         self.radius = radius
         self.zmin = clamp(z_min, -self.radius, self.radius)
@@ -128,8 +128,7 @@ class Sphere(Shape):
         if not isinstance(r, Ray):
             raise ValueError("The given parameter must be a Ray")
         is_r_arr = isinstance(r.o.x, np.ndarray)
-        if is_r_arr:
-            nrays = len(r.o.x)
+        nrays = len(cast(np.ndarray, r.o.x)) if is_r_arr else 0
         ray = Ray(r)
         ray.o = self.wto(r.o)
         ray.d = self.wto(r.d)
@@ -151,7 +150,11 @@ class Sphere(Shape):
                 )
 
                 # Solve quadratic equation
-                exist, t0, t1 = quadratic(a, b, c)
+                exist, t0, t1 = quadratic(
+                    cast(np.ndarray, a),
+                    cast(np.ndarray, b),
+                    cast(np.ndarray, c),
+                )
                 c1 = np.logical_not(exist)
 
                 # Compute intersection distance along ray
@@ -166,7 +169,9 @@ class Sphere(Shape):
                 # Compute sphere hit position and $\phi$
                 phit = ray(thit)
                 phit *= self.radius / distance(phit, Point(0.0, 0.0, 0.0))
-                phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = (
+                phit_x = cast(np.ndarray, phit.x)
+                phit_y = cast(np.ndarray, phit.y)
+                phit_x[np.logical_and(phit_x == 0, phit_y == 0)] = (
                     1e-5 * self.radius
                 )
                 phi = np.arctan2(phit.y, phit.x)
@@ -190,14 +195,15 @@ class Sphere(Shape):
                     thit[c4] = t1[c4]
                     # Compute sphere hit position and $\phi$
                     phit_bis = ray[thit]
-                    phit.x[c4] = phit_bis.x[c4]
-                    phit.y[c4] = phit_bis.y[c4]
-                    phit.z[c4] = phit_bis.z[c4]
+                    phit_z = cast(np.ndarray, phit.z)
+                    phit_x[c4] = cast(np.ndarray, phit_bis.x)[c4]
+                    phit_y[c4] = cast(np.ndarray, phit_bis.y)[c4]
+                    phit_z[c4] = cast(np.ndarray, phit_bis.z)[c4]
                     c4_p1 = np.logical_and.reduce(
-                        (c4, phit.x == 0, phit.y == 0)
+                        (c4, phit_x == 0, phit_y == 0)
                     )
-                    phit.x[c4_p1] = 1e-5 * self.radius
-                    phi[c4] = np.arctan2(phit.y[c4], phit.x[c4])
+                    phit_x[c4_p1] = 1e-5 * self.radius
+                    phi[c4] = np.arctan2(phit_y[c4], phit_x[c4])
                     c4_p2 = np.logical_and(c4, phi < 0)
                     phi[c4_p2] += TWO_PI
 
@@ -229,9 +235,14 @@ class Sphere(Shape):
             )
 
             # Solve quadratic equation
-            exist, t0, t1 = quadratic(a, b, c)
+            exist, t0, t1 = quadratic(
+                cast(float, a), cast(float, b), cast(float, c)
+            )
             if not exist:
                 return None, False
+
+            t0 = cast(float, t0)
+            t1 = cast(float, t1)
 
             # Compute intersection distance along ray
             if t0 > ray.maxt or t1 < ray.mint:
@@ -385,8 +396,7 @@ class Sphere(Shape):
             raise ValueError("The given parameter must be a Ray")
         sh_name = self.__class__.__name__
         is_r_arr = isinstance(r.o.x, np.ndarray)
-        if is_r_arr:
-            nrays = len(r.o.x)
+        nrays = len(cast(np.ndarray, r.o.x)) if is_r_arr else 0
         ray = Ray(r)
         ray.o = self.wto(r.o)
         ray.d = self.wto(r.d)
@@ -408,7 +418,11 @@ class Sphere(Shape):
                 )
 
                 # Solve quadratic equation
-                exist, t0, t1 = quadratic(a, b, c)
+                exist, t0, t1 = quadratic(
+                    cast(np.ndarray, a),
+                    cast(np.ndarray, b),
+                    cast(np.ndarray, c),
+                )
                 c1 = np.logical_not(exist)
 
                 # Compute intersection distance along ray
@@ -423,7 +437,9 @@ class Sphere(Shape):
                 # Compute sphere hit position and $\phi$
                 phit = ray(thit)
                 phit *= self.radius / distance(phit, Point(0.0, 0.0, 0.0))
-                phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = (
+                phit_x = cast(np.ndarray, phit.x)
+                phit_y = cast(np.ndarray, phit.y)
+                phit_x[np.logical_and(phit_x == 0, phit_y == 0)] = (
                     1e-5 * self.radius
                 )
                 phi = np.arctan2(phit.y, phit.x)
@@ -447,14 +463,15 @@ class Sphere(Shape):
                     thit[c4] = t1[c4]
                     # Compute sphere hit position and $\phi$
                     phit_bis = ray[thit]
-                    phit.x[c4] = phit_bis.x[c4]
-                    phit.y[c4] = phit_bis.y[c4]
-                    phit.z[c4] = phit_bis.z[c4]
+                    phit_z = cast(np.ndarray, phit.z)
+                    phit_x[c4] = cast(np.ndarray, phit_bis.x)[c4]
+                    phit_y[c4] = cast(np.ndarray, phit_bis.y)[c4]
+                    phit_z[c4] = cast(np.ndarray, phit_bis.z)[c4]
                     c4_p1 = np.logical_and.reduce(
-                        (c4, phit.x == 0, phit.y == 0)
+                        (c4, phit_x == 0, phit_y == 0)
                     )
-                    phit.x[c4_p1] = 1e-5 * self.radius
-                    phi[c4] = np.arctan2(phit.y[c4], phit.x[c4])
+                    phit_x[c4_p1] = 1e-5 * self.radius
+                    phi[c4] = np.arctan2(phit_y[c4], phit_x[c4])
                     c4_p2 = np.logical_and(c4, phi < 0)
                     phi[c4_p2] += TWO_PI
 
@@ -522,7 +539,9 @@ class Sphere(Shape):
             )
 
             # Solve quadratic equation
-            exist, t0, t1 = quadratic(a, b, c)
+            exist, t0, t1 = quadratic(
+                cast(float, a), cast(float, b), cast(float, c)
+            )
             if not exist:
                 if ds_output:
                     return get_intersect_dataset(
@@ -540,6 +559,9 @@ class Sphere(Shape):
                         None,
                         False,
                     )
+
+            t0 = cast(float, t0)
+            t1 = cast(float, t1)
 
             # Compute intersection distance along ray
             if t0 > ray.maxt or t1 < ray.mint:
@@ -670,7 +692,9 @@ class Sphere(Shape):
 
             # Find parametric representation of sphere hit
             u = phi / phi_max_rad
-            theta = math.acos(clamp(phit.z / self.radius, -1, 1))
+            theta = math.acos(
+                clamp(cast(float, phit.z) / self.radius, -1, 1)
+            )
             v = (theta - self.theta_min) / (self.theta_max - self.theta_min)
 
             # Compute sphere $\dpdu$ and $\dpdv$
@@ -803,10 +827,12 @@ class Spheroid(Shape):
             wto = otw.inverse()
         elif isinstance(wto, Transform) and otw is None:
             otw = wto.inverse()
-        if not np.isscalar(radius_xy) or not np.isscalar(radius_z):
+        if not all(np.isscalar(v) for v in (radius_xy, radius_z)):
             raise ValueError(
                 "The parameters alpha and gamma must be all scalars"
             )
+        otw = cast(Transform, otw)
+        wto = cast(Transform, wto)
         Shape.__init__(self, object_to_world=otw, world_to_object=wto)
         self.alpha = radius_xy
         self.gamma = radius_z
@@ -855,8 +881,7 @@ class Spheroid(Shape):
         if not isinstance(r, Ray):
             raise ValueError("The given parameter must be a Ray")
         is_r_arr = isinstance(r.o.x, np.ndarray)
-        if is_r_arr:
-            nrays = len(r.o.x)
+        nrays = len(cast(np.ndarray, r.o.x)) if is_r_arr else 0
         ray = Ray(r)
         ray.o = self.wto(r.o)
         ray.d = self.wto(r.d)
@@ -867,9 +892,8 @@ class Spheroid(Shape):
 
                 # Compute quadratic sphere coefficients
                 inv_alpha2 = 1.0 / self.alpha2
-                inv_beta2 = (
-                    inv_alpha2  # ellipsoid special case where alpha=beta
-                )
+                # ellipsoid special case where alpha=beta
+                inv_beta2 = inv_alpha2
                 inv_gamma2 = 1.0 / self.gamma2
                 a = (
                     ray.d.x * ray.d.x * inv_alpha2
@@ -889,7 +913,11 @@ class Spheroid(Shape):
                 )
 
                 # Solve quadratic equation
-                exist, t0, t1 = quadratic(a, b, c)
+                exist, t0, t1 = quadratic(
+                    cast(np.ndarray, a),
+                    cast(np.ndarray, b),
+                    cast(np.ndarray, c),
+                )
                 c1 = np.logical_not(exist)
 
                 # Compute intersection distance along ray
@@ -909,7 +937,8 @@ class Spheroid(Shape):
         else:
             # Compute quadratic sphere coefficients
             inv_alpha2 = 1.0 / self.alpha2
-            inv_beta2 = inv_alpha2  # ellipsoid special case where alpha=beta
+            # ellipsoid special case where alpha=beta
+            inv_beta2 = inv_alpha2
             inv_gamma2 = 1.0 / self.gamma2
             a = (
                 ray.d.x * ray.d.x * inv_alpha2
@@ -929,9 +958,14 @@ class Spheroid(Shape):
             )
 
             # Solve quadratic equation
-            exist, t0, t1 = quadratic(a, b, c)
+            exist, t0, t1 = quadratic(
+                cast(float, a), cast(float, b), cast(float, c)
+            )
             if not exist:
                 return None, False
+
+            t0 = cast(float, t0)
+            t1 = cast(float, t1)
 
             # Compute intersection distance along ray
             if t0 > ray.maxt or t1 < ray.mint:
@@ -1053,8 +1087,7 @@ class Spheroid(Shape):
             raise ValueError("The given parameter must be a Ray")
         sh_name = self.__class__.__name__
         is_r_arr = isinstance(r.o.x, np.ndarray)
-        if is_r_arr:
-            nrays = len(r.o.x)
+        nrays = len(cast(np.ndarray, r.o.x)) if is_r_arr else 0
         ray = Ray(r)
         ray.o = self.wto(r.o)
         ray.d = self.wto(r.d)
@@ -1065,9 +1098,8 @@ class Spheroid(Shape):
 
                 # Compute quadratic sphere coefficients
                 inv_alpha2 = 1.0 / self.alpha2
-                inv_beta2 = (
-                    inv_alpha2  # ellipsoid special case where alpha=beta
-                )
+                # ellipsoid special case where alpha=beta
+                inv_beta2 = inv_alpha2
                 inv_gamma2 = 1.0 / self.gamma2
                 a = (
                     ray.d.x * ray.d.x * inv_alpha2
@@ -1087,7 +1119,11 @@ class Spheroid(Shape):
                 )
 
                 # Solve quadratic equation
-                exist, t0, t1 = quadratic(a, b, c)
+                exist, t0, t1 = quadratic(
+                    cast(np.ndarray, a),
+                    cast(np.ndarray, b),
+                    cast(np.ndarray, c),
+                )
                 c1 = np.logical_not(exist)
 
                 # Compute intersection distance along ray
@@ -1101,7 +1137,9 @@ class Spheroid(Shape):
 
                 # Compute sphere hit position and $\phi$
                 phit = ray(thit)
-                phit.x[np.logical_and(phit.x == 0, phit.y == 0)] = (
+                phit_x = cast(np.ndarray, phit.x)
+                phit_y = cast(np.ndarray, phit.y)
+                phit_x[np.logical_and(phit_x == 0, phit_y == 0)] = (
                     1e-5 * self.alpha
                 )
                 phi = np.arctan2(phit.y, phit.x)
@@ -1148,7 +1186,8 @@ class Spheroid(Shape):
         else:
             # Compute quadratic sphere coefficients
             inv_alpha2 = 1.0 / self.alpha2
-            inv_beta2 = inv_alpha2  # ellipsoid special case where alpha=beta
+            # ellipsoid special case where alpha=beta
+            inv_beta2 = inv_alpha2
             inv_gamma2 = 1.0 / self.gamma2
             a = (
                 ray.d.x * ray.d.x * inv_alpha2
@@ -1168,7 +1207,9 @@ class Spheroid(Shape):
             )
 
             # Solve quadratic equation
-            exist, t0, t1 = quadratic(a, b, c)
+            exist, t0, t1 = quadratic(
+                cast(float, a), cast(float, b), cast(float, c)
+            )
             if not exist:
                 if ds_output:
                     return get_intersect_dataset(
@@ -1186,6 +1227,9 @@ class Spheroid(Shape):
                         None,
                         False,
                     )
+
+            t0 = cast(float, t0)
+            t1 = cast(float, t1)
 
             # Compute intersection distance along ray
             if t0 > ray.maxt or t1 < ray.mint:
@@ -1245,7 +1289,9 @@ class Spheroid(Shape):
 
             # Find parametric representation of sphere hit
             u = phi / TWO_PI
-            theta = math.acos(clamp(phit.z / self.gamma, -1, 1))
+            theta = math.acos(
+                clamp(cast(float, phit.z) / self.gamma, -1, 1)
+            )
             v = 1 - (theta / math.pi)
 
             # Compute sphere dpdu and dpdv
@@ -1385,7 +1431,7 @@ class Disk(Shape):
         phi_max: float = 360.0,
         z_height: float = 0.0,
         otw: Transform | None = None,
-        wto=None,
+        wto: Transform | None = None,
     ):
         if wto is None and otw is None:
             wto = Transform()
@@ -1401,14 +1447,16 @@ class Disk(Shape):
             otw = wto.inverse()
         if inner_radius >= radius:
             raise NameError("The parameter inner_radius must be < to radius")
-        if not np.isscalar(radius):
+        if not np.isscalar(cast(object, radius)):
             raise ValueError("The parameters radius must be a scalar")
-        if not np.isscalar(inner_radius):
+        if not np.isscalar(cast(object, inner_radius)):
             raise ValueError("The parameters inner_radius must be a scalar")
-        if not np.isscalar(phi_max):
+        if not np.isscalar(cast(object, phi_max)):
             raise ValueError("The parameters phi_max must be a scalar")
-        if not np.isscalar(z_height):
+        if not np.isscalar(cast(object, z_height)):
             raise ValueError("The parameters z_height must be a scalar")
+        otw = cast(Transform, otw)
+        wto = cast(Transform, wto)
         Shape.__init__(self, object_to_world=otw, world_to_object=wto)
         self.radius = radius
         self.inner_radius = inner_radius
@@ -1454,8 +1502,7 @@ class Disk(Shape):
         if not isinstance(r, Ray):
             raise ValueError("The given parameter must be a Ray")
         is_r_arr = isinstance(r.o.x, np.ndarray)
-        if is_r_arr:
-            nrays = len(r.o.x)
+        nrays = len(cast(np.ndarray, r.o.x)) if is_r_arr else 0
         ray = Ray(r)
         ray.o = self.wto(r.o)
         ray.d = self.wto(r.d)
@@ -1467,7 +1514,9 @@ class Disk(Shape):
                 # no intersection in the case the ray is parallel to the
                 # disk's plane
                 c1 = ray.d.z == 0
-                thit = (self.z_height - ray.o.z) / ray.d.z
+                thit = cast(
+                    np.ndarray, (self.z_height - ray.o.z) / ray.d.z
+                )
                 c2 = np.logical_or(thit <= 0, thit >= ray.maxt)
 
                 # get the intersection point, and distance between disk
@@ -1490,7 +1539,9 @@ class Disk(Shape):
                 phi[phi < 0.0] += TWO_PI
                 c5 = phi > phi_max_rad
 
-                c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
+                c6 = np.logical_or.reduce(
+                    cast("tuple[np.ndarray, ...]", (c1, c2, c3, c4, c5))
+                )
                 is_intersection[c6] = False
                 thit[c6] = None
 
@@ -1500,7 +1551,7 @@ class Disk(Shape):
             # disk's plane
             if ray.d.z == 0:
                 return None, False
-            thit = (self.z_height - ray.o.z) / ray.d.z
+            thit = cast(float, (self.z_height - ray.o.z) / ray.d.z)
             if thit <= 0 or thit >= ray.maxt:
                 return None, False
 
@@ -1612,8 +1663,7 @@ class Disk(Shape):
             raise ValueError("The given parameter must be a Ray")
         sh_name = self.__class__.__name__
         is_r_arr = isinstance(r.o.x, np.ndarray)
-        if is_r_arr:
-            nrays = len(r.o.x)
+        nrays = len(cast(np.ndarray, r.o.x)) if is_r_arr else 0
         ray = Ray(r)
         ray.o = self.wto(r.o)
         ray.d = self.wto(r.d)
@@ -1625,7 +1675,9 @@ class Disk(Shape):
                 # no intersection in the case the ray is parallel to the
                 # disk's plane
                 c1 = ray.d.z == 0
-                thit = (self.z_height - ray.o.z) / ray.d.z
+                thit = cast(
+                    np.ndarray, (self.z_height - ray.o.z) / ray.d.z
+                )
                 c2 = np.logical_or(thit <= 0, thit >= ray.maxt)
 
                 # get the intersection point, and distance between disk
@@ -1662,7 +1714,9 @@ class Disk(Shape):
                     (self.inner_radius - self.radius) / hit_radius
                 )
 
-                c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
+                c6 = np.logical_or.reduce(
+                    cast("tuple[np.ndarray, ...]", (c1, c2, c3, c4, c5))
+                )
                 is_intersection[c6] = False
                 thit[c6] = None
 
@@ -1701,7 +1755,7 @@ class Disk(Shape):
                         None,
                         False,
                     )
-            thit = (self.z_height - ray.o.z) / ray.d.z
+            thit = cast(float, (self.z_height - ray.o.z) / ray.d.z)
             if thit <= 0 or thit >= ray.maxt:
                 if ds_output:
                     return get_intersect_dataset(
