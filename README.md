@@ -7,16 +7,20 @@
 
 ------------------------------------------------
 
-[![PyPI](https://img.shields.io/pypi/v/geoclide.svg)](https://pypi.python.org/pypi/geoclide)
-[![conda-forge](https://img.shields.io/conda/vn/conda-forge/geoclide.svg)](https://anaconda.org/conda-forge/geoclide)
-[![github](https://img.shields.io/github/v/tag/hygeos/geoclide?label=github&color=blue)](https://github.com/hygeos/geoclide)
-[![python](https://img.shields.io/pypi/pyversions/geoclide.svg)](https://pypi.python.org/pypi/geoclide)
-[![downloads](https://static.pepy.tech/badge/geoclide)](https://pepy.tech/project/geoclide)
+<p align="center">
+<a href="https://pypi.python.org/pypi/geoclide"><img alt="pypi" src="https://img.shields.io/pypi/v/geoclide.svg"></a>
+<a href="https://anaconda.org/conda-forge/geoclide"><img alt="conda-forge" src="https://img.shields.io/conda/vn/conda-forge/geoclide.svg"></a>
+<a href="https://github.com/hygeos/geoclide"><img alt="github" src="https://img.shields.io/github/v/tag/hygeos/geoclide?label=github&amp;color=blue"></a>
+<a href="https://pepy.tech/project/geoclide"><img alt="downloads" src="https://static.pepy.tech/badge/geoclide"></a>
+</p>
 
-[![tests](https://github.com/hygeos/geoclide/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/hygeos/geoclide/actions/workflows/tests.yml)
-[![docs](https://github.com/hygeos/geoclide/actions/workflows/docs_github_pages.yml/badge.svg?branch=main)](https://hygeos.github.io/geoclide/)
-[![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/hygeos/geoclide/blob/main/LICENSE.txt)
-[![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+<p align="center">
+<a href="https://github.com/hygeos/geoclide/actions/workflows/tests.yml"><img alt="tests" src="https://github.com/hygeos/geoclide/actions/workflows/tests.yml/badge.svg?branch=main"></a>
+<a href="https://hygeos.github.io/geoclide/"><img alt="docs" src="https://github.com/hygeos/geoclide/actions/workflows/docs_github_pages.yml/badge.svg?branch=main"></a>
+<a href="https://github.com/hygeos/geoclide/blob/main/LICENSE.txt"><img alt="license" src="https://img.shields.io/badge/license-Apache%202.0-blue.svg"></a>
+<a href="https://pixi.sh"><img alt="pixi" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/prefix-dev/pixi/main/assets/badge/v0.json"></a>
+<a href="https://github.com/astral-sh/ruff"><img alt="ruff" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json"></a>
+</p>
 
 A python package for geometric calculations in the three-dimensional Euclidean space
 
