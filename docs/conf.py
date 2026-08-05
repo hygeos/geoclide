@@ -57,4 +57,11 @@ numpydoc_class_members_toctree = False
 html_theme = 'pydata_sphinx_theme'  # or 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
+html_theme_options = {
+    'logo': {
+        'image_light': '_static/geoclide-logo-light.png',
+        'image_dark': '_static/geoclide-logo-dark.png',
+    },
+}
+
 html_context = {"default_mode": "light"}
