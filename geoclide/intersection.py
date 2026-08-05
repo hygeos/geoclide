@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import cast
+
 import xarray as xr
 
 from geoclide.basic import BBox, Ray
@@ -82,7 +84,9 @@ def calc_intersection(
     if "ds_output" in kwargs:
         kwargs.pop("ds_output", False)
     if (isinstance(shape, BBox)) or issubclass(shape.__class__, Shape):
-        ds = shape.intersect(r, ds_output=True, **kwargs)
+        ds = cast(
+            xr.Dataset, shape.intersect(r, ds_output=True, **kwargs)
+        )
     else:
         raise ValueError(
             "The only supported shape are: BBox, Sphere, Spheroid, "
