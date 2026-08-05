@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import warnings
+from typing import Any, cast, overload
 
 import numpy as np
 from numpy.linalg import inv
@@ -115,6 +116,31 @@ class Transform:
 
         return Transform(self.m @ t.m, t.m_inv @ self.m_inv)
 
+    @overload
+    def __call__(
+        self, c: Vector, diag_calc: bool = ..., flatten: bool = ...
+    ) -> Vector: ...
+
+    @overload
+    def __call__(
+        self, c: Point, diag_calc: bool = ..., flatten: bool = ...
+    ) -> Point: ...
+
+    @overload
+    def __call__(
+        self, c: Normal, diag_calc: bool = ..., flatten: bool = ...
+    ) -> Normal: ...
+
+    @overload
+    def __call__(
+        self, c: Ray, diag_calc: bool = ..., flatten: bool = ...
+    ) -> Ray: ...
+
+    @overload
+    def __call__(
+        self, c: BBox, diag_calc: bool = ..., flatten: bool = ...
+    ) -> BBox: ...
+
     def __call__(
         self,
         c: Vector | Point | Normal | Ray | BBox,
@@ -157,28 +183,35 @@ class Transform:
             is_point = isinstance(c, Point)
             is_normal = isinstance(c, Normal)
             use_flatten = False
-            if is_vector or is_point or is_normal:
+            # default bindings, reassigned in the branch just below
+            nt = 0
+            mat = self.m
+            x: Any = None
+            y: Any = None
+            z: Any = None
+            keys: Any = None
+            if isinstance(c, (Vector, Point, Normal)):
                 nt = self.m.shape[0]
                 if is_vector or is_point:
                     mat = np.moveaxis(self.m, 0, 2)
                 else:  # if is_normal
                     mat = np.moveaxis(self.m_inv, 0, 2)
-                is_c_arr = isinstance(c.x, np.ndarray)
+                cx, cy, cz = c.x, c.y, c.z
                 key_bis = np.arange(nt)
-                if is_c_arr and not diag_calc:
+                if isinstance(cx, np.ndarray) and not diag_calc:
                     mat = mat[:, :, np.newaxis, :]
-                    x = c.x[:, np.newaxis]
-                    y = c.y[:, np.newaxis]
-                    z = c.z[:, np.newaxis]
+                    x = cx[:, np.newaxis]
+                    y = cast(np.ndarray, cy)[:, np.newaxis]
+                    z = cast(np.ndarray, cz)[:, np.newaxis]
                     if flatten:
                         keys = (slice(None), key_bis)
                         use_flatten = True
                     else:
                         keys = [(slice(None), k) for k in key_bis]
-                else:  # if diag_calc = True or if not is_c_arr
-                    x = c.x
-                    y = c.y
-                    z = c.z
+                else:  # if diag_calc = True or if c is not an array
+                    x = cx
+                    y = cy
+                    z = cz
                     keys = key_bis
             if is_vector:
                 xv = mat[0, 0] * x + mat[0, 1] * y + mat[0, 2] * z
@@ -266,12 +299,16 @@ class Transform:
                 if flatten:
                     rays = Ray(origins, directions, mint=c.mint, maxt=c.maxt)
                 else:
+                    # without flatten the recursive calls give back
+                    # object ndarrays instead of Point/Vector
+                    origins_arr = cast(np.ndarray, origins)
+                    directions_arr = cast(np.ndarray, directions)
                     nt = self.m.shape[0]
                     rays = np.empty(nt, dtype=Ray)
                     for ir in range(0, nt):
                         rays[ir] = Ray(
-                            origins[ir],
-                            directions[ir],
+                            origins_arr[ir],
+                            directions_arr[ir],
                             mint=c.mint,
                             maxt=c.maxt,
                         )
@@ -293,18 +330,24 @@ class Transform:
                     b = b.union(p0 + (v1 + v2))
                     bboxes = b
                 else:
+                    # without flatten the recursive calls give back
+                    # object ndarrays instead of Point/Vector
+                    p0a = cast(np.ndarray, p0)
+                    v0a = cast(np.ndarray, v0)
+                    v1a = cast(np.ndarray, v1)
+                    v2a = cast(np.ndarray, v2)
                     nt = self.m.shape[0]
                     bboxes = np.empty(nt, dtype=BBox)
                     for ib in range(0, nt):
                         b = BBox()
-                        b = b.union(p0[ib])
-                        b = b.union(p0[ib] + v0[ib])
-                        b = b.union(p0[ib] + (v0[ib] + v1[ib]))
-                        b = b.union(p0[ib] + v1[ib])
-                        b = b.union(p0[ib] + v2[ib])
-                        b = b.union(p0[ib] + (v0[ib] + v2[ib]))
-                        b = b.union(p0[ib] + (v0[ib] + v1[ib] + v2[ib]))
-                        b = b.union(p0[ib] + (v1[ib] + v2[ib]))
+                        b = b.union(p0a[ib])
+                        b = b.union(p0a[ib] + v0a[ib])
+                        b = b.union(p0a[ib] + (v0a[ib] + v1a[ib]))
+                        b = b.union(p0a[ib] + v1a[ib])
+                        b = b.union(p0a[ib] + v2a[ib])
+                        b = b.union(p0a[ib] + (v0a[ib] + v2a[ib]))
+                        b = b.union(p0a[ib] + (v0a[ib] + v1a[ib] + v2a[ib]))
+                        b = b.union(p0a[ib] + (v1a[ib] + v2a[ib]))
                         bboxes[ib] = b
                 return bboxes
             else:
@@ -926,7 +969,7 @@ def get_rotate_tf(
             c = math.cos(angle * (math.pi / 180.0))
 
         if is_axis_arr:
-            nc = max(nc, len(axis.x))
+            nc = max(nc, len(cast(np.ndarray, axis.x)))
         m = np.tile(np.identity(4, dtype=np.float64), (nc, 1)).reshape(
             nc, 4, 4
         )
