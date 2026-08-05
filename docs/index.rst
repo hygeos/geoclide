@@ -7,7 +7,7 @@ Geoclide documentation
 ======================
 
 
-.. include:: ../README.md
+.. include:: introduction.md
    :parser: myst_parser.sphinx_
 
 .. toctree::
