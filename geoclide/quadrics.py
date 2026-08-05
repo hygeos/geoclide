@@ -1,3 +1,25 @@
+"""
+Quadric shapes.
+
+This module implements the quadric shapes of geoclide. Each shape
+is placed with an object-to-world transformation and provides ray
+intersection tests, accepting a single ray or a set of rays, as
+well as the calculation of its total area.
+
+Key Classes
+-----------
+Sphere
+    A full or partial sphere, optionally cut below zmin and above
+    zmax and limited to a maximum azimuthal angle phi_max.
+Spheroid
+    An oblate or prolate spheroid, described by its equatorial
+    (xy) and polar (z) radii.
+Disk
+    A full or partial disk, described by its radius, an optional
+    inner radius (annulus), a z height and a maximum azimuthal
+    angle phi_max.
+"""
+
 from __future__ import annotations
 
 import math
@@ -105,11 +127,12 @@ class Sphere(Shape):
 
         Returns
         -------
-        thit : float | 1-D ndarray
+        thit : float or ndarray
             The t ray variable(s) for its first intersection at the
-            shape surface
-        is_intersection : bool | 1-D ndarray
-            If there is an intersection -> True, else False
+            shape surface. In case of an ndarray, it is 1-D
+        is_intersection : bool or ndarray
+            If there is an intersection -> True, else False. In
+            case of an ndarray, it is 1-D
 
         Examples
         --------
@@ -301,8 +324,9 @@ class Sphere(Shape):
 
         Returns
         -------
-        out : bool | 1-D ndarray
-            If there is an intersection -> True, else False
+        bool or ndarray
+            If there is an intersection -> True, else False. In
+            case of an ndarray, it is 1-D
 
         Examples
         --------
@@ -329,13 +353,13 @@ class Sphere(Shape):
         ----------
         r : Ray
             The ray(s) to use for the intersection test(s)
-        ds_output : Bool, optional
+        ds_output : bool, optional
             If True the output is a dataset, else -> a tuple with
             intersection information variables
 
         Returns
         -------
-        out : xr.Dataset | tuple
+        xr.Dataset or tuple
             Look-up table with the intersection information if ds_output
             is True, else returns a tuple. The tuple is ready to be an
             input for the function geoclide.shapes.get_intersect_dataset
@@ -754,7 +778,7 @@ class Sphere(Shape):
 
         Returns
         -------
-        mesh : TriangleMesh
+        TriangleMesh
             The sphere converted to a triangle mesh
         """
         theta_zmin = clamp(math.degrees(self.theta_min), 0.0, 360.0)
@@ -852,11 +876,12 @@ class Spheroid(Shape):
 
         Returns
         -------
-        thit : float | 1-D ndarray
+        thit : float or ndarray
             The t ray variable(s) for its first intersection at the
-            shape surface
-        is_intersection : bool | 1-D ndarray
-            If there is an intersection -> True, else False
+            shape surface. In case of an ndarray, it is 1-D
+        is_intersection : bool or ndarray
+            If there is an intersection -> True, else False. In
+            case of an ndarray, it is 1-D
 
         Examples
         --------
@@ -990,8 +1015,9 @@ class Spheroid(Shape):
 
         Returns
         -------
-        out : bool | 1-D ndarray
-            If there is an intersection -> True, else False
+        bool or ndarray
+            If there is an intersection -> True, else False. In
+            case of an ndarray, it is 1-D
 
         Examples
         --------
@@ -1024,13 +1050,13 @@ class Spheroid(Shape):
         ----------
         r : Ray
             The ray(s) to use for the intersection test(s)
-        ds_output : Bool, optional
+        ds_output : bool, optional
             If True the output is a dataset, else -> a tuple with
             intersection information variables
 
         Returns
         -------
-        out : xr.Dataset | tuple
+        xr.Dataset or tuple
             Look-up table with the intersection information if ds_output
             is True, else returns a tuple. The tuple is ready to be an
             input for the function geoclide.shapes.get_intersect_dataset
@@ -1364,7 +1390,7 @@ class Spheroid(Shape):
 
         Returns
         -------
-        mesh : TriangleMesh
+        TriangleMesh
             The spheroid converted to a triangle mesh
         """
         rescale_xyz = get_scale_tf(Vector(self.alpha, self.alpha, self.gamma))
@@ -1476,11 +1502,12 @@ class Disk(Shape):
 
         Returns
         -------
-        thit : float | 1-D ndarray
+        thit : float or ndarray
             The t ray variable(s) for its first intersection at the
-            shape surface
-        is_intersection : bool | 1-D ndarray
-            If there is an intersection -> True, else False
+            shape surface. In case of an ndarray, it is 1-D
+        is_intersection : bool or ndarray
+            If there is an intersection -> True, else False. In
+            case of an ndarray, it is 1-D
 
         Examples
         --------
@@ -1592,8 +1619,9 @@ class Disk(Shape):
 
         Returns
         -------
-        is_intersection : bool | 1-D ndarray
-            If there is an intersection -> True, else False
+        bool or ndarray
+            If there is an intersection -> True, else False. In
+            case of an ndarray, it is 1-D
 
         Examples
         --------
@@ -1623,13 +1651,13 @@ class Disk(Shape):
         ----------
         r : Ray
             The ray(s) to use for the intersection test(s)
-        ds_output : Bool, optional
+        ds_output : bool, optional
             If True the output is a dataset, else -> a tuple with
             intersection information variables
 
         Returns
         -------
-        out : xr.Dataset | tuple
+        xr.Dataset or tuple
             Look-up table with the intersection information if ds_output
             is True, else returns a tuple. The tuple is ready to be an
             input for the function geoclide.shapes.get_intersect_dataset
@@ -1896,7 +1924,7 @@ class Disk(Shape):
 
         Returns
         -------
-        mesh : TriangleMesh
+        TriangleMesh
             The disk converted to a triangle mesh
         """
         return create_disk_trianglemesh(
