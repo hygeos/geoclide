@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import math
+from typing import cast
 
 import numpy as np
 
@@ -18,8 +19,9 @@ def test_dot():
     v_set2 = gc.Vector(
         np.vstack((np.array([0.0, 1.0, 0.0]), np.array([0.0, 0.0, 1.0])))
     )
-    assert gc.dot(v_set1, v_set2)[0] == 0.0
-    assert gc.dot(v_set1, v_set2)[1] == 1.0
+    dots = cast(np.ndarray, gc.dot(v_set1, v_set2))
+    assert dots[0] == 0.0
+    assert dots[1] == 1.0
 
     assert gc.dot(gc.Normal(0.0, 0.0, 1.0), gc.Vector(0.0, 1.0, 0.0)) == 0.0
     assert gc.dot(gc.Normal(0.0, 0.0, 1.0), gc.Vector(0.0, 0.0, 1.0)) == 1.0
@@ -144,8 +146,9 @@ def test_distance():
     p2 = gc.Point(p_set1.to_numpy()[1, :])
     p3 = gc.Point(p_set2.to_numpy()[0, :])
     p4 = gc.Point(p_set2.to_numpy()[1, :])
-    assert gc.distance(p_set1, p_set2)[0] == gc.distance(p1, p3)
-    assert gc.distance(p_set1, p_set2)[1] == gc.distance(p2, p4)
+    dists = cast(np.ndarray, gc.distance(p_set1, p_set2))
+    assert dists[0] == gc.distance(p1, p3)
+    assert dists[1] == gc.distance(p2, p4)
 
 
 def test_face_forward():
@@ -175,8 +178,9 @@ def test_vmax():
     v1 = gc.Vector(5, 2, 10)
     v2 = gc.Vector(-4, -2, -1)
     v1v2 = gc.Vector(np.vstack((v1.to_numpy(), v2.to_numpy())))
-    assert gc.vmax(v1) == gc.vmax(v1v2)[0]
-    assert gc.vmax(v2) == gc.vmax(v1v2)[1]
+    vmaxs = cast(np.ndarray, gc.vmax(v1v2))
+    assert gc.vmax(v1) == vmaxs[0]
+    assert gc.vmax(v2) == vmaxs[1]
 
 
 def test_vmin():
@@ -186,8 +190,9 @@ def test_vmin():
     v1 = gc.Vector(5, 2, 10)
     v2 = gc.Vector(-4, -2, -1)
     v1v2 = gc.Vector(np.vstack((v1.to_numpy(), v2.to_numpy())))
-    assert gc.vmin(v1) == gc.vmin(v1v2)[0]
-    assert gc.vmin(v2) == gc.vmin(v1v2)[1]
+    vmins = cast(np.ndarray, gc.vmin(v1v2))
+    assert gc.vmin(v1) == vmins[0]
+    assert gc.vmin(v2) == vmins[1]
 
 
 def test_vargmax():
@@ -197,8 +202,9 @@ def test_vargmax():
     v1 = gc.Vector(5, 2, 10)
     v2 = gc.Vector(-4, -2, -1)
     v1v2 = gc.Vector(np.vstack((v1.to_numpy(), v2.to_numpy())))
-    assert gc.vargmax(v1) == gc.vargmax(v1v2)[0]
-    assert gc.vargmax(v2) == gc.vargmax(v1v2)[1]
+    vargmaxs = cast(np.ndarray, gc.vargmax(v1v2))
+    assert gc.vargmax(v1) == vargmaxs[0]
+    assert gc.vargmax(v2) == vargmaxs[1]
 
 
 def test_vargmin():
@@ -208,8 +214,9 @@ def test_vargmin():
     v1 = gc.Vector(5, 2, 10)
     v2 = gc.Vector(-4, -2, -1)
     v1v2 = gc.Vector(np.vstack((v1.to_numpy(), v2.to_numpy())))
-    assert gc.vargmin(v1) == gc.vargmin(v1v2)[0]
-    assert gc.vargmin(v2) == gc.vargmin(v1v2)[1]
+    vargmins = cast(np.ndarray, gc.vargmin(v1v2))
+    assert gc.vargmin(v1) == vargmins[0]
+    assert gc.vargmin(v2) == vargmins[1]
 
 
 def test_vabs():
