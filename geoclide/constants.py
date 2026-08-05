@@ -1,3 +1,12 @@
+"""
+Package-level constants.
+
+This module defines the geoclide version, the gamma constants
+bounding the floating-point rounding errors (in simple and double
+precision) used by the ray-shape intersection tests, and common
+mathematical constants.
+"""
+
 from __future__ import annotations
 
 import math
