@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import cast
 
 import numpy as np
 import xarray as xr
@@ -96,8 +97,13 @@ def get_intersect_dataset(
     ds = xr.Dataset(coords={"xyz": np.arange(3)})
     not_int = np.logical_not(is_intersection)
 
+    # bind defaults, reassigned below when is_r_arr is True
+    nrays = 0
+    mint = np.empty(0)
+    maxt = np.empty(0)
+
     if is_r_arr:
-        nrays = len(r.o.x)
+        nrays = len(cast(np.ndarray, r.o.x))
         ds["o"] = xr.DataArray(r.o.to_numpy(), dims=["nrays", "xyz"])
         ds["d"] = xr.DataArray(r.d.to_numpy(), dims=["nrays", "xyz"])
         mint = np.zeros(nrays, dtype=np.float64)
@@ -138,6 +144,8 @@ def get_intersect_dataset(
         ds.attrs.update({"nobj": len(t)})
         ds["is_intersection"] = xr.DataArray(is_intersection, dims=["nobj"])
         ds["thit"] = xr.DataArray(t, dims=["nobj"])
+        u = cast(np.ndarray, u)
+        v = cast(np.ndarray, v)
         u[not_int] = None
         v[not_int] = None
         ds["u"] = xr.DataArray(u, dims=["nobj"])
@@ -158,6 +166,8 @@ def get_intersect_dataset(
         ds.attrs.update({"nrays": nrays})
         ds["is_intersection"] = xr.DataArray(is_intersection, dims=["nrays"])
         ds["thit"] = xr.DataArray(t, dims=["nrays"])
+        u = cast(np.ndarray, u)
+        v = cast(np.ndarray, v)
         u[not_int] = None
         v[not_int] = None
         ds["u"] = xr.DataArray(u, dims=["nrays"])
@@ -187,6 +197,8 @@ def get_intersect_dataset(
             ds.attrs.update({"nobj": ndiag, "nrays": ndiag, "ndiag": ndiag})
         ds["is_intersection"] = xr.DataArray(is_intersection, dims=[dim_name])
         ds["thit"] = xr.DataArray(t, dims=[dim_name])
+        u = cast(np.ndarray, u)
+        v = cast(np.ndarray, v)
         u[not_int] = None
         v[not_int] = None
         ds["u"] = xr.DataArray(u, dims=[dim_name])
@@ -211,6 +223,8 @@ def get_intersect_dataset(
             is_intersection, dims=["nobj", "nrays"]
         )
         ds["thit"] = xr.DataArray(t, dims=["nobj", "nrays"])
+        u = cast(np.ndarray, u)
+        v = cast(np.ndarray, v)
         u[not_int] = None
         v[not_int] = None
         ds["u"] = xr.DataArray(u, dims=["nobj", "nrays"])
