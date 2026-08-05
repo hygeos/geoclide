@@ -20,6 +20,18 @@ Mustapha Moulana
 
 -----------------------------------------
 
+# Features
+- Basic geometric objects: vectors, points, normals, rays and bounding boxes
+- Geometric transformations: translations, scales and rotations
+- Ray intersection tests with shapes: spheres, spheroids, disks, triangles
+  and triangle meshes
+- Vectorized calculations with numpy: sets of objects and/or sets of rays
+  can be processed at once
+- Intersection results returned as xarray datasets, gathering the
+  intersection information and the shape attributes
+- Visualization of the quadrics and triangle meshes, and reading/writing of
+  triangle meshes (netcdf4, and formats supported by trimesh as stl, ply, ...)
+
 # Installation
 The installation can be performed using one of the following commands:
 ```shell
@@ -32,7 +44,47 @@ $ pip install geoclide
 $ pip install git+https://github.com/hygeos/geoclide.git
 ```
 
+# Quickstart
+Perform an intersection test between a ray and a sphere, and get the
+intersection information as an xarray dataset:
+```python
+>>> import geoclide as gc
+>>> sphere = gc.Sphere(radius=1.)
+>>> ray = gc.Ray(o=gc.Point(-2., 0., 0.8), d=gc.Vector(1., 0., 0.))
+>>> ds = gc.calc_intersection(sphere, ray)
+>>> ds['thit'].values, ds['phit'].values
+(array(1.4), array([-0.6,  0. ,  0.8]))
+```
+
+Create a triangle mesh, place it in the scene with a transformation, then
+intersect it with the same ray:
+```python
+>>> import numpy as np
+>>> vertices = np.array([[-5., -5., 0.], [5., -5., 0.],
+...                      [-5., 5., 0.], [5., 5., 0.]])
+>>> faces = np.array([[0, 1, 2], [2, 3, 1]])
+>>> translate = gc.get_translate_tf(gc.Vector(2.5, 0., 0.))
+>>> rotate = gc.get_rotate_y_tf(-90.)
+>>> mesh = gc.TriangleMesh(vertices, faces, otw=translate*rotate)
+>>> ds = gc.calc_intersection(mesh, ray)
+>>> ds['is_intersection'].values, ds['thit'].values
+(array(True), array(4.5))
+>>> ds['phit'].values
+array([2.5, 0. , 0.8])
+```
+
+# Documentation
+The complete documentation is available at
+[hygeos.github.io/geoclide](https://hygeos.github.io/geoclide/). It
+includes example notebooks (basics, remote sensing applications, quadrics
+visualization and numpy acceleration) and the full API reference. The
+docstrings are also available from the built-in `help` function, e.g.
+`help(gc.calc_intersection)`.
+
 # Testing
 Run the command `pytest geoclide/tests/ -s -v` to check that everything is running correctly.
 
-
+# License
+Geoclide is free for non-commercial use, see
+[LICENSE.txt](https://github.com/hygeos/geoclide/blob/main/LICENSE.txt).
+For commercial use, please contact [HYGEOS](https://hygeos.com/en/).
