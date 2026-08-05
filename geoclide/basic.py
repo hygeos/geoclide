@@ -1,3 +1,33 @@
+"""
+Basic geometric objects used across geoclide.
+
+This module implements the elementary objects on which the whole
+package is built: vectors, points, normals, rays and axis-aligned
+bounding boxes. All of them can represent either a single element
+or a set of elements (their components being ndarrays), allowing
+vectorized calculations.
+
+Key Classes
+-----------
+Vector
+    A direction in the three-dimensional space, with the common
+    operators (addition, subtraction, scaling, ...).
+Point
+    A position in the three-dimensional space. The subtraction of
+    two points gives a vector.
+Normal
+    A vector perpendicular to a surface at a particular position.
+    It is not necessarily normalized and is transformed
+    differently from a vector.
+Ray
+    A semi-infinite line described by an origin (Point), a
+    direction (Vector) and the parametric range [mint, maxt].
+BBox
+    An axis-aligned bounding box described by its pmin and pmax
+    corner points, supporting union operations and ray
+    intersection tests.
+"""
+
 from __future__ import annotations
 
 import math
@@ -30,12 +60,14 @@ class Vector:
     """
     Parameters
     ----------
-    x : float | 1-D or 2-D ndarray | Point | Vector | Normal, optional
+    x : float or ndarray or Point or Vector or Normal, optional
         The x component(s) of the vector (see notes)
-    y : float | 1-D ndarray, optional
-        The y component(s) of the vector
-    z : float | 1-D ndarray, optional
-        The z component(s) of the vector
+    y : float or ndarray, optional
+        The y component(s) of the vector. In case of an ndarray,
+        it must be 1-D
+    z : float or ndarray, optional
+        The z component(s) of the vector. In case of an ndarray,
+        it must be 1-D
 
     Notes
     -----
@@ -182,12 +214,14 @@ class Point:
     """
     Parameters
     ----------
-    x : float | 1-D or 2-D ndarray | Point | Vector | Normal, optional
+    x : float or ndarray or Point or Vector or Normal, optional
         The x component(s) of the point (see notes)
-    y : float | 1-D ndarray, optional
-        The y component(s) of the point
-    z : float | 1-D ndarray, optional
-        The z component(s) of the point
+    y : float or ndarray, optional
+        The y component(s) of the point. In case of an ndarray,
+        it must be 1-D
+    z : float or ndarray, optional
+        The z component(s) of the point. In case of an ndarray,
+        it must be 1-D
 
     Notes
     -----
@@ -335,12 +369,14 @@ class Normal:
     """
     Parameters
     ----------
-    x : float | 1-D or 2-D ndarray | Point | Vector | Normal, optional
+    x : float or ndarray or Point or Vector or Normal, optional
         The x component(s) of the normal (see notes)
-    y : float | 1-D ndarray, optional
-        The y component(s) of the normal
-    z : float | 1-D ndarray, optional
-        The z component(s) of the normal
+    y : float or ndarray, optional
+        The y component(s) of the normal. In case of an ndarray,
+        it must be 1-D
+    z : float or ndarray, optional
+        The z component(s) of the normal. In case of an ndarray,
+        it must be 1-D
 
     Notes
     -----
@@ -495,7 +531,7 @@ class Ray:
 
     Parameters
     ----------
-    o : Point | Ray
+    o : Point or Ray
         Origin point(s) of the ray(s). If the o parameter is a Ray ->
         circumvent all the parameters by the ray attributs
     d : Vector
@@ -549,13 +585,13 @@ class Ray:
 
         Parameters
         ----------
-        t : float | 1-D ndarray
+        t : float or ndarray
             The t rays(s) values(s). The value(s) must lie between mint
-            and maxt
+            and maxt. In case of an ndarray, it must be 1-D
 
         Returns
         -------
-        out : Point
+        Point
             The result(s) of the equation r(t) = o + t*d
 
         Examples
@@ -788,12 +824,12 @@ class BBox:
 
         Parameters
         ----------
-        b : Point | BBox
+        b : Point or BBox
             The point(s) or bounding box(es) to use for the union
 
         Returns
         -------
-        b_union : BBox
+        BBox
             The new bounding box(es) after the union
 
         Examples
@@ -895,9 +931,10 @@ class BBox:
 
         Returns
         -------
-        out : bool | 1-D ndarray| 2-D ndarray
+        bool or ndarray
             If there is at least 1 intersection returns True, else
-            False.
+            False. In case of an ndarray, it is 1-D, or 2-D for a
+            set of rays and a set of bounding boxes.
 
         Examples
         --------
@@ -966,26 +1003,31 @@ class BBox:
             boxes and rays, the output is a 1-D array instead of a 2-D
             array where out[i] is calculated using r(i) and bbox(i). The
             same size for the BBox and Ray objects is required.
-        ds_output : Bool, optional
+        ds_output : bool, optional
             If True the output is a dataset, else returns a tuple with
             intersection information variables
 
         Returns
         -------
-        out : xr.Dataset | tuple
+        xr.Dataset or tuple
             Look-up table with the intersection information if ds_output
             is True, else return a tuple. Form of the tuple:
 
-            * t0 : None | float | 1-D ndarray | 2-D ndarray
+            * t0 : None or float or ndarray
                 -> The t ray variable of the first intersection. In case
-                of only 1 intersection it represents nothing.
-            * t1 : None | float | 1-D ndarray | 2-D ndarray
+                of only 1 intersection it represents nothing. An
+                ndarray is 1-D, or 2-D for a set of rays and a set
+                of bounding boxes.
+            * t1 : None or float or ndarray
                 -> The t ray variable of the second intersection. In
                 case of only 1 intersection, t1 becomes the t ray
-                variable of the first intersection.
-            * is_intersection : bool | 1-D ndarray | 2-D ndarray
+                variable of the first intersection. An ndarray is
+                1-D, or 2-D for a set of rays and a set of
+                bounding boxes.
+            * is_intersection : bool or ndarray
                 -> If there is at least 1 intersection return True, else
-                False.
+                False. An ndarray is 1-D, or 2-D for a set of rays
+                and a set of bounding boxes.
 
         Examples
         --------
@@ -1139,7 +1181,7 @@ class BBox:
 
         Returns
         -------
-        out : 1-D ndarray | 2D ndarray
+        ndarray
             Returns an array of boolean values indicating if the
             bounding box(es) vertices are common to the secondary b
             bounding box(es) vertices
@@ -1180,9 +1222,9 @@ class BBox:
 
         Returns
         -------
-        out : integer | fill_value | 1-D ndarray
+        int or ndarray
             Returns the index/indices of the common face(s) or
-            fill_value
+            fill_value. In case of an ndarray, it is 1-D
 
         Examples
         --------
@@ -1211,10 +1253,11 @@ def get_common_vertices(b1: BBox, b2: BBox) -> np.ndarray:
 
     Returns
     -------
-    out : 1-D ndarray | 2D ndarray
+    ndarray
         Returns an array of boolean values indicating whether the
         principal bounding box(es) b1 vertices are common to the
-        secondary bounding box(es) b2 vertices.
+        secondary bounding box(es) b2 vertices. It is 1-D, or 2-D
+        in case of a set of bounding boxes.
 
     Examples
     --------
@@ -1282,8 +1325,9 @@ def get_common_face(
 
     Returns
     -------
-    out : integer | fill_value | 1-D ndarray
-        Returns the index/indices of the common face(s) or fill_value
+    int or ndarray
+        Returns the index/indices of the common face(s) or
+        fill_value. In case of an ndarray, it is 1-D
 
     Examples
     --------
@@ -1362,19 +1406,25 @@ def get_bbox_intersect_dataset(
         The bounding box(es) used for the intersection test
     r : Ray
         The ray(s) used for the intersection test
-    t0 : float | 1-D ndarray | 2-D ndarray
-        The t ray variable of the first intersection
-    t1 : float | 1-D ndarray | 2-D ndarray
-        The t ray variable of the second intersection
-    is_intersection : bool | 1-D ndarray | 2-D ndarray, optional
-        If there is an intersection returns True, else False
-    diag_cal : bool, optional
-            This indicates whether diagonal calculations have been
-            performed
+    t0 : float or ndarray
+        The t ray variable of the first intersection. In case of
+        an ndarray, it is 1-D, or 2-D for a set of rays and a set
+        of bounding boxes
+    t1 : float or ndarray
+        The t ray variable of the second intersection. In case of
+        an ndarray, it is 1-D, or 2-D for a set of rays and a set
+        of bounding boxes
+    is_intersection : bool or ndarray, optional
+        If there is an intersection returns True, else False. In
+        case of an ndarray, it is 1-D, or 2-D for a set of rays
+        and a set of bounding boxes
+    diag_calc : bool, optional
+        This indicates whether diagonal calculations have been
+        performed
 
     Returns
     -------
-    out : xr.Dataset
+    xr.Dataset
         Look-up table with the intersection information
     """
     is_r_arr = isinstance(r.o.x, np.ndarray)
@@ -1495,14 +1545,14 @@ def print_basic(basic: Vector | Point | Normal, name: str = "") -> str:
 
     Parameters
     ----------
-    basic : Vector | Point | Normal
+    basic : Vector or Point or Normal
         The basic object
     name : str, optional
         The str name to show at the start
 
     Returns
     -------
-    out : str
+    str
         The return for the method __repr__ or __str___
     """
     if not isinstance(basic.x, np.ndarray):
