@@ -1,3 +1,14 @@
+"""
+Conversions between angles and direction vectors.
+
+This module converts a direction described by the polar and
+azimuthal angles (theta, phi) into a direction described by a
+Vector, and conversely, in a direct orthogonal coordinate system
+where z is pointing upwards. Both single directions and sets of
+directions are supported, with an optional diagonal calculation
+mode where the i-th direction uses theta(i) and phi(i).
+"""
+
 from __future__ import annotations
 
 import math
@@ -26,26 +37,27 @@ def ang2vec(
 
     Parameters
     ----------
-    theta : float | 1D array
+    theta : float or ndarray
         The polar angle(s) in degrees, starting at z+ in the zx plane
-        and going in the trigonometric direction around the y axis
+        and going in the trigonometric direction around the y axis.
+        In case of an ndarray, it must be 1-D
 
-    phi : float | 1D array
+    phi : float or ndarray
         The azimuthal angle(s) in degrees, starting at x+ in the xy
-        plane and going in the trigonométric direction around the z
-        axis
+        plane and going in the trigonometric direction around the z
+        axis. In case of an ndarray, it must be 1-D
 
     vec_view : str, optional
-        Two choices (concerning intial direction at theta=phi=0):
-        'zenith' (i.e. pointing above) or 'bellow' (i.e. pointing
-        bellow)
+        Two choices (concerning initial direction at theta=phi=0):
+        'zenith' (i.e. pointing above) or 'nadir' (i.e. pointing
+        below)
     diag_calc : bool, optional
-            Perform diagonal calculations, v(i) is calculated using
-            theta(i) and phi(i)
+        Perform diagonal calculations, v(i) is calculated using
+        theta(i) and phi(i)
 
     Returns
     -------
-    v : Vector
+    Vector
         The direction(s) described by a vector
 
     Notes
@@ -69,7 +81,7 @@ def ang2vec(
         # initial vector is facing zenith (pointing above)
         v = Vector(0.0, 0.0, 1.0)
     elif vec_view == "nadir":
-        # initial vector is facing nadir (pointing bellow)
+        # initial vector is facing nadir (pointing below)
         v = Vector(0.0, 0.0, -1.0)
     else:
         raise ValueError(
@@ -102,21 +114,22 @@ def vec2ang(
     v : Vector
         The direction(s) described by a vector
     vec_view : str, optional
-        Two choices (concerning intial direction at theta=phi=0):
+        Two choices (concerning initial direction at theta=phi=0):
         'zenith' (i.e. pointing above) or 'nadir' (i.e. pointing
-        bellow)
+        below)
     acc : float, optional
         The tolerance for numerical errors. Default is 1e-6.
 
     Returns
     -------
-    theta : float | 1-D ndarray
+    theta : float or ndarray
         The polar angle(s) in degrees, starting at z+ in the zx plane
-        and going in the trigonometric direction around the y axis
-    phi : float | 1-D ndarray
+        and going in the trigonometric direction around the y axis.
+        In case of an ndarray, it is 1-D
+    phi : float or ndarray
         The azimuthal angle(s) in degrees, starting at x+ in the xy
-        plane and going in the trigonométric direction around the z
-        axis
+        plane and going in the trigonometric direction around the z
+        axis. In case of an ndarray, it is 1-D
 
     Examples
     --------
@@ -143,7 +156,7 @@ def vec2ang(
         # initial vector is facing zenith (pointing above)
         pass
     elif vec_view == "nadir":
-        # initial vector is facing nadir (pointing bellow)
+        # initial vector is facing nadir (pointing below)
         # by doing that, we can keep a v_ini facing upwards
         v = -v
     else:
