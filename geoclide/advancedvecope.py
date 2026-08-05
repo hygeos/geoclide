@@ -186,38 +186,30 @@ def vec2ang(
         c_case_bis = np.full(nv, True, dtype=bool)
         theta_bis = np.zeros(nv, dtype=np.float64)
 
+        # the polar angle of the cases 1 and 2 (and its opposite for
+        # the cases 3 and 4), computed only once
+        acos_z = np.arccos(v.z)
+        acos_cosphi = np.zeros(nv, dtype=np.float64)
+
         for icase in range(1, 6):
-            if icase == 1:
-                roty_rad = np.arccos(v.z)
-                c_case_bis = np.logical_not(
-                    np.logical_and(v.x == 0, roty_rad == 0)
-                )
+            if icase == 1 or icase == 3:
+                roty_rad = acos_z if icase == 1 else -acos_z
+                if icase == 1:
+                    c_case_bis = np.logical_not(
+                        np.logical_and(v.x == 0, roty_rad == 0)
+                    )
                 cosphi = np.zeros(nv, dtype=np.float64)
                 cosphi[c_case_bis] = np.clip(
                     v.x[c_case_bis] / np.sin(roty_rad[c_case_bis]),
                     -1.0,
                     1.0,
                 )
-                rotz_rad = np.arccos(cosphi)
+                acos_cosphi = np.arccos(cosphi)
                 theta_bis = np.degrees(roty_rad)
-                phi_bis = np.degrees(rotz_rad)
-            elif icase == 2:
-                rotz_rad = -np.arccos(cosphi)
-                phi_bis = np.degrees(rotz_rad)
-            elif icase == 3:
-                roty_rad = -np.arccos(v.z)
-                cosphi = np.zeros(nv, dtype=np.float64)
-                cosphi[c_case_bis] = np.clip(
-                    v.x[c_case_bis] / np.sin(roty_rad[c_case_bis]),
-                    -1.0,
-                    1.0,
-                )
-                rotz_rad = np.arccos(cosphi)
-                theta_bis = np.degrees(roty_rad)
-                phi_bis = np.degrees(rotz_rad)
-            elif icase == 4:
-                rotz_rad = -np.arccos(cosphi)
-                phi_bis = np.degrees(rotz_rad)
+                phi_bis = np.degrees(acos_cosphi)
+            elif icase == 2 or icase == 4:
+                # same azimuth angle as the previous case, but negative
+                phi_bis = np.degrees(-acos_cosphi)
             else:
                 warnings.warn(
                     "No rotation has been found for some (or all) vectors!",
@@ -226,19 +218,25 @@ def vec2ang(
                 )
                 return theta, phi
 
-            rotzy = get_rotate_z_tf(phi_bis) * get_rotate_y_tf(theta_bis)
+            # only the vectors without rotation found are still tested
+            ind = np.flatnonzero(not_resolved)
+            rotzy = get_rotate_z_tf(phi_bis[ind]) * get_rotate_y_tf(
+                theta_bis[ind]
+            )
             v_ini_rotated = normalize(
-                rotzy(v_ini, flatten=True, diag_calc=True)
+                rotzy(Vector(v_ini_arr[ind, :]), flatten=True, diag_calc=True)
             )
             c_tmp = np.all(
-                np.isclose(v_arr, v_ini_rotated.to_numpy(), 0.0, acc),
+                np.isclose(
+                    v_arr[ind, :], v_ini_rotated.to_numpy(), 0.0, acc
+                ),
                 axis=1,
             )
-            c_tmp_bis = np.logical_and(not_resolved, c_tmp)
-            theta[c_tmp_bis] = theta_bis[c_tmp_bis]
-            phi[c_tmp_bis] = phi_bis[c_tmp_bis]
-            not_resolved = np.logical_and(not_resolved, np.logical_not(c_tmp))
-            if not_resolved.sum() == 0:
+            ind_ok = ind[c_tmp]
+            theta[ind_ok] = theta_bis[ind_ok]
+            phi[ind_ok] = phi_bis[ind_ok]
+            not_resolved[ind_ok] = False
+            if not not_resolved.any():
                 return theta, phi
         # unreachable, the icase 5 iteration always returns
         return theta, phi
