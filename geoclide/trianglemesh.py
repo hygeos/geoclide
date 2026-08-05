@@ -3799,16 +3799,22 @@ def read_trianglemesh(path: str, **kwargs) -> TriangleMesh:
         The xarray filename_or_obj or trimesh file_obj parameter
     **kwargs
         The keyword arguments are passed on to xarray open_dataset or
-        trimesh load method
+        trimesh load_mesh method
 
     Returns
     -------
     TriangleMesh
         The triangle mesh
+
+    Notes
+    -----
+    A file describing several objects, as a glb file or an obj file
+    with several groups, is read as a single triangle mesh gathering
+    all of them.
     """
 
     if path.endswith("gcnc"):
         return read_gcnc_trianglemesh(path, **kwargs)
     else:
-        msh = cast(Any, trimesh.load(path, **kwargs))
+        msh = trimesh.load_mesh(path, **kwargs)
         return TriangleMesh(msh.vertices, msh.faces)
