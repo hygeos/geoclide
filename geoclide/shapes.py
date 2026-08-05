@@ -134,15 +134,17 @@ def get_intersect_dataset(
         dpdv = np.array([np.nan, np.nan, np.nan])
 
     is_r_arr = isinstance(r.o.x, np.ndarray)
+    # not_int is used only with a set of shapes and/or rays
+    not_int: bool | np.ndarray = False
     if isinstance(t, np.ndarray):
         is_obj_arr = (len(t.shape) == 2) or (
             len(t.shape) == 1 and not is_r_arr
         )
+        not_int = np.logical_not(is_intersection)
     else:
         is_obj_arr = False
 
     ds = xr.Dataset(coords={"xyz": np.arange(3)})
-    not_int = np.logical_not(is_intersection)
 
     # bind defaults, reassigned below when is_r_arr is True
     nrays = 0
@@ -153,10 +155,8 @@ def get_intersect_dataset(
         nrays = len(cast(np.ndarray, r.o.x))
         ds["o"] = xr.DataArray(r.o.to_numpy(), dims=["nrays", "xyz"])
         ds["d"] = xr.DataArray(r.d.to_numpy(), dims=["nrays", "xyz"])
-        mint = np.zeros(nrays, dtype=np.float64)
-        maxt = np.zeros_like(mint)
-        mint[:] = r.mint
-        maxt[:] = r.maxt
+        mint = np.full(nrays, r.mint, dtype=np.float64)
+        maxt = np.full(nrays, r.maxt, dtype=np.float64)
         ds["mint"] = xr.DataArray(mint, dims=["nrays"])
         ds["maxt"] = xr.DataArray(maxt, dims=["nrays"])
     else:
