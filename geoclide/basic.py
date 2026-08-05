@@ -33,7 +33,7 @@ from __future__ import annotations
 import math
 import warnings
 from datetime import datetime
-from typing import Literal, cast, overload
+from typing import Literal, TypeVar, cast, overload
 
 import numpy as np
 import xarray as xr
@@ -56,6 +56,32 @@ def _xyz_arrays(
     )
 
 
+_VPN = TypeVar("_VPN", "Vector", "Point", "Normal")
+
+FLOAT64 = np.dtype(np.float64)
+
+
+def _new_vpn(
+    cls: type[_VPN],
+    x: float | np.ndarray,
+    y: float | np.ndarray,
+    z: float | np.ndarray,
+) -> _VPN:
+    """
+    :meta private:
+
+    Create a Vector/Point/Normal without checking the components
+
+    It is used by the operators, where the components are already
+    the floats or the float64 ndarrays returned by numpy.
+    """
+    vpn = object.__new__(cls)
+    vpn.x = x
+    vpn.y = y
+    vpn.z = z
+    return vpn
+
+
 def _init_xyz(
     x: float | np.ndarray | Vector | Point | Normal | None,
     y: float | np.ndarray | None,
@@ -72,31 +98,36 @@ def _init_xyz(
     components given as 3 ndarrays are not copied (see the notes of
     the classes).
     """
+    if isinstance(x, np.ndarray):
+        if isinstance(y, np.ndarray) and isinstance(z, np.ndarray):
+            if (
+                x.dtype is FLOAT64
+                and y.dtype is FLOAT64
+                and z.dtype is FLOAT64
+            ):
+                return x, y, z
+            return (
+                np.asarray(x, dtype=np.float64),
+                np.asarray(y, dtype=np.float64),
+                np.asarray(z, dtype=np.float64),
+            )
+        if y is None and z is None:
+            if x.ndim == 1 and len(x) == 3:
+                return float(x[0]), float(x[1]), float(x[2])
+            if x.ndim == 2 and x.shape[1] == 3:
+                # the columns are copied to get contiguous components
+                return (
+                    x[:, 0].astype(np.float64),
+                    x[:, 1].astype(np.float64),
+                    x[:, 2].astype(np.float64),
+                )
+        raise ValueError("Wrong parameter value(s)")
+    if isinstance(x, float) and isinstance(y, float) and isinstance(z, float):
+        return x, y, z
     if x is None and y is None and z is None:
         return 0.0, 0.0, 0.0
     if isinstance(x, (Vector, Point, Normal)):
         return x.x, x.y, x.z
-    if (
-        isinstance(x, np.ndarray)
-        and isinstance(y, np.ndarray)
-        and isinstance(z, np.ndarray)
-    ):
-        return (
-            np.asarray(x, dtype=np.float64),
-            np.asarray(y, dtype=np.float64),
-            np.asarray(z, dtype=np.float64),
-        )
-    if isinstance(x, np.ndarray) and y is None and z is None:
-        if x.ndim == 1 and len(x) == 3:
-            return float(x[0]), float(x[1]), float(x[2])
-        if x.ndim == 2 and x.shape[1] == 3:
-            # the columns are copied to get contiguous components
-            return (
-                x[:, 0].astype(np.float64),
-                x[:, 1].astype(np.float64),
-                x[:, 2].astype(np.float64),
-            )
-        raise ValueError("Wrong parameter value(s)")
     if np.isscalar(x) and np.isscalar(y) and np.isscalar(z):
         return (
             float(cast(float, x)),
@@ -169,7 +200,9 @@ class Vector:
 
     def __add__(self, v2: Vector) -> Vector:
         if isinstance(v2, Vector):
-            return Vector(self.x + v2.x, self.y + v2.y, self.z + v2.z)
+            return _new_vpn(
+                Vector, self.x + v2.x, self.y + v2.y, self.z + v2.z
+            )
         else:
             raise ValueError(
                 "Addition with a Vector must be only with another Vector"
@@ -177,7 +210,9 @@ class Vector:
 
     def __sub__(self, v2: Vector) -> Vector:
         if isinstance(v2, Vector):
-            return Vector(self.x - v2.x, self.y - v2.y, self.z - v2.z)
+            return _new_vpn(
+                Vector, self.x - v2.x, self.y - v2.y, self.z - v2.z
+            )
         else:
             raise ValueError(
                 "Substraction with a Vector must be only with another Vector"
@@ -185,16 +220,22 @@ class Vector:
 
     def __truediv__(self, sca: float | np.ndarray) -> Vector:
         div = 1.0 / sca
-        return Vector(self.x * div, self.y * div, self.z * div)
+        return _new_vpn(
+            Vector, self.x * div, self.y * div, self.z * div
+        )
 
     def __mul__(self, sca: float | np.ndarray) -> Vector:
-        return Vector(sca * self.x, sca * self.y, sca * self.z)
+        return _new_vpn(
+            Vector, sca * self.x, sca * self.y, sca * self.z
+        )
 
     def __rmul__(self, sca: float | np.ndarray) -> Vector:
-        return Vector(sca * self.x, sca * self.y, sca * self.z)
+        return _new_vpn(
+            Vector, sca * self.x, sca * self.y, sca * self.z
+        )
 
     def __neg__(self) -> Vector:
-        return Vector(-self.x, -self.y, -self.z)
+        return _new_vpn(Vector, -self.x, -self.y, -self.z)
 
     def __getitem__(self, ind: int) -> float | np.ndarray:
         if not isinstance(ind, (int, np.integer)):
@@ -293,7 +334,9 @@ class Point:
 
     def __add__(self, v: Vector | Point) -> Point:
         if isinstance(v, (Vector, Point)):
-            return Point(self.x + v.x, self.y + v.y, self.z + v.z)
+            return _new_vpn(
+                Point, self.x + v.x, self.y + v.y, self.z + v.z
+            )
         else:
             raise ValueError(
                 "Addition with a Point must be only with a Vector or"
@@ -308,9 +351,13 @@ class Point:
 
     def __sub__(self, vp2: Vector | Point) -> Point | Vector:
         if isinstance(vp2, Vector):
-            return Point(self.x - vp2.x, self.y - vp2.y, self.z - vp2.z)
+            return _new_vpn(
+                Point, self.x - vp2.x, self.y - vp2.y, self.z - vp2.z
+            )
         elif isinstance(vp2, Point):
-            return Vector(self.x - vp2.x, self.y - vp2.y, self.z - vp2.z)
+            return _new_vpn(
+                Vector, self.x - vp2.x, self.y - vp2.y, self.z - vp2.z
+            )
         else:
             raise ValueError(
                 "Substraction with a Point must be with another Point "
@@ -319,16 +366,22 @@ class Point:
 
     def __truediv__(self, sca: float | np.ndarray) -> Point:
         div = 1.0 / sca
-        return Point(self.x * div, self.y * div, self.z * div)
+        return _new_vpn(
+            Point, self.x * div, self.y * div, self.z * div
+        )
 
     def __mul__(self, sca: float | np.ndarray) -> Point:
-        return Point(sca * self.x, sca * self.y, sca * self.z)
+        return _new_vpn(
+            Point, sca * self.x, sca * self.y, sca * self.z
+        )
 
     def __rmul__(self, sca: float | np.ndarray) -> Point:
-        return Point(sca * self.x, sca * self.y, sca * self.z)
+        return _new_vpn(
+            Point, sca * self.x, sca * self.y, sca * self.z
+        )
 
     def __neg__(self) -> Point:
-        return Point(-self.x, -self.y, -self.z)
+        return _new_vpn(Point, -self.x, -self.y, -self.z)
 
     def __getitem__(self, ind: int) -> float | np.ndarray:
         if not isinstance(ind, (int, np.integer)):
@@ -418,7 +471,9 @@ class Normal:
 
     def __add__(self, n2: Normal) -> Normal:
         if isinstance(n2, Normal):
-            return Normal(self.x + n2.x, self.y + n2.y, self.z + n2.z)
+            return _new_vpn(
+                Normal, self.x + n2.x, self.y + n2.y, self.z + n2.z
+            )
         else:
             raise ValueError(
                 "Addition with a Normal must be only with another Normal"
@@ -426,7 +481,9 @@ class Normal:
 
     def __sub__(self, n2: Normal) -> Normal:
         if isinstance(n2, Normal):
-            return Normal(self.x - n2.x, self.y - n2.y, self.z - n2.z)
+            return _new_vpn(
+                Normal, self.x - n2.x, self.y - n2.y, self.z - n2.z
+            )
         else:
             raise ValueError(
                 "Substraction with a Normal must be only with another Normal"
@@ -434,16 +491,22 @@ class Normal:
 
     def __truediv__(self, sca: float | np.ndarray) -> Normal:
         div = 1.0 / sca
-        return Normal(self.x * div, self.y * div, self.z * div)
+        return _new_vpn(
+            Normal, self.x * div, self.y * div, self.z * div
+        )
 
     def __mul__(self, sca: float | np.ndarray) -> Normal:
-        return Normal(sca * self.x, sca * self.y, sca * self.z)
+        return _new_vpn(
+            Normal, sca * self.x, sca * self.y, sca * self.z
+        )
 
     def __rmul__(self, sca: float | np.ndarray) -> Normal:
-        return Normal(sca * self.x, sca * self.y, sca * self.z)
+        return _new_vpn(
+            Normal, sca * self.x, sca * self.y, sca * self.z
+        )
 
     def __neg__(self) -> Normal:
-        return Normal(-self.x, -self.y, -self.z)
+        return _new_vpn(Normal, -self.x, -self.y, -self.z)
 
     def __getitem__(self, ind: int) -> float | np.ndarray:
         if not isinstance(ind, (int, np.integer)):

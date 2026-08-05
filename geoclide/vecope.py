@@ -552,17 +552,26 @@ def permute(
     if iz is None:
         iz = 2
 
-    a_arr = a.to_numpy()
-    if isinstance(ix, (np.ndarray, list)):
-        ax = a_arr[np.arange(len(ix)), ix]
+    if (
+        isinstance(ix, (np.ndarray, list))
+        or isinstance(iy, (np.ndarray, list))
+        or isinstance(iz, (np.ndarray, list))
+    ):
+        # only the indices given as arrays need the (n,3) form of
+        # the components
+        a_arr = a.to_numpy()
+        if isinstance(ix, (np.ndarray, list)):
+            ax = a_arr[np.arange(len(ix)), ix]
+        else:
+            ax = a[ix]
+        if isinstance(iy, (np.ndarray, list)):
+            ay = a_arr[np.arange(len(iy)), iy]
+        else:
+            ay = a[iy]
+        if isinstance(iz, (np.ndarray, list)):
+            az = a_arr[np.arange(len(iz)), iz]
+        else:
+            az = a[iz]
     else:
-        ax = a[ix]
-    if isinstance(iy, (np.ndarray, list)):
-        ay = a_arr[np.arange(len(iy)), iy]
-    else:
-        ay = a[iy]
-    if isinstance(iz, (np.ndarray, list)):
-        az = a_arr[np.arange(len(iz)), iz]
-    else:
-        az = a[iz]
+        ax, ay, az = a[ix], a[iy], a[iz]
     return a.__class__(ax, ay, az)
