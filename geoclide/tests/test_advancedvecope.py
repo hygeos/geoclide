@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Tests of the advancedvecope module."""
 
 import numpy as np
 import pytest

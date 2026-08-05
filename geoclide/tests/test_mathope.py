@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Tests of the mathope module."""
 
 import geoclide as gc
 

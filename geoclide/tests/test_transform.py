@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Tests of the transform module."""
 
 import math
 from typing import cast

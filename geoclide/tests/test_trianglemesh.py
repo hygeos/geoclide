@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Tests of the trianglemesh module."""
 
 import math
 import os
