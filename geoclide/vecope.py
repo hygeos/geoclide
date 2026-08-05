@@ -163,7 +163,7 @@ def coordinate_system(v1: Vector, method: str = "m2") -> tuple[Vector, Vector]:
     --------
     >>> import geoclide as gc
     >>> v1 = gc.Vector(0., 0., 1.)
-    >>> v2, v3 = gc.coordinate_system(v1)
+    >>> gc.coordinate_system(v1)
     (Vector(1.0, -0.0, -0.0), Vector(-0.0, 1.0, -0.0))
     """
     if not isinstance(v1, Vector):
@@ -240,6 +240,7 @@ def distance(p1: Point, p2: Point) -> float | np.ndarray:
 
     Examples
     --------
+    >>> import geoclide as gc
     >>> p1 = gc.Point(0., 0., 0.)
     >>> p2 = gc.Point(0., 0., 10.)
     >>> gc.distance(p1,p2)
@@ -318,8 +319,8 @@ def vmax(a: Vector | Point | Normal) -> float | np.ndarray:
     --------
     >>> import geoclide as gc
     >>> v1 = gc.Vector(2.,3.,1.)
-    >>> gc.max(v1)
-    3
+    >>> gc.vmax(v1)
+    3.0
     """
     if isinstance(a, (Vector, Point, Normal)):
         if isinstance(a.x, np.ndarray):
@@ -353,8 +354,8 @@ def vmin(a: Vector | Point | Normal) -> float | np.ndarray:
     --------
     >>> import geoclide as gc
     >>> v1 = gc.Vector(2.,3.,1.)
-    >>> gc.min(v1)
-    1
+    >>> gc.vmin(v1)
+    1.0
     """
     if isinstance(a, (Vector, Point, Normal)):
         if isinstance(a.x, np.ndarray):
@@ -387,7 +388,7 @@ def vargmax(a: Vector | Point | Normal) -> int | np.ndarray:
     --------
     >>> import geoclide as gc
     >>> v1 = gc.Vector(2.,3.,1.)
-    >>> gc.argmax(v1)
+    >>> gc.vargmax(v1)
     1
     """
     if isinstance(a, (Vector, Point, Normal)):
@@ -433,7 +434,7 @@ def vargmin(a: Vector | Point | Normal) -> int | np.ndarray:
     --------
     >>> import geoclide as gc
     >>> v1 = gc.Vector(2.,3.,1.)
-    >>> gc.argmin(v1)
+    >>> gc.vargmin(v1)
     2
     """
     if isinstance(a, (Vector, Point, Normal)):
@@ -531,8 +532,7 @@ def permute(
     >>> v1 = gc.Vector(2., 3., 1.)
     >>> gc.permute(v1, 1, 0, 2)
     Vector(3.0, 2.0, 1.0)
-    >>> gc.permute(v1, 1, 0, 2])
-    Vector(3.0, 2.0, 1.0)
+    >>> import numpy as np
     >>> p_set = np.array(
     ...     [[0.,0.,3.], [1.,0.,0.], [-0.5,0.,0.], [0.,-3.,0.]]
     ... )
@@ -541,7 +541,7 @@ def permute(
     array([[ 3. ,  0. ,  3. ],
            [ 1. ,  0. ,  0. ],
            [-0.5,  0. ,  0. ],
-           [ 0. , -3. ,  0. ]])
+           [-3. , -3. ,  0. ]])
     """
     if not isinstance(a, (Vector, Point, Normal)):
         raise NameError("The parameter a must be a Vector or Point or Normal")
