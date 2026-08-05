@@ -1,3 +1,35 @@
+"""
+Geoclide
+========
+
+A python package for geometric calculations in the
+three-dimensional Euclidean space.
+
+Provides
+  1. Basic geometric objects: vectors, points, normals, rays and
+     bounding boxes
+  2. Geometric transformations: translations, scales and
+     rotations
+  3. Ray intersection tests with shapes: spheres, spheroids,
+     disks, triangles and triangle meshes
+
+How to use the documentation
+----------------------------
+Documentation is available in two forms: docstrings provided with
+the code, and a standalone reference guide, available from `the
+geoclide homepage <https://hygeos.github.io/geoclide/>`_.
+
+Code snippets are indicated by three greater-than signs::
+
+    >>> import geoclide as gc
+    >>> v = gc.Vector(0., 0., 1.)
+
+Use the built-in ``help`` function to view a function's
+docstring::
+
+    >>> help(gc.calc_intersection)
+"""
+
 from geoclide.advancedvecope import ang2vec, vec2ang
 from geoclide.basic import (
     BBox,
