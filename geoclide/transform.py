@@ -23,6 +23,15 @@ from geoclide.basic import BBox, Normal, Point, Ray, Vector
 from geoclide.vecope import normalize
 
 
+def _identity_stack(nc: int) -> np.ndarray:
+    """
+    :meta private:
+
+    Give nc identity matrices, of shape (nc,4,4)
+    """
+    return np.tile(np.identity(4, dtype=np.float64), (nc, 1, 1))
+
+
 def _check_matrix(m: np.ndarray, name: str) -> None:
     """
     :meta private:
@@ -733,10 +742,8 @@ def get_translate_tf(v: Vector) -> Transform:
         raise ValueError("The parameter v must be a Vector")
     if isinstance(v.x, np.ndarray):
         nc = len(v.x)
-        m = np.tile(np.identity(4, dtype=np.float64), (nc, 1)).reshape(
-            nc, 4, 4
-        )
-        m_inv = m.copy()
+        m = _identity_stack(nc)
+        m_inv = _identity_stack(nc)
         m[:, 0, 3] = v.x
         m[:, 1, 3] = v.y
         m[:, 2, 3] = v.z
@@ -774,10 +781,8 @@ def get_scale_tf(v: Vector) -> Transform:
 
     if isinstance(v.x, np.ndarray):
         nc = len(v.x)
-        m = np.tile(np.identity(4, dtype=np.float64), (nc, 1)).reshape(
-            nc, 4, 4
-        )
-        m_inv = m.copy()
+        m = _identity_stack(nc)
+        m_inv = _identity_stack(nc)
         m[:, 0, 0] = v.x
         m[:, 1, 1] = v.y
         m[:, 2, 2] = v.z
@@ -814,20 +819,20 @@ def get_rotate_x_tf(angle: float | np.ndarray) -> Transform:
     is_ang_arr = isinstance(angle, np.ndarray)
 
     if is_ang_arr:
-        sin_t = np.sin(angle * (math.pi / 180.0))
-        cos_t = np.cos(angle * (math.pi / 180.0))
+        angle_rad = angle * (math.pi / 180.0)
+        sin_t = np.sin(angle_rad)
+        cos_t = np.cos(angle_rad)
         nc = len(angle)
-        m = np.tile(np.identity(4, dtype=np.float64), (nc, 1)).reshape(
-            nc, 4, 4
-        )
+        m = _identity_stack(nc)
         m[:, 1, 1] = cos_t
         m[:, 1, 2] = -1.0 * sin_t
         m[:, 2, 1] = sin_t
         m[:, 2, 2] = cos_t
         return Transform(m, np.transpose(m, axes=(0, 2, 1)))
     else:
-        sin_t = math.sin(angle * (math.pi / 180.0))
-        cos_t = math.cos(angle * (math.pi / 180.0))
+        angle_rad = angle * (math.pi / 180.0)
+        sin_t = math.sin(angle_rad)
+        cos_t = math.cos(angle_rad)
         m = np.identity(4)
         m[1, 1] = cos_t
         m[1, 2] = -1.0 * sin_t
@@ -854,20 +859,20 @@ def get_rotate_y_tf(angle: float | np.ndarray) -> Transform:
     is_ang_arr = isinstance(angle, np.ndarray)
 
     if is_ang_arr:
-        sin_t = np.sin(angle * (math.pi / 180.0))
-        cos_t = np.cos(angle * (math.pi / 180.0))
+        angle_rad = angle * (math.pi / 180.0)
+        sin_t = np.sin(angle_rad)
+        cos_t = np.cos(angle_rad)
         nc = len(angle)
-        m = np.tile(np.identity(4, dtype=np.float64), (nc, 1)).reshape(
-            nc, 4, 4
-        )
+        m = _identity_stack(nc)
         m[:, 0, 0] = cos_t
         m[:, 2, 0] = -1.0 * sin_t
         m[:, 0, 2] = sin_t
         m[:, 2, 2] = cos_t
         return Transform(m, np.transpose(m, axes=(0, 2, 1)))
     else:
-        sin_t = math.sin(angle * (math.pi / 180.0))
-        cos_t = math.cos(angle * (math.pi / 180.0))
+        angle_rad = angle * (math.pi / 180.0)
+        sin_t = math.sin(angle_rad)
+        cos_t = math.cos(angle_rad)
         m = np.identity(4)
         m[0, 0] = cos_t
         m[2, 0] = -1.0 * sin_t
@@ -894,20 +899,20 @@ def get_rotate_z_tf(angle: float | np.ndarray) -> Transform:
     is_ang_arr = isinstance(angle, np.ndarray)
 
     if is_ang_arr:
-        sin_t = np.sin(angle * (math.pi / 180.0))
-        cos_t = np.cos(angle * (math.pi / 180.0))
+        angle_rad = angle * (math.pi / 180.0)
+        sin_t = np.sin(angle_rad)
+        cos_t = np.cos(angle_rad)
         nc = len(angle)
-        m = np.tile(np.identity(4, dtype=np.float64), (nc, 1)).reshape(
-            nc, 4, 4
-        )
+        m = _identity_stack(nc)
         m[:, 0, 0] = cos_t
         m[:, 0, 1] = -sin_t
         m[:, 1, 0] = sin_t
         m[:, 1, 1] = cos_t
         return Transform(m, np.transpose(m, axes=(0, 2, 1)))
     else:
-        sin_t = math.sin(angle * (math.pi / 180.0))
-        cos_t = math.cos(angle * (math.pi / 180.0))
+        angle_rad = angle * (math.pi / 180.0)
+        sin_t = math.sin(angle_rad)
+        cos_t = math.cos(angle_rad)
         m = np.identity(4)
         m[0, 0] = cos_t
         m[0, 1] = -sin_t
@@ -966,17 +971,17 @@ def get_rotate_tf(
         nc = 1
         if is_ang_arr:
             nc = max(nc, len(angle))
-            s = np.sin(angle * (math.pi / 180.0))
-            c = np.cos(angle * (math.pi / 180.0))
+            angle_rad = angle * (math.pi / 180.0)
+            s = np.sin(angle_rad)
+            c = np.cos(angle_rad)
         else:
-            s = math.sin(angle * (math.pi / 180.0))
-            c = math.cos(angle * (math.pi / 180.0))
+            angle_rad = angle * (math.pi / 180.0)
+            s = math.sin(angle_rad)
+            c = math.cos(angle_rad)
 
         if is_axis_arr:
             nc = max(nc, len(cast(np.ndarray, axis.x)))
-        m = np.tile(np.identity(4, dtype=np.float64), (nc, 1)).reshape(
-            nc, 4, 4
-        )
+        m = _identity_stack(nc)
 
         m[:, 0, 0] = a.x * a.x + (1 - a.x * a.x) * c
         m[:, 0, 1] = a.x * a.y * (1 - c) - a.z * s
