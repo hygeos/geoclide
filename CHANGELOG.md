@@ -2,6 +2,68 @@
 # GEOCLIDE CHANGELOG
 
 
+## v4.0.0
+Release date: 05-08-2026
+
+Geoclide is now licensed under the Apache License 2.0, instead of the
+previous terms of use restricted to non-commercial purposes. This
+release also modernizes the whole package, corrects several bugs of
+the calculations with a set of rays or vectors, and reduces the
+computational time of most of the operations.
+
+* Change the license to the Apache License 2.0
+
+* Breaking changes
+  - The minimum python version is now 3.10
+  - The module `constante` has been renamed `constants`
+  - The x, y and z ndarrays given to the Vector, Point and Normal
+    constructors are no longer copied, use the new parameter
+    copy=True to get an object with its own components
+
+* Correct the function `coordinate_system` with a set of vectors
+  - With the method 'm1' it raised an error when the set mixed the
+    2 cases |x| > |y| and |x| <= |y|, and the second case used a
+    wrong denominator
+
+* Correct the Sphere and Disk intersection tests with a set of rays
+  - The methods `is_intersection_t` and `intersect` raised an error
+    when some of the rays miss the shape, instead of returning no
+    intersection as with a single ray
+
+* Correct the Transform matrix shape check, a matrix of shape
+  (nt,3,4) was accepted
+
+* Reduce the computational time, without any change of the results
+  - Vector, Point and Normal creation and operations, from 40 to
+    99% faster
+  - Functions `get_translate_tf` and `get_scale_tf` with a set of
+    vectors, 90% faster
+  - Spheroid method `to_trianglemesh`, 95% faster
+  - Functions `face_forward`, `permute` and `quadratic`, from 65 to
+    99% faster
+  - BBox method `intersect`, 37% faster
+  - Triangle and TriangleMesh intersection tests, 14% faster
+
+* Read the meshes with the trimesh function `load_mesh`, a file
+  describing several objects (as a glb file) is now accepted
+
+* Add the python 3.14 support
+
+* Improve the documentation
+  - New introduction page, the README is no longer included
+  - New logo, for light and dark backgrounds
+  - Correct and complete the docstrings of all the modules, the
+    examples are now all executable
+  - Enrich the README with the features, a quickstart and badges
+
+* Modernize the package
+  - Setup ruff, add the type annotations and correct the type
+    checker findings of all the modules
+  - Add the pixi configuration and lock file
+  - Add the tests, docs, release and PyPI publication workflows
+  - Read the version from pyproject.toml
+
+
 ## v3.0.3
 Release date: 07-06-2025
 
