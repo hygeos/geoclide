@@ -56,6 +56,56 @@ def _xyz_arrays(
     )
 
 
+def _init_xyz(
+    x: float | np.ndarray | Vector | Point | Normal | None,
+    y: float | np.ndarray | None,
+    z: float | np.ndarray | None,
+) -> tuple[
+    float | np.ndarray, float | np.ndarray, float | np.ndarray
+]:
+    """
+    :meta private:
+
+    Give the x, y and z components of a Vector, Point or Normal
+
+    It gathers the constructor logic of the 3 classes. The
+    components given as 3 ndarrays are not copied (see the notes of
+    the classes).
+    """
+    if x is None and y is None and z is None:
+        return 0.0, 0.0, 0.0
+    if isinstance(x, (Vector, Point, Normal)):
+        return x.x, x.y, x.z
+    if (
+        isinstance(x, np.ndarray)
+        and isinstance(y, np.ndarray)
+        and isinstance(z, np.ndarray)
+    ):
+        return (
+            np.asarray(x, dtype=np.float64),
+            np.asarray(y, dtype=np.float64),
+            np.asarray(z, dtype=np.float64),
+        )
+    if isinstance(x, np.ndarray) and y is None and z is None:
+        if x.ndim == 1 and len(x) == 3:
+            return float(x[0]), float(x[1]), float(x[2])
+        if x.ndim == 2 and x.shape[1] == 3:
+            # the columns are copied to get contiguous components
+            return (
+                x[:, 0].astype(np.float64),
+                x[:, 1].astype(np.float64),
+                x[:, 2].astype(np.float64),
+            )
+        raise ValueError("Wrong parameter value(s)")
+    if np.isscalar(x) and np.isscalar(y) and np.isscalar(z):
+        return (
+            float(cast(float, x)),
+            float(cast(float, y)),
+            float(cast(float, z)),
+        )
+    raise ValueError("Wrong parameter value(s)")
+
+
 class Vector:
     """
     Parameters
@@ -80,6 +130,8 @@ class Vector:
     - if the parameter x is a Point, Vector or Normal, it will
       circumvent the y and z parameters and take the components of the
       Point/Vector/Normal for x, y and z values
+    - the x, y and z ndarrays given as parameters are not copied,
+      modifying them afterwards modifies the vector
 
     Examples
     --------
@@ -90,6 +142,7 @@ class Vector:
     """
 
     __array_priority__ = 1
+    fmt = ".8f"
 
     def __init__(
         self,
@@ -97,40 +150,7 @@ class Vector:
         y: float | np.ndarray | None = None,
         z: float | np.ndarray | None = None,
     ):
-        if x is None and y is None and z is None:
-            self.x = 0.0
-            self.y = 0.0
-            self.z = 0.0
-        elif isinstance(x, (Vector, Point, Normal)):
-            self.x = x.x
-            self.y = x.y
-            self.z = x.z
-        elif isinstance(x, np.ndarray) and (y is None and z is None):
-            if len(x.shape) == 1 and len(x) == 3:
-                self.x = float(x[0])
-                self.y = float(x[1])
-                self.z = float(x[2])
-            elif len(x.shape) == 2 and x.shape[1] == 3:
-                self.x = x[:, 0].astype(np.float64)
-                self.y = x[:, 1].astype(np.float64)
-                self.z = x[:, 2].astype(np.float64)
-            else:
-                raise ValueError("Wrong parameter value(s)")
-        elif np.isscalar(x) and np.isscalar(y) and np.isscalar(z):
-            self.x = float(cast(float, x))
-            self.y = float(cast(float, y))
-            self.z = float(cast(float, z))
-        elif (
-            isinstance(x, np.ndarray)
-            and isinstance(y, np.ndarray)
-            and isinstance(z, np.ndarray)
-        ):
-            self.x = x.astype(np.float64)
-            self.y = y.astype(np.float64)
-            self.z = z.astype(np.float64)
-        else:
-            raise ValueError("Wrong parameter value(s)")
-        self.fmt = ".8f"
+        self.x, self.y, self.z = _init_xyz(x, y, z)
 
     def __eq__(self, v2):
         if isinstance(v2, Vector):
@@ -234,6 +254,8 @@ class Point:
     - if the parameter x is a Point, Vector or Normal, it will
       circumvent the y and z parameters and take the components of the
       Point/Vector/Normal for x, y and z values
+    - the x, y and z ndarrays given as parameters are not copied,
+      modifying them afterwards modifies the point
 
     Examples
     --------
@@ -244,6 +266,7 @@ class Point:
     """
 
     __array_priority__ = 1
+    fmt = ".8f"
 
     def __init__(
         self,
@@ -251,40 +274,7 @@ class Point:
         y: float | np.ndarray | None = None,
         z: float | np.ndarray | None = None,
     ):
-        if x is None and y is None and z is None:
-            self.x = 0.0
-            self.y = 0.0
-            self.z = 0.0
-        elif isinstance(x, (Vector, Point, Normal)):
-            self.x = x.x
-            self.y = x.y
-            self.z = x.z
-        elif isinstance(x, np.ndarray) and (y is None and z is None):
-            if len(x.shape) == 1 and len(x) == 3:
-                self.x = float(x[0])
-                self.y = float(x[1])
-                self.z = float(x[2])
-            elif len(x.shape) == 2 and x.shape[1] == 3:
-                self.x = x[:, 0].astype(np.float64)
-                self.y = x[:, 1].astype(np.float64)
-                self.z = x[:, 2].astype(np.float64)
-            else:
-                raise ValueError("Wrong parameter value(s)")
-        elif np.isscalar(x) and np.isscalar(y) and np.isscalar(z):
-            self.x = float(cast(float, x))
-            self.y = float(cast(float, y))
-            self.z = float(cast(float, z))
-        elif (
-            isinstance(x, np.ndarray)
-            and isinstance(y, np.ndarray)
-            and isinstance(z, np.ndarray)
-        ):
-            self.x = x.astype(np.float64)
-            self.y = y.astype(np.float64)
-            self.z = z.astype(np.float64)
-        else:
-            raise ValueError("Wrong parameter value(s)")
-        self.fmt = ".8f"
+        self.x, self.y, self.z = _init_xyz(x, y, z)
 
     def __eq__(self, p2):
         if isinstance(p2, Point):
@@ -389,6 +379,8 @@ class Normal:
     - if the parameter x is a Point, Vector or Normal, it will
       circumvent the y and z parameters and take the components of the
       Point/Vector/Normal for x, y and z values
+    - the x, y and z ndarrays given as parameters are not copied,
+      modifying them afterwards modifies the normal
 
     Examples
     --------
@@ -399,6 +391,7 @@ class Normal:
     """
 
     __array_priority__ = 1
+    fmt = ".8f"
 
     def __init__(
         self,
@@ -406,40 +399,7 @@ class Normal:
         y: float | np.ndarray | None = None,
         z: float | np.ndarray | None = None,
     ):
-        if x is None and y is None and z is None:
-            self.x = 0.0
-            self.y = 0.0
-            self.z = 0.0
-        elif isinstance(x, (Vector, Point, Normal)):
-            self.x = x.x
-            self.y = x.y
-            self.z = x.z
-        elif isinstance(x, np.ndarray) and (y is None and z is None):
-            if len(x.shape) == 1 and len(x) == 3:
-                self.x = float(x[0])
-                self.y = float(x[1])
-                self.z = float(x[2])
-            elif len(x.shape) == 2 and x.shape[1] == 3:
-                self.x = x[:, 0].astype(np.float64)
-                self.y = x[:, 1].astype(np.float64)
-                self.z = x[:, 2].astype(np.float64)
-            else:
-                raise ValueError("Wrong parameter value(s)")
-        elif np.isscalar(x) and np.isscalar(y) and np.isscalar(z):
-            self.x = float(cast(float, x))
-            self.y = float(cast(float, y))
-            self.z = float(cast(float, z))
-        elif (
-            isinstance(x, np.ndarray)
-            and isinstance(y, np.ndarray)
-            and isinstance(z, np.ndarray)
-        ):
-            self.x = x.astype(np.float64)
-            self.y = y.astype(np.float64)
-            self.z = z.astype(np.float64)
-        else:
-            raise ValueError("Wrong parameter value(s)")
-        self.fmt = ".8f"
+        self.x, self.y, self.z = _init_xyz(x, y, z)
 
     def __eq__(self, n2):
         if isinstance(n2, Normal):
@@ -638,10 +598,8 @@ class Ray:
             ox, oy, oz = _xyz_arrays(self.o)
             dx, dy, dz = _xyz_arrays(self.d)
             nrays = len(ox)
-            mint = np.zeros(nrays, dtype=np.float64)
-            maxt = np.zeros_like(mint)
-            mint[:] = self.mint
-            maxt[:] = self.maxt
+            mint = np.full(nrays, self.mint, dtype=np.float64)
+            maxt = np.full(nrays, self.maxt, dtype=np.float64)
             output = ""
             if nrays <= 100:
                 for ir in range(0, nrays):
@@ -688,10 +646,8 @@ class Ray:
             ox, oy, oz = _xyz_arrays(self.o)
             dx, dy, dz = _xyz_arrays(self.d)
             nrays = len(ox)
-            mint = np.zeros(nrays, dtype=np.float64)
-            maxt = np.zeros_like(mint)
-            mint[:] = self.mint
-            maxt[:] = self.maxt
+            mint = np.full(nrays, self.mint, dtype=np.float64)
+            maxt = np.full(nrays, self.maxt, dtype=np.float64)
             output = ""
             if nrays <= 100:
                 for ir in range(0, nrays):
@@ -1062,15 +1018,14 @@ class BBox:
                 t0 = np.zeros((b_size, r_size), dtype=np.float64)
                 t1 = np.full((b_size, r_size), r.maxt, dtype=np.float64)
                 is_intersection = np.full((b_size, r_size), True)
-                inv_ray_dir = np.zeros(r_size, dtype=np.float64)
                 for i in range(3):
                     rdi = cast(np.ndarray, r.d[i])
                     roi = cast(np.ndarray, r.o[i])
                     pmini = cast(np.ndarray, self.pmin[i])
                     pmaxi = cast(np.ndarray, self.pmax[i])
-                    c0 = rdi != 0
-                    inv_ray_dir[:] = math.inf
-                    inv_ray_dir[c0] = 1.0 / rdi[c0]
+                    inv_ray_dir = np.where(
+                        rdi != 0, 1.0 / rdi, math.inf
+                    )
                     t_near = (
                         pmini[:, None] - roi[None, :]
                     ) * inv_ray_dir
@@ -1078,14 +1033,19 @@ class BBox:
                         pmaxi[:, None] - roi[None, :]
                     ) * inv_ray_dir
                     c1 = t_near > t_far
-                    t_near[c1], t_far[c1] = t_far[c1], t_near[c1]
+                    t_near, t_far = (
+                        np.where(c1, t_far, t_near),
+                        np.where(c1, t_near, t_far),
+                    )
                     t_far *= 1 + 2 * GAMMA3_F64
                     c2 = np.logical_and(t_near > t0, is_intersection)
                     c3 = np.logical_and(t_far < t1, is_intersection)
-                    t0[c2] = t_near[c2]
-                    t1[c3] = t_far[c3]
+                    t0 = np.where(c2, t_near, t0)
+                    t1 = np.where(c3, t_far, t1)
                     c4 = t0 > t1
-                    is_intersection[c4] = False
+                    is_intersection = np.logical_and(
+                        is_intersection, np.logical_not(c4)
+                    )
                     t0[c4] = 0.0
                     t1[c4] = 0.0
             if ds_output:
@@ -1104,15 +1064,13 @@ class BBox:
                 t0 = np.zeros(size, dtype=np.float64)
                 t1 = np.full(size, r.maxt, dtype=np.float64)
                 is_intersection = np.full(size, True)
-                inv_ray_dir_arr = np.zeros(size, dtype=np.float64)
                 for i in range(3):
                     rdi = r.d[i]
                     inv_ray_dir: float | np.ndarray
                     if isinstance(rdi, np.ndarray):
-                        c0 = rdi != 0
-                        inv_ray_dir_arr[:] = math.inf
-                        inv_ray_dir_arr[c0] = 1.0 / rdi[c0]
-                        inv_ray_dir = inv_ray_dir_arr
+                        inv_ray_dir = np.where(
+                            rdi != 0, 1.0 / rdi, math.inf
+                        )
                     elif rdi != 0:
                         inv_ray_dir = 1.0 / rdi
                     else:
@@ -1126,14 +1084,19 @@ class BBox:
                         (self.pmax[i] - r.o[i]) * inv_ray_dir,
                     )
                     c1 = t_near > t_far
-                    t_near[c1], t_far[c1] = t_far[c1], t_near[c1]
+                    t_near, t_far = (
+                        np.where(c1, t_far, t_near),
+                        np.where(c1, t_near, t_far),
+                    )
                     t_far *= 1 + 2 * GAMMA3_F64
                     c2 = np.logical_and(t_near > t0, is_intersection)
                     c3 = np.logical_and(t_far < t1, is_intersection)
-                    t0[c2] = t_near[c2]
-                    t1[c3] = t_far[c3]
+                    t0 = np.where(c2, t_near, t0)
+                    t1 = np.where(c3, t_far, t1)
                     c4 = t0 > t1
-                    is_intersection[c4] = False
+                    is_intersection = np.logical_and(
+                        is_intersection, np.logical_not(c4)
+                    )
                     t0[c4] = 0.0
                     t1[c4] = 0.0
             if ds_output:
@@ -1465,10 +1428,8 @@ def get_bbox_intersect_dataset(
         rd = r.d.to_numpy()
         ds["o"] = xr.DataArray(ro, dims=["nrays", "xyz"])
         ds["d"] = xr.DataArray(rd, dims=["nrays", "xyz"])
-        mint = np.zeros(nrays, dtype=np.float64)
-        maxt = np.zeros_like(mint)
-        mint[:] = r.mint
-        maxt[:] = r.maxt
+        mint = np.full(nrays, r.mint, dtype=np.float64)
+        maxt = np.full(nrays, r.maxt, dtype=np.float64)
         ds["mint"] = xr.DataArray(mint, dims=["nrays"])
         ds["maxt"] = xr.DataArray(maxt, dims=["nrays"])
     else:
