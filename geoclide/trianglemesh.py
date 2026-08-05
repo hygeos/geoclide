@@ -1,3 +1,23 @@
+"""
+Triangle and triangle mesh shapes.
+
+This module implements the triangle-based shapes of geoclide,
+along with functions creating meshes approximating a sphere or a
+disk, and readers of meshes from gcnc netcdf files or from any
+format supported by the trimesh package (stl, obj, ply, ...).
+
+Key Classes
+-----------
+Triangle
+    A single triangle described by its three vertices p0, p1 and
+    p2, with the ray intersection tests of pbrt v2 and v3.
+TriangleMesh
+    A set of triangles described by an array of vertices and an
+    array of faces, with intersection tests vectorized over the
+    rays and the triangles. A mesh can be converted to an xarray
+    dataset and written to a gcnc netcdf file.
+"""
+
 from __future__ import annotations
 
 import math
@@ -132,7 +152,7 @@ class Triangle(Shape):
         r : Ray
             The ray(s) to use for the intersection test(s)
         method : str, optional
-            Tow choice -> 'v2' (use mainly pbrt v2 intersection test
+            Two choices -> 'v2' (use mainly pbrt v2 intersection test
             method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
             Perform diagonal calculations in case Triangle and Ray have
@@ -143,8 +163,10 @@ class Triangle(Shape):
 
         Returns
         -------
-        out : bool | 1-D ndarray | 2-D ndarray
-            If there is an intersection -> True, else False
+        bool or ndarray
+            If there is an intersection -> True, else False.
+            In case of an ndarray, it is 1-D, or 2-D for a
+            set of rays and a set of triangles
         """
         if method == "v3":
             return self.is_intersection_v3(r, diag_calc=diag_calc)
@@ -166,7 +188,7 @@ class Triangle(Shape):
         r : Ray
             The ray(s) to use for the intersection test(s)
         method : str, optional
-            Tow choice -> 'v2' (use mainly pbrt v2 intersection test
+            Two choices -> 'v2' (use mainly pbrt v2 intersection test
             method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
             Perform diagonal calculations in case Triangle and Ray have
@@ -177,11 +199,14 @@ class Triangle(Shape):
 
         Returns
         -------
-        thit : None | float | 1-D ndarray | 2-D ndarray
+        thit : None or float or ndarray
             The t ray variable(s) for its first intersection at the
-            shape surface
-        is_intersection : bool | 1-D ndarray | 2-D ndarray
-            If there is an intersection -> True, else False
+            shape surface. In case of an ndarray, it is 1-D,
+            or 2-D for a set of rays and a set of triangles
+        is_intersection : bool or ndarray
+            If there is an intersection -> True, else False.
+            In case of an ndarray, it is 1-D, or 2-D for a
+            set of rays and a set of triangles
         """
         if method == "v3":
             return self.is_intersection_v3_t(r, diag_calc=diag_calc)
@@ -214,11 +239,14 @@ class Triangle(Shape):
 
         Returns
         -------
-        thit : None | float | 1-D ndarray | 2-D ndarray
+        thit : None or float or ndarray
             The t ray variable(s) for its first intersection at the
-            shape surface
-        is_intersection : bool | 1-D ndarray | 2-D ndarray
-            If there is an intersection -> True, else False
+            shape surface. In case of an ndarray, it is 1-D,
+            or 2-D for a set of rays and a set of triangles
+        is_intersection : bool or ndarray
+            If there is an intersection -> True, else False.
+            In case of an ndarray, it is 1-D, or 2-D for a
+            set of rays and a set of triangles
         """
         if not isinstance(r, Ray):
             raise ValueError("The given parameter must be a Ray")
@@ -410,8 +438,10 @@ class Triangle(Shape):
 
         Returns
         -------
-        out : bool | 1-D ndarray | 2-D ndarray
-            If there is an intersection -> True, else False
+        bool or ndarray
+            If there is an intersection -> True, else False.
+            In case of an ndarray, it is 1-D, or 2-D for a
+            set of rays and a set of triangles
         """
         _, is_intersection = self.is_intersection_v2_t(r, diag_calc=diag_calc)
         return is_intersection
@@ -438,11 +468,14 @@ class Triangle(Shape):
 
         Returns
         -------
-        thit : None | float | 1-D ndarray | 2-D ndarray
+        thit : None or float or ndarray
             The t ray variable(s) for its first intersection at the
-            shape surface
-        is_intersection : bool | 1-D ndarray | 2-D ndarray
-            If there is an intersection -> True, else False
+            shape surface. In case of an ndarray, it is 1-D,
+            or 2-D for a set of rays and a set of triangles
+        is_intersection : bool or ndarray
+            If there is an intersection -> True, else False.
+            In case of an ndarray, it is 1-D, or 2-D for a
+            set of rays and a set of triangles
         """
         if not isinstance(r, Ray):
             raise ValueError("The given parameter must be a Ray")
@@ -1016,8 +1049,10 @@ class Triangle(Shape):
 
         Returns
         -------
-        out : bool | 1-D ndarray | 2-D ndarray
-            If there is an intersection -> True, else False
+        bool or ndarray
+            If there is an intersection -> True, else False.
+            In case of an ndarray, it is 1-D, or 2-D for a
+            set of rays and a set of triangles
         """
         _, is_intersection = self.is_intersection_v3_t(r, diag_calc=diag_calc)
         return is_intersection
@@ -1068,7 +1103,7 @@ class Triangle(Shape):
         r : Ray
             The ray(s) to use for the intersection test(s)
         method : str, optional
-            Tow choice -> 'v2' (use mainly pbrt v2 intersection test
+            Two choices -> 'v2' (use mainly pbrt v2 intersection test
             method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
             Perform diagonal calculations in case Triangle and Ray have
@@ -1076,13 +1111,13 @@ class Triangle(Shape):
             instead of a 2-D array where out[i] is calculated using r(i)
             and triangle(i). The same size for the Triangle and the Ray
             is required.
-        ds_output : Bool, optional
+        ds_output : bool, optional
             If True the output is a dataset, else return a tuple with
             intersection information variables
 
         Returns
         -------
-        out : xr.Dataset | tuple
+        xr.Dataset or tuple
             Look-up table with the intersection information if ds_output
             is True, else return a tuple (ready to be an input for the
             function get_intersect_dataset in geoclide/shapes.py). Form
@@ -1092,22 +1127,34 @@ class Triangle(Shape):
                 -> The shape class name
             * r : Ray
                 -> The ray(s) used for the intersection test
-            * t : None | float | 1-D ndarray | 2-D ndarray
+            * t : None or float or ndarray
                 -> The t ray variable(s) for its first intersection at
-                the shape surface
-            * is_intersection : bool | 1-D ndarray | 2-D ndarray
-                -> If there is an intersection return True, else False
-            * u : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate(s) of the parametric representation
-            * v : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate(s) of the parametric representation
-            * dpdu : None | 1-D ndarray | 2-D ndarray
+                the shape surface.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * is_intersection : bool or ndarray
+                -> If there is an intersection return True, else False.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * u : None or float or ndarray
+                -> The u coordinate(s) of the parametric representation.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * v : None or float or ndarray
+                -> The v coordinate(s) of the parametric representation.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * dpdu : None or ndarray
                 -> The surface partial derivative(s) of phit with
-                respect to u
-            * dpdv : None | 1-D ndarray | 2-D ndarray
+                respect to u.
+                An ndarray is 1-D, or 2-D in case of a set
+                of rays and/or a set of triangles.
+            * dpdv : None or ndarray
                 -> The surface partial derivative(s) of phit with
-                respect to v
-            * diag_cal : bool
+                respect to v.
+                An ndarray is 1-D, or 2-D in case of a set
+                of rays and/or a set of triangles.
+            * diag_calc : bool
                 -> This indicates whether a diagonal calculation has
                 been performed
 
@@ -1172,13 +1219,13 @@ class Triangle(Shape):
             instead of a 2-D array where out[i] is calculated using r(i)
             and triangle(i). The same size for the Triangle and the Ray
             is required.
-        ds_output : Bool, optional
+        ds_output : bool, optional
             If True the output is a dataset, else return a tuple with
             intersection information variables
 
         Returns
         -------
-        out : xr.Dataset | tuple
+        xr.Dataset or tuple
             Look-up table with the intersection information if ds_output
             is True, else return a tuple (ready to be an input for the
             function get_intersect_dataset in geoclide/shapes.py). Form
@@ -1188,22 +1235,34 @@ class Triangle(Shape):
                 -> The shape class name
             * r : Ray
                 -> The ray(s) used for the intersection test
-            * t : None | float | 1-D ndarray | 2-D ndarray
+            * t : None or float or ndarray
                 -> The t ray variable(s) for its first intersection at
-                the shape surface
-            * is_intersection : bool | 1-D ndarray | 2-D ndarray
-                -> If there is an intersection return True, else False
-            * u : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate(s) of the parametric representation
-            * v : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate(s) of the parametric representation
-            * dpdu : None | 1-D ndarray | 2-D ndarray
+                the shape surface.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * is_intersection : bool or ndarray
+                -> If there is an intersection return True, else False.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * u : None or float or ndarray
+                -> The u coordinate(s) of the parametric representation.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * v : None or float or ndarray
+                -> The v coordinate(s) of the parametric representation.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * dpdu : None or ndarray
                 -> The surface partial derivative(s) of phit with
-                respect to u
-            * dpdv : None | 1-D ndarray | 2-D ndarray
+                respect to u.
+                An ndarray is 1-D, or 2-D in case of a set
+                of rays and/or a set of triangles.
+            * dpdv : None or ndarray
                 -> The surface partial derivative(s) of phit with
-                respect to v
-            * diag_cal : bool
+                respect to v.
+                An ndarray is 1-D, or 2-D in case of a set
+                of rays and/or a set of triangles.
+            * diag_calc : bool
                 -> This indicates whether a diagonal calculation has
                 been performed
         """
@@ -1644,13 +1703,13 @@ class Triangle(Shape):
             instead of a 2-D array where out[i] is calculated using r(i)
             and triangle(i). The same size for the Triangle and the Ray
             is required.
-        ds_output : Bool, optional
+        ds_output : bool, optional
             If True the output is a dataset, else return a tuple with
             intersection information variables
 
         Returns
         -------
-        out : xr.Dataset | tuple
+        xr.Dataset or tuple
             Look-up table with the intersection information if ds_output
             is True, else return a tuple (ready to be an input for the
             function get_intersect_dataset in geoclide/shapes.py). Form
@@ -1660,22 +1719,34 @@ class Triangle(Shape):
                 -> The shape class name
             * r : Ray
                 -> The ray(s) used for the intersection test
-            * t : None | float | 1-D ndarray | 2-D ndarray
+            * t : None or float or ndarray
                 -> The t ray variable(s) for its first intersection at
-                the shape surface
-            * is_intersection : bool | 1-D ndarray | 2-D ndarray
-                -> If there is an intersection return True, else False
-            * u : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate(s) of the parametric representation
-            * v : None | float | 1-D ndarray | 2-D ndarray
-                -> The u coordinate(s) of the parametric representation
-            * dpdu : None | 1-D ndarray | 2-D ndarray
+                the shape surface.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * is_intersection : bool or ndarray
+                -> If there is an intersection return True, else False.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * u : None or float or ndarray
+                -> The u coordinate(s) of the parametric representation.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * v : None or float or ndarray
+                -> The v coordinate(s) of the parametric representation.
+                An ndarray is 1-D, or 2-D for a set of rays
+                and a set of triangles.
+            * dpdu : None or ndarray
                 -> The surface partial derivative(s) of phit with
-                respect to u
-            * dpdv : None | 1-D ndarray | 2-D ndarray
+                respect to u.
+                An ndarray is 1-D, or 2-D in case of a set
+                of rays and/or a set of triangles.
+            * dpdv : None or ndarray
                 -> The surface partial derivative(s) of phit with
-                respect to v
-            * diag_cal : bool
+                respect to v.
+                An ndarray is 1-D, or 2-D in case of a set
+                of rays and/or a set of triangles.
+            * diag_calc : bool
                 -> This indicates whether a diagonal calculation has
                 been performed
         """
@@ -2468,11 +2539,11 @@ class TriangleMesh(Shape):
 
     Parameters
     ----------
-    vertices : 2-D ndarray
+    vertices : ndarray
         The vertices xyz coordinates. It is a 2d ndarray of size
         (nvertices, 3) where the first element is the coordinate of
         first vertex and so on
-    faces : 2-D ndarray
+    faces : ndarray
         The vertices indices of triangles, a 2d ndarray of shape
         (ntriangles, 3). The 3 first indices are the vertices (p0, p1
         and p3) indices of the first triangle and so on
@@ -2571,21 +2642,21 @@ class TriangleMesh(Shape):
         r : Ray
             The ray(s) to use for the intersection test(s)
         method : str, optional
-            Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection
-            test method) or 'v3' (pbrt v3)
+            Two choices -> 'v2' (use mainly pbrt v2 triangle
+            intersection test method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
             Perform diagonal calculations between r(i) and triangle(i).
             The number of triangles must be equal to the number of rays
         use_loop : bool, optional
             If True -> scalar calculations over a loop (instead of using
             numpy). It can be useful for debugging
-        ds_output : Bool, optional
+        ds_output : bool, optional
             If True the output is a dataset, else return a tuple with
             intersection information variables
 
         Returns
         -------
-        out : xr.Dataset | tuple
+        xr.Dataset or tuple
             Look-up table with the intersection information if ds_output
             is True, else return a tuple (ready to be an input for the
             function get_intersect_dataset in geoclide/shapes.py). Form
@@ -2595,22 +2666,30 @@ class TriangleMesh(Shape):
                 -> The shape class name
             * r : Ray
                 -> The ray(s) used for the intersection test
-            * t : None | float | 1-D ndarray
+            * t : None or float or ndarray
                 -> The t ray variable(s) for its first intersection at
-                the shape surface
-            * is_intersection : bool | 1-D ndarray
-                -> If there is an intersection return True, else False
-            * u : None | float | 1-D ndarray
-                -> The u coordinate(s) of the parametric representation
-            * v : None | float | 1-D ndarray
-                -> The u coordinate(s) of the parametric representation
-            * dpdu : None | 1-D ndarray | 2-D ndarray
+                the shape surface.
+                An ndarray is 1-D.
+            * is_intersection : bool or ndarray
+                -> If there is an intersection return True, else False.
+                An ndarray is 1-D.
+            * u : None or float or ndarray
+                -> The u coordinate(s) of the parametric representation.
+                An ndarray is 1-D.
+            * v : None or float or ndarray
+                -> The v coordinate(s) of the parametric representation.
+                An ndarray is 1-D.
+            * dpdu : None or ndarray
                 -> The surface partial derivative(s) of phit with
-                respect to u
-            * dpdv : None | 1-D ndarray | 2-D ndarray
+                respect to u.
+                An ndarray is 1-D, or 2-D for a set of
+                rays.
+            * dpdv : None or ndarray
                 -> The surface partial derivative(s) of phit with
-                respect to v
-            * diag_cal : bool
+                respect to v.
+                An ndarray is 1-D, or 2-D for a set of
+                rays.
+            * diag_calc : bool
                 -> This indicates whether a diagonal calculation has
                 been performed
         """
@@ -2860,8 +2939,8 @@ class TriangleMesh(Shape):
         r : Ray
             The ray(s) to use for the intersection test(s)
         method : str, optional
-            Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection
-            test method) or 'v3' (pbrt v3)
+            Two choices -> 'v2' (use mainly pbrt v2 triangle
+            intersection test method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
             Perform diagonal calculations between r(i) and triangle(i).
             The number of triangles must be equal to the number of rays
@@ -2871,8 +2950,9 @@ class TriangleMesh(Shape):
 
         Returns
         -------
-        out : bool | 1-D ndarray
-            If there is an intersection -> True, else False
+        bool or ndarray
+            If there is an intersection -> True, else False.
+            In case of an ndarray, it is 1-D
         """
         if not isinstance(r, Ray):
             raise ValueError("The parameter r must be a Ray")
@@ -2972,8 +3052,8 @@ class TriangleMesh(Shape):
         r : Ray
             The ray(s) to use for the intersection test(s)
         method : str, optional
-            Tow choice -> 'v2' (use mainly pbrt v2 triangle intersection
-            test method) or 'v3' (pbrt v3)
+            Two choices -> 'v2' (use mainly pbrt v2 triangle
+            intersection test method) or 'v3' (pbrt v3)
         diag_calc : bool, optional
             Perform diagonal calculations between r(i) and triangle(i).
             The number of triangles must be equal to the number of rays
@@ -2983,11 +3063,12 @@ class TriangleMesh(Shape):
 
         Returns
         -------
-        thit : None | float | 1-D ndarray
+        thit : None or float or ndarray
             The t ray variable(s) for its first intersection at the
-            shape surface
-        is_intersection : bool | 1-D ndarray
-            If there is an intersection -> True, else False
+            shape surface. In case of an ndarray, it is 1-D
+        is_intersection : bool or ndarray
+            If there is an intersection -> True, else False.
+            In case of an ndarray, it is 1-D
 
         Notes
         -----
@@ -3229,7 +3310,7 @@ class TriangleMesh(Shape):
 
         Returns
         -------
-        out : xr.Dataset
+        xr.Dataset
             The dataset with the triangle mesh information
         """
         ds = xr.Dataset(coords={"xyz": np.arange(3)})
@@ -3674,7 +3755,7 @@ def read_gcnc_trianglemesh(path: str, **kwargs) -> TriangleMesh:
 
     Returns
     -------
-    out : TriangleMesh
+    TriangleMesh
         The triangle mesh
     """
     if "filename_or_obj" in kwargs:
@@ -3709,7 +3790,7 @@ def read_trianglemesh(path: str, **kwargs) -> TriangleMesh:
 
     Returns
     -------
-    out : TriangleMesh
+    TriangleMesh
         The triangle mesh
     """
 
