@@ -2,6 +2,7 @@
 
 import math
 import os
+from typing import cast
 
 import numpy as np
 
@@ -401,8 +402,8 @@ def test_trianglemesh_numpy():
 def test_triangle_2d_arr1():
     msh = gc.Sphere(1.0).to_trianglemesh(reso_theta=5, reso_phi=5)
     x_, y_, z_ = np.meshgrid(
-        np.linspace(-0.4, 0.4, 4, np.float64),
-        np.linspace(-0.4, 0.4, 4, np.float64),
+        np.linspace(-0.4, 0.4, 4, dtype=np.float64),
+        np.linspace(-0.4, 0.4, 4, dtype=np.float64),
         2.0,
         indexing="ij",
     )
@@ -426,6 +427,8 @@ def test_triangle_2d_arr1():
 
     t_v2, is_int_v2 = triangles.is_intersection_v2_t(r_set, diag_calc=False)
     t_v3, is_int_v3 = triangles.is_intersection_v3_t(r_set, diag_calc=False)
+    t_v2 = cast(np.ndarray, t_v2)
+    t_v3 = cast(np.ndarray, t_v3)
     assert np.array_equal(
         ds_v2["is_intersection"].values, is_int_v2, equal_nan=True
     )
@@ -570,6 +573,7 @@ def test_triangle_2d_arr1():
     )
 
     thit, is_int = msh.is_intersection_t(r_set, use_loop=True)
+    thit = cast(np.ndarray, thit)
     assert np.array_equal(
         msh_ds["is_intersection"].values, is_int, equal_nan=True
     )
@@ -594,8 +598,8 @@ def test_triangle_2d_arr1():
     deltax = (dimx / nx) * 0.5
     deltay = (dimy / ny) * 0.5
     x_, y_, z_ = np.meshgrid(
-        np.linspace(-hdim_x + deltax, hdim_x - deltax, nx, np.float64),
-        np.linspace(-hdim_y + deltay, hdim_y - deltay, ny, np.float64),
+        np.linspace(-hdim_x + deltax, hdim_x - deltax, nx, dtype=np.float64),
+        np.linspace(-hdim_y + deltay, hdim_y - deltay, ny, dtype=np.float64),
         0.0,
         indexing="ij",
     )
@@ -626,6 +630,7 @@ def test_triangle_2d_arr1():
     )
 
     thit, is_int = msh.is_intersection_t(r_set, use_loop=True)
+    thit = cast(np.ndarray, thit)
     assert np.array_equal(ds["is_intersection"].values, is_int, equal_nan=True)
     assert np.array_equal(ds["thit"].values, thit, equal_nan=True)
 
@@ -636,8 +641,8 @@ def test_triangle_2d_arr1():
 def test_triangle_2d_arr2():
     msh = gc.Sphere(1.0).to_trianglemesh(reso_theta=4, reso_phi=4)
     x_, y_, z_ = np.meshgrid(
-        np.linspace(-0.4, 0.4, 5, np.float64),
-        np.linspace(-0.4, 0.4, 5, np.float64),
+        np.linspace(-0.4, 0.4, 5, dtype=np.float64),
+        np.linspace(-0.4, 0.4, 5, dtype=np.float64),
         2.0,
         indexing="ij",
     )
@@ -664,6 +669,8 @@ def test_triangle_2d_arr2():
 
     t_v2, is_int_v2 = triangles.is_intersection_v2_t(r_set, diag_calc=False)
     t_v3, is_int_v3 = triangles.is_intersection_v3_t(r_set, diag_calc=False)
+    t_v2 = cast(np.ndarray, t_v2)
+    t_v3 = cast(np.ndarray, t_v3)
     assert np.array_equal(
         ds_v2["is_intersection"].values, is_int_v2, equal_nan=True
     )
@@ -796,6 +803,7 @@ def test_triangle_2d_arr2():
     )
 
     thit, is_int = msh.is_intersection_t(r_set, use_loop=True)
+    thit = cast(np.ndarray, thit)
     assert np.array_equal(
         msh_ds["is_intersection"].values, is_int, equal_nan=True
     )
@@ -822,6 +830,8 @@ def test_triangle_1d_arr1():
 
     t_v2, is_int_v2 = triangles.is_intersection_v2_t(r0, diag_calc=False)
     t_v3, is_int_v3 = triangles.is_intersection_v3_t(r0, diag_calc=False)
+    t_v2 = cast(np.ndarray, t_v2)
+    t_v3 = cast(np.ndarray, t_v3)
     assert np.array_equal(
         ds_v2["is_intersection"].values, is_int_v2, equal_nan=True
     )
@@ -933,6 +943,7 @@ def test_triangle_1d_arr1():
     )
 
     thit, is_int = msh.is_intersection_t(r0, use_loop=True)
+    thit = cast(np.ndarray, thit)
     assert np.array_equal(
         msh_ds["is_intersection"].values, is_int, equal_nan=True
     )
@@ -947,8 +958,8 @@ def test_triangle_1d_arr1():
 def test_triangle_1d_arr2():
 
     x_, y_, z_ = np.meshgrid(
-        np.linspace(-0.4, 0.4, 5, np.float64),
-        np.linspace(-0.4, 0.4, 5, np.float64),
+        np.linspace(-0.4, 0.4, 5, dtype=np.float64),
+        np.linspace(-0.4, 0.4, 5, dtype=np.float64),
         2.0,
         indexing="ij",
     )
@@ -972,6 +983,8 @@ def test_triangle_1d_arr2():
 
     t_v2, is_int_v2 = triangle.is_intersection_v2_t(r_set, diag_calc=False)
     t_v3, is_int_v3 = triangle.is_intersection_v3_t(r_set, diag_calc=False)
+    t_v2 = cast(np.ndarray, t_v2)
+    t_v3 = cast(np.ndarray, t_v3)
     assert np.array_equal(
         ds_v2["is_intersection"].values, is_int_v2, equal_nan=True
     )
@@ -1113,6 +1126,7 @@ def test_triangle_1d_arr2():
     )
 
     thit, is_int = msh.is_intersection_t(r_set, use_loop=True)
+    thit = cast(np.ndarray, thit)
     assert np.array_equal(
         msh_ds["is_intersection"].values, is_int, equal_nan=True
     )
@@ -1127,8 +1141,8 @@ def test_triangle_1d_arr2():
 def test_triangle_1d_arr3():
     msh = gc.Sphere(1.0).to_trianglemesh(reso_theta=4, reso_phi=4)
     x_, y_, z_ = np.meshgrid(
-        np.linspace(0.0, 0.6, 4, np.float64),
-        np.linspace(0.0, 0.4, 4, np.float64),
+        np.linspace(0.0, 0.6, 4, dtype=np.float64),
+        np.linspace(0.0, 0.4, 4, dtype=np.float64),
         2.0,
         indexing="ij",
     )
@@ -1151,6 +1165,8 @@ def test_triangle_1d_arr3():
 
     t_v2, is_int_v2 = triangles.is_intersection_v2_t(r_set, diag_calc=True)
     t_v3, is_int_v3 = triangles.is_intersection_v3_t(r_set, diag_calc=True)
+    t_v2 = cast(np.ndarray, t_v2)
+    t_v3 = cast(np.ndarray, t_v3)
     assert np.array_equal(
         ds_v2["is_intersection"].values, is_int_v2, equal_nan=True
     )
@@ -1293,6 +1309,7 @@ def test_triangle_1d_arr3():
     )
 
     thit, is_int = msh.is_intersection_t(r_set, diag_calc=True, use_loop=True)
+    thit = cast(np.ndarray, thit)
     assert np.array_equal(
         msh_ds["is_intersection"].values, is_int, equal_nan=True
     )
