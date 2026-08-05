@@ -144,8 +144,8 @@ def test_disk():
 @pytest.mark.parametrize("quadric", Q1)
 def test_quadric_1d_arr(quadric):
     x_, y_, z_ = np.meshgrid(
-        np.linspace(-1.5, 1.5, 10, np.float64),
-        np.linspace(-1.5, 1.5, 10, np.float64),
+        np.linspace(-1.5, 1.5, 10, dtype=np.float64),
+        np.linspace(-1.5, 1.5, 10, dtype=np.float64),
         5.0,
         indexing="ij",
     )
