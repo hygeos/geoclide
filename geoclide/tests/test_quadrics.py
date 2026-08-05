@@ -213,3 +213,34 @@ def test_quadric_1d_arr(quadric):
 
     assert np.array_equal(ds["is_intersection"].values, is_int, equal_nan=True)
     assert np.array_equal(ds["thit"].values, thit, equal_nan=True)
+
+
+@pytest.mark.parametrize("quadric", Q1)
+def test_quadric_arr_no_intersection(quadric):
+    """A set of rays, most of them missing the quadric."""
+    rng = np.random.default_rng(11)
+    nrays = 200
+    o_arr = rng.uniform(-4.0, 4.0, (nrays, 3))
+    d_arr = rng.uniform(-1.0, 1.0, (nrays, 3))
+    r_set = gc.Ray(gc.Point(o_arr), gc.normalize(gc.Vector(d_arr)))
+
+    thit, is_int = quadric.is_intersection_t(r_set)
+    ds = quadric.intersect(r_set)
+
+    t_1d = np.zeros(nrays, dtype=np.float64)
+    is_int_1d = np.full(nrays, False, dtype=bool)
+    for ir in range(0, nrays):
+        r = gc.Ray(
+            gc.Point(o_arr[ir, :]), gc.normalize(gc.Vector(d_arr[ir, :]))
+        )
+        t_sca, is_int_sca = quadric.is_intersection_t(r)
+        is_int_1d[ir] = is_int_sca
+        t_1d[ir] = t_sca if is_int_sca else None
+
+    assert np.any(is_int_1d), "The test needs at least one intersection"
+    assert not np.all(is_int_1d), "The test needs at least one miss"
+    assert np.array_equal(is_int, is_int_1d)
+    assert np.array_equal(thit, t_1d, equal_nan=True)
+    assert np.array_equal(ds["is_intersection"].values, is_int_1d)
+    assert np.array_equal(ds["thit"].values, t_1d, equal_nan=True)
+    assert np.array_equal(quadric.is_intersection(r_set), is_int_1d)

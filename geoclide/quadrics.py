@@ -41,6 +41,20 @@ from geoclide.trianglemesh import (
 from geoclide.vecope import distance
 
 
+def _ray_at(r: Ray, t: np.ndarray) -> Point:
+    """
+    :meta private:
+
+    Solve the ray equation r(t) = o + t*d without bounds check
+
+    With a set of rays, the t values of the rays without
+    intersection are out of the [mint, maxt] range. They are
+    discarded afterwards, but the ray equation must still be
+    solved for all of them at once.
+    """
+    return r.o + r.d * t
+
+
 class Sphere(Shape):
     """
     Creation of the class Sphere
@@ -190,7 +204,7 @@ class Sphere(Shape):
                 c3 = np.logical_and(c3_bis_1, c3_bis_2)
 
                 # Compute sphere hit position and $\phi$
-                phit = ray(thit)
+                phit = _ray_at(ray, thit)
                 phit *= self.radius / distance(phit, Point(0.0, 0.0, 0.0))
                 phit_x = cast(np.ndarray, phit.x)
                 phit_y = cast(np.ndarray, phit.y)
@@ -217,7 +231,7 @@ class Sphere(Shape):
                 if np.any(c4):
                     thit[c4] = t1[c4]
                     # Compute sphere hit position and $\phi$
-                    phit_bis = ray[thit]
+                    phit_bis = _ray_at(ray, thit)
                     phit_z = cast(np.ndarray, phit.z)
                     phit_x[c4] = cast(np.ndarray, phit_bis.x)[c4]
                     phit_y[c4] = cast(np.ndarray, phit_bis.y)[c4]
@@ -427,7 +441,7 @@ class Sphere(Shape):
                 c3 = np.logical_and(c3_bis_1, c3_bis_2)
 
                 # Compute sphere hit position and $\phi$
-                phit = ray(thit)
+                phit = _ray_at(ray, thit)
                 phit *= self.radius / distance(phit, Point(0.0, 0.0, 0.0))
                 phit_x = cast(np.ndarray, phit.x)
                 phit_y = cast(np.ndarray, phit.y)
@@ -454,7 +468,7 @@ class Sphere(Shape):
                 if np.any(c4):
                     thit[c4] = t1[c4]
                     # Compute sphere hit position and $\phi$
-                    phit_bis = ray[thit]
+                    phit_bis = _ray_at(ray, thit)
                     phit_z = cast(np.ndarray, phit.z)
                     phit_x[c4] = cast(np.ndarray, phit_bis.x)[c4]
                     phit_y[c4] = cast(np.ndarray, phit_bis.y)[c4]
@@ -1106,7 +1120,7 @@ class Spheroid(Shape):
                 c3 = np.logical_and(c3_bis_1, c3_bis_2)
 
                 # Compute sphere hit position and $\phi$
-                phit = ray(thit)
+                phit = _ray_at(ray, thit)
                 phit_x = cast(np.ndarray, phit.x)
                 phit_y = cast(np.ndarray, phit.y)
                 phit_x[np.logical_and(phit_x == 0, phit_y == 0)] = (
@@ -1492,7 +1506,7 @@ class Disk(Shape):
 
                 # get the intersection point, and distance between disk
                 # center and the intersection
-                phit = ray(thit)
+                phit = _ray_at(ray, thit)
                 hit_radius2 = phit.x * phit.x + phit.y * phit.y
 
                 # if the hit point is outside the disk then no
@@ -1642,7 +1656,7 @@ class Disk(Shape):
 
                 # get the intersection point, and distance between disk
                 # center and the intersection
-                phit = ray(thit)
+                phit = _ray_at(ray, thit)
                 hit_radius2 = phit.x * phit.x + phit.y * phit.y
 
                 # if the hit point is outside the disk then no
