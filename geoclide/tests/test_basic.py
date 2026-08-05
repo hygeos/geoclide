@@ -430,3 +430,25 @@ def test_bbox_ray_array():
     assert np.all(t0 == t0_)
     assert np.all(t1 == t1_)
     assert np.all(is_int1 == is_int_)
+
+
+def test_copy_parameter():
+    """The components are shared, unless copy is True."""
+    x = np.array([1.0, 2.0])
+    y = np.array([3.0, 4.0])
+    z = np.array([5.0, 6.0])
+    for cls in [gc.Vector, gc.Point, gc.Normal]:
+        shared = cls(x, y, z)
+        copied = cls(x, y, z, copy=True)
+        from_obj = cls(shared, copy=True)
+        x[0] = 100.0
+        assert shared.x[0] == 100.0, "The components must be shared"
+        assert copied.x[0] == 1.0, "The components must be copied"
+        assert from_obj.x[0] == 1.0, "The components must be copied"
+        x[0] = 1.0
+
+    # the 2-D form always copies
+    xyz = np.array([[1.0, 3.0, 5.0], [2.0, 4.0, 6.0]])
+    v = gc.Vector(xyz)
+    xyz[0, 0] = 100.0
+    assert v.x[0] == 1.0, "The (n,3) form must copy the components"

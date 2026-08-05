@@ -86,6 +86,7 @@ def _init_xyz(
     x: float | np.ndarray | Vector | Point | Normal | None,
     y: float | np.ndarray | None,
     z: float | np.ndarray | None,
+    copy: bool = False,
 ) -> tuple[
     float | np.ndarray, float | np.ndarray, float | np.ndarray
 ]:
@@ -94,12 +95,18 @@ def _init_xyz(
 
     Give the x, y and z components of a Vector, Point or Normal
 
-    It gathers the constructor logic of the 3 classes. The
-    components given as 3 ndarrays are not copied (see the notes of
-    the classes).
+    It gathers the constructor logic of the 3 classes. Unless copy
+    is True, the components given as 3 ndarrays are not copied (see
+    the notes of the classes).
     """
     if isinstance(x, np.ndarray):
         if isinstance(y, np.ndarray) and isinstance(z, np.ndarray):
+            if copy:
+                return (
+                    np.array(x, dtype=np.float64),
+                    np.array(y, dtype=np.float64),
+                    np.array(z, dtype=np.float64),
+                )
             if (
                 x.dtype is FLOAT64
                 and y.dtype is FLOAT64
@@ -127,6 +134,8 @@ def _init_xyz(
     if x is None and y is None and z is None:
         return 0.0, 0.0, 0.0
     if isinstance(x, (Vector, Point, Normal)):
+        if copy and isinstance(x.x, np.ndarray):
+            return x.x.copy(), x.y.copy(), x.z.copy()
         return x.x, x.y, x.z
     if np.isscalar(x) and np.isscalar(y) and np.isscalar(z):
         return (
@@ -149,6 +158,9 @@ class Vector:
     z : float or ndarray, optional
         The z component(s) of the vector. In case of an ndarray,
         it must be 1-D
+    copy : bool, optional
+        If True the given ndarrays are copied, else they are used
+        as they are (see notes)
 
     Notes
     -----
@@ -162,7 +174,8 @@ class Vector:
       circumvent the y and z parameters and take the components of the
       Point/Vector/Normal for x, y and z values
     - the x, y and z ndarrays given as parameters are not copied,
-      modifying them afterwards modifies the vector
+      modifying them afterwards modifies the vector. Use copy=True to
+      get a vector with its own components
 
     Examples
     --------
@@ -180,8 +193,9 @@ class Vector:
         x: float | np.ndarray | Vector | Point | Normal | None = None,
         y: float | np.ndarray | None = None,
         z: float | np.ndarray | None = None,
+        copy: bool = False,
     ):
-        self.x, self.y, self.z = _init_xyz(x, y, z)
+        self.x, self.y, self.z = _init_xyz(x, y, z, copy)
 
     def __eq__(self, v2):
         if isinstance(v2, Vector):
@@ -283,6 +297,9 @@ class Point:
     z : float or ndarray, optional
         The z component(s) of the point. In case of an ndarray,
         it must be 1-D
+    copy : bool, optional
+        If True the given ndarrays are copied, else they are used
+        as they are (see notes)
 
     Notes
     -----
@@ -296,7 +313,8 @@ class Point:
       circumvent the y and z parameters and take the components of the
       Point/Vector/Normal for x, y and z values
     - the x, y and z ndarrays given as parameters are not copied,
-      modifying them afterwards modifies the point
+      modifying them afterwards modifies the point. Use copy=True to
+      get a point with its own components
 
     Examples
     --------
@@ -314,8 +332,9 @@ class Point:
         x: float | np.ndarray | Vector | Point | Normal | None = None,
         y: float | np.ndarray | None = None,
         z: float | np.ndarray | None = None,
+        copy: bool = False,
     ):
-        self.x, self.y, self.z = _init_xyz(x, y, z)
+        self.x, self.y, self.z = _init_xyz(x, y, z, copy)
 
     def __eq__(self, p2):
         if isinstance(p2, Point):
@@ -420,6 +439,9 @@ class Normal:
     z : float or ndarray, optional
         The z component(s) of the normal. In case of an ndarray,
         it must be 1-D
+    copy : bool, optional
+        If True the given ndarrays are copied, else they are used
+        as they are (see notes)
 
     Notes
     -----
@@ -433,7 +455,8 @@ class Normal:
       circumvent the y and z parameters and take the components of the
       Point/Vector/Normal for x, y and z values
     - the x, y and z ndarrays given as parameters are not copied,
-      modifying them afterwards modifies the normal
+      modifying them afterwards modifies the normal. Use copy=True to
+      get a normal with its own components
 
     Examples
     --------
@@ -451,8 +474,9 @@ class Normal:
         x: float | np.ndarray | Vector | Point | Normal | None = None,
         y: float | np.ndarray | None = None,
         z: float | np.ndarray | None = None,
+        copy: bool = False,
     ):
-        self.x, self.y, self.z = _init_xyz(x, y, z)
+        self.x, self.y, self.z = _init_xyz(x, y, z, copy)
 
     def __eq__(self, n2):
         if isinstance(n2, Normal):
