@@ -1,3 +1,13 @@
+"""
+Basic mathematical utilities.
+
+This module gathers the scalar/array helper functions used by the
+geoclide shapes: clamping of a value into a range, solving of
+quadratic equations, and the gamma terms bounding the
+floating-point rounding errors (in simple and double precision)
+used by the ray-shape intersection tests.
+"""
+
 from __future__ import annotations
 
 import math
@@ -15,13 +25,13 @@ def clamp(val: float, val_min: float, val_max: float) -> float:
     val : float
         The scalar to be clamped
     val_min : float
-        The minumum value
+        The minimum value
     val_max : float
         The maximum value
 
     Returns
     -------
-    out : float
+    float
         The result of the clamp
 
     Examples
@@ -65,21 +75,25 @@ def quadratic(
 
     Parameters
     ----------
-    a : float | 1-D ndarray
-        The first coefficient(s) of the quadratic polynomial
-    b : float | 1-D ndarray
-        The second coefficient(s) of the quadratic polynomial
-    c : float | 1-D ndarray
-        The third coefficient(s) of the quadratic polynomial
+    a : float or ndarray
+        The first coefficient(s) of the quadratic polynomial. In
+        case of an ndarray, it must be 1-D
+    b : float or ndarray
+        The second coefficient(s) of the quadratic polynomial. In
+        case of an ndarray, it must be 1-D
+    c : float or ndarray
+        The third coefficient(s) of the quadratic polynomial. In
+        case of an ndarray, it must be 1-D
 
     Returns
     -------
-    b : bool | 1-D ndarray
-        If the quadratic can be solved return True, else False
-    x0 : float | None | 1-D ndarray
-        The first solution(s)
-    x1 : float | None | 1-D ndarray
-        The second solution(s)
+    b : bool or ndarray
+        If the quadratic can be solved return True, else False.
+        In case of an ndarray, it is 1-D
+    x0 : float or None or ndarray
+        The first solution(s). In case of an ndarray, it is 1-D
+    x1 : float or None or ndarray
+        The second solution(s). In case of an ndarray, it is 1-D
 
     Notes
     -----
