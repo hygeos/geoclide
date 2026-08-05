@@ -1,3 +1,16 @@
+"""
+Operations on vectors, points and normals.
+
+This module provides the classical operations between Vector,
+Point and Normal objects: dot and cross products, normalization,
+creation of an orthogonal coordinate system from a single vector,
+distance between two points, flipping of a vector/normal such
+that it lies in the same hemisphere as another one, and
+component-wise utilities (maximum, minimum, argmax, argmin,
+absolute value and permutation). All the functions accept both
+single objects and sets of objects for vectorized calculations.
+"""
+
 from __future__ import annotations
 
 import math
@@ -19,15 +32,16 @@ def dot(a: Vector | Normal, b: Vector | Normal) -> float | np.ndarray:
 
     Parameters
     ----------
-    a : Vector | Normal
+    a : Vector or Normal
         The first vector(s) or normal(s) used for the dot product
-    b : Vector | Normal
+    b : Vector or Normal
         The second vector(s) or normal(s) used for the dot product
 
     Returns
     -------
-    out : float | 1-D ndarray
-        The result(s) of the dot product i.e. sum of products
+    float or ndarray
+        The result(s) of the dot product i.e. sum of products. In
+        case of an ndarray, it is 1-D
 
     Examples
     --------
@@ -60,14 +74,14 @@ def cross(a: Vector | Normal, b: Vector | Normal) -> Vector:
 
     Parameters
     ----------
-    a : Vector | Normal
+    a : Vector or Normal
         The first vector(s) or normal(s) used for the cross product
-    b : Vector | Normal
+    b : Vector or Normal
         The second vector(s) or normal(s) used for the cross product
 
     Returns
     -------
-    out : Vector
+    Vector
         The result(s) of the cross product
 
     Examples
@@ -108,12 +122,12 @@ def normalize(v: Vector | Normal) -> Vector | Normal:
 
     Parameters
     ----------
-    v : Vector | Normal
+    v : Vector or Normal
         The vector(s) or normal(s) to be normalized
 
     Returns
     -------
-    out : Vector | Normal
+    Vector or Normal
         The normalized vector(s)/normal(s)
 
     Examples
@@ -138,7 +152,7 @@ def coordinate_system(v1: Vector, method: str = "m2") -> tuple[Vector, Vector]:
     v1 : Vector
         The base vector(s) used to create the orthogonal coordinate
         system(s)
-    method: str, optional
+    method : str, optional
         Default is 'm2' (method from pbrt v4), other choice is 'm1'
         (pbrt v2 and v3)
 
@@ -225,8 +239,9 @@ def distance(p1: Point, p2: Point) -> float | np.ndarray:
 
     Returns
     -------
-    out : float | 1-D ndarray
-        The distance(s) between the 2 points/set of points
+    float or ndarray
+        The distance(s) between the 2 points/set of points. In
+        case of an ndarray, it is 1-D
 
     Examples
     --------
@@ -255,14 +270,14 @@ def face_forward(a: Vector | Normal, b: Vector | Normal) -> Vector | Normal:
 
     Parameters
     ----------
-    a : Vector | Normal
+    a : Vector or Normal
         The vector(s) or normal(s) to potentially flip
-    b : Vector | Normal
+    b : Vector or Normal
         The base vector(s) or normal(s) used for the flip
 
     Returns
     -------
-    out : Vector | Normal
+    Vector or Normal
         The potentially flipped vector(s) or normal(s)
 
     Examples
@@ -308,13 +323,14 @@ def vmax(a: Vector | Point | Normal) -> float | np.ndarray:
 
     Parameters
     ----------
-    a : Vector | Point | Normal
+    a : Vector or Point or Normal
         The vector(s)/point(s)/normal(s) used
 
     Returns
     -------
-    out: float | 1-D ndarray
-        The largest vector(s)/point(s)/normal(s) value(s)
+    float or ndarray
+        The largest vector(s)/point(s)/normal(s) value(s). In
+        case of an ndarray, it is 1-D
 
     Examples
     --------
@@ -342,13 +358,14 @@ def vmin(a: Vector | Point | Normal) -> float | np.ndarray:
 
     Parameters
     ----------
-    a : Vector | Point | Normal
+    a : Vector or Point or Normal
         The vector(s)/point(s)/normal(s) used
 
     Returns
     -------
-    out: float | 1-D ndarray
-        The smallest vector(s)/point(s)/normal(s) value(s)
+    float or ndarray
+        The smallest vector(s)/point(s)/normal(s) value(s). In
+        case of an ndarray, it is 1-D
 
     Examples
     --------
@@ -375,14 +392,14 @@ def vargmax(a: Vector | Point | Normal) -> int | np.ndarray:
 
     Parameters
     ----------
-    a : Vector | Point | Normal
+    a : Vector or Point or Normal
         The vector(s)/point(s)/normal(s) used
 
     Returns
     -------
-    out: int | 1-D ndarray
+    int or ndarray
         The index/indices of the largest vector(s)/point(s)/normal(s)
-        value(s)
+        value(s). In case of an ndarray, it is 1-D
 
     Examples
     --------
@@ -421,14 +438,14 @@ def vargmin(a: Vector | Point | Normal) -> int | np.ndarray:
 
     Parameters
     ----------
-    a : Vector | Point | Normal
+    a : Vector or Point or Normal
         The vector(s)/point(s)/normal(s) used
 
     Returns
     -------
-    out: int | 1-D ndarray
+    int or ndarray
         The index/indices of the smallest vector(s)/point(s)/normal(s)
-        value(s)
+        value(s). In case of an ndarray, it is 1-D
 
     Examples
     --------
@@ -467,13 +484,14 @@ def vabs(a: Vector | Point | Normal) -> Vector | Point | Normal:
 
     Parameters
     ----------
-    a : Vector | Point | Normal
+    a : Vector or Point or Normal
         The vector(s)/point(s)/normal(s) used
 
     Returns
     -------
-    out: Vector | Point | Normal | 1-D ndarray
-        The vector(s)/point(s)/normal(s) with absolute values
+    Vector or Point or Normal or ndarray
+        The vector(s)/point(s)/normal(s) with absolute values. In
+        case of an ndarray, it is 1-D
     """
     if isinstance(a, Vector):
         if isinstance(a.x, np.ndarray):
@@ -508,21 +526,21 @@ def permute(
 
     Parameters
     ----------
-    a : Vector | Point | Normal
+    a : Vector or Point or Normal
         The vector(s), point(s) or normal(s) used for permutation
-    ix : int | np.ndarray | list, optional
+    ix : int or np.ndarray or list, optional
         The index/indices of the value(s) we want to keep as a
         remplacement for the x component(s)
-    iy : int | np.ndarray | list, optional
+    iy : int or np.ndarray or list, optional
         The index/indices of the value(s) we want to keep as a
         remplacement for the y component(s)
-    iz : int | np.ndarray | list, optional
+    iz : int or np.ndarray or list, optional
         The index/indices of the value(s) we want to keep as a
         remplacement for the z component(s)
 
     Returns
     -------
-    out : Vector | Point | Normal
+    Vector or Point or Normal
         The vector(s)/point(s)/normal(s) after the permute operation
 
     Examples
