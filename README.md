@@ -81,9 +81,6 @@ visualization and numpy acceleration) and the full API reference. The
 docstrings are also available from the built-in `help` function, e.g.
 `help(gc.calc_intersection)`.
 
-# Testing
-Run the command `pytest geoclide/tests/ -s -v` to check that everything is running correctly.
-
 # License
 Geoclide is free for non-commercial use, see
 [LICENSE.txt](https://github.com/hygeos/geoclide/blob/main/LICENSE.txt).

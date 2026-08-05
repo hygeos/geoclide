@@ -82,6 +82,3 @@ $ pip install geoclide
 ```shell
 $ pip install git+https://github.com/hygeos/geoclide.git
 ```
-
-# Testing
-Run the command `pytest geoclide/tests/ -s -v` to check that everything is running correctly.
