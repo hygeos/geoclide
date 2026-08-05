@@ -1,3 +1,13 @@
+"""
+Standardized ray-shape intersection tests.
+
+This module provides the calc_intersection function, which
+performs the intersection test between any geoclide shape (BBox,
+Sphere, Spheroid, Disk, Triangle or TriangleMesh) and a ray or a
+set of rays, and returns an xarray dataset gathering the
+intersection results together with the shape attributes.
+"""
+
 from __future__ import annotations
 
 from typing import cast
@@ -21,7 +31,7 @@ def calc_intersection(
 
     Parameters
     ----------
-    shape : BBox | Sphere | Spheroid | Disk | Triangle | TriangleMesh
+    shape : BBox, Sphere, Spheroid, Disk, Triangle or TriangleMesh
         The shape used for the intersection(s)
     r : Ray
         The ray(s) used for the intersection(s)
@@ -31,7 +41,7 @@ def calc_intersection(
 
     Returns
     -------
-    out : xr.Dataset
+    xr.Dataset
         Look-up table with the intersection information
 
     Examples
@@ -61,7 +71,7 @@ def calc_intersection(
         wto_m_inv        (dim_0, dim_1) float64 128B 1.0 0.0 ... 1.0
         otw_m            (dim_0, dim_1) float64 128B 1.0 0.0 ... 1.0
         otw_m_inv        (dim_0, dim_1) float64 128B 1.0 0.0 ... 1.0
-    >>> ds_box = gc.calc_intersection(bbox, ray)
+    >>> ds_bbox = gc.calc_intersection(bbox, ray)
     >>> ds_bbox
     <xarray.Dataset> Size: 169B
     Dimensions:          (xyz: 3)
