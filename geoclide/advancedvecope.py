@@ -145,7 +145,7 @@ def vec2ang(
     >>> v2 = gc.ang2vec(theta=th, phi=ph, vec_view='nadir')
     >>> v2
     Vector(-0.49999999999999994, 0.0, -0.8660254037844387)
-    >>> theta, phi = gc.vec2ang(v1, vec_view='nadir')
+    >>> theta, phi = gc.vec2ang(v2, vec_view='nadir')
     >>> theta, phi
     (29.999999999999993, 0.0)
     """
