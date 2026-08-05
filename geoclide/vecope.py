@@ -14,7 +14,7 @@ single objects and sets of objects for vectorized calculations.
 from __future__ import annotations
 
 import math
-from typing import overload
+from typing import cast, overload
 
 import numpy as np
 
@@ -92,18 +92,14 @@ def cross(a: Vector | Normal, b: Vector | Normal) -> Vector:
     >>> gc.cross(a,b)
     Vector(0.0, 1.0, 0.0)
     """
-    if (
-        (isinstance(a, Vector) and isinstance(b, Vector))
-        or (isinstance(a, Vector) and isinstance(b, Normal))
-        or (isinstance(a, Normal) and isinstance(b, Vector))
-    ):
+    if isinstance(a, (Vector, Normal)) and isinstance(b, (Vector, Normal)):
+        if isinstance(a, Normal) and isinstance(b, Normal):
+            raise ValueError("Only 1 Normal is tolerated not 2")
         return Vector(
             (a.y * b.z) - (a.z * b.y),
             (a.z * b.x) - (a.x * b.z),
             (a.x * b.y) - (a.y * b.x),
         )
-    elif isinstance(a, Normal) and isinstance(b, Normal):
-        raise ValueError("Only 1 Normal is tolerated not 2")
     else:
         raise ValueError("Only Vector or Normal parameters are accepted")
 
@@ -288,27 +284,14 @@ def face_forward(a: Vector | Normal, b: Vector | Normal) -> Vector | Normal:
     Vector(1.0, -0.0, -0.0)
     """
     if isinstance(a, (Vector, Normal)) and isinstance(b, (Vector, Normal)):
-        if isinstance(a.x, np.ndarray):
-            a_bis = a.to_numpy()
-            cond = dot(a, b) < 0
-            if np.any(cond):
-                a_bis[cond, :] *= -1
+        if isinstance(a.x, np.ndarray) or isinstance(b.x, np.ndarray):
+            # -1 where a and b are in opposite directions, else 1
+            sign = np.where(cast(np.ndarray, dot(a, b)) < 0, -1.0, 1.0)
+            x, y, z = a.x * sign, a.y * sign, a.z * sign
             if isinstance(a, Vector):
-                return Vector(a_bis)
+                return Vector(x, y, z)
             else:
-                return Normal(a_bis)
-        elif isinstance(b.x, np.ndarray):
-            a_bis = np.zeros_like(b.to_numpy())
-            a_bis[:, 0] = a.x
-            a_bis[:, 1] = a.y
-            a_bis[:, 2] = a.z
-            cond = dot(a, b) < 0
-            if np.any(cond):
-                a_bis[cond, :] *= -1
-            if isinstance(a, Vector):
-                return Vector(a_bis)
-            else:
-                return Normal(a_bis)
+                return Normal(x, y, z)
         else:
             return (a * -1) if (dot(a, b) < 0) else a
     else:
