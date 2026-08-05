@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import math
+from typing import cast
 
 import numpy as np
 import pytest
@@ -173,7 +174,7 @@ def test_transform_1d_arr():
     v1 = gc.Vector(v_arr)
     r_set = gc.Ray(p1, v1)
 
-    r_set_mtf = multi_tf(r_set)
+    r_set_mtf = cast(np.ndarray, multi_tf(r_set))
     r_set_tf1 = tf1(r_set)
     r_set_tf2 = tf2(r_set)
 
@@ -197,7 +198,7 @@ def test_transform_2d_arr():
     v_set = gc.Vector(v_arr)
     r_set = gc.Ray(p_set, v_set)
 
-    r_set_mtf = multi_tf(r_set)
+    r_set_mtf = cast(np.ndarray, multi_tf(r_set))
     r_set_tf1 = tf1(r_set)
     r_set_tf2 = tf2(r_set)
 
@@ -228,7 +229,7 @@ def test_transform_diag():
     v2 = gc.Vector(v_arr[1, :])
     r2 = gc.Ray(p2, v2)
 
-    r_set_mtf = multi_tf(r_set, diag_calc=True)
+    r_set_mtf = cast(np.ndarray, multi_tf(r_set, diag_calc=True))
     r1_tf1 = tf1(r1)
     r2_tf2 = tf2(r2)
 
@@ -394,9 +395,9 @@ def test_flatten_tf_1d_arr1():
     p_arr_f = multi_tf(p, flatten=True).to_numpy()
     n_arr_f = multi_tf(n, flatten=True).to_numpy()
 
-    v_bis = multi_tf(v)
-    p_bis = multi_tf(p)
-    n_bis = multi_tf(n)
+    v_bis = cast(np.ndarray, multi_tf(v))
+    p_bis = cast(np.ndarray, multi_tf(p))
+    n_bis = cast(np.ndarray, multi_tf(n))
     nv = len(v_bis)
     v_arr_nf = np.zeros((nv, 3), dtype=np.float64)
     p_arr_nf = np.zeros_like(v_arr_nf)
@@ -453,10 +454,10 @@ def test_flatten_tf_2d_arr():
     p_arr_f = multi_tf(p, flatten=True).to_numpy()
     n_arr_f = multi_tf(n, flatten=True).to_numpy()
 
-    v_bis = multi_tf(v)
-    p_bis = multi_tf(p)
-    n_bis = multi_tf(n)
-    nv = len(v.x)
+    v_bis = cast(np.ndarray, multi_tf(v))
+    p_bis = cast(np.ndarray, multi_tf(p))
+    n_bis = cast(np.ndarray, multi_tf(n))
+    nv = len(cast(np.ndarray, v.x))
     v_arr_nf = np.zeros((nv * nang, 3), dtype=np.float64)
     p_arr_nf = np.zeros_like(v_arr_nf)
     n_arr_nf = np.zeros_like(v_arr_nf)
@@ -492,10 +493,10 @@ def test_flatten_tf_diag():
     p_arr_f = multi_tf(p, diag_calc=True, flatten=True).to_numpy()
     n_arr_f = multi_tf(n, diag_calc=True, flatten=True).to_numpy()
 
-    v_bis = multi_tf(v, diag_calc=True)
-    p_bis = multi_tf(p, diag_calc=True)
-    n_bis = multi_tf(n, diag_calc=True)
-    nv = len(v.x)
+    v_bis = cast(np.ndarray, multi_tf(v, diag_calc=True))
+    p_bis = cast(np.ndarray, multi_tf(p, diag_calc=True))
+    n_bis = cast(np.ndarray, multi_tf(n, diag_calc=True))
+    nv = len(cast(np.ndarray, v.x))
     v_arr_nf = np.zeros((nv, 3), dtype=np.float64)
     p_arr_nf = np.zeros_like(v_arr_nf)
     n_arr_nf = np.zeros_like(v_arr_nf)
