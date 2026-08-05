@@ -111,7 +111,7 @@ def calc_intersection(
             "description": "the x, y and z components of the pmax BBox "
             "attribut",
         }
-    if isinstance(shape, Sphere):
+    elif isinstance(shape, Sphere):
         ds["radius"] = shape.radius
         ds["radius"].attrs = {"description": "the sphere radius attribut"}
         ds["z_min"] = shape.zmin
@@ -123,7 +123,7 @@ def calc_intersection(
             "unit": "Degree",
             "description": "the sphere phi_max attribut",
         }
-    if isinstance(shape, Spheroid):
+    elif isinstance(shape, Spheroid):
         ds["radius_xy"] = shape.alpha
         ds["radius_xy"].attrs = {
             "description": "the equatorial radius of the spheroid "
@@ -134,7 +134,7 @@ def calc_intersection(
             "description": "the distance between the spheroid center "
             "and pole (gamma attribut)"
         }
-    if isinstance(shape, Disk):
+    elif isinstance(shape, Disk):
         ds["radius"] = shape.radius
         ds["radius"].attrs = {"description": "the radius of the disk"}
         ds["inner_radius"] = shape.inner_radius
@@ -149,14 +149,14 @@ def calc_intersection(
         }
         ds["z_height"] = shape.z_height
         ds["z_height"].attrs = {"description": "the disk z_height attribut"}
-    if isinstance(shape, Triangle):
+    elif isinstance(shape, Triangle):
         ds["p0"] = xr.DataArray(shape.p0.to_numpy(), dims="xyz")
         ds["p0"].attrs = {"description": "the triangle p0 attribut"}
         ds["p1"] = xr.DataArray(shape.p1.to_numpy(), dims="xyz")
         ds["p1"].attrs = {"description": "the triangle p1 attribut"}
         ds["p2"] = xr.DataArray(shape.p2.to_numpy(), dims="xyz")
         ds["p2"].attrs = {"description": "the triangle p2 attribut"}
-    if isinstance(shape, TriangleMesh):
+    elif isinstance(shape, TriangleMesh):
         ds["vertices"] = xr.DataArray(
             shape.vertices, dims=["nvertices", "xyz"]
         )
