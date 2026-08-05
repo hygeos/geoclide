@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from typing import overload
 
 import numpy as np
 
@@ -29,14 +30,22 @@ def clamp(val: float, val_min: float, val_max: float) -> float:
     >>> gc.clamp(4, val_min=5, val_max=11)
     5
     """
-    if (
-        not np.isscalar(val)
-        or not np.isscalar(val_min)
-        or not np.isscalar(val_max)
-    ):
+    if not all(np.isscalar(v) for v in (val, val_min, val_max)):
         raise ValueError("The parameters must be all scalars")
 
     return val_min if val < val_min else (val_max if val > val_max else val)
+
+
+@overload
+def quadratic(
+    a: np.ndarray, b: np.ndarray, c: np.ndarray
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]: ...
+
+
+@overload
+def quadratic(
+    a: float, b: float, c: float
+) -> tuple[bool, float | None, float | None]: ...
 
 
 def quadratic(
@@ -87,6 +96,9 @@ def quadratic(
     (True, 0.0, 2.5)
     """
     if isinstance(a, np.ndarray):
+        # an ndarray a implies ndarrays b and c
+        assert isinstance(b, np.ndarray)
+        assert isinstance(c, np.ndarray)
         # Find quadratic discriminant
         discrim = (b * b) - (4 * a * c)
         is_solution = np.full(discrim.shape, True, dtype=bool)
@@ -146,7 +158,15 @@ def quadratic(
         return True, x0, x1
 
 
-def gamma_f32(n: float | np.ndarray) -> float | np.ndarray:
+@overload
+def gamma_f32(n: float) -> float: ...
+
+
+@overload
+def gamma_f32(n: np.ndarray) -> np.ndarray: ...
+
+
+def gamma_f32(n: float | np.ndarray) -> float | np.floating | np.ndarray:
     """
     :meta private:
 
@@ -156,7 +176,15 @@ def gamma_f32(n: float | np.ndarray) -> float | np.ndarray:
     return (n * epsi) / (1 - n * epsi)
 
 
-def gamma_f64(n: float | np.ndarray) -> float | np.ndarray:
+@overload
+def gamma_f64(n: float) -> float: ...
+
+
+@overload
+def gamma_f64(n: np.ndarray) -> np.ndarray: ...
+
+
+def gamma_f64(n: float | np.ndarray) -> float | np.floating | np.ndarray:
     """
     :meta private:
 
