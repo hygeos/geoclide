@@ -13,8 +13,7 @@ authors = [
 readme = "README.md"
 classifiers = [
     'Development Status :: 5 - Production/Stable',
-    'License :: Free for non-commercial use',
-    'License :: Other/Proprietary License',
+    'License :: OSI Approved :: Apache Software License',
     'Intended Audience :: Science/Research',
     'Intended Audience :: Developers',
     'Programming Language :: Python',

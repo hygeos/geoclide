@@ -82,6 +82,5 @@ docstrings are also available from the built-in `help` function, e.g.
 `help(gc.calc_intersection)`.
 
 # License
-Geoclide is free for non-commercial use, see
+Geoclide is licensed under the Apache License 2.0, see
 [LICENSE.txt](https://github.com/hygeos/geoclide/blob/main/LICENSE.txt).
-For commercial use, please contact [HYGEOS](https://hygeos.com/en/).

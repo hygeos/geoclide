@@ -1,223 +1,202 @@
 
-# GEOCLIDE SOFTWARE
-# TERMS OF USE
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
 
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
-*version 1.0, Last modified: January 27, 2025*
+   1. Definitions.
 
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
 
-**Quick Summary**
-The GEOCLIDE software can be used for free for non-commercial purposes. If you
-want to use the software for commercial purposes, please contact us.
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
 
------
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
 
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
 
-The GEOCLIDE SOFTWARE is a service made available by HYGEOS, a company organised
-and existing under the laws of France with an issued share capital of 84 850,- €
-with its registered office at 165 Avenue de Bretagne – Parc Euratechnologies
-– 59000 LILLE (France), registered at Lille Métropole under number 439 051 472,
-hereinafter referred to as “Hygeos” By using the GEOCLIDE SOFTWARE, you are
-agreeing these Terms of Use.  Hygeos agrees to grant a license to the User on
-the Software and the User undertake to comply with these Terms of Use.  Before
-accepting These Terms of Use, the User made sure that:
-* The Software fits with its needs and expectations,
-* its information system has the necessary and sufficient technical
-specifications and requirements for the installation and the operation of the
-Software.
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
 
-The User is informed and accepts that Hygeos can amend or modify these Terms of
-Use at any moment. Any amendment or modification to these Terms of Use will be
-made available on https://github.com/hygeos/geoclide. The User undertakes to
-check regularly the last modified version Terms of Use in force made available
-on the HYGEOS git GEOCLIDE repository at https://github.com/hygeos/geoclide 
-and recognizes and accepts to be bound by it.
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
 
-## SECTION 1. DEFINITIONS
-“Terms of Use” shall mean the present document, and all modifications and
-additions to these documents made available to the User by publishing on
-https://github.com/hygeos/geoclide.
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
 
-“Effective Date” shall mean the date on which these Terms of Use enter in force
-between the User and Hygeos as defined in Section 4.
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
 
-“Contact Email” shall mean the email addresses identified in Section 17 by
-which notifications between the User and Hygeos can be done.
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
 
-“Software” shall mean the GEOCLIDE SOFTWARE both in object code or source code
-format, including accompanying documentation, and any upgrades, enhancements
-and corrections made available on https://github.com/hygeos/geoclide
-or made by the User. The Software allows geometric calculations in the
-three-dimentional space with Python.
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
 
-“Territory” shall mean geographic areas where these Terms of Use applies and
-identified in Section 3, which may be amended in writing upon mutual agreement
-of the Parties to include additional geographic areas.
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
 
-“User” shall mean the user of the Software who has accepted these Terms of Use.
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
 
-## SECTION 2. RIGHT OF USE
-Subject to the terms and conditions of these Terms of Use, Hygeos grants to the
-User a personal, non-exclusive, non-transferable license to use the Software
-for the exclusive purpose of scientific research excluding any commercial
-purpose (hereinafter, the “Non-Commercial Purpose”).  The User may use the
-Software in its source code format for its own use, and may translate or modify
-the Software or incorporate them into other software. The User may not,
-however, transfer or sublicense the Software to any third party, in whole or in
-part, in any form, whether modified or unmodified. 
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
 
-## SECTION 3. TERRITORY
-The right of use of the Software described in Section 2 above shall be granted
-for the country where the User is established.
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
 
-## SECTION 4. TERM
-These Terms of Use shall enter in force upon the User has accepted these Terms
-of Use (the “Effective Date”). It shall be ended at any moment by one Party by
-notification through the Contact Email.
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
 
-## SECTION 5. DELIVERY OF THE SOFTWARE 
-Hygeos will make available to the User the Software both in its source code
-form the Effective Date and no later than five (5) days after the Effective
-Date. The delivery shall be done by electronic means.
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
 
-Hygeos authorizes the User to use or modify the source code of the Software
-solely for the purpose to ensure the interoperability of the Software with its
-information system or to enhance the Software or for scientific research. The
-User shall notify Hygeos of each modification done by it to the source code of
-the Software.
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
 
-## SECTION 6. COPIES 
-User may make copies of the Software both form as necessary for use by the User
-and for backup or archive purposes. The User agrees to maintain records of the
-location and use of each copy, in whole or in part, of the Software. Each copy
-of the Software is copyrighted by Hygeos. The User agrees to reproduce and
-apply the copyright notice and proprietary notice of Hygeos to all copies made
-hereunder, in whole or in part and in any form, of Software. 
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
 
-## SECTION 7. SUPPORT AND MAINTENANCE 
-Hygeos will provide support and maintenance services according to this
-Section 7.  Hygeos will provide adequate online support for the first installation of
-the Software. Hygeos will also provide the following support and maintenance
-services:
-(i) If the User notifies Hygeos of a substantial program error
-respecting the Software, or Hygeos has reason to believe that error exists in
-the Software and so notifies the User, Hygeos shall at its own expense verify
-and attempt to correct such error within thirty (30) days after the date of
-notification. If the User is not satisfied with the correction, then the User
-may terminate these Terms of Use, without any indemnification to the User.
-(ii) In the case that the User has technical questions in the use of the
-Software, the User may submit those questions to Hygeos.
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
 
-## SECTION 8. PRICES AND PAYMENTS
-These Terms of Use are subscribed for Non-Commercial Purpose as stated in
-Section 2, and the use of the Software to this end is granted free of charge.
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
 
-## SECTION 9. OWNERSHIP 
-The original and any copies of the Software, made by the User, including
-translations, compilations, partial copies, modifications, and updates, are the
-exclusive property of Hygeos. 
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
 
-## SECTION 10. PROPRIETARY RIGHTS 
-The User recognizes that Hygeos regards the Software as its proprietary
-information and as confidential trade secrets of great value. The User agrees
-not to provide or to otherwise make available in any form the Software, or any
-portion thereof, to any person other than employees of the User without the
-prior written consent of Hygeos.
-The User shall not disclose or copy to a third party the Software or any part
-thereof.
-The User further agrees to treat the Software with at least the same degree of
-care with which the User treats its own confidential information and in no
-event with less care than is reasonably required to protect the confidentiality
-of the Software. 
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
 
-## SECTION 11. DATA
-The User is responsible of all data processed through the Software. Hygeos
-shall not assume any responsibility toward:
-* the ownership and rights on any data processed through the Software, and
-* the fitness, the accuracy, the quality, the completeness of any data
-processed through the Software.
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
 
-The User ensures that it has sufficient rights to use and process the data. The
-User warrants Hygeos against any claim from any third party regarding the data
-it processed through the Software, including but not limited to ownership,
-infringement, unfair competition. 
+   END OF TERMS AND CONDITIONS
 
-## SECTION 12. TERMINATION 
-Hygeos may terminate these Terms of Use if User is in default of any of the
-terms and conditions of these Terms of Use and fails to correct such default
-within ten (10) days after written notice thereof from Hygeos. 
+   APPENDIX: How to apply the Apache License to your work.
 
-## SECTION 13. TERMINATION CERTIFICATE 
-In the event of termination for whatever reason, the User shall:
-* immediately stop use of the Software,
-* provide on demand to Hygeos, within one (1) month, a certificate certifying
-that the original and all copies of the Software, in whole or in part and in
-any form, have been destroyed.
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
 
-After termination of these Terms of Use for whatever reason, provisions of
-Sections 9, 10, 11, 15 to 17, and 19 hereof shall survive. 
+   Copyright 2024-2026 HYGEOS
 
-## SECTION 14. WARRANTY DISCLAIMER 
-The User acknowledges and accepts, the Software "AS IS." HYGEOS PROVIDES NO
-WARRANTIES AS TO THE FUNCTION OR USE OF THE SOFTWARE, WHETHER EXPRESS, IMPLIED,
-OR STATUTORY, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES OF
-MERCHANTABILITY OR FITNESS FOR PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE
-QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH THE USER. HYGEOS DOES NOT
-WARRANT THAT THE FUNCTIONS CONTAINED IN THE SOFTWARE WILL MEET USER’S
-REQUIREMENTS OR THAT THE OPERATION OF THE SOFTWARE WILL BE UNINTERRUPTED OR
-ERROR FREE. 
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
 
-## SECTION 15. PATENT AND COPYRIGHT INDEMNITY 
-Hygeos will defend at its own expense any action brought against the User to
-the extent it is based on a claim that the Software used within the scope of
-the right of use granted hereunder infringe a patent, copyright or other
-proprietary right of a third party. Hygeos will pay any costs, damages or
-attorney fees finally awarded against the User in such action which are
-attributable to such claim, provided Hygeos is promptly notified in writing of
-such claim, may control the defense and/or settlement of such claim, and is
-provided with all requested assistance, information and authority.
+       http://www.apache.org/licenses/LICENSE-2.0
 
-In the event that the Software becomes, or in Hygeos’ opinion is likely to become, the
-subject of a claim of infringement of a patent, copyright or trade secret,
-Hygeos may at its option either secure the User’s right to continue using the
-Software, replace or modify the Software to make them not infringing. Hygeos
-shall have no liability for any claim of patent, copyright or trade secret
-infringement based on the use of the Software in any form other than the
-original, unmodified form provided to the User or the use of a combination of
-the Software with hardware, software or data not agreed by Hygeos where the
-used Software alone in their original, unmodified form would not constitute an
-infringement. The foregoing states the User's entire liability for infringement
-or claims of infringement of patents, copyrights or other intellectual property
-right. 
-
-## SECTION 16. LIMITATION OF LIABILITY 
-HYGEOS’ ANNUAL LIABILITY TO USER UNDER ANY PROVISIONS OF THIS AGREEMENT FOR
-DAMAGES FINALLY AWARDED SHALL BE LIMITED TO THE AMOUNTS PAID IN THE YEAR
-CONCERNED BY THE USER TO HYGEOS. IN NO EVENT SHALL HYGEOS BE LIABLE FOR
-INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOSS OF USE,
-LOSS OF DATA AND LOSS OF PROFITS OR INTERRUPTION OF BUSINESS, HOWEVER CAUSED OR
-ON ANY THEORY OF LIABILITY. 
-
-## SECTION 17. NOTICES 
-All notices in connection with this Agreement shall be in writing and may be
-given by registered mail or personally delivered at the address set forth on
-the front page. Notices by email shall be deemed effective if sent to the
-Hygeos’ and User’s Contact Email. 
-
-## SECTION 18. SEVERABILITY 
-In the event any provision of these Terms of Use is determined to be invalid or
-unenforceable, the remainder of these Terms of Use shall remain in force as if
-such provision were not a part. 
-
-## SECTION 19. GOVERNING LAW
-These Terms of Use shall be governed and interpreted by the laws of FRANCE and
-Lille shall be the appropriate venue and jurisdiction for the resolution of any
-disputes hereunder. Both Parties hereby consent to such personal and exclusive
-jurisdiction. 
-
-## SECTION 20. NON-ASSIGNMENT 
-These Terms of Use and the right of use granted by it may not be assigned,
-sublicensed, or otherwise transferred by the User without the prior written
-consent of Hygeos.
-
-
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
