@@ -3,12 +3,27 @@ from __future__ import annotations
 import math
 import warnings
 from datetime import datetime
-from typing import overload
+from typing import Literal, cast, overload
 
 import numpy as np
 import xarray as xr
 
 from geoclide.constants import GAMMA3_F64, VERSION
+
+
+def _xyz_arrays(
+    vpn: Vector | Point | Normal,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    :meta private:
+
+    Give the x, y and z components, narrowed to ndarrays
+    """
+    return (
+        cast(np.ndarray, vpn.x),
+        cast(np.ndarray, vpn.y),
+        cast(np.ndarray, vpn.z),
+    )
 
 
 class Vector:
@@ -70,9 +85,9 @@ class Vector:
             else:
                 raise ValueError("Wrong parameter value(s)")
         elif np.isscalar(x) and np.isscalar(y) and np.isscalar(z):
-            self.x = float(x)
-            self.y = float(y)
-            self.z = float(z)
+            self.x = float(cast(float, x))
+            self.y = float(cast(float, y))
+            self.z = float(cast(float, z))
         elif (
             isinstance(x, np.ndarray)
             and isinstance(y, np.ndarray)
@@ -222,9 +237,9 @@ class Point:
             else:
                 raise ValueError("Wrong parameter value(s)")
         elif np.isscalar(x) and np.isscalar(y) and np.isscalar(z):
-            self.x = float(x)
-            self.y = float(y)
-            self.z = float(z)
+            self.x = float(cast(float, x))
+            self.y = float(cast(float, y))
+            self.z = float(cast(float, z))
         elif (
             isinstance(x, np.ndarray)
             and isinstance(y, np.ndarray)
@@ -375,9 +390,9 @@ class Normal:
             else:
                 raise ValueError("Wrong parameter value(s)")
         elif np.isscalar(x) and np.isscalar(y) and np.isscalar(z):
-            self.x = float(x)
-            self.y = float(y)
-            self.z = float(z)
+            self.x = float(cast(float, x))
+            self.y = float(cast(float, y))
+            self.z = float(cast(float, z))
         elif (
             isinstance(x, np.ndarray)
             and isinstance(y, np.ndarray)
@@ -517,7 +532,7 @@ class Ray:
                 raise ValueError("The parameter o must be a Point or a Ray")
             if not isinstance(d, Vector):
                 raise ValueError("The parameter d must only be a Vector")
-            if not np.isscalar(mint) or not np.isscalar(maxt):
+            if not all(np.isscalar(v) for v in (mint, maxt)):
                 raise ValueError(
                     "The parameters mint and maxt must be both scalars"
                 )
@@ -584,7 +599,9 @@ class Ray:
                 f" with t ∈ [{self.mint},{self.maxt}["
             )
         else:
-            nrays = len(self.o.x)
+            ox, oy, oz = _xyz_arrays(self.o)
+            dx, dy, dz = _xyz_arrays(self.d)
+            nrays = len(ox)
             mint = np.zeros(nrays, dtype=np.float64)
             maxt = np.zeros_like(mint)
             mint[:] = self.mint
@@ -593,10 +610,10 @@ class Ray:
             if nrays <= 100:
                 for ir in range(0, nrays):
                     output += (
-                        f"({self.o.x[ir]}, {self.o.y[ir]}, "
-                        f"{self.o.z[ir]}) + "
-                        f"t{ir}*({self.d.x[ir]}, {self.d.y[ir]}, "
-                        f"{self.d.z[ir]})"
+                        f"({ox[ir]}, {oy[ir]}, "
+                        f"{oz[ir]}) + "
+                        f"t{ir}*({dx[ir]}, {dy[ir]}, "
+                        f"{dz[ir]})"
                         f" with t{ir} ∈ [{mint[ir]},{maxt[ir]}["
                     )
                     if ir < nrays - 1:
@@ -604,20 +621,20 @@ class Ray:
             else:
                 for ir in range(0, 97):
                     output += (
-                        f"({self.o.x[ir]}, {self.o.y[ir]}, "
-                        f"{self.o.z[ir]}) + "
-                        f"t{ir}*({self.d.x[ir]}, {self.d.y[ir]}, "
-                        f"{self.d.z[ir]})"
+                        f"({ox[ir]}, {oy[ir]}, "
+                        f"{oz[ir]}) + "
+                        f"t{ir}*({dx[ir]}, {dy[ir]}, "
+                        f"{dz[ir]})"
                         f" with t{ir} ∈ [{mint[ir]},{maxt[ir]}["
                     )
                     output += "\n"
                 output += "       ...\n"
                 for ir in range(nrays - 3, nrays):
                     output += (
-                        f"({self.o.x[ir]}, {self.o.y[ir]}, "
-                        f"{self.o.z[ir]}) + "
-                        f"t{ir}*({self.d.x[ir]}, {self.d.y[ir]}, "
-                        f"{self.d.z[ir]})"
+                        f"({ox[ir]}, {oy[ir]}, "
+                        f"{oz[ir]}) + "
+                        f"t{ir}*({dx[ir]}, {dy[ir]}, "
+                        f"{dz[ir]})"
                         f" with t{ir} ∈ [{mint[ir]},{maxt[ir]}["
                     )
                     if ir < nrays - 1:
@@ -632,7 +649,9 @@ class Ray:
                 f" with t ∈ [{self.mint},{self.maxt}["
             )
         else:
-            nrays = len(self.o.x)
+            ox, oy, oz = _xyz_arrays(self.o)
+            dx, dy, dz = _xyz_arrays(self.d)
+            nrays = len(ox)
             mint = np.zeros(nrays, dtype=np.float64)
             maxt = np.zeros_like(mint)
             mint[:] = self.mint
@@ -641,10 +660,10 @@ class Ray:
             if nrays <= 100:
                 for ir in range(0, nrays):
                     output += (
-                        f"r(t{ir}) = ({self.o.x[ir]}, {self.o.y[ir]}, "
-                        f"{self.o.z[ir]}) + "
-                        f"t{ir}*({self.d.x[ir]}, {self.d.y[ir]}, "
-                        f"{self.d.z[ir]})"
+                        f"r(t{ir}) = ({ox[ir]}, {oy[ir]}, "
+                        f"{oz[ir]}) + "
+                        f"t{ir}*({dx[ir]}, {dy[ir]}, "
+                        f"{dz[ir]})"
                         f" with t{ir} ∈ [{mint[ir]},{maxt[ir]}["
                     )
                     if ir < nrays - 1:
@@ -652,20 +671,20 @@ class Ray:
             else:
                 for ir in range(0, 97):
                     output += (
-                        f"r(t{ir}) = ({self.o.x[ir]}, {self.o.y[ir]}, "
-                        f"{self.o.z[ir]}) + "
-                        f"t{ir}*({self.d.x[ir]}, {self.d.y[ir]}, "
-                        f"{self.d.z[ir]})"
+                        f"r(t{ir}) = ({ox[ir]}, {oy[ir]}, "
+                        f"{oz[ir]}) + "
+                        f"t{ir}*({dx[ir]}, {dy[ir]}, "
+                        f"{dz[ir]})"
                         f" with t{ir} ∈ [{mint[ir]},{maxt[ir]}["
                     )
                     output += "\n"
                 output += "       ...\n"
                 for ir in range(nrays - 3, nrays):
                     output += (
-                        f"r(t{ir}) = ({self.o.x[ir]}, {self.o.y[ir]}, "
-                        f"{self.o.z[ir]}) + "
-                        f"t{ir}*({self.d.x[ir]}, {self.d.y[ir]}, "
-                        f"{self.d.z[ir]})"
+                        f"r(t{ir}) = ({ox[ir]}, {oy[ir]}, "
+                        f"{oz[ir]}) + "
+                        f"t{ir}*({dx[ir]}, {dy[ir]}, "
+                        f"{dz[ir]})"
                         f" with t{ir} ∈ [{mint[ir]},{maxt[ir]}["
                     )
                     if ir < nrays - 1:
@@ -836,7 +855,8 @@ class BBox:
         Test if point(s) p is/are included in the bounding box(es)
         """
         if isinstance(self.p0.x, np.ndarray) or isinstance(p.x, np.ndarray):
-            return np.logical_and.reduce(
+            conds = cast(
+                "tuple[np.ndarray, ...]",
                 (
                     (p.x >= self.pmin.x),
                     (p.x <= self.pmax.x),
@@ -844,8 +864,9 @@ class BBox:
                     (p.y <= self.pmax.y),
                     (p.z >= self.pmin.z),
                     (p.z <= self.pmax.z),
-                )
+                ),
             )
+            return np.logical_and.reduce(conds)
         else:
             return (
                 (p.x >= self.pmin.x)
@@ -897,6 +918,31 @@ class BBox:
             r, diag_calc=diag_calc, ds_output=False
         )
         return is_intersection
+
+    @overload
+    def intersect(
+        self,
+        r: Ray,
+        diag_calc: bool = ...,
+        *,
+        ds_output: Literal[True] = ...,
+    ) -> xr.Dataset: ...
+
+    @overload
+    def intersect(
+        self,
+        r: Ray,
+        diag_calc: bool = ...,
+        *,
+        ds_output: Literal[False],
+    ) -> tuple[
+        float | np.ndarray, float | np.ndarray, bool | np.ndarray
+    ]: ...
+
+    @overload
+    def intersect(
+        self, r: Ray, diag_calc: bool = ..., *, ds_output: bool
+    ) -> xr.Dataset | tuple: ...
 
     def intersect(
         self, r: Ray, diag_calc: bool = False, ds_output: bool = True
@@ -965,21 +1011,25 @@ class BBox:
         is_bbox_arr = isinstance(self.pmin.x, np.ndarray)
         if is_r_arr and is_bbox_arr and not diag_calc:
             with np.errstate(divide="ignore", invalid="ignore"):
-                b_size = len(self.pmin.x)
-                r_size = len(r.o.x)
+                b_size = len(cast(np.ndarray, self.pmin.x))
+                r_size = len(cast(np.ndarray, r.o.x))
                 t0 = np.zeros((b_size, r_size), dtype=np.float64)
                 t1 = np.full((b_size, r_size), r.maxt, dtype=np.float64)
                 is_intersection = np.full((b_size, r_size), True)
                 inv_ray_dir = np.zeros(r_size, dtype=np.float64)
                 for i in range(3):
-                    c0 = r.d[i] != 0
+                    rdi = cast(np.ndarray, r.d[i])
+                    roi = cast(np.ndarray, r.o[i])
+                    pmini = cast(np.ndarray, self.pmin[i])
+                    pmaxi = cast(np.ndarray, self.pmax[i])
+                    c0 = rdi != 0
                     inv_ray_dir[:] = math.inf
-                    inv_ray_dir[c0] = 1.0 / r.d[i][c0]
+                    inv_ray_dir[c0] = 1.0 / rdi[c0]
                     t_near = (
-                        self.pmin[i][:, None] - r.o[i][None, :]
+                        pmini[:, None] - roi[None, :]
                     ) * inv_ray_dir
                     t_far = (
-                        self.pmax[i][:, None] - r.o[i][None, :]
+                        pmaxi[:, None] - roi[None, :]
                     ) * inv_ray_dir
                     c1 = t_near > t_far
                     t_near[c1], t_far[c1] = t_far[c1], t_near[c1]
@@ -1002,27 +1052,33 @@ class BBox:
             with np.errstate(divide="ignore", invalid="ignore"):
                 size = 1
                 if is_bbox_arr:
-                    size = max(size, len(self.pmin.x))
+                    size = max(size, len(cast(np.ndarray, self.pmin.x)))
                 if is_r_arr:
-                    size = max(size, len(r.o.x))
+                    size = max(size, len(cast(np.ndarray, r.o.x)))
                 t0 = np.zeros(size, dtype=np.float64)
                 t1 = np.full(size, r.maxt, dtype=np.float64)
                 is_intersection = np.full(size, True)
-                if is_r_arr:
-                    inv_ray_dir = np.zeros(size, dtype=np.float64)
+                inv_ray_dir_arr = np.zeros(size, dtype=np.float64)
                 for i in range(3):
-                    c0 = r.d[i] != 0
-                    if is_r_arr:
-                        inv_ray_dir[:] = math.inf
-                        inv_ray_dir[c0] = 1.0 / r.d[i][c0]
+                    rdi = r.d[i]
+                    inv_ray_dir: float | np.ndarray
+                    if isinstance(rdi, np.ndarray):
+                        c0 = rdi != 0
+                        inv_ray_dir_arr[:] = math.inf
+                        inv_ray_dir_arr[c0] = 1.0 / rdi[c0]
+                        inv_ray_dir = inv_ray_dir_arr
+                    elif rdi != 0:
+                        inv_ray_dir = 1.0 / rdi
                     else:
                         inv_ray_dir = math.inf
-                        if c0:
-                            inv_ray_dir = 1.0 / r.d[i]
-                        else:
-                            inv_ray_dir = math.inf
-                    t_near = (self.pmin[i] - r.o[i]) * inv_ray_dir
-                    t_far = (self.pmax[i] - r.o[i]) * inv_ray_dir
+                    t_near = cast(
+                        np.ndarray,
+                        (self.pmin[i] - r.o[i]) * inv_ray_dir,
+                    )
+                    t_far = cast(
+                        np.ndarray,
+                        (self.pmax[i] - r.o[i]) * inv_ray_dir,
+                    )
                     c1 = t_near > t_far
                     t_near[c1], t_far[c1] = t_far[c1], t_near[c1]
                     t_far *= 1 + 2 * GAMMA3_F64
@@ -1044,12 +1100,16 @@ class BBox:
             t0 = 0.0
             t1 = r.maxt
             for i in range(3):
-                if r.d[i] != 0:
-                    inv_ray_dir = 1.0 / r.d[i]
+                rdi = cast(float, r.d[i])
+                roi = cast(float, r.o[i])
+                pmini = cast(float, self.pmin[i])
+                pmaxi = cast(float, self.pmax[i])
+                if rdi != 0:
+                    inv_ray_dir = 1.0 / rdi
                 else:
                     inv_ray_dir = math.inf
-                t_near = (self.pmin[i] - r.o[i]) * inv_ray_dir
-                t_far = (self.pmax[i] - r.o[i]) * inv_ray_dir
+                t_near = (pmini - roi) * inv_ray_dir
+                t_far = (pmaxi - roi) * inv_ray_dir
                 if t_near > t_far:
                     t_near, t_far = t_far, t_near
                 t_far *= 1 + 2 * GAMMA3_F64
@@ -1322,8 +1382,16 @@ def get_bbox_intersect_dataset(
 
     ds = xr.Dataset(coords={"xyz": np.arange(3)})
 
+    # bind defaults, reassigned below when is_r_arr is True
+    nrays = 0
+    ro = np.empty(0)
+    rd = np.empty(0)
+    mint = np.empty(0)
+    maxt = np.empty(0)
+    thit = np.empty(0)
+
     if is_r_arr:
-        nrays = len(r.o.x)
+        nrays = len(cast(np.ndarray, r.o.x))
         ro = r.o.to_numpy()
         rd = r.d.to_numpy()
         ds["o"] = xr.DataArray(ro, dims=["nrays", "xyz"])
@@ -1341,18 +1409,20 @@ def get_bbox_intersect_dataset(
         ds["maxt"] = xr.DataArray(r.maxt)
 
     if is_r_arr or is_bbox_arr:
-        c1 = t0 > 0
+        t0_arr = cast(np.ndarray, t0)
+        t1_arr = cast(np.ndarray, t1)
+        c1 = t0_arr > 0
         not_c1 = np.logical_not(c1)
-        thit = np.full((t0.shape), np.nan, dtype=np.float64)
+        thit = np.full(t0_arr.shape, np.nan, dtype=np.float64)
         c2 = np.logical_and(is_intersection, c1)
         c3 = np.logical_and(is_intersection, not_c1)
         if np.any(c2):
-            thit[c2] = t0[c2]
+            thit[c2] = t0_arr[c2]
         if np.any(c3):
-            thit[c3] = t1[c3]
+            thit[c3] = t1_arr[c3]
 
     if is_r_arr and is_bbox_arr and not diag_calc:
-        nobj = len(bbox.p0.x)
+        nobj = len(cast(np.ndarray, bbox.p0.x))
         ds.attrs.update({"nobj": nobj, "nrays": nrays})
         ds["is_intersection"] = xr.DataArray(
             is_intersection, dims=["nobj", "nrays"]
@@ -1373,7 +1443,7 @@ def get_bbox_intersect_dataset(
             size = nrays
         else:
             dim_name = "nobj"
-            size = len(bbox.p0.x)
+            size = len(cast(np.ndarray, bbox.p0.x))
         ds.attrs.update({dim_name: size})
         phit = r(thit).to_numpy()
         ds["is_intersection"] = xr.DataArray(is_intersection, dims=[dim_name])
@@ -1386,7 +1456,7 @@ def get_bbox_intersect_dataset(
             thit = t0
         else:
             thit = t1
-        phit = r(thit).to_numpy()
+        phit = r(cast(float, thit)).to_numpy()
         ds["is_intersection"] = xr.DataArray(is_intersection)
         ds["thit"] = xr.DataArray(thit)
         ds["phit"] = xr.DataArray(phit, dims=["xyz"])
@@ -1443,7 +1513,8 @@ def print_basic(basic: Vector | Point | Normal, name: str = "") -> str:
             first_space = f"{'':{size_name + 2}}"
         else:
             first_space = "  "
-        ncomponents = len(basic.x)
+        bx, by, bz = _xyz_arrays(basic)
+        ncomponents = len(bx)
         values = basic.to_numpy()
         space = np.empty_like(values, dtype=str)
         space[values >= 0] = " "
@@ -1454,48 +1525,48 @@ def print_basic(basic: Vector | Point | Normal, name: str = "") -> str:
             for i in range(0, ncomponents):
                 if i == 0:
                     output += (
-                        f"{name}([[{space[i, 0]}{basic.x[i]:{fmt}}, "
-                        f"{space[i, 1]}{basic.y[i]:{fmt}}, "
-                        f"{space[i, 2]}{basic.z[i]:{fmt}}],\n"
+                        f"{name}([[{space[i, 0]}{bx[i]:{fmt}}, "
+                        f"{space[i, 1]}{by[i]:{fmt}}, "
+                        f"{space[i, 2]}{bz[i]:{fmt}}],\n"
                     )
                 elif i == ncomponents - 1:
                     output += (
-                        f"{first_space}[{space[i, 0]}{basic.x[i]:{fmt}}, "
-                        f"{space[i, 1]}{basic.y[i]:{fmt}}, "
-                        f"{space[i, 2]}{basic.z[i]:{fmt}}]])"
+                        f"{first_space}[{space[i, 0]}{bx[i]:{fmt}}, "
+                        f"{space[i, 1]}{by[i]:{fmt}}, "
+                        f"{space[i, 2]}{bz[i]:{fmt}}]])"
                     )
                 else:
                     output += (
-                        f"{first_space}[{space[i, 0]}{basic.x[i]:{fmt}}, "
-                        f"{space[i, 1]}{basic.y[i]:{fmt}}, "
-                        f"{space[i, 2]}{basic.z[i]:{fmt}}],\n"
+                        f"{first_space}[{space[i, 0]}{bx[i]:{fmt}}, "
+                        f"{space[i, 1]}{by[i]:{fmt}}, "
+                        f"{space[i, 2]}{bz[i]:{fmt}}],\n"
                     )
         else:
             for i in range(0, 97):
                 if i == 0:
                     output += (
-                        f"{name}([[{space[i, 0]}{basic.x[i]:{fmt}}, "
-                        f"{space[i, 1]}{basic.y[i]:{fmt}}, "
-                        f"{space[i, 2]}{basic.z[i]:{fmt}}],\n"
+                        f"{name}([[{space[i, 0]}{bx[i]:{fmt}}, "
+                        f"{space[i, 1]}{by[i]:{fmt}}, "
+                        f"{space[i, 2]}{bz[i]:{fmt}}],\n"
                     )
                 else:
                     output += (
-                        f"{first_space}[{space[i, 0]}{basic.x[i]:{fmt}}, "
-                        f"{space[i, 1]}{basic.y[i]:{fmt}}, "
-                        f"{space[i, 2]}{basic.z[i]:{fmt}}],\n"
+                        f"{first_space}[{space[i, 0]}{bx[i]:{fmt}}, "
+                        f"{space[i, 1]}{by[i]:{fmt}}, "
+                        f"{space[i, 2]}{bz[i]:{fmt}}],\n"
                     )
             output += "       ...\n"
             for i in range(ncomponents - 3, ncomponents):
                 if i == ncomponents - 1:
                     output += (
-                        f"{first_space}[{space[i, 0]}{basic.x[i]:{fmt}}, "
-                        f"{space[i, 1]}{basic.y[i]:{fmt}}, "
-                        f"{space[i, 2]}{basic.z[i]:{fmt}}]])"
+                        f"{first_space}[{space[i, 0]}{bx[i]:{fmt}}, "
+                        f"{space[i, 1]}{by[i]:{fmt}}, "
+                        f"{space[i, 2]}{bz[i]:{fmt}}]])"
                     )
                 else:
                     output += (
-                        f"{first_space}[{space[i, 0]}{basic.x[i]:{fmt}}, "
-                        f"{space[i, 1]}{basic.y[i]:{fmt}}, "
-                        f"{space[i, 2]}{basic.z[i]:{fmt}}],\n"
+                        f"{first_space}[{space[i, 0]}{bx[i]:{fmt}}, "
+                        f"{space[i, 1]}{by[i]:{fmt}}, "
+                        f"{space[i, 2]}{bz[i]:{fmt}}],\n"
                     )
         return output
