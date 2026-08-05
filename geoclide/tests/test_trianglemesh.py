@@ -319,6 +319,31 @@ def test_read_gcnc_trianglemesh():
     assert np.all(msh_read.faces == msh.faces)
 
 
+def test_write_read_trianglemesh(tmp_path):
+    """Write and read back a mesh in each supported format."""
+    msh = gc.Sphere(1.5).to_trianglemesh(reso_theta=18, reso_phi=36)
+
+    # only the gcnc format keeps the float64 coordinates, the
+    # stl, ply and glb formats store them as float32
+    for fmt in ["gcnc", "stl", "ply", "obj", "off", "glb"]:
+        atol = 1e-15 if fmt == "gcnc" else 1e-6
+        path = str(tmp_path / ("sphere." + fmt))
+        msh.write(path)
+        msh_read = gc.read_trianglemesh(path)
+        assert msh_read.vertices.shape == msh.vertices.shape, (
+            "Problem with the number of vertices in " + fmt + " format"
+        )
+        assert msh_read.faces.shape == msh.faces.shape, (
+            "Problem with the number of faces in " + fmt + " format"
+        )
+        assert np.all(
+            np.isclose(msh_read.vertices, msh.vertices, 0.0, atol)
+        ), "Problem with the vertices in " + fmt + " format"
+        assert np.all(msh_read.faces == msh.faces), (
+            "Problem with the faces in " + fmt + " format"
+        )
+
+
 def test_trianglemesh_to_dataset():
     msh1 = gc.Sphere(1.5).to_trianglemesh(reso_theta=18, reso_phi=36)
     msh2 = msh1.to_dataset()
