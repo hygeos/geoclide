@@ -3242,7 +3242,6 @@ class TriangleMesh(Shape):
         >>> prolate = gc.Spheroid(radius_xy=1.5, radius_z=3.)
         >>> msh = prolate.to_trianglemesh()
         >>> msh.plot(color='green', edgecolor='k')
-        image
         """
         if self.otw.is_identity():
             vertices = self.vertices
@@ -3394,8 +3393,8 @@ def create_sphere_trianglemesh(
     --------
     >>> import geoclide as gc
     >>> msh = gc.create_sphere_trianglemesh(1)
-    >>> msh
-    <geoclide.trianglemesh.TriangleMesh at 0x7fe3a0ea0950>
+    >>> msh.ntriangles, msh.nvertices
+    (576, 290)
     """
     if wto is None and otw is None:
         wto = Transform()
@@ -3636,8 +3635,8 @@ def create_disk_trianglemesh(
     --------
     >>> import geoclide as gc
     >>> msh = gc.create_disk_trianglemesh(1)
-    >>> msh
-    <geoclide.trianglemesh.TriangleMesh at 0x7fa11c504940>
+    >>> msh.ntriangles, msh.nvertices
+    (36, 37)
     """
     if wto is None and otw is None:
         wto = Transform()
