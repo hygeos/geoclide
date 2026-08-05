@@ -113,35 +113,30 @@ def quadratic(
         # an ndarray a implies ndarrays b and c
         assert isinstance(b, np.ndarray)
         assert isinstance(c, np.ndarray)
-        # Find quadratic discriminant
-        discrim = (b * b) - (4 * a * c)
-        is_solution = np.full(discrim.shape, True, dtype=bool)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            # Find quadratic discriminant
+            discrim = (b * b) - (4 * a * c)
 
-        c1 = discrim < 0
-        root_discrim = np.sqrt(discrim)
+            c1 = discrim < 0
+            is_solution = np.logical_not(c1)
+            root_discrim = np.sqrt(discrim)
 
-        # Compute quadratic xi values
-        q = np.zeros_like(discrim)
+            # Compute quadratic xi values
+            q = np.where(
+                b < 0,
+                -0.5 * (b - root_discrim),
+                -0.5 * (b + root_discrim),
+            )
 
-        c2 = b < 0
-        not_c2 = np.logical_not(c2)
-        q[c2] = -0.5 * (b[c2] - root_discrim[c2])
-        q[not_c2] = -0.5 * (b[not_c2] + root_discrim[not_c2])
+            x1 = c / q
+            x0 = np.where(a != 0, q / a, x1)
 
-        x0 = np.zeros_like(discrim)
-        c3 = a != 0
-        not_c3 = np.logical_not(c3)
-        x0[c3] = q[c3] / a[c3]
-        x0[not_c3] = c[not_c3] / q[not_c3]
+            # keep the smallest solution in x0
+            c4 = x0 > x1
+            x0, x1 = np.where(c4, x1, x0), np.where(c4, x0, x1)
 
-        x1 = c / q
-
-        c4 = x0 > x1
-        x0[c4], x1[c4] = x1[c4], x0[c4]
-
-        is_solution[c1] = False
-        x0[c1] = None
-        x1[c1] = None
+            x0[c1] = None
+            x1[c1] = None
 
         return is_solution, x0, x1
     else:
