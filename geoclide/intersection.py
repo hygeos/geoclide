@@ -41,8 +41,30 @@ def calc_intersection(
 
     Returns
     -------
-    xr.Dataset
-        Look-up table with the intersection information
+    Dataset
+        Xarray dataset containing the intersection information.
+
+        Key variables included:
+
+        - **o**: The origin(s) of the ray(s) [xyz]
+        - **d**: The direction(s) of the ray(s) [xyz]
+        - **mint**: The mint attribute of the ray(s)
+        - **maxt**: The maxt attribute of the ray(s)
+        - **is_intersection**: If there is an intersection ->
+          True, else False
+        - **thit**: The t ray variable(s) of the intersection
+          point(s)
+        - **phit**: The intersection point(s) [xyz]
+        - **nhit**: The surface normal(s) at the intersection
+          point(s) [xyz] (not for a BBox)
+        - **u**, **v**, **dpdu**, **dpdv**: The parametric
+          coordinates and surface partial derivatives (not for a
+          BBox)
+        - the shape attributes (e.g. radius, z_min, z_max and
+          phi_max for a sphere, or pmin and pmax for a bounding
+          box)
+        - **wto_m**, **wto_m_inv**, **otw_m**, **otw_m_inv**: The
+          transformation matrices of the shape (not for a BBox)
 
     Examples
     --------
@@ -51,42 +73,15 @@ def calc_intersection(
     >>> bbox = gc.BBox(p1=gc.Point(0., 0., 0.), p2=gc.Point(1.,1.,1.))
     >>> ray = gc.Ray(o=gc.Point(-2., 0., 0.8), d=gc.Vector(1.,0.,0.))
     >>> ds_sphere = gc.calc_intersection(sphere, ray)
-    >>> ds_sphere
-    <xarray.Dataset> Size: 753B
-    Dimensions:          (xyz: 3, dim_0: 4, dim_1: 4)
-    Coordinates:
-    * xyz              (xyz) int64 24B 0 1 2
-    Dimensions without coordinates: dim_0, dim_1
-    Data variables: (12/20)
-        o                (xyz) float64 24B -2.0 0.0 0.8
-        d                (xyz) float64 24B 1.0 0.0 0.0
-        mint             int64 8B 0
-        maxt             float64 8B inf
-        is_intersection  bool 1B True
-        thit             float64 8B 1.4
-        ...               ...
-        z_max            float64 8B 1.0
-        phi_max          float64 8B 360.0
-        wto_m            (dim_0, dim_1) float64 128B 1.0 0.0 ... 1.0
-        wto_m_inv        (dim_0, dim_1) float64 128B 1.0 0.0 ... 1.0
-        otw_m            (dim_0, dim_1) float64 128B 1.0 0.0 ... 1.0
-        otw_m_inv        (dim_0, dim_1) float64 128B 1.0 0.0 ... 1.0
+    >>> ds_sphere['thit'].values
+    array(1.4)
+    >>> ds_sphere['phit'].values
+    array([-0.6,  0. ,  0.8])
     >>> ds_bbox = gc.calc_intersection(bbox, ray)
-    >>> ds_bbox
-    <xarray.Dataset> Size: 169B
-    Dimensions:          (xyz: 3)
-    Coordinates:
-    * xyz              (xyz) int64 24B 0 1 2
-    Data variables:
-        is_intersection  bool 1B True
-        o                (xyz) float64 24B -2.0 0.0 0.8
-        d                (xyz) float64 24B 1.0 0.0 0.0
-        mint             int64 8B 0
-        maxt             float64 8B inf
-        pmin             (xyz) float64 24B 0.0 0.0 0.0
-        pmax             (xyz) float64 24B 1.0 1.0 1.0
-        thit             float64 8B 2.0
-        phit             (xyz) float64 24B 0.0 0.0 0.8
+    >>> ds_bbox['thit'].values
+    array(2.)
+    >>> ds_bbox['phit'].values
+    array([0. , 0. , 0.8])
     """
     if not isinstance(r, Ray):
         raise ValueError("The parameter r1 must a Ray")

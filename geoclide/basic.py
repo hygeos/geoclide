@@ -1010,9 +1010,11 @@ class BBox:
 
         Returns
         -------
-        xr.Dataset or tuple
-            Look-up table with the intersection information if ds_output
-            is True, else return a tuple. Form of the tuple:
+        Dataset or tuple
+            Xarray dataset containing the intersection information
+            if ds_output is True (see the get_bbox_intersect_dataset
+            function for its variables), else a tuple. Form of the
+            tuple:
 
             * t0 : None or float or ndarray
                 -> The t ray variable of the first intersection. In case
@@ -1426,8 +1428,23 @@ def get_bbox_intersect_dataset(
 
     Returns
     -------
-    xr.Dataset
-        Look-up table with the intersection information
+    Dataset
+        Xarray dataset containing the intersection information.
+
+        Key variables included:
+
+        - **o**: The origin(s) of the ray(s) [xyz]
+        - **d**: The direction(s) of the ray(s) [xyz]
+        - **mint**: The mint attribute of the ray(s)
+        - **maxt**: The maxt attribute of the ray(s)
+        - **is_intersection**: If there is an intersection ->
+          True, else False
+        - **thit**: The t ray variable(s) of the intersection
+          point(s)
+        - **phit**: The intersection point(s) [xyz]
+
+        In case of a set of rays and/or a set of bounding boxes,
+        the variables get an extra nrays/nobj dimension.
     """
     is_r_arr = isinstance(r.o.x, np.ndarray)
     is_bbox_arr = isinstance(bbox.pmin.x, np.ndarray)

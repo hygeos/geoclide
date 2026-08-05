@@ -359,10 +359,11 @@ class Sphere(Shape):
 
         Returns
         -------
-        xr.Dataset or tuple
-            Look-up table with the intersection information if ds_output
-            is True, else returns a tuple. The tuple is ready to be an
-            input for the function geoclide.shapes.get_intersect_dataset
+        Dataset or tuple
+            Xarray dataset containing the intersection information
+            if ds_output is True (see the get_intersect_dataset
+            function of the shapes module for its variables), else
+            a tuple ready to be an input for that same function
 
         Examples
         --------
@@ -371,24 +372,6 @@ class Sphere(Shape):
         >>> # partial sphere where portion above z=0.5 is removed
         >>> sph2 = gc.Sphere(radius=1., z_max=0.5)
         >>> r = gc.Ray(o=gc.Point(-2., 0., 0.8), d=gc.Vector(1.,0.,0.))
-        >>> sph1.intersect(r)
-        <xarray.Dataset> Size: 209B
-        Dimensions:          (xyz: 3)
-        Coordinates:
-        * xyz              (xyz) int64 24B 0 1 2
-        Data variables:
-            o                (xyz) float64 24B -2.0 0.0 0.8
-            d                (xyz) float64 24B 1.0 0.0 0.0
-            mint             int64 8B 0
-            maxt             float64 8B inf
-            is_intersection  bool 1B True
-            thit             float64 8B 1.4
-            u                float64 8B 0.5
-            v                float64 8B 0.7952
-            phit             (xyz) float64 24B -0.6 0.0 0.8
-            nhit             (xyz) float64 24B -0.6 0.0 0.8
-            dpdu             (xyz) float64 24B 0.0 -3.77 0.0
-            dpdv             (xyz) float64 24B 2.513 0.0 1.885
         >>> ds = sph1.intersect(r)
         >>> ds['phit'].values # the intersection point
         array([-0.6,  0. ,  0.8])
@@ -397,24 +380,9 @@ class Sphere(Shape):
         array([-0.6,  0. ,  0.8])
         >>> # here no intersection since the sphere part above z=0.5 is
         >>> # removed
-        >>> sph2.intersect(r)
-        <xarray.Dataset> Size: 209B
-        Dimensions:          (xyz: 3)
-        Coordinates:
-        * xyz              (xyz) int64 24B 0 1 2
-        Data variables:
-            o                (xyz) float64 24B -2.0 0.0 0.8
-            d                (xyz) float64 24B 1.0 0.0 0.0
-            mint             int64 8B 0
-            maxt             float64 8B inf
-            is_intersection  bool 1B False
-            thit             object 8B None
-            u                object 8B None
-            v                object 8B None
-            phit             (xyz) float64 24B nan nan nan
-            nhit             (xyz) float64 24B nan nan nan
-            dpdu             (xyz) float64 24B nan nan nan
-            dpdv             (xyz) float64 24B nan nan nan
+        >>> ds2 = sph2.intersect(r)
+        >>> ds2['is_intersection'].values
+        array(False)
         """
         if not isinstance(r, Ray):
             raise ValueError("The given parameter must be a Ray")
@@ -1056,10 +1024,11 @@ class Spheroid(Shape):
 
         Returns
         -------
-        xr.Dataset or tuple
-            Look-up table with the intersection information if ds_output
-            is True, else returns a tuple. The tuple is ready to be an
-            input for the function geoclide.shapes.get_intersect_dataset
+        Dataset or tuple
+            Xarray dataset containing the intersection information
+            if ds_output is True (see the get_intersect_dataset
+            function of the shapes module for its variables), else
+            a tuple ready to be an input for that same function
 
         Examples
         --------
@@ -1072,42 +1041,17 @@ class Spheroid(Shape):
         >>> r2 = gc.Ray(
         ...     o=gc.Point(10., 0., 2.5), d=(gc.Vector(-1., 0., 0.))
         ... )
-        >>> oblate.intersect(r1)
-        <xarray.Dataset> Size: 209B
-        Dimensions:          (xyz: 3)
-        Coordinates:
-        * xyz              (xyz) int64 24B 0 1 2
-        Data variables:
-            o                (xyz) float64 24B 2.5 0.0 10.0
-            d                (xyz) float64 24B 0.0 0.0 -1.0
-            mint             int64 8B 0
-            maxt             float64 8B inf
-            is_intersection  bool 1B True
-            thit             float64 8B 9.171
-            u                float64 8B 0.0
-            v                float64 8B 0.6864
-            phit             (xyz) float64 24B 2.5 0.0 0.8292
-            nhit             (xyz) float64 24B 0.6019 -0.0 0.7985
-            dpdu             (xyz) float64 24B 0.0 15.71 0.0
-            dpdv             (xyz) float64 24B -5.21 0.0 3.927
-        >>> prolate.intersect(r2)
-        <xarray.Dataset> Size: 209B
-        Dimensions:          (xyz: 3)
-        Coordinates:
-        * xyz              (xyz) int64 24B 0 1 2
-        Data variables:
-            o                (xyz) float64 24B 10.0 0.0 2.5
-            d                (xyz) float64 24B -1.0 0.0 0.0
-            mint             int64 8B 0
-            maxt             float64 8B inf
-            is_intersection  bool 1B True
-            thit             float64 8B 9.171
-            u                float64 8B 0.0
-            v                float64 8B 0.8136
-            phit             (xyz) float64 24B 0.8292 0.0 2.5
-            nhit             (xyz) float64 24B 0.7985 -0.0 0.6019
-            dpdu             (xyz) float64 24B 0.0 5.21 0.0
-            dpdv             (xyz) float64 24B -3.927 0.0 5.21
+        >>> ds1 = oblate.intersect(r1)
+        >>> ds1['phit'].values # the intersection point
+        array([2.5      , 0.       , 0.8291562])
+        >>> # The surface normal at the intersection point
+        >>> ds1['nhit'].values
+        array([ 0.60192927, -0.        ,  0.79854941])
+        >>> ds2 = prolate.intersect(r2)
+        >>> ds2['phit'].values
+        array([0.8291562, 0.       , 2.5      ])
+        >>> ds2['nhit'].values
+        array([ 0.79854941, -0.        ,  0.60192927])
         """
         if not isinstance(r, Ray):
             raise ValueError("The given parameter must be a Ray")
@@ -1657,10 +1601,11 @@ class Disk(Shape):
 
         Returns
         -------
-        xr.Dataset or tuple
-            Look-up table with the intersection information if ds_output
-            is True, else returns a tuple. The tuple is ready to be an
-            input for the function geoclide.shapes.get_intersect_dataset
+        Dataset or tuple
+            Xarray dataset containing the intersection information
+            if ds_output is True (see the get_intersect_dataset
+            function of the shapes module for its variables), else
+            a tuple ready to be an input for that same function
 
         Examples
         --------
@@ -1668,24 +1613,11 @@ class Disk(Shape):
         >>> r1 = gc.Ray(gc.Point(1.2,0.,10.), gc.Vector(0.,0.,-1.))
         >>> annulus = gc.Disk(radius=1.5, inner_radius=0.8)
         >>> # hit point is between the inner radius and radius
-        >>> annulus.intersect(r1)
-        <xarray.Dataset> Size: 209B
-        Dimensions:          (xyz: 3)
-        Coordinates:
-        * xyz              (xyz) int64 24B 0 1 2
-        Data variables:
-            o                (xyz) float64 24B 1.2 0.0 10.0
-            d                (xyz) float64 24B 0.0 0.0 -1.0
-            mint             int64 8B 0
-            maxt             float64 8B inf
-            is_intersection  bool 1B True
-            thit             float64 8B 10.0
-            u                float64 8B 0.0
-            v                float64 8B 0.4286
-            phit             (xyz) float64 24B 1.2 0.0 0.0
-            nhit             (xyz) float64 24B 0.0 0.0 1.0
-            dpdu             (xyz) float64 24B 0.0 7.54 0.0
-            dpdv             (xyz) float64 24B -0.7 -0.0 -0.0
+        >>> ds = annulus.intersect(r1)
+        >>> ds['thit'].values
+        array(10.)
+        >>> ds['phit'].values # the intersection point
+        array([1.2, 0. , 0. ])
         """
         if not isinstance(r, Ray):
             raise ValueError("The given parameter must be a Ray")

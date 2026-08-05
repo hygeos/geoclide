@@ -98,8 +98,33 @@ def get_intersect_dataset(
 
     Returns
     -------
-    xr.Dataset
-        Look-up table with the intersection information
+    Dataset
+        Xarray dataset containing the intersection information.
+
+        Key variables included:
+
+        - **o**: The origin(s) of the ray(s) [xyz]
+        - **d**: The direction(s) of the ray(s) [xyz]
+        - **mint**: The mint attribute of the ray(s)
+        - **maxt**: The maxt attribute of the ray(s)
+        - **is_intersection**: If there is an intersection ->
+          True, else False
+        - **thit**: The t ray variable(s) of the intersection
+          point(s)
+        - **u**: The u coordinate(s) of the parametric
+          representation
+        - **v**: The v coordinate(s) of the parametric
+          representation
+        - **phit**: The intersection point(s) [xyz]
+        - **nhit**: The surface normal(s) at the intersection
+          point(s) [xyz]
+        - **dpdu**: The surface partial derivative(s) of phit
+          with respect to u [xyz]
+        - **dpdv**: The surface partial derivative(s) of phit
+          with respect to v [xyz]
+
+        In case of a set of rays and/or a set of shapes, the
+        variables get an extra nrays/nobj/ndiag dimension.
     """
     if not isinstance(r, Ray):
         raise ValueError("The r parameter must be a Ray")

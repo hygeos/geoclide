@@ -1117,11 +1117,12 @@ class Triangle(Shape):
 
         Returns
         -------
-        xr.Dataset or tuple
-            Look-up table with the intersection information if ds_output
-            is True, else return a tuple (ready to be an input for the
-            function get_intersect_dataset in geoclide/shapes.py). Form
-            of the tuple:
+        Dataset or tuple
+            Xarray dataset containing the intersection information
+            if ds_output is True (see the get_intersect_dataset
+            function of the shapes module for its variables), else
+            a tuple ready to be an input for that same function.
+            Form of the tuple:
 
             * shape_name : str
                 -> The shape class name
@@ -1225,11 +1226,12 @@ class Triangle(Shape):
 
         Returns
         -------
-        xr.Dataset or tuple
-            Look-up table with the intersection information if ds_output
-            is True, else return a tuple (ready to be an input for the
-            function get_intersect_dataset in geoclide/shapes.py). Form
-            of the tuple:
+        Dataset or tuple
+            Xarray dataset containing the intersection information
+            if ds_output is True (see the get_intersect_dataset
+            function of the shapes module for its variables), else
+            a tuple ready to be an input for that same function.
+            Form of the tuple:
 
             * shape_name : str
                 -> The shape class name
@@ -1709,11 +1711,12 @@ class Triangle(Shape):
 
         Returns
         -------
-        xr.Dataset or tuple
-            Look-up table with the intersection information if ds_output
-            is True, else return a tuple (ready to be an input for the
-            function get_intersect_dataset in geoclide/shapes.py). Form
-            of the tuple:
+        Dataset or tuple
+            Xarray dataset containing the intersection information
+            if ds_output is True (see the get_intersect_dataset
+            function of the shapes module for its variables), else
+            a tuple ready to be an input for that same function.
+            Form of the tuple:
 
             * shape_name : str
                 -> The shape class name
@@ -2656,11 +2659,12 @@ class TriangleMesh(Shape):
 
         Returns
         -------
-        xr.Dataset or tuple
-            Look-up table with the intersection information if ds_output
-            is True, else return a tuple (ready to be an input for the
-            function get_intersect_dataset in geoclide/shapes.py). Form
-            of the tuple:
+        Dataset or tuple
+            Xarray dataset containing the intersection information
+            if ds_output is True (see the get_intersect_dataset
+            function of the shapes module for its variables), else
+            a tuple ready to be an input for that same function.
+            Form of the tuple:
 
             * shape_name : str
                 -> The shape class name
@@ -3310,8 +3314,17 @@ class TriangleMesh(Shape):
 
         Returns
         -------
-        xr.Dataset
-            The dataset with the triangle mesh information
+        Dataset
+            Xarray dataset containing the triangle mesh
+            information.
+
+            Key variables included:
+
+            - **obj_names**: The name(s) of the mesh(es)
+            - **vertices**: The vertices xyz coordinates
+              [nobj, nvertices, xyz]
+            - **faces**: For each triangle, the indices of its
+              vertices p0, p1 and p2 [nobj, ntriangles, p0p1p2]
         """
         ds = xr.Dataset(coords={"xyz": np.arange(3)})
         vertices = np.zeros((1, self.nvertices, 3), np.float64)
