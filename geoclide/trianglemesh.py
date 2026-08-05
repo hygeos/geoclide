@@ -266,11 +266,6 @@ class Triangle(Shape):
                 if ntriangles >= nrays:
                     r_o_arr = r.o.to_numpy()
                     r_d_arr = r.d.to_numpy()
-                    rmint = np.zeros(nrays, dtype=np.float64)
-                    rmaxt = np.zeros_like(rmint)
-                    rmint[:] = r.mint
-                    rmaxt[:] = r.maxt
-
                     p0 = self.p0t
                     p1 = self.p1t
                     p2 = self.p2t
@@ -281,8 +276,8 @@ class Triangle(Shape):
                         ray = Ray(
                             Point(r_o_arr[ir, :]),
                             Vector(r_d_arr[ir, :]),
-                            rmint[ir],
-                            rmaxt[ir],
+                            r.mint,
+                            r.maxt,
                         )
 
                         s1 = gv.cross(ray.d, e2)
@@ -495,11 +490,6 @@ class Triangle(Shape):
                 if ntriangles >= nrays:
                     r_o_arr = r.o.to_numpy()
                     r_d_arr = r.d.to_numpy()
-                    rmint = np.zeros(nrays, dtype=np.float64)
-                    rmaxt = np.zeros_like(rmint)
-                    rmint[:] = r.mint
-                    rmaxt[:] = r.maxt
-
                     p0 = self.p0t
                     p1 = self.p1t
                     p2 = self.p2t
@@ -544,8 +534,8 @@ class Triangle(Shape):
                         ray = Ray(
                             Point(r_o_arr[ir, :]),
                             Vector(r_d_arr[ir, :]),
-                            rmint[ir],
-                            rmaxt[ir],
+                            r.mint,
+                            r.maxt,
                         )
                         # Get triangle vertices and translate them in
                         # based on ray origin
@@ -1289,11 +1279,6 @@ class Triangle(Shape):
                 if ntriangles >= nrays:
                     r_o_arr = r.o.to_numpy()
                     r_d_arr = r.d.to_numpy()
-                    rmint = np.zeros(nrays, dtype=np.float64)
-                    rmaxt = np.zeros_like(rmint)
-                    rmint[:] = r.mint
-                    rmaxt[:] = r.maxt
-
                     p0 = self.p0t
                     p1 = self.p1t
                     p2 = self.p2t
@@ -1325,8 +1310,8 @@ class Triangle(Shape):
                         ray = Ray(
                             Point(r_o_arr[ir, :]),
                             Vector(r_d_arr[ir, :]),
-                            rmint[ir],
-                            rmaxt[ir],
+                            r.mint,
+                            r.maxt,
                         )
 
                         s1 = gv.cross(ray.d, e2)
@@ -1774,11 +1759,6 @@ class Triangle(Shape):
                 if ntriangles >= nrays:
                     r_o_arr = r.o.to_numpy()
                     r_d_arr = r.d.to_numpy()
-                    rmint = np.zeros(nrays, dtype=np.float64)
-                    rmaxt = np.zeros_like(rmint)
-                    rmint[:] = r.mint
-                    rmaxt[:] = r.maxt
-
                     p0 = self.p0t
                     p1 = self.p1t
                     p2 = self.p2t
@@ -1823,8 +1803,8 @@ class Triangle(Shape):
                         ray = Ray(
                             Point(r_o_arr[ir, :]),
                             Vector(r_d_arr[ir, :]),
-                            rmint[ir],
-                            rmaxt[ir],
+                            r.mint,
+                            r.maxt,
                         )
                         # Get triangle vertices and translate them in
                         # based on ray origin
