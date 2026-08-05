@@ -1,3 +1,14 @@
+"""
+Common machinery shared by the geoclide shapes.
+
+This module defines the Shape base class, from which the quadrics
+(Sphere, Spheroid, Disk) and the triangle shapes (Triangle,
+TriangleMesh) derive, holding the object-to-world and
+world-to-object transformations. It also provides the
+get_intersect_dataset function, which gathers the results of a
+ray-shape intersection test into an xarray dataset.
+"""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -57,26 +68,37 @@ def get_intersect_dataset(
         The shape class name
     r : Ray
         The ray(s) used for the intersection test
-    t : float | 1-D ndarray | 2-D ndarray, optional
+    t : float or ndarray, optional
         The t ray variable for its first intersection at the shape
-        surface
-    is_intersection : bool | 1-D ndarray | 2-D ndarray, optional
-        If there is an intersection -> True, else False
-    u : float | 1-D ndarray | 2-D ndarray, optional
-        The u coordinate of the parametric representation
-    v : float | 1-D ndarray | 2-D ndarray, optional
-        The u coordinate of the parametric representation
-    dpdu : 1-D ndarray | 2-D ndarray, optional
-        The surface partial derivative of phit with respect to u
-    dpdv : 1-D ndarray | 2-D ndarray, optional
-        The surface partial derivative of phit with respect to v
-    diag_cal : bool, optional
-            This indicates whether a diagonal calculation has been
-            performed
+        surface. In case of an ndarray, it is 1-D, or 2-D for a
+        set of rays and a set of triangles
+    is_intersection : bool or ndarray, optional
+        If there is an intersection -> True, else False. In case
+        of an ndarray, it is 1-D, or 2-D for a set of rays and a
+        set of triangles
+    u : float or ndarray, optional
+        The u coordinate of the parametric representation. In
+        case of an ndarray, it is 1-D, or 2-D for a set of rays
+        and a set of triangles
+    v : float or ndarray, optional
+        The v coordinate of the parametric representation. In
+        case of an ndarray, it is 1-D, or 2-D for a set of rays
+        and a set of triangles
+    dpdu : ndarray, optional
+        The surface partial derivative of phit with respect to u.
+        It is 1-D, or 2-D for a set of rays and a set of
+        triangles
+    dpdv : ndarray, optional
+        The surface partial derivative of phit with respect to v.
+        It is 1-D, or 2-D for a set of rays and a set of
+        triangles
+    diag_calc : bool, optional
+        This indicates whether a diagonal calculation has been
+        performed
 
     Returns
     -------
-    out : xr.Dataset
+    xr.Dataset
         Look-up table with the intersection information
     """
     if not isinstance(r, Ray):
