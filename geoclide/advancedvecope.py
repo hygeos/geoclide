@@ -167,6 +167,12 @@ def vec2ang(
         if not_resolved.sum() == 0:
             return theta, phi
 
+        # bindings for the type checker: the icase 1 iteration always
+        # runs first and sets them before any use in later cases
+        cosphi = np.zeros(nv, dtype=np.float64)
+        c_case_bis = np.full(nv, True, dtype=bool)
+        theta_bis = np.zeros(nv, dtype=np.float64)
+
         for icase in range(1, 6):
             if icase == 1:
                 roty_rad = np.arccos(v.z)
@@ -221,12 +227,19 @@ def vec2ang(
             not_resolved = np.logical_and(not_resolved, np.logical_not(c_tmp))
             if not_resolved.sum() == 0:
                 return theta, phi
+        # unreachable, the icase 5 iteration always returns
+        return theta, phi
     else:  # if only 1 vector
         v_ini = Vector(0.0, 0.0, 1.0)
 
         # In case v = v_ini -> no rotations
         if np.all(np.isclose(v.to_numpy() - v_ini.to_numpy(), 0.0, 0.0, acc)):
             return 0.0, 0.0
+
+        # bindings for the type checker: the loop always runs and sets
+        # them at its first iteration
+        theta = 0.0
+        phi = 0.0
 
         for icase in range(1, 6):
             if icase == 1:
