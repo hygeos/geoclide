@@ -23,6 +23,19 @@ from geoclide.basic import BBox, Normal, Point, Ray, Vector
 from geoclide.vecope import normalize
 
 
+def _check_matrix(m: np.ndarray, name: str) -> None:
+    """
+    :meta private:
+
+    Ensure the matrix shape is (4,4) or (nt,4,4)
+    """
+    if m.ndim not in (2, 3) or m.shape[-2:] != (4, 4):
+        raise ValueError(
+            f"The {name} parameter must be an np.array of shape "
+            "(4,4) or (nt,4,4)"
+        )
+
+
 class Transform:
     """
     Represents 3D geometric transformation(s) using a 4x4 matrix or
@@ -71,44 +84,16 @@ class Transform:
             self.m = np.identity(4)
             self.m_inv = self.m.copy()
         elif isinstance(m, np.ndarray) and m_inv is None:
-            if (len(m.shape) == 2 and m.shape != (4, 4)) or (
-                len(m.shape) == 3 and m.shape[1] != 4 and m.shape[2] != 4
-            ):
-                raise ValueError(
-                    "The m parameter must be an np.array of shape "
-                    "(4,4) or (nt,4,4)"
-                )
+            _check_matrix(m, "m")
             self.m = m
             self.m_inv = inv(m)
         elif m is None and isinstance(m_inv, np.ndarray):
-            if (len(m_inv.shape) == 2 and m_inv.shape != (4, 4)) or (
-                len(m_inv.shape) == 3
-                and m_inv.shape[1] != 4
-                and m_inv.shape[2] != 4
-            ):
-                raise ValueError(
-                    "The m_inv parameter must be an np.array of shape "
-                    "(4,4) or (nt,4,4)"
-                )
+            _check_matrix(m_inv, "m_inv")
             self.m = inv(m_inv)
             self.m_inv = m_inv
         elif isinstance(m, np.ndarray) and isinstance(m_inv, np.ndarray):
-            if (len(m.shape) == 2 and m.shape != (4, 4)) or (
-                len(m.shape) == 3 and m.shape[1] != 4 and m.shape[2] != 4
-            ):
-                raise ValueError(
-                    "The m parameter must be an np.array of shape "
-                    "(4,4) or (nt,4,4)"
-                )
-            if (len(m_inv.shape) == 2 and m_inv.shape != (4, 4)) or (
-                len(m_inv.shape) == 3
-                and m_inv.shape[1] != 4
-                and m_inv.shape[2] != 4
-            ):
-                raise ValueError(
-                    "The m_inv parameter must be an np.array of shape "
-                    "(4,4) or (nt,4,4)"
-                )
+            _check_matrix(m, "m")
+            _check_matrix(m_inv, "m_inv")
             self.m = m
             self.m_inv = m_inv
         else:

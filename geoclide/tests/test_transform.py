@@ -162,6 +162,29 @@ def test_transform():
     assert t2(b1).pmax == b1_bis.pmax
 
 
+def test_transform_wrong_matrix():
+    """Only the (4,4) and (nt,4,4) shapes must be accepted."""
+    wrong = [
+        np.identity(3),
+        np.zeros((4, 3)),
+        np.zeros((2, 3, 4)),
+        np.zeros((2, 4, 3)),
+        np.zeros(4),
+        np.zeros((2, 2, 4, 4)),
+    ]
+    for m in wrong:
+        with pytest.raises(ValueError):
+            gc.Transform(m)
+        with pytest.raises(ValueError):
+            gc.Transform(m_inv=m)
+        with pytest.raises(ValueError):
+            gc.Transform(np.identity(4), m)
+
+    # the accepted shapes must not raise
+    gc.Transform(np.identity(4))
+    gc.Transform(np.zeros((3, 4, 4)) + np.identity(4))
+
+
 def test_transform_1d_arr():
     tf = np.zeros((2, 4, 4), dtype=np.float64)
     tf[0, :, :] = np.identity(4)
