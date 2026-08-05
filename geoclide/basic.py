@@ -185,7 +185,7 @@ class Vector:
     >>> import geoclide as gc
     >>> v1 = gc.Vector(0.,0.,1.)
     >>> v1
-    Vector(0,0,1)
+    Vector(0.0, 0.0, 1.0)
     """
 
     __array_priority__ = 1
@@ -324,7 +324,7 @@ class Point:
     >>> import geoclide as gc
     >>> p1 = gc.Point(0.,0.,1.)
     >>> p1
-    Point(0,0,1)
+    Point(0.0, 0.0, 1.0)
     """
 
     __array_priority__ = 1
@@ -466,7 +466,7 @@ class Normal:
     >>> import geoclide as gc
     >>> n1 = gc.Normal(0.,0.,1.)
     >>> n1
-    Normal(0,0,1)
+    Normal(0.0, 0.0, 1.0)
     """
 
     __array_priority__ = 1
@@ -652,7 +652,7 @@ class Ray:
         >>> r = gc.Ray(o, d)
         >>> t = 10.
         >>> r(t)
-        Point(10., 0., 0.)
+        Point(10.0, 0.0, 0.0)
         """
         if (
             isinstance(t, np.ndarray)
@@ -989,6 +989,7 @@ class BBox:
         >>> p1 = gc.Point(0., 0., 0.)
         >>> p2 = gc.Point(1., 1., 1.)
         >>> b1 = gc.BBox(p1, p2)
+        >>> b1
         pmin=Point(0.0, 0.0, 0.0), pmax=Point(1.0, 1.0, 1.0)
         >>> p3 = gc.Point(0.5, 0.5, 0.1)
         >>> v1 = gc.Vector(0., 0., 1.)
@@ -1085,6 +1086,7 @@ class BBox:
         >>> p1 = gc.Point(0., 0., 0.)
         >>> p2 = gc.Point(1., 1., 1.)
         >>> b1 = gc.BBox(p1, p2)
+        >>> b1
         pmin=Point(0.0, 0.0, 0.0), pmax=Point(1.0, 1.0, 1.0)
         >>> p3 = gc.Point(0.5, 0.5, 0.1)
         >>> v1 = gc.Vector(0., 0., 1.)
@@ -1093,9 +1095,9 @@ class BBox:
         r(t) = (0.5, 0.5, 0.1) + t*(0.0, 0.0, 1.0) with t ∈ [0,inf[
         >>> t0, t1, is_intersection = b1.intersect(r1, ds_output=False)
         >>> t0, t1, is_intersection
-        (0.0, 0.9, True)
-        >>> r1[t1]
-        Point(0.5, 0.5, 1.0)
+        (0.0, np.float64(0.9000000000000006), True)
+        >>> r1(t1)
+        Point(0.5, 0.5, 1.0000000000000007)
         """
         if not isinstance(r, Ray):
             raise ValueError("The given parameter must be a Ray")
@@ -1264,9 +1266,11 @@ class BBox:
 
         The convention of index from face 0 to 5, for +X,-X,+Y,-Y,+Z,-Z:
 
-        >>>    |F2|                     |+Y|
-        >>> |F1|F4|F0|F5|  where ->  |-X|+Z|+X|-Z|
-        >>>    |F3|                     |-Y|
+        ::
+
+               |F2|                     |+Y|
+            |F1|F4|F0|F5|  where ->  |-X|+Z|+X|-Z|
+               |F3|                     |-Y|
 
         `More information <https://en.wikipedia.org/wiki/Cube_mapping>`_
 
@@ -1286,8 +1290,8 @@ class BBox:
         Examples
         --------
         >>> import geoclide as gc
-        >>> b0 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
-        >>> b1 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
+        >>> b1 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
+        >>> b2 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
         >>> gc.get_common_face(b1, b2)
         0
         >>> gc.get_common_face(b2, b1)
@@ -1319,11 +1323,11 @@ def get_common_vertices(b1: BBox, b2: BBox) -> np.ndarray:
     Examples
     --------
     >>> import geoclide as gc
-    >>> b0 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
-    >>> b1 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
+    >>> b1 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
+    >>> b2 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
     >>> gc.get_common_vertices(b1, b2)
     array([False,  True,  True, False, False,  True,  True, False])
-    >>> gc.get_common_vertices(b1, b2)
+    >>> gc.get_common_vertices(b2, b1)
     array([ True, False, False,  True,  True, False, False,  True])
     """
     if not isinstance(b1, BBox) or not isinstance(b2, BBox):
@@ -1365,9 +1369,11 @@ def get_common_face(
 
     The convention of index from face 0 to 5, for +X,-X,+Y,-Y,+Z,-Z:
 
-    >>>    |F2|                     |+Y|
-    >>> |F1|F4|F0|F5|  where ->  |-X|+Z|+X|-Z|
-    >>>    |F3|                     |-Y|
+    ::
+
+           |F2|                     |+Y|
+        |F1|F4|F0|F5|  where ->  |-X|+Z|+X|-Z|
+           |F3|                     |-Y|
 
     `More information <https://en.wikipedia.org/wiki/Cube_mapping>`_
 
@@ -1389,8 +1395,8 @@ def get_common_face(
     Examples
     --------
     >>> import geoclide as gc
-    >>> b0 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
-    >>> b1 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
+    >>> b1 = gc.BBox(gc.Point(0., 0., 0.), gc.Point(1., 1., 1.))
+    >>> b2 = gc.BBox(gc.Point(1., 0., 0.), gc.Point(2., 1., 1.))
     >>> gc.get_common_face(b1, b2)
     0
     >>> gc.get_common_face(b2, b1)
