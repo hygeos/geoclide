@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from datetime import datetime
+from typing import Any, Literal, cast, overload
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,6 +14,15 @@ from geoclide.basic import Point, Ray, Vector
 from geoclide.constants import GAMMA2_F64, GAMMA3_F64, GAMMA5_F64, VERSION
 from geoclide.shapes import Shape, get_intersect_dataset
 from geoclide.transform import Transform
+
+
+def _any_of(*conds: bool | np.ndarray) -> np.ndarray:
+    """
+    :meta private:
+
+    np.logical_or.reduce over conditions, typed to give an ndarray
+    """
+    return np.logical_or.reduce(cast("tuple[np.ndarray, ...]", conds))
 
 
 class Triangle(Shape):
@@ -72,13 +82,11 @@ class Triangle(Shape):
             wto is None or isinstance(wto, Transform)
         ):
             if otw is None:
-                otw = (
-                    wto.inverse()
-                )  # if otw is None then wto should be Transform
+                # if otw is None then wto should be a Transform
+                otw = cast(Transform, wto).inverse()
             if wto is None:
-                wto = (
-                    otw.inverse()
-                )  # if wto is None then otw should be Transform
+                # if wto is None then otw should be a Transform
+                wto = otw.inverse()
             if p0t is None:
                 self.p0t = otw(p0)
             if p1t is None:
@@ -100,6 +108,8 @@ class Triangle(Shape):
             raise ValueError(
                 "The parameters p0t, p1t and p2t must be all Point"
             )
+        otw = cast(Transform, otw)
+        wto = cast(Transform, wto)
         Shape.__init__(self, object_to_world=otw, world_to_object=wto)
         self.p0 = p0
         self.p1 = p1
@@ -218,8 +228,8 @@ class Triangle(Shape):
         if is_p_arr and is_r_arr and not diag_calc:
             # TODO remove the loop in one of the next release
             with np.errstate(divide="ignore", invalid="ignore"):
-                nrays = len(r.o.x)
-                ntriangles = len(self.p0.x)
+                nrays = len(cast(np.ndarray, r.o.x))
+                ntriangles = len(cast(np.ndarray, self.p0.x))
                 is_intersection_2d = np.full(
                     (ntriangles, nrays), True, dtype=bool
                 )
@@ -268,9 +278,9 @@ class Triangle(Shape):
                         t = gv.dot(e2, s2) * inv_divisor
                         c4 = np.logical_or(t < ray.mint, t > ray.maxt)
 
-                        c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                        c5 = _any_of(c1, c2, c3, c4)
                         is_intersection[c5] = False
-                        t[c5] = None
+                        cast(np.ndarray, t)[c5] = None
                         is_intersection_2d[:, ir] = is_intersection
                         t_2d[:, ir] = t
 
@@ -308,9 +318,9 @@ class Triangle(Shape):
                         t = gv.dot(e2, s2) * inv_divisor
                         c4 = np.logical_or(t < ray.mint, t > ray.maxt)
 
-                        c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                        c5 = _any_of(c1, c2, c3, c4)
                         is_intersection[c5] = False
-                        t[c5] = None
+                        cast(np.ndarray, t)[c5] = None
                         is_intersection_2d[itri, :] = is_intersection
                         t_2d[itri, :] = t
 
@@ -327,9 +337,9 @@ class Triangle(Shape):
             if is_p_arr or is_r_arr:
                 with np.errstate(divide="ignore", invalid="ignore"):
                     if is_p_arr:
-                        size = len(p0.x)
+                        size = len(cast(np.ndarray, p0.x))
                     else:
-                        size = len(r.o.x)
+                        size = len(cast(np.ndarray, r.o.x))
                     is_intersection = np.full(size, True)
 
                     c1 = divisor == 0
@@ -349,9 +359,9 @@ class Triangle(Shape):
                     t = gv.dot(e2, s2) * inv_divisor
                     c4 = np.logical_or(t < ray.mint, t > ray.maxt)
 
-                    c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                    c5 = _any_of(c1, c2, c3, c4)
                     is_intersection[c5] = False
-                    t[c5] = None
+                    cast(np.ndarray, t)[c5] = None
             else:
                 if divisor == 0:
                     return None, False
@@ -442,8 +452,8 @@ class Triangle(Shape):
         if is_p_arr and is_r_arr and not diag_calc:
             # TODO remove the loop in one of the next release
             with np.errstate(divide="ignore", invalid="ignore"):
-                nrays = len(r.o.x)
-                ntriangles = len(self.p0.x)
+                nrays = len(cast(np.ndarray, r.o.x))
+                ntriangles = len(cast(np.ndarray, self.p0.x))
                 is_intersection_2d = np.full(
                     (ntriangles, nrays), True, dtype=bool
                 )
@@ -492,8 +502,10 @@ class Triangle(Shape):
                     dpdu_bis, dpdv_bis = gv.coordinate_system(gv.normalize(ng))
                     c7 = np.logical_and(c5_bis_1, np.logical_not(c5_bis_2))
                     if np.any(c7):
-                        dpdu[c7] = dpdu_bis[c7]
-                        dpdv[c7] = dpdv_bis[c7]
+                        # note: this path relies on Vector indexing
+                        # and only triggers for degenerate triangles
+                        cast(Any, dpdu)[c7] = cast(Any, dpdu_bis)[c7]
+                        cast(Any, dpdv)[c7] = cast(Any, dpdv_bis)[c7]
 
                     for ir in range(0, nrays):
                         ray = Ray(
@@ -539,8 +551,8 @@ class Triangle(Shape):
 
                         # Perform triangle edge and determinant tests
                         c1 = np.logical_and(
-                            np.logical_or.reduce((e0 < 0, e1 < 0, e2 < 0)),
-                            np.logical_or.reduce((e0 > 0, e1 > 0, e2 > 0)),
+                            _any_of(e0 < 0, e1 < 0, e2 < 0),
+                            _any_of(e0 > 0, e1 > 0, e2 > 0),
                         )
 
                         det = e0 + e1 + e2
@@ -602,9 +614,9 @@ class Triangle(Shape):
                         )
                         c4 = t <= delta_t
 
-                        c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
+                        c6 = _any_of(c1, c2, c3, c4, c5)
                         is_intersection[c6] = False
-                        t[c6] = None
+                        cast(np.ndarray, t)[c6] = None
                         is_intersection_2d[:, ir] = is_intersection
                         t_2d[:, ir] = t
 
@@ -624,7 +636,7 @@ class Triangle(Shape):
                     determinant = duv02.x * duv12.y - duv02.y * duv12.x
                     degenerate = bool(abs(determinant) < 1e-8)
 
-                    kz = gv.vargmax(gv.vabs(r.d))
+                    kz = cast(np.ndarray, gv.vargmax(gv.vabs(r.d)))
                     kx = kz + 1
                     kx[kx == 3] = 0
                     ky = kx + 1
@@ -663,8 +675,8 @@ class Triangle(Shape):
                         e2 = (p0t.x * p1t.y) - (p0t.y * p1t.x)
 
                         c1 = np.logical_and(
-                            np.logical_or.reduce((e0 < 0, e1 < 0, e2 < 0)),
-                            np.logical_or.reduce((e0 > 0, e1 > 0, e2 > 0)),
+                            _any_of(e0 < 0, e1 < 0, e2 < 0),
+                            _any_of(e0 > 0, e1 > 0, e2 > 0),
                         )
 
                         det = e0 + e1 + e2
@@ -734,6 +746,8 @@ class Triangle(Shape):
                         dp02 = p0 - p2
                         dp12 = p1 - p2
 
+                        dpdu_bis = Vector()
+                        dpdv_bis = Vector()
                         if not degenerate:
                             invdet = 1.0 / determinant
                             dpdu_bis = (
@@ -753,9 +767,9 @@ class Triangle(Shape):
                         c5 = c5_bis_1 and c5_bis_2
                         c5_arr = np.full(nrays, c5, dtype=bool)
 
-                        c6 = np.logical_or.reduce((c1, c2, c3, c4, c5_arr))
+                        c6 = _any_of(c1, c2, c3, c4, c5_arr)
                         is_intersection[c6] = False
-                        t[c6] = None
+                        cast(np.ndarray, t)[c6] = None
                         is_intersection_2d[itri, :] = is_intersection
                         t_2d[itri, :] = t
                     return t_2d, is_intersection_2d
@@ -772,7 +786,7 @@ class Triangle(Shape):
 
             kz = gv.vargmax(gv.vabs(r.d))
             kx = kz + 1
-            if is_r_arr:
+            if isinstance(kx, np.ndarray):
                 kx[kx == 3] = 0
                 ky = kx + 1
                 ky[ky == 3] = 0
@@ -805,15 +819,15 @@ class Triangle(Shape):
 
             if is_p_arr or is_r_arr:
                 with np.errstate(divide="ignore", invalid="ignore"):
-                    if is_p_arr:
-                        size = len(p0.x)
                     if is_r_arr:
-                        size = len(r.o.x)
+                        size = len(cast(np.ndarray, r.o.x))
+                    else:
+                        size = len(cast(np.ndarray, p0.x))
                     is_intersection = np.full(size, True, dtype=bool)
                     # Perform triangle edge and determinant tests
                     c1 = np.logical_and(
-                        np.logical_or.reduce((e0 < 0, e1 < 0, e2 < 0)),
-                        np.logical_or.reduce((e0 > 0, e1 > 0, e2 > 0)),
+                        _any_of(e0 < 0, e1 < 0, e2 < 0),
+                        _any_of(e0 > 0, e1 > 0, e2 > 0),
                     )
 
                     det = e0 + e1 + e2
@@ -896,9 +910,9 @@ class Triangle(Shape):
                     if not isinstance(c5, np.ndarray):
                         c5 = np.full(size, c5, dtype=bool)
 
-                    c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
+                    c6 = _any_of(c1, c2, c3, c4, c5)
                     is_intersection[c6] = False
-                    t[c6] = None
+                    cast(np.ndarray, t)[c6] = None
 
                     return t, is_intersection
             else:
@@ -1008,6 +1022,36 @@ class Triangle(Shape):
         _, is_intersection = self.is_intersection_v3_t(r, diag_calc=diag_calc)
         return is_intersection
 
+    @overload
+    def intersect(
+        self,
+        r: Ray,
+        method: str = ...,
+        diag_calc: bool = ...,
+        *,
+        ds_output: Literal[True] = ...,
+    ) -> xr.Dataset: ...
+
+    @overload
+    def intersect(
+        self,
+        r: Ray,
+        method: str = ...,
+        diag_calc: bool = ...,
+        *,
+        ds_output: Literal[False],
+    ) -> tuple: ...
+
+    @overload
+    def intersect(
+        self,
+        r: Ray,
+        method: str = ...,
+        diag_calc: bool = ...,
+        *,
+        ds_output: bool,
+    ) -> xr.Dataset | tuple: ...
+
     def intersect(
         self,
         r: Ray,
@@ -1086,6 +1130,29 @@ class Triangle(Shape):
                 "Only 'v2' and 'v3' are valid values for method parameter"
             )
 
+    @overload
+    def intersect_v2(
+        self,
+        r: Ray,
+        diag_calc: bool = ...,
+        *,
+        ds_output: Literal[True] = ...,
+    ) -> xr.Dataset: ...
+
+    @overload
+    def intersect_v2(
+        self,
+        r: Ray,
+        diag_calc: bool = ...,
+        *,
+        ds_output: Literal[False],
+    ) -> tuple: ...
+
+    @overload
+    def intersect_v2(
+        self, r: Ray, diag_calc: bool = ..., *, ds_output: bool
+    ) -> xr.Dataset | tuple: ...
+
     def intersect_v2(
         self, r: Ray, diag_calc: bool = False, ds_output: bool = True
     ) -> xr.Dataset | tuple:
@@ -1149,8 +1216,8 @@ class Triangle(Shape):
         if is_p_arr and is_r_arr and not diag_calc:
             # TODO remove the loop in one of the next release
             with np.errstate(divide="ignore", invalid="ignore"):
-                nrays = len(r.o.x)
-                ntriangles = len(self.p0.x)
+                nrays = len(cast(np.ndarray, r.o.x))
+                ntriangles = len(cast(np.ndarray, self.p0.x))
                 is_intersection_2d = np.full(
                     (ntriangles, nrays), True, dtype=bool
                 )
@@ -1222,9 +1289,9 @@ class Triangle(Shape):
                         t = gv.dot(e2, s2) * inv_divisor
                         c4 = np.logical_or(t < ray.mint, t > ray.maxt)
 
-                        c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                        c5 = _any_of(c1, c2, c3, c4)
                         is_intersection[c5] = False
-                        t[c5] = None
+                        cast(np.ndarray, t)[c5] = None
                         is_intersection_2d[:, ir] = is_intersection
                         t_2d[:, ir] = t
 
@@ -1294,9 +1361,9 @@ class Triangle(Shape):
                         t = gv.dot(e2, s2) * inv_divisor
                         c4 = np.logical_or(t < ray.mint, t > ray.maxt)
 
-                        c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                        c5 = _any_of(c1, c2, c3, c4)
                         is_intersection[c5] = False
-                        t[c5] = None
+                        cast(np.ndarray, t)[c5] = None
                         is_intersection_2d[itri, :] = is_intersection
                         t_2d[itri, :] = t
 
@@ -1351,9 +1418,9 @@ class Triangle(Shape):
             if is_p_arr or is_r_arr:
                 with np.errstate(divide="ignore", invalid="ignore"):
                     if is_p_arr:
-                        size = len(p0.x)
+                        size = len(cast(np.ndarray, p0.x))
                     else:
-                        size = len(r.o.x)
+                        size = len(cast(np.ndarray, r.o.x))
                     is_intersection = np.full(size, True)
 
                     c1 = divisor == 0
@@ -1373,9 +1440,9 @@ class Triangle(Shape):
                     t = gv.dot(e2, s2) * inv_divisor
                     c4 = np.logical_or(t < ray.mint, t > ray.maxt)
 
-                    c5 = np.logical_or.reduce((c1, c2, c3, c4))
+                    c5 = _any_of(c1, c2, c3, c4)
                     is_intersection[c5] = False
-                    t[c5] = None
+                    cast(np.ndarray, t)[c5] = None
             else:
                 if divisor == 0:
                     if ds_output:
@@ -1535,6 +1602,29 @@ class Triangle(Shape):
             else:
                 return out
 
+    @overload
+    def intersect_v3(
+        self,
+        r: Ray,
+        diag_calc: bool = ...,
+        *,
+        ds_output: Literal[True] = ...,
+    ) -> xr.Dataset: ...
+
+    @overload
+    def intersect_v3(
+        self,
+        r: Ray,
+        diag_calc: bool = ...,
+        *,
+        ds_output: Literal[False],
+    ) -> tuple: ...
+
+    @overload
+    def intersect_v3(
+        self, r: Ray, diag_calc: bool = ..., *, ds_output: bool
+    ) -> xr.Dataset | tuple: ...
+
     def intersect_v3(
         self, r: Ray, diag_calc: bool = False, ds_output: bool = True
     ) -> xr.Dataset | tuple:
@@ -1598,8 +1688,8 @@ class Triangle(Shape):
         if is_p_arr and is_r_arr and not diag_calc:
             # TODO remove the loop in one of the next release
             with np.errstate(divide="ignore", invalid="ignore"):
-                nrays = len(r.o.x)
-                ntriangles = len(self.p0.x)
+                nrays = len(cast(np.ndarray, r.o.x))
+                ntriangles = len(cast(np.ndarray, self.p0.x))
                 is_intersection_2d = np.full(
                     (ntriangles, nrays), True, dtype=bool
                 )
@@ -1650,8 +1740,10 @@ class Triangle(Shape):
                     dpdu_bis, dpdv_bis = gv.coordinate_system(gv.normalize(ng))
                     c7 = np.logical_and(c5_bis_1, np.logical_not(c5_bis_2))
                     if np.any(c7):
-                        dpdu[c7] = dpdu_bis[c7]
-                        dpdv[c7] = dpdv_bis[c7]
+                        # note: this path relies on Vector indexing
+                        # and only triggers for degenerate triangles
+                        cast(Any, dpdu)[c7] = cast(Any, dpdu_bis)[c7]
+                        cast(Any, dpdv)[c7] = cast(Any, dpdv_bis)[c7]
 
                     for ir in range(0, nrays):
                         ray = Ray(
@@ -1697,8 +1789,8 @@ class Triangle(Shape):
 
                         # Perform triangle edge and determinant tests
                         c1 = np.logical_and(
-                            np.logical_or.reduce((e0 < 0, e1 < 0, e2 < 0)),
-                            np.logical_or.reduce((e0 > 0, e1 > 0, e2 > 0)),
+                            _any_of(e0 < 0, e1 < 0, e2 < 0),
+                            _any_of(e0 > 0, e1 > 0, e2 > 0),
                         )
 
                         det = e0 + e1 + e2
@@ -1763,9 +1855,9 @@ class Triangle(Shape):
                         )
                         c4 = t <= delta_t
 
-                        c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
+                        c6 = _any_of(c1, c2, c3, c4, c5)
                         is_intersection[c6] = False
-                        t[c6] = None
+                        cast(np.ndarray, t)[c6] = None
                         is_intersection_2d[:, ir] = is_intersection
                         t_2d[:, ir] = t
 
@@ -1806,7 +1898,7 @@ class Triangle(Shape):
                     dpdu = np.zeros((ntriangles, 3), dtype=np.float64)
                     dpdv = np.zeros((ntriangles, 3), dtype=np.float64)
 
-                    kz = gv.vargmax(gv.vabs(r.d))
+                    kz = cast(np.ndarray, gv.vargmax(gv.vabs(r.d)))
                     kx = kz + 1
                     kx[kx == 3] = 0
                     ky = kx + 1
@@ -1845,8 +1937,8 @@ class Triangle(Shape):
                         e2 = (p0t.x * p1t.y) - (p0t.y * p1t.x)
 
                         c1 = np.logical_and(
-                            np.logical_or.reduce((e0 < 0, e1 < 0, e2 < 0)),
-                            np.logical_or.reduce((e0 > 0, e1 > 0, e2 > 0)),
+                            _any_of(e0 < 0, e1 < 0, e2 < 0),
+                            _any_of(e0 > 0, e1 > 0, e2 > 0),
                         )
 
                         det = e0 + e1 + e2
@@ -1919,6 +2011,8 @@ class Triangle(Shape):
                         dp02 = p0 - p2
                         dp12 = p1 - p2
 
+                        dpdu_bis = Vector()
+                        dpdv_bis = Vector()
                         if not degenerate:
                             invdet = 1.0 / determinant
                             dpdu_bis = (
@@ -1938,9 +2032,9 @@ class Triangle(Shape):
                         c5 = c5_bis_1 and c5_bis_2
                         c5_arr = np.full(nrays, c5, dtype=bool)
 
-                        c6 = np.logical_or.reduce((c1, c2, c3, c4, c5_arr))
+                        c6 = _any_of(c1, c2, c3, c4, c5_arr)
                         is_intersection[c6] = False
-                        t[c6] = None
+                        cast(np.ndarray, t)[c6] = None
                         is_intersection_2d[itri, :] = is_intersection
                         t_2d[itri, :] = t
 
@@ -1985,7 +2079,7 @@ class Triangle(Shape):
 
             kz = gv.vargmax(gv.vabs(r.d))
             kx = kz + 1
-            if is_r_arr:
+            if isinstance(kx, np.ndarray):
                 kx[kx == 3] = 0
                 ky = kx + 1
                 ky[ky == 3] = 0
@@ -2018,15 +2112,15 @@ class Triangle(Shape):
 
             if is_p_arr or is_r_arr:
                 with np.errstate(divide="ignore", invalid="ignore"):
-                    if is_p_arr:
-                        size = len(p0.x)
                     if is_r_arr:
-                        size = len(r.o.x)
+                        size = len(cast(np.ndarray, r.o.x))
+                    else:
+                        size = len(cast(np.ndarray, p0.x))
                     is_intersection = np.full(size, True, dtype=bool)
                     # Perform triangle edge and determinant tests
                     c1 = np.logical_and(
-                        np.logical_or.reduce((e0 < 0, e1 < 0, e2 < 0)),
-                        np.logical_or.reduce((e0 > 0, e1 > 0, e2 > 0)),
+                        _any_of(e0 < 0, e1 < 0, e2 < 0),
+                        _any_of(e0 > 0, e1 > 0, e2 > 0),
                     )
 
                     det = e0 + e1 + e2
@@ -2112,15 +2206,17 @@ class Triangle(Shape):
                     if not isinstance(c5, np.ndarray):
                         c5 = np.full(size, c5, dtype=bool)
 
-                    c6 = np.logical_or.reduce((c1, c2, c3, c4, c5))
+                    c6 = _any_of(c1, c2, c3, c4, c5)
                     is_intersection[c6] = False
-                    t[c6] = None
+                    cast(np.ndarray, t)[c6] = None
 
                     dpdu_bis, dpdv_bis = gv.coordinate_system(gv.normalize(ng))
                     c7 = np.logical_and(c5_bis_1, np.logical_not(c5_bis_2))
                     if np.any(c7):
-                        dpdu[c7] = dpdu_bis[c7]
-                        dpdv[c7] = dpdv_bis[c7]
+                        # note: this path relies on Vector indexing
+                        # and only triggers for degenerate triangles
+                        cast(Any, dpdu)[c7] = cast(Any, dpdu_bis)[c7]
+                        cast(Any, dpdv)[c7] = cast(Any, dpdv_bis)[c7]
 
                     # phit = b0*p0+b1*p1+b2*p2
                     uvhit = b0 * uv0 + b1 * uv1 + b2 * uv2
@@ -2355,7 +2451,7 @@ class Triangle(Shape):
                 else:
                     return out
 
-    def area(self) -> float:
+    def area(self) -> float | np.ndarray:
         """
         compute the area of the triangle
 
@@ -2417,11 +2513,46 @@ class TriangleMesh(Shape):
             len(vertices.shape) == 2
         ):
             raise ValueError("The paramerter vertices must be a 2d ndarray")
+        otw = cast(Transform, otw)
+        wto = cast(Transform, wto)
         Shape.__init__(self, object_to_world=otw, world_to_object=wto)
         self.vertices = vertices
         self.nvertices = vertices.shape[0]
         self.faces = faces
         self.ntriangles = faces.shape[0]
+
+    @overload
+    def intersect(
+        self,
+        r: Ray,
+        method: str = ...,
+        diag_calc: bool = ...,
+        *,
+        ds_output: Literal[True] = ...,
+        use_loop: bool = ...,
+    ) -> xr.Dataset: ...
+
+    @overload
+    def intersect(
+        self,
+        r: Ray,
+        method: str = ...,
+        diag_calc: bool = ...,
+        *,
+        ds_output: Literal[False],
+        use_loop: bool = ...,
+    ) -> tuple: ...
+
+    @overload
+    def intersect(
+        self,
+        r: Ray,
+        method: str = ...,
+        diag_calc: bool = ...,
+        *,
+        ds_output: bool,
+        use_loop: bool = ...,
+    ) -> xr.Dataset | tuple: ...
 
     def intersect(
         self,
@@ -2486,7 +2617,7 @@ class TriangleMesh(Shape):
         if not isinstance(r, Ray):
             raise ValueError("The parameter r must be a Ray")
         if isinstance(r.o.x, np.ndarray):
-            nrays = len(r.o.x)
+            nrays = len(cast(np.ndarray, r.o.x))
         else:
             nrays = 1
         if use_loop:
@@ -2640,7 +2771,7 @@ class TriangleMesh(Shape):
                         thit = thit_bis
                         res = self.__class__.__name__, *res_bis[1:]
                 if ds_output:
-                    return get_intersect_dataset(*res)
+                    return get_intersect_dataset(*cast(tuple, res))
                 else:
                     return res
         else:
@@ -2710,7 +2841,7 @@ class TriangleMesh(Shape):
                     res = self.__class__.__name__, *res_bis[1:]
 
             if ds_output:
-                return get_intersect_dataset(*res)
+                return get_intersect_dataset(*cast(tuple, res))
             else:
                 return res
 
@@ -2746,11 +2877,12 @@ class TriangleMesh(Shape):
         if not isinstance(r, Ray):
             raise ValueError("The parameter r must be a Ray")
         if isinstance(r.o.x, np.ndarray):
-            nrays = len(r.o.x)
+            nrays = len(cast(np.ndarray, r.o.x))
         else:
             nrays = 1
         if use_loop:
-            if nrays > 1 and not diag_calc:  # nrays > 1 and ntriangles > 1
+            # nrays > 1 and ntriangles > 1
+            if nrays > 1 and not diag_calc:
                 is_int_1d = np.full((nrays), False, dtype=bool)
                 o_set_arr = r.o.to_numpy()
                 d_set_arr = r.d.to_numpy()
@@ -2800,13 +2932,18 @@ class TriangleMesh(Shape):
             p1 = Point(self.vertices[self.faces[:, 1], :])
             p2 = Point(self.vertices[self.faces[:, 2], :])
             triangles = Triangle(p0, p1, p2, self.otw, self.wto)
-            is_intersection = triangles.is_intersection(
-                r, method=method, diag_calc=diag_calc
+            is_intersection = cast(
+                np.ndarray,
+                triangles.is_intersection(
+                    r, method=method, diag_calc=diag_calc
+                ),
             )
             res_shape = is_intersection.shape
             if np.any(is_intersection):
                 if nrays > 1 and len(res_shape) == 2 and res_shape[0] > 1:
-                    is_int = np.any(is_intersection, axis=0)
+                    is_int = cast(
+                        np.ndarray, np.any(is_intersection, axis=0)
+                    )
                 elif nrays > 1 and res_shape[0] == 1:
                     is_int = is_intersection[0, :]
                 elif nrays == 1 and isinstance(is_intersection, np.ndarray):
@@ -2862,11 +2999,12 @@ class TriangleMesh(Shape):
         if not isinstance(r, Ray):
             raise ValueError("The parameter r must be a Ray")
         if isinstance(r.o.x, np.ndarray):
-            nrays = len(r.o.x)
+            nrays = len(cast(np.ndarray, r.o.x))
         else:
             nrays = 1
         if use_loop:
-            if nrays > 1 and not diag_calc:  # nrays > 1 and ntriangles > 1
+            # nrays > 1 and ntriangles > 1
+            if nrays > 1 and not diag_calc:
                 is_int_1d = np.full((nrays), True, dtype=bool)
                 t_1d = np.zeros((nrays), dtype=np.float64)
                 o_set_arr = r.o.to_numpy()
@@ -2885,6 +3023,7 @@ class TriangleMesh(Shape):
                         thit_bis, is_intersection_bis = triangles[
                             itri
                         ].is_intersection_t(ri, method=method)
+                        thit_bis = cast(float, thit_bis)
                         if is_intersection_bis and thit > thit_bis:
                             thit = thit_bis
                             is_intersection = True
@@ -2912,6 +3051,7 @@ class TriangleMesh(Shape):
                     thit_bis, is_intersection_bis = triangle.is_intersection_t(
                         ri, method=method
                     )
+                    thit_bis = cast(float, thit_bis)
                     if is_intersection_bis and thit > thit_bis:
                         t_1d[idiag] = thit_bis
                         is_int_1d[idiag] = is_intersection_bis
@@ -2927,6 +3067,7 @@ class TriangleMesh(Shape):
                     thit_bis, is_intersection_bis = triangle.is_intersection_t(
                         r, method=method
                     )
+                    thit_bis = cast(float, thit_bis)
                     if is_intersection_bis and thit > thit_bis:
                         thit = thit_bis
                         is_intersection = True
@@ -2941,6 +3082,8 @@ class TriangleMesh(Shape):
             thit, is_intersection = triangles.is_intersection_t(
                 r, method=method, diag_calc=diag_calc
             )
+            thit = cast(np.ndarray, thit)
+            is_intersection = cast(np.ndarray, is_intersection)
             if np.any(is_intersection):
                 thit_bis = thit.copy()
                 thit_bis[np.isnan(thit_bis)] = math.inf
@@ -2982,7 +3125,7 @@ class TriangleMesh(Shape):
             p1 = Point(self.vertices[self.faces[itri, 1], :])
             p2 = Point(self.vertices[self.faces[itri, 2], :])
             triangle = Triangle(p0, p1, p2, self.otw, self.wto)
-            area += triangle.area()
+            area += cast(float, triangle.area())
         return area
 
     def apply_tf(self, t: Transform) -> None:
@@ -3045,7 +3188,7 @@ class TriangleMesh(Shape):
             source is None and self.ntriangles < 5000
         ) or source == "matplotlib":
             fig = plt.figure()
-            ax = fig.add_subplot(111, projection="3d")
+            ax = cast(Any, fig.add_subplot(111, projection="3d"))
             if "color" in kwargs:
                 color = kwargs.pop("color", False)
             else:
@@ -3279,7 +3422,8 @@ def create_sphere_trianglemesh(
                 faces[0 : reso_phi - 1, 2] = ind_below_p1[:-1]  # p2
                 ini_id += reso_phi - 1
             else:
-                faces[0:reso_phi, 0] = np.full(reso_phi, ind_above)  # p0
+                # p0
+                faces[0:reso_phi, 0] = np.full(reso_phi, ind_above)
                 faces[0:reso_phi, 1] = ind_below  # p1
                 faces[0:reso_phi, 2] = ind_below_p1  # p2
                 ini_id += reso_phi
@@ -3364,11 +3508,12 @@ def create_sphere_trianglemesh(
                 faces[-(reso_phi - 1) :, 1] = np.full(reso_phi, ind_below)[
                     :-1
                 ]  # p1
-                faces[-(reso_phi - 1) :, 2] = ind_below_p1[:-1]  # p2
+                faces[-(reso_phi - 1) :, 2] = ind_above_p1[:-1]  # p2
             else:
                 faces[-reso_phi:, 0] = ind_above  # p0
-                faces[-reso_phi:, 1] = np.full(reso_phi, ind_below)  # p1
-                faces[-reso_phi:, 2] = ind_below_p1  # p2
+                # p1
+                faces[-reso_phi:, 1] = np.full(reso_phi, ind_below)
+                faces[-reso_phi:, 2] = ind_above_p1  # p2
 
     return TriangleMesh(vertices, faces, otw, wto)
 
@@ -3571,5 +3716,5 @@ def read_trianglemesh(path: str, **kwargs) -> TriangleMesh:
     if path.endswith("gcnc"):
         return read_gcnc_trianglemesh(path, **kwargs)
     else:
-        msh = trimesh.load(path, **kwargs)
+        msh = cast(Any, trimesh.load(path, **kwargs))
         return TriangleMesh(msh.vertices, msh.faces)
