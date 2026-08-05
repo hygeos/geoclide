@@ -127,6 +127,8 @@ class Sphere(Shape):
         self.theta_min = math.acos(clamp(self.zmin / self.radius, -1, 1))
         self.theta_max = math.acos(clamp(self.zmax / self.radius, -1, 1))
         self.phi_max = phi_max
+        self.radius2 = radius * radius
+        self.phi_max_rad = math.radians(phi_max)
 
     def is_intersection_t(
         self, r: Ray
@@ -183,7 +185,7 @@ class Sphere(Shape):
                     ray.o.x * ray.o.x
                     + ray.o.y * ray.o.y
                     + ray.o.z * ray.o.z
-                    - self.radius * self.radius
+                    - self.radius2
                 )
 
                 # Solve quadratic equation
@@ -215,7 +217,7 @@ class Sphere(Shape):
                 phi[phi < 0] += TWO_PI
 
                 # Test sphere intersection against clipping parameters
-                phi_max_rad = math.radians(self.phi_max)
+                phi_max_rad = self.phi_max_rad
                 c4_bis_1 = np.logical_and(
                     self.zmin > -self.radius, phit.z < self.zmin
                 )
@@ -268,7 +270,7 @@ class Sphere(Shape):
                 ray.o.x * ray.o.x
                 + ray.o.y * ray.o.y
                 + ray.o.z * ray.o.z
-                - self.radius * self.radius
+                - self.radius2
             )
 
             # Solve quadratic equation
@@ -300,7 +302,7 @@ class Sphere(Shape):
                 phi += TWO_PI
 
             # Test sphere intersection against clipping parameters
-            phi_max_rad = math.radians(self.phi_max)
+            phi_max_rad = self.phi_max_rad
             if (
                 (self.zmin > -self.radius and phit.z < self.zmin)
                 or (self.zmax < self.radius and phit.z > self.zmax)
@@ -420,7 +422,7 @@ class Sphere(Shape):
                     ray.o.x * ray.o.x
                     + ray.o.y * ray.o.y
                     + ray.o.z * ray.o.z
-                    - self.radius * self.radius
+                    - self.radius2
                 )
 
                 # Solve quadratic equation
@@ -452,7 +454,7 @@ class Sphere(Shape):
                 phi[phi < 0] += TWO_PI
 
                 # Test sphere intersection against clipping parameters
-                phi_max_rad = math.radians(self.phi_max)
+                phi_max_rad = self.phi_max_rad
                 c4_bis_1 = np.logical_and(
                     self.zmin > -self.radius, phit.z < self.zmin
                 )
@@ -541,7 +543,7 @@ class Sphere(Shape):
                 ray.o.x * ray.o.x
                 + ray.o.y * ray.o.y
                 + ray.o.z * ray.o.z
-                - self.radius * self.radius
+                - self.radius2
             )
 
             # Solve quadratic equation
@@ -627,7 +629,7 @@ class Sphere(Shape):
                 phi += TWO_PI
 
             # Test sphere intersection against clipping parameters
-            phi_max_rad = math.radians(self.phi_max)
+            phi_max_rad = self.phi_max_rad
             if (
                 (self.zmin > -self.radius and phit.z < self.zmin)
                 or (self.zmax < self.radius and phit.z > self.zmax)
@@ -740,7 +742,7 @@ class Sphere(Shape):
             calculation!`
         """
         return (
-            math.radians(self.phi_max) * self.radius * (self.zmax - self.zmin)
+            self.phi_max_rad * self.radius * (self.zmax - self.zmin)
         )  # The sphere / partial sphere area
 
     def to_trianglemesh(
@@ -844,6 +846,8 @@ class Spheroid(Shape):
         self.gamma = radius_z
         self.alpha2 = radius_xy * radius_xy
         self.gamma2 = radius_z * radius_z
+        self.inv_alpha2 = 1.0 / self.alpha2
+        self.inv_gamma2 = 1.0 / self.gamma2
 
     def is_intersection_t(
         self, r: Ray
@@ -898,10 +902,10 @@ class Spheroid(Shape):
                 is_intersection = np.full(nrays, True, dtype=bool)
 
                 # Compute quadratic sphere coefficients
-                inv_alpha2 = 1.0 / self.alpha2
+                inv_alpha2 = self.inv_alpha2
                 # ellipsoid special case where alpha=beta
                 inv_beta2 = inv_alpha2
-                inv_gamma2 = 1.0 / self.gamma2
+                inv_gamma2 = self.inv_gamma2
                 a = (
                     ray.d.x * ray.d.x * inv_alpha2
                     + ray.d.y * ray.d.y * inv_beta2
@@ -943,10 +947,10 @@ class Spheroid(Shape):
                 return thit, is_intersection
         else:
             # Compute quadratic sphere coefficients
-            inv_alpha2 = 1.0 / self.alpha2
+            inv_alpha2 = self.inv_alpha2
             # ellipsoid special case where alpha=beta
             inv_beta2 = inv_alpha2
-            inv_gamma2 = 1.0 / self.gamma2
+            inv_gamma2 = self.inv_gamma2
             a = (
                 ray.d.x * ray.d.x * inv_alpha2
                 + ray.d.y * ray.d.y * inv_beta2
@@ -1081,10 +1085,10 @@ class Spheroid(Shape):
                 is_intersection = np.full(nrays, True, dtype=bool)
 
                 # Compute quadratic sphere coefficients
-                inv_alpha2 = 1.0 / self.alpha2
+                inv_alpha2 = self.inv_alpha2
                 # ellipsoid special case where alpha=beta
                 inv_beta2 = inv_alpha2
-                inv_gamma2 = 1.0 / self.gamma2
+                inv_gamma2 = self.inv_gamma2
                 a = (
                     ray.d.x * ray.d.x * inv_alpha2
                     + ray.d.y * ray.d.y * inv_beta2
@@ -1169,10 +1173,10 @@ class Spheroid(Shape):
                     return out
         else:
             # Compute quadratic sphere coefficients
-            inv_alpha2 = 1.0 / self.alpha2
+            inv_alpha2 = self.inv_alpha2
             # ellipsoid special case where alpha=beta
             inv_beta2 = inv_alpha2
-            inv_gamma2 = 1.0 / self.gamma2
+            inv_gamma2 = self.inv_gamma2
             a = (
                 ray.d.x * ray.d.x * inv_alpha2
                 + ray.d.y * ray.d.y * inv_beta2
@@ -1355,11 +1359,7 @@ class Spheroid(Shape):
         msh = create_sphere_trianglemesh(
             radius=1, reso_theta=reso_theta, reso_phi=reso_phi
         )
-        vertices_t = np.zeros((msh.nvertices, 3))
-        for iver in range(0, msh.nvertices):
-            vertices_t[iver, :] = rescale_xyz(
-                Point(msh.vertices[iver, :])
-            ).to_numpy()
+        vertices_t = rescale_xyz(Point(msh.vertices)).to_numpy()
         return TriangleMesh(vertices_t, msh.faces, otw=self.otw, wto=self.wto)
 
     def plot(self, **kwargs):
@@ -1446,6 +1446,9 @@ class Disk(Shape):
         self.inner_radius = inner_radius
         self.phi_max = phi_max
         self.z_height = z_height
+        self.radius2 = radius * radius
+        self.inner_radius2 = inner_radius * inner_radius
+        self.phi_max_rad = math.radians(phi_max)
 
     def is_intersection_t(
         self, r: Ray
@@ -1511,16 +1514,16 @@ class Disk(Shape):
 
                 # if the hit point is outside the disk then no
                 # intersection
-                c3 = hit_radius2 > self.radius * self.radius
+                c3 = hit_radius2 > self.radius2
 
                 # annulus case
                 # check that the hit point is not in the annulus hole
-                c4 = hit_radius2 < self.inner_radius * self.inner_radius
+                c4 = hit_radius2 < self.inner_radius2
 
                 # partial disk/annulus case check phi value to see if
                 # the hit point is inside the partial disk/annulus
                 phi = np.arctan2(phit.y, phit.x)
-                phi_max_rad = math.radians(self.phi_max)
+                phi_max_rad = self.phi_max_rad
                 phi[phi < 0.0] += TWO_PI
                 c5 = phi > phi_max_rad
 
@@ -1546,13 +1549,13 @@ class Disk(Shape):
             hit_radius2 = phit.x * phit.x + phit.y * phit.y
 
             # if the hit point is outside the disk then no intersection
-            if hit_radius2 > self.radius * self.radius:
+            if hit_radius2 > self.radius2:
                 return None, False
 
             # annulus case
             # check that the hit point is not in the annulus hole
             if self.inner_radius > 0.0:
-                if hit_radius2 < self.inner_radius * self.inner_radius:
+                if hit_radius2 < self.inner_radius2:
                     return None, False
 
             # partial disk/annulus case check phi value to see if the
@@ -1561,7 +1564,7 @@ class Disk(Shape):
                 phi = math.atan2(phit.y, phit.x)
                 if phi < 0.0:
                     phi += TWO_PI
-                if phi > math.radians(self.phi_max):
+                if phi > self.phi_max_rad:
                     return None, False
 
             return thit, True
@@ -1661,16 +1664,16 @@ class Disk(Shape):
 
                 # if the hit point is outside the disk then no
                 # intersection
-                c3 = hit_radius2 > self.radius * self.radius
+                c3 = hit_radius2 > self.radius2
 
                 # annulus case
                 # check that the hit point is not in the annulus hole
-                c4 = hit_radius2 < self.inner_radius * self.inner_radius
+                c4 = hit_radius2 < self.inner_radius2
 
                 # partial disk/annulus case check phi value to see if
                 # the hit point is inside the partial disk/annulus
                 phi = np.arctan2(phit.y, phit.x)
-                phi_max_rad = math.radians(self.phi_max)
+                phi_max_rad = self.phi_max_rad
                 phi[phi < 0.0] += TWO_PI
                 c5 = phi > phi_max_rad
 
@@ -1754,7 +1757,7 @@ class Disk(Shape):
             hit_radius2 = phit.x * phit.x + phit.y * phit.y
 
             # if the hit point is outside the disk then no intersection
-            if hit_radius2 > self.radius * self.radius:
+            if hit_radius2 > self.radius2:
                 if ds_output:
                     return get_intersect_dataset(
                         sh_name, r, None, False, None, None, None, None, False
@@ -1774,7 +1777,7 @@ class Disk(Shape):
 
             # annulus case
             # check that the hit point is not in the annulus hole
-            if hit_radius2 < self.inner_radius * self.inner_radius:
+            if hit_radius2 < self.inner_radius2:
                 if ds_output:
                     return get_intersect_dataset(
                         sh_name, r, None, False, None, None, None, None, False
@@ -1795,7 +1798,7 @@ class Disk(Shape):
             # partial disk/annulus case check phi value to see if the
             # hit point is inside the partial disk/annulus
             phi = math.atan2(phit.y, phit.x)
-            phi_max_rad = math.radians(self.phi_max)
+            phi_max_rad = self.phi_max_rad
             if phi < 0.0:
                 phi += TWO_PI
             if phi > phi_max_rad:
@@ -1851,10 +1854,10 @@ class Disk(Shape):
         """
         return (
             0.5
-            * math.radians(self.phi_max)
+            * self.phi_max_rad
             * (
-                self.radius * self.radius
-                - self.inner_radius * self.inner_radius
+                self.radius2
+                - self.inner_radius2
             )
         )
 
