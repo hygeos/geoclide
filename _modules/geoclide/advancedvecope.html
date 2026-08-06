@@ -1,0 +1,718 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoclide.advancedvecope &#8212; Geoclide 4.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../_static/documentation_options.js?v=3304f9e4"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoclide/advancedvecope';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../../_static/geoclide-logo-light.png" class="logo__image only-light" alt="Geoclide 4.0.0 documentation - Home"/>
+    <img src="../../_static/geoclide-logo-dark.png" class="logo__image only-dark pst-js-only" alt="Geoclide 4.0.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../geoclide.html">
+    Geoclide package
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog_link.html">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../geoclide.html">
+    Geoclide package
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog_link.html">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoclide.advancedvecope</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoclide.advancedvecope</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Conversions between angles and direction vectors.</span>
+
+<span class="sd">This module converts a direction described by the polar and</span>
+<span class="sd">azimuthal angles (theta, phi) into a direction described by a</span>
+<span class="sd">Vector, and conversely, in a direct orthogonal coordinate system</span>
+<span class="sd">where z is pointing upwards. Both single directions and sets of</span>
+<span class="sd">directions are supported, with an optional diagonal calculation</span>
+<span class="sd">mode where the i-th direction uses theta(i) and phi(i).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoclide.basic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Vector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoclide.mathope</span><span class="w"> </span><span class="kn">import</span> <span class="n">clamp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoclide.transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_rotate_y_tf</span><span class="p">,</span> <span class="n">get_rotate_z_tf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoclide.vecope</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize</span>
+
+
+<span class="c1"># TODO add ds_output option</span>
+<div class="viewcode-block" id="ang2vec">
+<a class="viewcode-back" href="../../geoclide.advancedvecope.html#geoclide.ang2vec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ang2vec</span><span class="p">(</span>
+    <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">vec_view</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;zenith&quot;</span><span class="p">,</span>
+    <span class="n">diag_calc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vector</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a direction/directions described by 2 angles/set of 2</span>
+<span class="sd">    angles into a direction/directions described by a vector/vectors</span>
+
+<span class="sd">    - direct orthogonal coordinate system where z is pointing upwards</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    theta : float or ndarray</span>
+<span class="sd">        The polar angle(s) in degrees, starting at z+ in the zx plane</span>
+<span class="sd">        and going in the trigonometric direction around the y axis.</span>
+<span class="sd">        In case of an ndarray, it must be 1-D</span>
+
+<span class="sd">    phi : float or ndarray</span>
+<span class="sd">        The azimuthal angle(s) in degrees, starting at x+ in the xy</span>
+<span class="sd">        plane and going in the trigonometric direction around the z</span>
+<span class="sd">        axis. In case of an ndarray, it must be 1-D</span>
+
+<span class="sd">    vec_view : str, optional</span>
+<span class="sd">        Two choices (concerning initial direction at theta=phi=0):</span>
+<span class="sd">        &#39;zenith&#39; (i.e. pointing above) or &#39;nadir&#39; (i.e. pointing</span>
+<span class="sd">        below)</span>
+<span class="sd">    diag_calc : bool, optional</span>
+<span class="sd">        Perform diagonal calculations, v(i) is calculated using</span>
+<span class="sd">        theta(i) and phi(i)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Vector</span>
+<span class="sd">        The direction(s) described by a vector</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    In case both theta and phi are 1-D ndarrays, the vectors are</span>
+<span class="sd">    ordered in phi-major order</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import geoclide as gc</span>
+<span class="sd">    &gt;&gt;&gt; th = 30.</span>
+<span class="sd">    &gt;&gt;&gt; ph = 0.</span>
+<span class="sd">    &gt;&gt;&gt; v1 = gc.ang2vec(theta=th, phi=ph, vec_view=&#39;zenith&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; v1</span>
+<span class="sd">    Vector(0.49999999999999994, 0.0, 0.8660254037844387)</span>
+<span class="sd">    &gt;&gt;&gt; v2 = gc.ang2vec(theta=th, phi=ph, vec_view=&#39;nadir&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; v2</span>
+<span class="sd">    Vector(-0.49999999999999994, 0.0, -0.8660254037844387)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">vec_view</span> <span class="o">==</span> <span class="s2">&quot;zenith&quot;</span><span class="p">:</span>
+        <span class="c1"># initial vector is facing zenith (pointing above)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">vec_view</span> <span class="o">==</span> <span class="s2">&quot;nadir&quot;</span><span class="p">:</span>
+        <span class="c1"># initial vector is facing nadir (pointing below)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;The value of vec_view parameter must be: &#39;zenith&#39; or &#39;nadir&#39;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">flatten</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">flatten</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">v</span> <span class="o">=</span> <span class="n">get_rotate_y_tf</span><span class="p">(</span><span class="n">theta</span><span class="p">)(</span><span class="n">v</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="n">flatten</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">get_rotate_z_tf</span><span class="p">(</span><span class="n">phi</span><span class="p">)(</span><span class="n">v</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="n">flatten</span><span class="p">,</span> <span class="n">diag_calc</span><span class="o">=</span><span class="n">diag_calc</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">v</span></div>
+
+
+
+<div class="viewcode-block" id="vec2ang">
+<a class="viewcode-back" href="../../geoclide.advancedvecope.html#geoclide.vec2ang">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">vec2ang</span><span class="p">(</span>
+    <span class="n">v</span><span class="p">:</span> <span class="n">Vector</span><span class="p">,</span> <span class="n">vec_view</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;zenith&quot;</span><span class="p">,</span> <span class="n">acc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a direction/directions described by a vector/vectors into</span>
+<span class="sd">    a direction/directions described by 2 angles/set of 2 angles</span>
+
+<span class="sd">    - direct orthogonal coordinate system where z is pointing upwards</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    v : Vector</span>
+<span class="sd">        The direction(s) described by a vector</span>
+<span class="sd">    vec_view : str, optional</span>
+<span class="sd">        Two choices (concerning initial direction at theta=phi=0):</span>
+<span class="sd">        &#39;zenith&#39; (i.e. pointing above) or &#39;nadir&#39; (i.e. pointing</span>
+<span class="sd">        below)</span>
+<span class="sd">    acc : float, optional</span>
+<span class="sd">        The tolerance for numerical errors. Default is 1e-6.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    theta : float or ndarray</span>
+<span class="sd">        The polar angle(s) in degrees, starting at z+ in the zx plane</span>
+<span class="sd">        and going in the trigonometric direction around the y axis.</span>
+<span class="sd">        In case of an ndarray, it is 1-D</span>
+<span class="sd">    phi : float or ndarray</span>
+<span class="sd">        The azimuthal angle(s) in degrees, starting at x+ in the xy</span>
+<span class="sd">        plane and going in the trigonometric direction around the z</span>
+<span class="sd">        axis. In case of an ndarray, it is 1-D</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import geoclide as gc</span>
+<span class="sd">    &gt;&gt;&gt; th = 30.</span>
+<span class="sd">    &gt;&gt;&gt; ph = 0.</span>
+<span class="sd">    &gt;&gt;&gt; v1 = gc.ang2vec(theta=th, phi=ph, vec_view=&#39;zenith&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; v1</span>
+<span class="sd">    Vector(0.49999999999999994, 0.0, 0.8660254037844387)</span>
+<span class="sd">    &gt;&gt;&gt; theta, phi = gc.vec2ang(v1, vec_view=&#39;zenith&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; theta, phi</span>
+<span class="sd">    (29.999999999999993, 0.0)</span>
+<span class="sd">    &gt;&gt;&gt; v2 = gc.ang2vec(theta=th, phi=ph, vec_view=&#39;nadir&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; v2</span>
+<span class="sd">    Vector(-0.49999999999999994, 0.0, -0.8660254037844387)</span>
+<span class="sd">    &gt;&gt;&gt; theta, phi = gc.vec2ang(v2, vec_view=&#39;nadir&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; theta, phi</span>
+<span class="sd">    (29.999999999999993, 0.0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Vector</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The parameter v must be a vector&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">vec_view</span> <span class="o">==</span> <span class="s2">&quot;zenith&quot;</span><span class="p">:</span>
+        <span class="c1"># initial vector is facing zenith (pointing above)</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">vec_view</span> <span class="o">==</span> <span class="s2">&quot;nadir&quot;</span><span class="p">:</span>
+        <span class="c1"># initial vector is facing nadir (pointing below)</span>
+        <span class="c1"># by doing that, we can keep a v_ini facing upwards</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="o">-</span><span class="n">v</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;The value of vec_view parameter must be: &#39;zenith&#39; or &#39;nadir&#39;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">v</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># ensure v is normalized</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">nv</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">v_arr</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">v_ini_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">v_arr</span><span class="p">)</span>
+        <span class="n">v_ini_arr</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">v_ini</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="n">v_ini_arr</span><span class="p">)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">nv</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">theta</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">c1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">v_arr</span><span class="p">,</span> <span class="n">v_ini_arr</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">acc</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">not_resolved</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">not_resolved</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span>
+
+        <span class="c1"># bindings for the type checker: the icase 1 iteration always</span>
+        <span class="c1"># runs first and sets them before any use in later cases</span>
+        <span class="n">cosphi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nv</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">c_case_bis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">nv</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">theta_bis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nv</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># the polar angle of the cases 1 and 2 (and its opposite for</span>
+        <span class="c1"># the cases 3 and 4), computed only once</span>
+        <span class="n">acos_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="n">acos_cosphi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nv</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">icase</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">icase</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">icase</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">roty_rad</span> <span class="o">=</span> <span class="n">acos_z</span> <span class="k">if</span> <span class="n">icase</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="o">-</span><span class="n">acos_z</span>
+                <span class="k">if</span> <span class="n">icase</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">c_case_bis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">roty_rad</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="n">cosphi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nv</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="n">cosphi</span><span class="p">[</span><span class="n">c_case_bis</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span>
+                    <span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">c_case_bis</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">roty_rad</span><span class="p">[</span><span class="n">c_case_bis</span><span class="p">]),</span>
+                    <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+                    <span class="mf">1.0</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">acos_cosphi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">cosphi</span><span class="p">)</span>
+                <span class="n">theta_bis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">roty_rad</span><span class="p">)</span>
+                <span class="n">phi_bis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">acos_cosphi</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">icase</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">icase</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="c1"># same azimuth angle as the previous case, but negative</span>
+                <span class="n">phi_bis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="o">-</span><span class="n">acos_cosphi</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;No rotation has been found for some (or all) vectors!&quot;</span><span class="p">,</span>
+                    <span class="ne">Warning</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span>
+
+            <span class="c1"># only the vectors without rotation found are still tested</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">not_resolved</span><span class="p">)</span>
+            <span class="n">rotzy</span> <span class="o">=</span> <span class="n">get_rotate_z_tf</span><span class="p">(</span><span class="n">phi_bis</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span> <span class="o">*</span> <span class="n">get_rotate_y_tf</span><span class="p">(</span>
+                <span class="n">theta_bis</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">v_ini_rotated</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span>
+                <span class="n">rotzy</span><span class="p">(</span><span class="n">Vector</span><span class="p">(</span><span class="n">v_ini_arr</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span> <span class="p">:]),</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">diag_calc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">c_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
+                    <span class="n">v_arr</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span> <span class="p">:],</span> <span class="n">v_ini_rotated</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">acc</span>
+                <span class="p">),</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ind_ok</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="n">c_tmp</span><span class="p">]</span>
+            <span class="n">theta</span><span class="p">[</span><span class="n">ind_ok</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta_bis</span><span class="p">[</span><span class="n">ind_ok</span><span class="p">]</span>
+            <span class="n">phi</span><span class="p">[</span><span class="n">ind_ok</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi_bis</span><span class="p">[</span><span class="n">ind_ok</span><span class="p">]</span>
+            <span class="n">not_resolved</span><span class="p">[</span><span class="n">ind_ok</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">not_resolved</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span>
+        <span class="c1"># unreachable, the icase 5 iteration always returns</span>
+        <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># if only 1 vector</span>
+        <span class="n">v_ini</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="c1"># In case v = v_ini -&gt; no rotations</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">-</span> <span class="n">v_ini</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">acc</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+
+        <span class="c1"># bindings for the type checker: the loop always runs and sets</span>
+        <span class="c1"># them at its first iteration</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">for</span> <span class="n">icase</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">icase</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">roty_rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">roty_rad</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">cosphi</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cosphi</span> <span class="o">=</span> <span class="n">clamp</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">roty_rad</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+                <span class="n">rotz_rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">cosphi</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">icase</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">roty_rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">roty_rad</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">cosphi</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cosphi</span> <span class="o">=</span> <span class="n">clamp</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">roty_rad</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+                <span class="n">rotz_rad</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">cosphi</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">icase</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">roty_rad</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">roty_rad</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">cosphi</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cosphi</span> <span class="o">=</span> <span class="n">clamp</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">roty_rad</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+                <span class="n">rotz_rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">cosphi</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">icase</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">roty_rad</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">roty_rad</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">cosphi</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cosphi</span> <span class="o">=</span> <span class="n">clamp</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">roty_rad</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+                <span class="n">rotz_rad</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">cosphi</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s2">&quot;No rotation has been found!&quot;</span><span class="p">)</span>
+
+            <span class="n">theta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">roty_rad</span><span class="p">)</span>
+            <span class="n">phi</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">rotz_rad</span><span class="p">)</span>
+            <span class="n">rotzy</span> <span class="o">=</span> <span class="n">get_rotate_z_tf</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">*</span> <span class="n">get_rotate_y_tf</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+            <span class="n">v_ini_rotated</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">rotzy</span><span class="p">(</span><span class="n">v_ini</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
+                    <span class="n">v</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">-</span> <span class="n">v_ini_rotated</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">acc</span>
+                <span class="p">)</span>
+            <span class="p">):</span>
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025-2026, Geoclide team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

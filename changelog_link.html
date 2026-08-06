@@ -1,0 +1,763 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Releases &#8212; Geoclide 4.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="_static/documentation_options.js?v=3304f9e4"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'changelog_link';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="geoclide.advancedvecope module" href="geoclide.advancedvecope.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="_static/geoclide-logo-light.png" class="logo__image only-light" alt="Geoclide 4.0.0 documentation - Home"/>
+    <img src="_static/geoclide-logo-dark.png" class="logo__image only-dark pst-js-only" alt="Geoclide 4.0.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="geoclide.html">
+    Geoclide package
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="geoclide.html">
+    Geoclide package
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Releases
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Releases</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="releases">
+<h1>Releases<a class="headerlink" href="#releases" title="Link to this heading">#</a></h1>
+<section id="geoclide-changelog">
+<h2>GEOCLIDE CHANGELOG<a class="headerlink" href="#geoclide-changelog" title="Link to this heading">#</a></h2>
+<section id="v4-0-0">
+<h3>v4.0.0<a class="headerlink" href="#v4-0-0" title="Link to this heading">#</a></h3>
+<p>Release date: 05-08-2026</p>
+<p>Geoclide is now licensed under the Apache License 2.0, instead of the
+previous terms of use restricted to non-commercial purposes. This
+release also modernizes the whole package, corrects several bugs of
+the calculations with a set of rays or vectors, and reduces the
+computational time of most of the operations.</p>
+<ul class="simple">
+<li><p>Change the license to the Apache License 2.0</p></li>
+<li><p>Breaking changes</p>
+<ul>
+<li><p>The minimum python version is now 3.10</p></li>
+<li><p>The module <code class="docutils literal notranslate"><span class="pre">constante</span></code> has been renamed <code class="docutils literal notranslate"><span class="pre">constants</span></code></p></li>
+<li><p>The x, y and z ndarrays given to the Vector, Point and Normal
+constructors are no longer copied, use the new parameter
+copy=True to get an object with its own components</p></li>
+</ul>
+</li>
+<li><p>Correct the function <code class="docutils literal notranslate"><span class="pre">coordinate_system</span></code> with a set of vectors</p>
+<ul>
+<li><p>With the method ‘m1’ it raised an error when the set mixed the
+2 cases |x| &gt; |y| and |x| &lt;= |y|, and the second case used a
+wrong denominator</p></li>
+</ul>
+</li>
+<li><p>Correct the Sphere and Disk intersection tests with a set of rays</p>
+<ul>
+<li><p>The methods <code class="docutils literal notranslate"><span class="pre">is_intersection_t</span></code> and <code class="docutils literal notranslate"><span class="pre">intersect</span></code> raised an error
+when some of the rays miss the shape, instead of returning no
+intersection as with a single ray</p></li>
+</ul>
+</li>
+<li><p>Correct the Transform matrix shape check, a matrix of shape
+(nt,3,4) was accepted</p></li>
+<li><p>Reduce the computational time, without any change of the results</p>
+<ul>
+<li><p>Vector, Point and Normal creation and operations, from 40 to
+99% faster</p></li>
+<li><p>Functions <code class="docutils literal notranslate"><span class="pre">get_translate_tf</span></code> and <code class="docutils literal notranslate"><span class="pre">get_scale_tf</span></code> with a set of
+vectors, 90% faster</p></li>
+<li><p>Spheroid method <code class="docutils literal notranslate"><span class="pre">to_trianglemesh</span></code>, 95% faster</p></li>
+<li><p>Functions <code class="docutils literal notranslate"><span class="pre">face_forward</span></code>, <code class="docutils literal notranslate"><span class="pre">permute</span></code> and <code class="docutils literal notranslate"><span class="pre">quadratic</span></code>, from 65 to
+99% faster</p></li>
+<li><p>BBox method <code class="docutils literal notranslate"><span class="pre">intersect</span></code>, 37% faster</p></li>
+<li><p>Triangle and TriangleMesh intersection tests, 14% faster</p></li>
+</ul>
+</li>
+<li><p>Read the meshes with the trimesh function <code class="docutils literal notranslate"><span class="pre">load_mesh</span></code>, a file
+describing several objects (as a glb file) is now accepted</p></li>
+<li><p>Add the python 3.14 support</p></li>
+<li><p>Improve the documentation</p>
+<ul>
+<li><p>New introduction page, the README is no longer included</p></li>
+<li><p>New logo, for light and dark backgrounds</p></li>
+<li><p>Correct and complete the docstrings of all the modules, the
+examples are now all executable</p></li>
+<li><p>Enrich the README with the features, a quickstart and badges</p></li>
+</ul>
+</li>
+<li><p>Modernize the package</p>
+<ul>
+<li><p>Setup ruff, add the type annotations and correct the type
+checker findings of all the modules</p></li>
+<li><p>Add the pixi configuration and lock file</p></li>
+<li><p>Add the tests, docs, release and PyPI publication workflows</p></li>
+<li><p>Read the version from pyproject.toml</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="v3-0-3">
+<h3>v3.0.3<a class="headerlink" href="#v3-0-3" title="Link to this heading">#</a></h3>
+<p>Release date: 07-06-2025</p>
+<ul class="simple">
+<li><p>Fix bug in <code class="docutils literal notranslate"><span class="pre">vec2ang</span></code> function with float32 x, y, z vector components</p>
+<ul>
+<li><p>Also add acc parameter to control the tolerance of numerical errors</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="v3-0-2">
+<h3>v3.0.2<a class="headerlink" href="#v3-0-2" title="Link to this heading">#</a></h3>
+<p>Release date: 06-06-2025</p>
+<ul class="simple">
+<li><p>Fix bug in <code class="docutils literal notranslate"><span class="pre">vec2ang</span></code> function</p></li>
+</ul>
+</section>
+<section id="v3-0-1">
+<h3>v3.0.1<a class="headerlink" href="#v3-0-1" title="Link to this heading">#</a></h3>
+<p>Release date: 13-03-2025</p>
+<ul class="simple">
+<li><p>Several doctring corrections</p></li>
+<li><p>Clearer docsting</p></li>
+<li><p>Improvement of the sphinx docs</p></li>
+<li><p>A mistake has been found concerning the parameter name for diagonal calculations
+only for the the Transform <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method and the function <code class="docutils literal notranslate"><span class="pre">ang2vec</span></code></p>
+<ul>
+<li><p>The name calc_diag has been replaced by the correct one i.e. diag_calc</p></li>
+</ul>
+</li>
+<li><p>Add missing diag_calc parameter to Transform <code class="docutils literal notranslate"><span class="pre">rotate</span></code> method</p></li>
+<li><p>Correct the Transform <code class="docutils literal notranslate"><span class="pre">scale</span></code> method</p>
+<ul>
+<li><p>the method uses the <code class="docutils literal notranslate"><span class="pre">get_scale_tf</span></code> function, which takes only one parameter
+of type Vector instead of three</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="v3-0-0">
+<h3>v3.0.0<a class="headerlink" href="#v3-0-0" title="Link to this heading">#</a></h3>
+<p>Release date: 12-03-2025</p>
+<p>This release includes only a breacking change with the function <code class="docutils literal notranslate"><span class="pre">get_scale_tf</span></code>.
+The Transform and Ray <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method is now recommended in replacement
+of the method <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code>. The method <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> is still here but has a
+depracated message</p>
+<ul class="simple">
+<li><p>Improve the <code class="docutils literal notranslate"><span class="pre">__str__</span></code> and <code class="docutils literal notranslate"><span class="pre">__repr__</span></code> methods in case of multiple vectors, points,
+normals or rays</p></li>
+<li><p>Replace the Transform and Ray classes method <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> by the method <code class="docutils literal notranslate"><span class="pre">__call__</span></code></p></li>
+<li><p>Multiple transformations is now possible with the Transform class</p>
+<ul>
+<li><p>Allow 1-D calculations with several transformations and 1 point, vectors, …</p></li>
+<li><p>Allow 2-D calculations with several transformations and several points, vectors, …</p></li>
+<li><p>Allow diagonal calculations (case 2-D with option diag_calc=True)</p></li>
+</ul>
+</li>
+<li><p>Add sphinx documentation</p></li>
+<li><p>Function <code class="docutils literal notranslate"><span class="pre">get_scale_tf</span></code> takes as input a Vector variable instead of 3 scalars</p></li>
+<li><p>Add new option flatten to Tranform <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method</p>
+<ul>
+<li><p>Instead of having a numpy array of Vector objects, the output can be only 1 Vector
+object where a flatten operation is made to x, y, z components of all vectors</p></li>
+<li><p>Avoid loop operation then reduce the computational time</p></li>
+</ul>
+</li>
+<li><p>Function <code class="docutils literal notranslate"><span class="pre">vec2ang</span></code> now accepts Vector object with multiple vectors</p></li>
+<li><p>Function <code class="docutils literal notranslate"><span class="pre">ang2vec</span></code> now accepts 1d ndarray theta and phi angles</p></li>
+</ul>
+</section>
+<section id="v2-0-2">
+<h3>v2.0.2<a class="headerlink" href="#v2-0-2" title="Link to this heading">#</a></h3>
+<p>Release date: 05-03-2025</p>
+<ul class="simple">
+<li><p>Several corrections in TriangleMesh <code class="docutils literal notranslate"><span class="pre">intersect</span></code>, <code class="docutils literal notranslate"><span class="pre">is_intersection_t</span></code> and
+<code class="docutils literal notranslate"><span class="pre">is_intersection</span></code> methods</p></li>
+<li><p>Transformations were not taken into account when using the plot method,
+now it’s corrected</p></li>
+<li><p>Addition of more tests</p></li>
+</ul>
+</section>
+<section id="v2-0-1">
+<h3>v2.0.1<a class="headerlink" href="#v2-0-1" title="Link to this heading">#</a></h3>
+<p>Release date: 03-03-2025</p>
+<ul class="simple">
+<li><p>Correction of a bug occuring while using a version of numpy &lt; 2.0.0</p>
+<ul>
+<li><p>np.atan2 and np.acos replaced by np.arctan2 and np.arccos</p></li>
+</ul>
+</li>
+<li><p>README image links updated</p></li>
+<li><p>Correct file format and add test files in MANIFEST file</p></li>
+<li><p>Ignore certain unwanted warnings</p></li>
+</ul>
+</section>
+<section id="v2-0-0">
+<h3>v2.0.0<a class="headerlink" href="#v2-0-0" title="Link to this heading">#</a></h3>
+<p>Release date: 02-03-2025</p>
+<p>This release includes some breaking changes like the input of TriangleMesh where
+the variable names are different, but also the input (2d ndarray). Other breaks are
+for example changes of certain method outputs.</p>
+<ul class="simple">
+<li><p>Acceleration of geometric calculations thanks to numpy multi-dimentional array operations</p>
+<ul>
+<li><p>Point, Vector and Normal classes can now have 1-D ndarray x, y, z components</p></li>
+<li><p>Functions in vecope.py have been adapted to allow Point, Vector and Normal
+with 1-D ndarray x, y, z components</p></li>
+<li><p>Readaptation of the Ray and BBox classes with the new Point, Vector and Normal
+classes</p></li>
+<li><p>BBox <code class="docutils literal notranslate"><span class="pre">intersect</span></code> method allow 1-D, 2-D and 2-D diagonal calculations</p></li>
+<li><p>Readaptation of the quadric classes enabling intersection tests with a class
+Ray containing several rays</p></li>
+<li><p>Readaptation of Triangle and TriangleMesh classes. Allow 1-D, 2-D and 2-D
+diagonal calculations</p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+<li><p>The 3D objects <code class="docutils literal notranslate"><span class="pre">intersect</span></code> method output is now an xarray Dataset</p></li>
+<li><p>Several new functionalities</p>
+<ul>
+<li><p>New method <code class="docutils literal notranslate"><span class="pre">to_triangle_mesh</span></code> to convert a quadric to a TriangleMesh object</p></li>
+<li><p>New method <code class="docutils literal notranslate"><span class="pre">to_plot</span></code> for TriangleMesh, and also for all quadrics</p></li>
+<li><p>New TriangleMesh method <code class="docutils literal notranslate"><span class="pre">write</span></code> to save the triangle mesh in nectcdf4 and also in</p></li>
+<li><p>several other formats as stl, ply, …</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">read_trianglemesh</span></code> function allows to read triangle mesh files (gcnc, stl, ply,
+etc.) and return a TriangleMesh object</p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+<li><p>A lot of tests have been added, more documentations, cleaning, …</p></li>
+</ul>
+</section>
+<section id="v1-2-2">
+<h3>v1.2.2<a class="headerlink" href="#v1-2-2" title="Link to this heading">#</a></h3>
+<p>Release date: 13-02-2025</p>
+<ul class="simple">
+<li><p>Correction of a bug in TriangleMesh constructor</p>
+<ul>
+<li><p>The bug occurred when we set the vi parameter as a 2d array.</p></li>
+</ul>
+</li>
+<li><p>Add tests detecting the corrected bug</p></li>
+<li><p>Add docstring to area method for all objects</p></li>
+</ul>
+</section>
+<section id="v1-2-1">
+<h3>v1.2.1<a class="headerlink" href="#v1-2-1" title="Link to this heading">#</a></h3>
+<p>Release date: 13-02-2025</p>
+<ul class="simple">
+<li><p>Correction in <code class="docutils literal notranslate"><span class="pre">vec2ang</span></code> function</p>
+<ul>
+<li><p>small correction in the docstring</p></li>
+<li><p>correct a bug appearing when the parameter v is not a normalized vector</p></li>
+<li><p>add the missing default value of the parameter vec_view</p></li>
+</ul>
+</li>
+<li><p>Add tests enabling to detect the corrected bug</p></li>
+</ul>
+</section>
+<section id="v1-2-0">
+<h3>v1.2.0<a class="headerlink" href="#v1-2-0" title="Link to this heading">#</a></h3>
+<p>Release date: 10-02-2025</p>
+<ul class="simple">
+<li><p>Add new functions</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ang2vec</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vec2ang</span></code></p></li>
+</ul>
+</li>
+<li><p>Add the Disk class</p>
+<ul>
+<li><p>It can be a disk, a partial disk, an annulus or a partial annulus</p></li>
+</ul>
+</li>
+<li><p>Add new method to all 3d objects <code class="docutils literal notranslate"><span class="pre">is_intersection_t</span></code></p>
+<ul>
+<li><p>the method is faster than <code class="docutils literal notranslate"><span class="pre">intersect</span></code> method, but gives only thit</p></li>
+</ul>
+</li>
+<li><p>Move tests folder into geoclide folder</p></li>
+<li><p>And some improvements</p></li>
+</ul>
+</section>
+<section id="v1-1-1">
+<h3>v1.1.1<a class="headerlink" href="#v1-1-1" title="Link to this heading">#</a></h3>
+<p>Release date: 07-02-2025</p>
+<ul class="simple">
+<li><p>Correction of a bug with the normal orientation at the intersection with a 3d object</p></li>
+</ul>
+</section>
+<section id="v1-1-0">
+<h3>v1.1.0<a class="headerlink" href="#v1-1-0" title="Link to this heading">#</a></h3>
+<p>Release date: 05-02-2025</p>
+<ul class="simple">
+<li><p>Add the Spheroid class (oblate or prolate object)</p></li>
+<li><p>Small optimization of sphere intersection test</p></li>
+</ul>
+</section>
+<section id="v1-0-0">
+<h3>v1.0.0<a class="headerlink" href="#v1-0-0" title="Link to this heading">#</a></h3>
+<p>Release date: 2025-01-27</p>
+<p>First public release.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="geoclide.advancedvecope.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">geoclide.advancedvecope module</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoclide-changelog">GEOCLIDE CHANGELOG</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v4-0-0">v4.0.0</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v3-0-3">v3.0.3</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v3-0-2">v3.0.2</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v3-0-1">v3.0.1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v3-0-0">v3.0.0</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-2">v2.0.2</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-1">v2.0.1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-0">v2.0.0</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-2-2">v1.2.2</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-2-1">v1.2.1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-2-0">v1.2.0</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-1-1">v1.1.1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-1-0">v1.1.0</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-0-0">v1.0.0</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="_sources/changelog_link.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025-2026, Geoclide team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
